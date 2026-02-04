@@ -1,34 +1,48 @@
 import { useEffect, useState } from "react";
 
+import { loadRuntimeConfig } from "./config";
+
 type Status = "loading" | "ready" | "error";
 
 type HelloResponse = {
   message: string;
 };
 
-const defaultApiUrl = "http://localhost:3001";
-
 export default function App() {
   const [status, setStatus] = useState<Status>("loading");
   const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL ?? defaultApiUrl;
-    const endpoint = new URL("/hello", apiUrl).toString();
+    let isMounted = true;
 
-    fetch(endpoint)
-      .then(async (response) => {
+    const loadMessage = async () => {
+      try {
+        const config = await loadRuntimeConfig();
+        const endpoint = new URL("/hello", config.apiBaseUrl).toString();
+        const response = await fetch(endpoint);
+
         if (!response.ok) {
           throw new Error(`Request failed with ${response.status}`);
         }
 
         const payload = (await response.json()) as HelloResponse;
-        setMessage(payload.message);
-        setStatus("ready");
-      })
-      .catch(() => {
-        setStatus("error");
-      });
+
+        if (isMounted) {
+          setMessage(payload.message);
+          setStatus("ready");
+        }
+      } catch {
+        if (isMounted) {
+          setStatus("error");
+        }
+      }
+    };
+
+    loadMessage();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return (

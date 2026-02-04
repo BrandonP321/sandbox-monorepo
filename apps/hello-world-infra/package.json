@@ -6,7 +6,7 @@
     "dev": "node -e \"console.log('No dev server for infra.')\"",
     "synth": "cdk synth",
     "diff": "cdk diff",
-    "deploy": "cdk deploy",
+    "deploy": "pnpm --filter hello-world-web build && cdk deploy",
     "destroy": "cdk destroy",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",

@@ -61,6 +61,36 @@ export class HelloWorldStack extends cdk.Stack {
       value: httpApi.apiEndpoint
     });
 
+    const siteBucket = new s3.Bucket(this, "HelloWorldSiteBucket", {
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      autoDeleteObjects: true
+    });
+
+    const distribution = new cloudfront.Distribution(
+      this,
+      "HelloWorldDistribution",
+      {
+        defaultBehavior: {
+          origin: new origins.S3Origin(siteBucket)
+        },
+        defaultRootObject: "index.html",
+        errorResponses: [
+          {
+            httpStatus: 403,
+            responseHttpStatus: 200,
+            responsePagePath: "/index.html"
+          },
+          {
+            httpStatus: 404,
+            responseHttpStatus: 200,
+            responsePagePath: "/index.html"
+          }
+        ]
+      }
+    );
+
     const distPath = path.join(
       __dirname,
       "..",
@@ -72,50 +102,38 @@ export class HelloWorldStack extends cdk.Stack {
 
     if (!hasDist) {
       cdk.Annotations.of(this).addWarning(
-        "Static site not deployed because hello-world-web/dist is missing. " +
-          "Run `pnpm --filter hello-world-web build` before `cdk deploy` to enable it."
+        "Static site assets not deployed because hello-world-web/dist is missing. " +
+          "Run `pnpm --filter hello-world-web build` before `cdk deploy` to include them."
       );
     } else {
-      const siteBucket = new s3.Bucket(this, "HelloWorldSiteBucket", {
-        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-        encryption: s3.BucketEncryption.S3_MANAGED,
-        removalPolicy: cdk.RemovalPolicy.DESTROY,
-        autoDeleteObjects: true
-      });
-
-      const distribution = new cloudfront.Distribution(
-        this,
-        "HelloWorldDistribution",
-        {
-          defaultBehavior: {
-            origin: new origins.S3Origin(siteBucket)
-          },
-          defaultRootObject: "index.html",
-          errorResponses: [
-            {
-              httpStatus: 403,
-              responseHttpStatus: 200,
-              responsePagePath: "/index.html"
-            },
-            {
-              httpStatus: 404,
-              responseHttpStatus: 200,
-              responsePagePath: "/index.html"
-            }
-          ]
-        }
-      );
-
       new s3deploy.BucketDeployment(this, "HelloWorldSiteDeployment", {
         sources: [s3deploy.Source.asset(distPath)],
         destinationBucket: siteBucket,
         distribution,
         distributionPaths: ["/*"]
       });
-
-      new cdk.CfnOutput(this, "WebUrl", {
-        value: `https://${distribution.domainName}`
-      });
     }
+
+    new s3deploy.BucketDeployment(this, "HelloWorldConfigDeployment", {
+      sources: [
+        s3deploy.Source.data(
+          "config.json",
+          JSON.stringify({ apiBaseUrl: httpApi.apiEndpoint })
+        )
+      ],
+      destinationBucket: siteBucket,
+      distribution,
+      distributionPaths: ["/config.json"],
+      contentType: "application/json",
+      cacheControl: [
+        s3deploy.CacheControl.fromString(
+          "no-cache, no-store, must-revalidate"
+        )
+      ]
+    });
+
+    new cdk.CfnOutput(this, "WebUrl", {
+      value: `https://${distribution.domainName}`
+    });
   }
 }

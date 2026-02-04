@@ -8,11 +8,17 @@ React + TypeScript frontend powered by Vite.
 pnpm --filter hello-world-web dev
 ```
 
-The web app expects the API at `http://localhost:3001` by default.
+The web app loads `/config.json` at runtime when deployed. For local dev it
+defaults to `http://localhost:3001` if the runtime config is missing.
 
-## Point to a deployed API
+## Runtime config (deployed)
 
-Set `VITE_API_URL` to your deployed API base URL before building or starting:
+The CDK stack writes `/config.json` into the site bucket with the deployed API
+base URL, so the web app doesn't need rebuild-time env injection.
+
+## Override the API locally (optional)
+
+If you want to point at a non-local API during dev, set `VITE_API_URL`:
 
 ```bash
 VITE_API_URL="https://your-api-id.execute-api.region.amazonaws.com" pnpm --filter hello-world-web dev
