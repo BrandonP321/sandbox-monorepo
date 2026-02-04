@@ -25,6 +25,7 @@ node_modules
 /dist
 /build
 /out
+cdk.out
 
 # Framework outputs
 .next
@@ -70,4 +71,3 @@ Thumbs.db
 
 # Test artifacts
 playwright-report
-

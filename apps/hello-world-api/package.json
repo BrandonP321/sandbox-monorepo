@@ -1,0 +1,23 @@
+{
+  "name": "hello-world-api",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "tsx watch src/local-dev.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-test": "workspace:*",
+    "@repo/config-ts": "workspace:*",
+    "@types/aws-lambda": "^8.10.152",
+    "@types/node": "^24.1.0",
+    "eslint": "^9.39.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
