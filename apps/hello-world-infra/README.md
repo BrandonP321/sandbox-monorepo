@@ -21,6 +21,8 @@ VITE_API_URL=\"https://your-api-id.execute-api.region.amazonaws.com\" pnpm --fil
 
 If you want to use the local default, omit `VITE_API_URL`.
 
+If `dist/` is missing, the CDK stack will skip the static site and emit a warning.
+
 Then deploy:
 
 ```bash

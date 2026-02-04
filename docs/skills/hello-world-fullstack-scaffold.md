@@ -17,6 +17,7 @@ This scaffold creates three apps under `apps/` plus shared config packages under
 - Use a shared `handleRequest` function in the API so Lambda and local dev share logic.
 - Use `NodejsFunction` (esbuild) to bundle the Lambda for deployment.
 - Deploy static web assets to S3 + CloudFront with SPA-friendly error routing.
+- Skip static site resources if `hello-world-web/dist` is missing; CDK emits a warning.
 
 ## Scripts
 

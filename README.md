@@ -19,6 +19,7 @@ See REPO_MAP.md for details.
    - pnpm install
 2) Run tasks:
    - pnpm dev
+   - pnpm dev:hello (web + api only)
    - pnpm test
    - pnpm lint
    - pnpm typecheck

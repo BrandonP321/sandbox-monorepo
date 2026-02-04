@@ -1,3 +1,4 @@
+import * as fs from "node:fs";
 import * as path from "node:path";
 
 import * as cdk from "aws-cdk-lib";
@@ -60,49 +61,61 @@ export class HelloWorldStack extends cdk.Stack {
       value: httpApi.apiEndpoint
     });
 
-    const siteBucket = new s3.Bucket(this, "HelloWorldSiteBucket", {
-      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
-      encryption: s3.BucketEncryption.S3_MANAGED,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      autoDeleteObjects: true
-    });
-
-    const distribution = new cloudfront.Distribution(
-      this,
-      "HelloWorldDistribution",
-      {
-        defaultBehavior: {
-          origin: new origins.S3Origin(siteBucket)
-        },
-        defaultRootObject: "index.html",
-        errorResponses: [
-          {
-            httpStatus: 403,
-            responseHttpStatus: 200,
-            responsePagePath: "/index.html"
-          },
-          {
-            httpStatus: 404,
-            responseHttpStatus: 200,
-            responsePagePath: "/index.html"
-          }
-        ]
-      }
+    const distPath = path.join(
+      __dirname,
+      "..",
+      "..",
+      "hello-world-web",
+      "dist"
     );
+    const hasDist = fs.existsSync(distPath);
 
-    new s3deploy.BucketDeployment(this, "HelloWorldSiteDeployment", {
-      sources: [
-        s3deploy.Source.asset(
-          path.join(__dirname, "..", "..", "hello-world-web", "dist")
-        )
-      ],
-      destinationBucket: siteBucket,
-      distribution,
-      distributionPaths: ["/*"]
-    });
+    if (!hasDist) {
+      cdk.Annotations.of(this).addWarning(
+        "Static site not deployed because hello-world-web/dist is missing. " +
+          "Run `pnpm --filter hello-world-web build` before `cdk deploy` to enable it."
+      );
+    } else {
+      const siteBucket = new s3.Bucket(this, "HelloWorldSiteBucket", {
+        blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+        encryption: s3.BucketEncryption.S3_MANAGED,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+        autoDeleteObjects: true
+      });
 
-    new cdk.CfnOutput(this, "WebUrl", {
-      value: `https://${distribution.domainName}`
-    });
+      const distribution = new cloudfront.Distribution(
+        this,
+        "HelloWorldDistribution",
+        {
+          defaultBehavior: {
+            origin: new origins.S3Origin(siteBucket)
+          },
+          defaultRootObject: "index.html",
+          errorResponses: [
+            {
+              httpStatus: 403,
+              responseHttpStatus: 200,
+              responsePagePath: "/index.html"
+            },
+            {
+              httpStatus: 404,
+              responseHttpStatus: 200,
+              responsePagePath: "/index.html"
+            }
+          ]
+        }
+      );
+
+      new s3deploy.BucketDeployment(this, "HelloWorldSiteDeployment", {
+        sources: [s3deploy.Source.asset(distPath)],
+        destinationBucket: siteBucket,
+        distribution,
+        distributionPaths: ["/*"]
+      });
+
+      new cdk.CfnOutput(this, "WebUrl", {
+        value: `https://${distribution.domainName}`
+      });
+    }
   }
 }

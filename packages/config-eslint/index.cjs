@@ -17,6 +17,20 @@ const baseConfig = [
     }
   },
   {
+    files: ["**/*.cjs"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "commonjs",
+      globals: {
+        ...globals.node,
+        ...globals.commonjs
+      }
+    },
+    rules: {
+      "@typescript-eslint/no-require-imports": "off"
+    }
+  },
+  {
     ignores: ["dist/**", "build/**", "cdk.out/**"]
   }
 ];
@@ -39,6 +53,8 @@ const reactConfig = [
     rules: {
       ...react.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-uses-react": "off",
       "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }]
     },
     settings: {
