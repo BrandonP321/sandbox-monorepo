@@ -7,6 +7,7 @@ Default approach: multiple apps in /apps and reusable code/config in /packages.
 - Node + TypeScript
 - pnpm workspaces
 - Turborepo task runner
+- Mantine UI (design system for web apps)
 
 ## Repo Layout
 - apps/*: deployable apps (web, api, jobs)

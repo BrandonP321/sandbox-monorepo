@@ -2,14 +2,14 @@
 
 ## Top-level
 /apps
-  <project>-web      # web UI app (React/TS)
+  <project>-web      # web UI app (React/TS, Mantine design system)
   <project>-api      # backend/API app (TS)
 
 /packages
   shared             # generic TS utilities (pure logic, no UI)
   data               # data ingestion/adapters/validation (econ sources, csv parsing, etc.)
   api-contracts      # shared types/contracts (zod schemas, DTOs, OpenAPI if used)
-  ui                 # shared React components (design-system-lite)
+  ui                 # shared React components (wrap/extend Mantine as needed)
   config-eslint      # shared eslint config
   config-ts          # shared tsconfig(s)
   config-test        # shared test config (vitest/jest)

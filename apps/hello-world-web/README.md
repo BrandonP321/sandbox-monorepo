@@ -1,6 +1,6 @@
 # Hello World Web
 
-React + TypeScript frontend powered by Vite.
+React + TypeScript frontend powered by Vite, using Mantine for the UI design system.
 
 ## Local development
 
@@ -10,6 +10,11 @@ pnpm --filter hello-world-web dev
 
 The web app loads `/config.json` at runtime when deployed. For local dev it
 defaults to `http://localhost:3001` if the runtime config is missing.
+
+## UI design system
+
+Mantine is the standard UI layer for this app. Global Mantine styles are
+imported in `src/main.tsx`, and you can theme components via `MantineProvider`.
 
 ## Runtime config (deployed)
 
