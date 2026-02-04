@@ -1,4 +1,5 @@
 import upperFirst from "lodash/upperFirst";
+import { Button } from "@mantine/core"
 
 import { useGetHelloQuery } from "./services/helloApi";
 
@@ -9,6 +10,7 @@ export default function App() {
   return (
     <main className="app">
       <h1>Hello World (frontend)</h1>
+      <Button>Click me</Button>
       {isLoading && (
         <p className="muted">Loading backend message...</p>
       )}

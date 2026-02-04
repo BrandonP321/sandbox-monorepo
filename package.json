@@ -13,8 +13,34 @@
   },
   "devDependencies": {
     "eslint": "^9.39.2",
+    "postcss": "^8.5.6",
+    "postcss-preset-mantine": "^1.18.0",
+    "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.8.1",
     "turbo": "^2.8.3",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@mantine/carousel": "^8.3.14",
+    "@mantine/charts": "^8.3.14",
+    "@mantine/code-highlight": "^8.3.14",
+    "@mantine/core": "^8.3.14",
+    "@mantine/dates": "^8.3.14",
+    "@mantine/dropzone": "^8.3.14",
+    "@mantine/form": "^8.3.14",
+    "@mantine/hooks": "^8.3.14",
+    "@mantine/modals": "^8.3.14",
+    "@mantine/notifications": "^8.3.14",
+    "@mantine/nprogress": "^8.3.14",
+    "@mantine/spotlight": "^8.3.14",
+    "@mantine/tiptap": "^8.3.14",
+    "@tiptap/extension-link": "^3.19.0",
+    "@tiptap/pm": "^3.19.0",
+    "@tiptap/react": "^3.19.0",
+    "@tiptap/starter-kit": "^3.19.0",
+    "dayjs": "^1.11.19",
+    "embla-carousel": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
+    "recharts": "^3.7.0"
   }
 }
