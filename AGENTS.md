@@ -23,10 +23,9 @@ Authoritative map: see REPO_MAP.md.
 - Build:   pnpm build
 
 ## Workflow Contract (how work is done in this repo)
-1) Every change starts from a Task Brief (use TASK_BRIEF_TEMPLATE.md).
-2) Implement in small, reviewable commits.
-3) Always add at least one regression guard (unit/integration) for behavioral changes.
-4) Run the standard commands and report results (or failures + next steps).
+1) Implement in small, reviewable commits.
+2) Always add at least one regression guard (unit/integration) for behavioral changes.
+3) Run the standard commands and report results (or failures + next steps).
 
 Details: see WORKFLOW.md.
 

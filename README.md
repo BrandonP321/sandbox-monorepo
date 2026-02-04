@@ -26,5 +26,4 @@ See REPO_MAP.md for details.
    - pnpm build
 
 ## How work gets done here
-Start with a Task Brief (TASK_BRIEF_TEMPLATE.md) and follow WORKFLOW.md.
 Agent/Codex guidance lives in AGENTS.md.
