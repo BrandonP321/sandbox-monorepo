@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
+    "dev:hello": "pnpm --filter hello-world-web --filter hello-world-api dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "test": "turbo run test",
