@@ -17,7 +17,8 @@ This scaffold creates three apps under `apps/` plus shared config packages under
 - Use a shared `handleRequest` function in the API so Lambda and local dev share logic.
 - Use `NodejsFunction` (esbuild) to bundle the Lambda for deployment.
 - Deploy static web assets to S3 + CloudFront with SPA-friendly error routing.
-- Skip static site resources if `hello-world-web/dist` is missing; CDK emits a warning.
+- Deploy a runtime `config.json` with the API base URL so the web app doesn't need rebuild-time env injection.
+- Skip static site assets if `hello-world-web/dist` is missing; CDK emits a warning.
 
 ## Scripts
 
@@ -34,9 +35,10 @@ Each app defines `dev`, `build`, `lint`, `typecheck`, and `test` so `pnpm dev/bu
 
 ## Env vars
 
-Frontend uses `VITE_API_URL` and defaults to `http://localhost:3001` for local dev.
+Frontend loads `/config.json` at runtime and defaults to `http://localhost:3001` for local dev.
+`VITE_API_URL` can still override the API during local dev if needed.
 
 ## Deployment notes
 
-- Run `pnpm --filter hello-world-web build` before `pnpm --filter hello-world-infra deploy` so the `dist/` folder exists.
+- `pnpm --filter hello-world-infra deploy` builds the web app and deploys API + web in one step.
 - CDK outputs `ApiBaseUrl` and `WebUrl` after deployment.

@@ -9,13 +9,17 @@ afterEach(() => {
 
 describe("App", () => {
   it("renders backend message", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn().mockResolvedValue({
-        ok: true,
-        json: async () => ({ message: "Hello World (backend)" })
-      })
-    );
+    const fetchMock = vi.fn();
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ apiBaseUrl: "http://localhost:3001" })
+    });
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ message: "Hello World (backend)" })
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
 
     render(<App />);
 

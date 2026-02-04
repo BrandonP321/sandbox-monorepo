@@ -1,6 +1,3 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
-
 import { describe, it } from "vitest";
 import { App } from "aws-cdk-lib";
 import { Template } from "aws-cdk-lib/assertions";
@@ -23,16 +20,6 @@ describe("HelloWorldStack", () => {
 
     template.hasOutput("ApiBaseUrl", {});
 
-    const distPath = path.join(
-      __dirname,
-      "..",
-      "..",
-      "hello-world-web",
-      "dist"
-    );
-
-    if (fs.existsSync(distPath)) {
-      template.hasOutput("WebUrl", {});
-    }
+    template.hasOutput("WebUrl", {});
   });
 });
