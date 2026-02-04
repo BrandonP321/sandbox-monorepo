@@ -10,7 +10,7 @@ Default approach: multiple apps in /apps and reusable code/config in /packages.
 - Mantine UI (design system for web apps)
 
 ## Repo Layout
-- apps/*: deployable apps (web, api, jobs)
+- apps/*/*: deployable apps (web, api, infra) grouped by collection
 - packages/*: shared libraries and shared configs
 
 See REPO_MAP.md for details.

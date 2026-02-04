@@ -2,8 +2,10 @@
 
 ## Top-level
 /apps
-  <project>-web      # web UI app (React/TS, Mantine design system)
-  <project>-api      # backend/API app (TS)
+  <collection>/
+    <project>-web    # web UI app (React/TS, Mantine design system)
+    <project>-api    # backend/API app (TS)
+    <project>-infra  # infra/deploy app (CDK, etc.)
 
 /packages
   shared             # generic TS utilities (pure logic, no UI)

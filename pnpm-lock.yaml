@@ -30,17 +30,17 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  apps/hello-world-api:
+  apps/hello-world/hello-world-api:
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../packages/config-eslint
+        version: link:../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../packages/config-test
+        version: link:../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config-ts
+        version: link:../../../packages/config-ts
       '@types/aws-lambda':
         specifier: ^8.10.152
         version: 8.10.160
@@ -60,7 +60,7 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
-  apps/hello-world-infra:
+  apps/hello-world/hello-world-infra:
     dependencies:
       aws-cdk-lib:
         specifier: ^2.212.0
@@ -71,13 +71,13 @@ importers:
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../packages/config-eslint
+        version: link:../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../packages/config-test
+        version: link:../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config-ts
+        version: link:../../../packages/config-ts
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.10
@@ -100,14 +100,14 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
-  apps/hello-world-web:
+  apps/hello-world/hello-world-web:
     dependencies:
       '@reduxjs/toolkit':
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.10)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       '@repo/ui':
         specifier: workspace:*
-        version: link:../../packages/ui
+        version: link:../../../packages/ui
       lodash:
         specifier: ^4.17.23
         version: 4.17.23
@@ -126,13 +126,13 @@ importers:
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../packages/config-eslint
+        version: link:../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../packages/config-test
+        version: link:../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../packages/config-ts
+        version: link:../../../packages/config-ts
       '@testing-library/jest-dom':
         specifier: ^6.8.0
         version: 6.9.1

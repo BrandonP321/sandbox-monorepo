@@ -102,7 +102,7 @@ export class HelloWorldStack extends cdk.Stack {
 
     if (!hasDist) {
       cdk.Annotations.of(this).addWarning(
-        "Static site assets not deployed because hello-world-web/dist is missing. " +
+        "Static site assets not deployed because apps/hello-world/hello-world-web/dist is missing. " +
           "Run `pnpm --filter hello-world-web build` before `cdk deploy` to include them."
       );
     } else {

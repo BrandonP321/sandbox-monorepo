@@ -1,6 +1,6 @@
 # Hello World Web
 
-React + TypeScript frontend powered by Vite, using Mantine for the UI design system.
+React + TypeScript frontend powered by Vite, using the shared `@repo/ui` package (Mantine-based).
 
 ## Local development
 
@@ -13,8 +13,8 @@ defaults to `http://localhost:3001` if the runtime config is missing.
 
 ## UI design system
 
-Mantine is the standard UI layer for this app. Global Mantine styles are
-imported in `src/main.tsx`, and you can theme components via `MantineProvider`.
+`@repo/ui` is the standard UI layer for this app. Base styles are imported from
+`@repo/ui/styles` in `src/main.tsx`, and theming is handled by `UiProvider`.
 
 ## Runtime config (deployed)
 

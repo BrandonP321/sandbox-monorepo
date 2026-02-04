@@ -4,9 +4,9 @@
 
 This scaffold creates three apps under `apps/` plus shared config packages under `packages/`:
 
-- `apps/hello-world-web`: Vite + React + TypeScript frontend
-- `apps/hello-world-api`: Lambda-style TypeScript API with local dev server
-- `apps/hello-world-infra`: AWS CDK stack (HTTP API + Lambda + S3/CloudFront)
+- `apps/hello-world/hello-world-web`: Vite + React + TypeScript frontend
+- `apps/hello-world/hello-world-api`: Lambda-style TypeScript API with local dev server
+- `apps/hello-world/hello-world-infra`: AWS CDK stack (HTTP API + Lambda + S3/CloudFront)
 - `packages/config-ts`: shared TypeScript configs
 - `packages/config-eslint`: shared ESLint flat config
 - `packages/config-test`: shared Vitest config snippet
@@ -19,7 +19,7 @@ This scaffold creates three apps under `apps/` plus shared config packages under
 - Use `NodejsFunction` (esbuild) to bundle the Lambda for deployment.
 - Deploy static web assets to S3 + CloudFront with SPA-friendly error routing.
 - Deploy a runtime `config.json` with the API base URL so the web app doesn't need rebuild-time env injection.
-- Skip static site assets if `hello-world-web/dist` is missing; CDK emits a warning.
+- Skip static site assets if `apps/hello-world/hello-world-web/dist` is missing; CDK emits a warning.
 - All web apps depend on `@repo/ui`; do not import Mantine directly unless approved.
 
 ## Scripts
