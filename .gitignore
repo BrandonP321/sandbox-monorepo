@@ -1,0 +1,73 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage
+*.lcov
+.nyc_output
+
+# Dependency directories
+node_modules
+.pnpm-debug
+
+# Build outputs
+/dist
+/build
+/out
+
+# Framework outputs
+.next
+.nuxt
+.svelte-kit
+.vercel
+
+# Turbo
+.turbo
+
+# Cache
+.cache
+.parcel-cache
+.eslintcache
+.stylelintcache
+
+# REPL history
+.node_repl_history
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# dotenv environment files
+.env
+.env.*
+
+# TypeScript
+*.tsbuildinfo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor directories and files
+.vscode
+.idea
+*.swp
+*.swo
+*.swn
+
+# Test artifacts
+playwright-report
+
