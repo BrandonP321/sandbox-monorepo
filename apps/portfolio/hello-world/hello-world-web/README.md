@@ -1,6 +1,6 @@
 # Hello World Web
 
-React + TypeScript frontend powered by Vite, using the shared `@repo/ui` package (Mantine-based).
+React + TypeScript frontend powered by Vite. It currently uses local layout styles plus the shared `Button` and shared `@repo/ui/styles` entrypoint.
 
 ## Local development
 
@@ -11,10 +11,12 @@ pnpm --filter hello-world-web dev
 The web app loads `/config.json` at runtime when deployed. For local dev it
 defaults to `http://localhost:3001` if the runtime config is missing.
 
-## UI design system
+## UI foundation
 
-`@repo/ui` is the standard UI layer for this app. Base styles are imported from
-`@repo/ui/styles` in `src/main.tsx`, and theming is handled by `UiProvider`.
+This app still owns its page layout styles in `src/index.css`.
+It also imports `@repo/ui/styles` in `src/main.tsx` and uses the shared `Button` primitive from `@repo/ui`.
+
+Treat this app as a smoke-test consumer for the shared UI package, not as the source of truth for new shared patterns.
 
 ## Runtime config (deployed)
 

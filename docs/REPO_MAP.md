@@ -13,7 +13,7 @@
   api-core        # shared API runtime/router/error/logging/helpers
   api-contracts   # shared request/response schemas and DTOs
   infra-patterns  # reusable CDK constructs and deployment helpers
-  ui              # shared React components
+  ui              # shared UI package: tokens, styles, utilities, and reusable React primitives
   config-eslint   # shared eslint config
   config-ts       # shared tsconfig(s)
   config-test     # shared test config (vitest)
@@ -33,5 +33,5 @@
 - Repo-wide shared web/api schemas: `packages/api-contracts`
 - Project-scoped schemas/routes/types used by multiple project packages: `<project>-shared`
 - Reusable infra constructs/patterns: `packages/infra-patterns`
-- Reusable UI components: `packages/ui`
+- Reusable UI tokens/utilities/primitives: `packages/ui`
 - App-specific logic: inside an app package, then promote when reused.

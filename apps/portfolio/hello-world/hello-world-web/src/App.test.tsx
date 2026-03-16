@@ -3,7 +3,6 @@ import { render, screen } from "@testing-library/react";
 import { configureStore } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 import { helloWorldRoutes } from "@repo/hello-world-shared";
-import { UiProvider } from "@repo/ui";
 
 import App from "./App";
 import { helloApi } from "./services/helloApi";
@@ -30,11 +29,9 @@ const createTestStore = () =>
 const renderApp = () => {
   const testStore = createTestStore();
   return render(
-    <UiProvider>
-      <Provider store={testStore}>
-        <App />
-      </Provider>
-    </UiProvider>
+    <Provider store={testStore}>
+      <App />
+    </Provider>
   );
 };
 
@@ -65,6 +62,9 @@ describe("App", () => {
     renderApp();
 
     expect(screen.getByText("Hello World (frontend)")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Click me" })
+    ).toBeInTheDocument();
 
     const message = await screen.findByText(
       "Backend says: Hello World (backend)"

@@ -4,8 +4,8 @@ import { Provider } from "react-redux";
 import "@repo/ui/styles";
 
 import App from "./App";
+import "./index.css";
 import { store } from "./store";
-import { UiProvider } from "@repo/ui";
 
 const rootElement = document.getElementById("root");
 
@@ -15,10 +15,8 @@ if (!rootElement) {
 
 createRoot(rootElement).render(
   <StrictMode>
-    <UiProvider>
-      <Provider store={store}>
-        <App />
-      </Provider>
-    </UiProvider>
+    <Provider store={store}>
+      <App />
+    </Provider>
   </StrictMode>
 );

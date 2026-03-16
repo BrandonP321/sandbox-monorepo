@@ -1,3 +1,8 @@
 const { reactConfig } = require("@repo/config-eslint");
 
-module.exports = reactConfig;
+module.exports = [
+  ...reactConfig,
+  {
+    ignores: ["storybook-static/**"]
+  }
+];

@@ -59,3 +59,10 @@ Consult these files first:
 - docs/WORKFLOW.md (standard development loop)
 - docs/REPO_MAP.md (where to put things)
 - docs/SHARED_CODE_PLAYBOOK.md (how to factor shared code)
+- packages/ui/README.md (current shared UI package contract and direction)
+
+## UI package note
+- `packages/ui` is currently an incremental SCSS-based design-system foundation.
+- Prefer extending tokens, shared styles, and small owned primitives over introducing a large UI framework by default.
+- Do not assume dark mode support unless explicitly requested.
+- When app code needs shared icons, import them from `@repo/ui/icons` rather than `lucide-react` directly.
