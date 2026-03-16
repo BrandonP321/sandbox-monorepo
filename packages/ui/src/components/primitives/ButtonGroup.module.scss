@@ -1,0 +1,60 @@
+.root {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0;
+}
+
+.root > * {
+  position: relative;
+}
+
+.root > *:focus-visible,
+.root > *:focus-within {
+  z-index: 1;
+}
+
+.horizontal {
+  flex-direction: row;
+}
+
+.horizontal > * + * {
+  margin-left: calc(var(--border-width-default) * -1);
+}
+
+.horizontal > *:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.horizontal > *:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.vertical {
+  flex-direction: column;
+}
+
+.vertical > * + * {
+  margin-top: calc(var(--border-width-default) * -1);
+}
+
+.vertical > *:not(:first-child) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.vertical > *:not(:last-child) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+}
+
+.fullWidth > * {
+  flex: 1 1 0;
+  min-width: 0;
+}

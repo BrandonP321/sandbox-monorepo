@@ -31,6 +31,8 @@ Today the shared surface is:
 - `cn` utility
 - `Icon` primitive backed by `lucide-react`
 - `Button` primitive
+- `ButtonGroup` primitive
+- `Alert` primitive
 - package-local Storybook for UI docs and story tests
 
 Everything else should be added incrementally.
@@ -59,6 +61,27 @@ import { Icon } from "@repo/ui";
 import { Plus } from "@repo/ui/icons";
 
 <Icon icon={Plus} />;
+```
+
+Use the shared alert primitive for inline status messaging:
+
+```tsx
+import { Alert } from "@repo/ui";
+
+<Alert title="Heads up">
+  Background sync is paused until credentials are updated.
+</Alert>;
+```
+
+Use the shared button-group primitive to lay out related button actions:
+
+```tsx
+import { Button, ButtonGroup } from "@repo/ui";
+
+<ButtonGroup aria-label="Report actions">
+  <Button variant="secondary">Cancel</Button>
+  <Button>Save draft</Button>
+</ButtonGroup>;
 ```
 
 Apps should prefer `@repo/ui/icons` over importing `lucide-react` directly. That keeps the icon source centralized in the UI package and makes it easier to swap or wrap later if needed.
