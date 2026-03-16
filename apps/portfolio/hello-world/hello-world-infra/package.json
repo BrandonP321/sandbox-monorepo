@@ -1,0 +1,34 @@
+{
+  "name": "hello-world-infra",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('No dev server for infra.')\"",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "pnpm --filter hello-world-web build && cdk deploy",
+    "destroy": "cdk destroy",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"console.log('No tests for hello-world-infra')\""
+  },
+  "dependencies": {
+    "@repo/hello-world-shared": "workspace:*",
+    "aws-cdk-lib": "^2.212.0",
+    "constructs": "^10.4.2",
+    "@repo/infra-patterns": "workspace:*"
+  },
+  "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-test": "workspace:*",
+    "@repo/config-ts": "workspace:*",
+    "@types/node": "^24.1.0",
+    "aws-cdk": "^2.212.0",
+    "eslint": "^9.39.2",
+    "esbuild": "^0.25.10",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

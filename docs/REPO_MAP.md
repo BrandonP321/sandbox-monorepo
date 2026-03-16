@@ -2,35 +2,36 @@
 
 ## Top-level
 /apps
-  <collection>/
-    <project>-web    # web UI app (React/TS, Mantine design system)
-    <project>-api    # backend/API app (TS)
-    <project>-infra  # infra/deploy app (CDK, etc.)
+  <domain>/
+    <project>/
+      <project>-web    # web UI app (React/TS)
+      <project>-api    # backend/API app (single Lambda, multi-route)
+      <project>-infra  # infra/deploy app (CDK)
+      <project>-shared # project-scoped shared code used by 2+ packages in that project
 
 /packages
-  shared             # generic TS utilities (pure logic, no UI)
-  data               # data ingestion/adapters/validation (econ sources, csv parsing, etc.)
-  api-contracts      # shared types/contracts (zod schemas, DTOs, OpenAPI if used)
-  ui                 # shared React components (wrap/extend Mantine as needed)
-  config-eslint      # shared eslint config
-  config-ts          # shared tsconfig(s)
-  config-test        # shared test config (vitest/jest)
+  api-core        # shared API runtime/router/error/logging/helpers
+  api-contracts   # shared request/response schemas and DTOs
+  infra-patterns  # reusable CDK constructs and deployment helpers
+  ui              # shared React components
+  config-eslint   # shared eslint config
+  config-ts       # shared tsconfig(s)
+  config-test     # shared test config (vitest)
 
 ## Dependency Direction
 - apps/* may depend on packages/*
 - packages/* must not depend on apps/*
-- Prefer stable layering:
-  - ui depends on shared (and optionally api-contracts)
-  - data depends on shared (and optionally api-contracts)
-  - api-contracts depends only on shared
 
 ## Naming
-- Apps: <project>-web / <project>-api
-- Packages: short nouns (shared, data, ui, api-contracts, config-*)
+- Folders inside a project are `<project>-<type>` (`hello-world-web`, `hello-world-api`, `hello-world-infra`).
+- Use `<project>-shared` when code is shared within one project but should not become a repo-wide package.
+- Shared packages use `@repo/<name>`.
+- Project-specific contracts should live in `<project>-shared`; `@repo/api-contracts` is for repo-wide shared contracts only.
 
 ## Where new code should go (rule of thumb)
-- Pure logic used in 2+ places: packages/shared
-- Data parsing/validation/adapters: packages/data
-- Shared request/response schemas: packages/api-contracts
-- UI components reused across apps: packages/ui
-- App-specific logic: inside the app, but promote to packages if copied or likely to be reused.
+- API request handling primitives: `packages/api-core`
+- Repo-wide shared web/api schemas: `packages/api-contracts`
+- Project-scoped schemas/routes/types used by multiple project packages: `<project>-shared`
+- Reusable infra constructs/patterns: `packages/infra-patterns`
+- Reusable UI components: `packages/ui`
+- App-specific logic: inside an app package, then promote when reused.

@@ -30,17 +30,24 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  apps/hello-world/hello-world-api:
+  apps/portfolio/hello-world/hello-world-api:
+    dependencies:
+      '@repo/api-core':
+        specifier: workspace:*
+        version: link:../../../../packages/api-core
+      '@repo/hello-world-shared':
+        specifier: workspace:*
+        version: link:../hello-world-shared
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../../packages/config-eslint
+        version: link:../../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../../packages/config-test
+        version: link:../../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../../packages/config-ts
+        version: link:../../../../packages/config-ts
       '@types/aws-lambda':
         specifier: ^8.10.152
         version: 8.10.160
@@ -60,8 +67,14 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
-  apps/hello-world/hello-world-infra:
+  apps/portfolio/hello-world/hello-world-infra:
     dependencies:
+      '@repo/hello-world-shared':
+        specifier: workspace:*
+        version: link:../hello-world-shared
+      '@repo/infra-patterns':
+        specifier: workspace:*
+        version: link:../../../../packages/infra-patterns
       aws-cdk-lib:
         specifier: ^2.212.0
         version: 2.237.1(constructs@10.4.5)
@@ -71,13 +84,13 @@ importers:
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../../packages/config-eslint
+        version: link:../../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../../packages/config-test
+        version: link:../../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../../packages/config-ts
+        version: link:../../../../packages/config-ts
       '@types/node':
         specifier: ^24.1.0
         version: 24.10.10
@@ -100,14 +113,45 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
-  apps/hello-world/hello-world-web:
+  apps/portfolio/hello-world/hello-world-shared:
+    dependencies:
+      zod:
+        specifier: ^4.1.12
+        version: 4.3.6
+    devDependencies:
+      '@repo/config-eslint':
+        specifier: workspace:*
+        version: link:../../../../packages/config-eslint
+      '@repo/config-test':
+        specifier: workspace:*
+        version: link:../../../../packages/config-test
+      '@repo/config-ts':
+        specifier: workspace:*
+        version: link:../../../../packages/config-ts
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
+
+  apps/portfolio/hello-world/hello-world-web:
     dependencies:
       '@reduxjs/toolkit':
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.10)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
+      '@repo/hello-world-shared':
+        specifier: workspace:*
+        version: link:../hello-world-shared
       '@repo/ui':
         specifier: workspace:*
-        version: link:../../../packages/ui
+        version: link:../../../../packages/ui
       lodash:
         specifier: ^4.17.23
         version: 4.17.23
@@ -126,13 +170,13 @@ importers:
     devDependencies:
       '@repo/config-eslint':
         specifier: workspace:*
-        version: link:../../../packages/config-eslint
+        version: link:../../../../packages/config-eslint
       '@repo/config-test':
         specifier: workspace:*
-        version: link:../../../packages/config-test
+        version: link:../../../../packages/config-test
       '@repo/config-ts':
         specifier: workspace:*
-        version: link:../../../packages/config-ts
+        version: link:../../../../packages/config-ts
       '@testing-library/jest-dom':
         specifier: ^6.8.0
         version: 6.9.1
@@ -170,6 +214,58 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
+  packages/api-contracts:
+    dependencies:
+      zod:
+        specifier: ^4.1.12
+        version: 4.3.6
+    devDependencies:
+      '@repo/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@repo/config-test':
+        specifier: workspace:*
+        version: link:../config-test
+      '@repo/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
+
+  packages/api-core:
+    devDependencies:
+      '@repo/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@repo/config-test':
+        specifier: workspace:*
+        version: link:../config-test
+      '@repo/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
+
   packages/config-eslint:
     dependencies:
       '@eslint/js':
@@ -194,6 +290,37 @@ importers:
   packages/config-test: {}
 
   packages/config-ts: {}
+
+  packages/infra-patterns:
+    dependencies:
+      aws-cdk-lib:
+        specifier: ^2.212.0
+        version: 2.237.1(constructs@10.4.5)
+      constructs:
+        specifier: ^10.4.2
+        version: 10.4.5
+    devDependencies:
+      '@repo/config-eslint':
+        specifier: workspace:*
+        version: link:../config-eslint
+      '@repo/config-test':
+        specifier: workspace:*
+        version: link:../config-test
+      '@repo/config-ts':
+        specifier: workspace:*
+        version: link:../config-ts
+      '@types/node':
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(jsdom@26.1.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)
 
   packages/ui:
     dependencies:
@@ -2606,6 +2733,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -5057,3 +5187,5 @@ snapshots:
   yallist@3.1.1: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.3.6: {}

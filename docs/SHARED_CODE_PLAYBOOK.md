@@ -1,54 +1,21 @@
 # SHARED_CODE_PLAYBOOK.md — Reuse-first engineering
 
-Goal: prevent copy/paste and keep apps thin. Shared packages are a force multiplier.
+## Reuse trigger
+Extract to `packages/*` when any of these are true:
+1. Code is copied across apps.
+2. The same concept appears in 2+ apps.
+3. It is a platform primitive (API router, contracts, infra patterns).
 
-## The Reuse Trigger (when to consolidate)
-Consolidate into packages/* when ANY is true:
-1) You are about to copy code across files/apps.
-2) The same concept appears in 2+ apps (even with small differences).
-3) The code is a "domain primitive" (e.g., time-series normalization, inflation adjustment utilities, data validation schemas).
-4) The code is tricky/bug-prone and deserves one canonical implementation.
+## Current shared platform packages
+- `@repo/api-core`: route registration, local-dev server adapter, response helpers, errors, logging.
+- `@repo/api-contracts`: repo-wide web+api schemas/types.
+- `@repo/infra-patterns`: CDK constructs for API + SPA deployment defaults.
 
-If uncertain, default to extracting a small shared helper with tests.
+## Contract naming to avoid collisions
+Keep project-specific contracts in `<project>-shared`. Use `@repo/api-contracts` only when the same contract is intentionally shared across projects.
 
-## What NOT to extract (yet)
-- One-off glue code tightly bound to a single app’s UI routing
-- Premature abstractions with unclear API shape
-- Highly app-specific styling/layout
-
-## Extraction workflow (repeatable)
-1) Identify the minimal stable API.
-   - Prefer small functions with explicit inputs/outputs.
-   - Avoid global state; avoid implicit env dependencies.
-
-2) Choose the destination package:
-   - packages/shared: pure TS utilities (no I/O)
-   - packages/data: ingestion/parsing/adapters + validation
-   - packages/api-contracts: schemas/types shared by UI/API
-   - packages/ui: reusable components/hooks
-
-3) Add tests at the package level.
-   - If a bug prompted extraction, add a regression test for it.
-
-4) Replace app-local implementation with imports from the package.
-
-5) Keep dependencies minimal.
-   - If adding a dependency to a shared package, it affects many apps.
-   - Justify any new dependency explicitly.
-
-## Contract-first (especially for web/api pairs)
-- Define DTOs and validation schemas in packages/api-contracts.
-- Both web and api import the contract.
-- Prefer runtime validation (e.g., zod) for external inputs.
-
-## Performance and ergonomics
-- Prefer predictable, readable code over micro-optimizations.
-- If a shared abstraction adds indirection, ensure it reduces total code and reduces future bug risk.
-
-## Human-readability rules (non-negotiable)
-- Clear naming > cleverness.
-- Prefer explicit types at package boundaries.
-- Document intent and invariants in docstrings where it matters.
-
-## Escalation rule
-If you find 3+ similar implementations emerging, stop and consolidate immediately.
+## Extraction workflow
+1. Define a small API surface.
+2. Add tests in the shared package.
+3. Replace app-local implementation with imports.
+4. Keep dependencies minimal and justified.
