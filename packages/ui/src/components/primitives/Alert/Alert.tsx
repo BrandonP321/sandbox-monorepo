@@ -1,9 +1,9 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { AlertCircle } from "../../icons";
-import { cn } from "../../lib/cn";
-import { Icon } from "./Icon";
+import { AlertCircle } from "../../../icons";
+import { cn } from "../../../lib/cn";
+import { Icon } from "../Icon/Icon";
 import styles from "./Alert.module.scss";
 
 const toneClasses = {
@@ -32,7 +32,12 @@ export function Alert({
 }: AlertProps) {
   return (
     <div
-      className={cn(styles.root, toneClasses[tone], !icon && styles.noIcon, className)}
+      className={cn(
+        styles.root,
+        toneClasses[tone],
+        !icon && styles.noIcon,
+        className
+      )}
       role={role}
       {...props}
     >
@@ -41,7 +46,7 @@ export function Alert({
           <Icon icon={icon} />
         </span>
       ) : null}
-      {(title || children) ? (
+      {title || children ? (
         <div className={styles.body}>
           {title ? <div className={styles.title}>{title}</div> : null}
           {children ? <div className={styles.message}>{children}</div> : null}

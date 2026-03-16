@@ -1,6 +1,6 @@
 import type { LucideIcon, LucideProps } from "lucide-react";
 
-import { cn } from "../../lib/cn";
+import { cn } from "../../../lib/cn";
 import styles from "./Icon.module.scss";
 
 const sizeClasses = {

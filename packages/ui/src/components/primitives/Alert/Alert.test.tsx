@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { Bell } from "../../icons";
+import { Bell } from "../../../icons";
 import { Alert } from "./Alert";
 
 describe("Alert", () => {
@@ -22,7 +22,13 @@ describe("Alert", () => {
 
   it("supports tone overrides and optional icon rendering", () => {
     const markup = renderToStaticMarkup(
-      <Alert className="custom-alert" icon={false} role="status" tone="warning" title="Limited">
+      <Alert
+        className="custom-alert"
+        icon={false}
+        role="status"
+        tone="warning"
+        title="Limited"
+      >
         Export history is only available for the last 30 days.
       </Alert>
     );

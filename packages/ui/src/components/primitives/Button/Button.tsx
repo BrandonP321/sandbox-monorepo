@@ -1,8 +1,8 @@
 import type { ButtonHTMLAttributes } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import { cn } from "../../lib/cn";
-import { Icon } from "./Icon";
+import { cn } from "../../../lib/cn";
+import { Icon } from "../Icon/Icon";
 import styles from "./Button.module.scss";
 
 const variantClasses = {

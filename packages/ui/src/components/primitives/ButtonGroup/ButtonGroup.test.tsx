@@ -1,7 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { Button } from "./Button";
+import { Button } from "../Button/Button";
 import { ButtonGroup } from "./ButtonGroup";
 
 describe("ButtonGroup", () => {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { AlertCircle, ArrowRight, Plus } from "../../icons";
+import { AlertCircle, ArrowRight, Plus } from "../../../icons";
 import { Icon } from "./Icon";
 
 const meta = {

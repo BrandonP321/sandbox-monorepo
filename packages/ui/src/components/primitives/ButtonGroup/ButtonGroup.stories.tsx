@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { ArrowRight, Plus } from "../../icons";
-import { Button } from "./Button";
+import { ArrowRight, Plus } from "../../../icons";
+import { Button } from "../Button/Button";
 import { ButtonGroup } from "./ButtonGroup";
 
 const meta = {
@@ -36,13 +36,17 @@ export const Default: Story = {
     const group = canvasElement.querySelector('[role="group"]');
 
     if (!(group instanceof HTMLDivElement)) {
-      throw new Error("Expected ButtonGroup story to render a group container.");
+      throw new Error(
+        "Expected ButtonGroup story to render a group container."
+      );
     }
 
     const buttons = group.querySelectorAll("button");
 
     if (buttons.length !== 3) {
-      throw new Error(`Expected 3 buttons in the default ButtonGroup story, received ${buttons.length}.`);
+      throw new Error(
+        `Expected 3 buttons in the default ButtonGroup story, received ${buttons.length}.`
+      );
     }
 
     const [firstButton, secondButton, thirdButton] = buttons;
@@ -53,11 +57,18 @@ export const Default: Story = {
     const thirdStyles = window.getComputedStyle(thirdButton);
 
     if (groupStyles.gap !== "0px") {
-      throw new Error(`Expected no gap between grouped buttons, received gap ${groupStyles.gap}.`);
+      throw new Error(
+        `Expected no gap between grouped buttons, received gap ${groupStyles.gap}.`
+      );
     }
 
-    if (firstStyles.borderTopRightRadius !== "0px" || firstStyles.borderBottomRightRadius !== "0px") {
-      throw new Error("Expected the first grouped button to have squared trailing corners.");
+    if (
+      firstStyles.borderTopRightRadius !== "0px" ||
+      firstStyles.borderBottomRightRadius !== "0px"
+    ) {
+      throw new Error(
+        "Expected the first grouped button to have squared trailing corners."
+      );
     }
 
     if (
@@ -66,11 +77,18 @@ export const Default: Story = {
       secondStyles.borderTopRightRadius !== "0px" ||
       secondStyles.borderBottomRightRadius !== "0px"
     ) {
-      throw new Error("Expected the middle grouped button to have squared internal corners.");
+      throw new Error(
+        "Expected the middle grouped button to have squared internal corners."
+      );
     }
 
-    if (thirdStyles.borderTopLeftRadius !== "0px" || thirdStyles.borderBottomLeftRadius !== "0px") {
-      throw new Error("Expected the last grouped button to have squared leading corners.");
+    if (
+      thirdStyles.borderTopLeftRadius !== "0px" ||
+      thirdStyles.borderBottomLeftRadius !== "0px"
+    ) {
+      throw new Error(
+        "Expected the last grouped button to have squared leading corners."
+      );
     }
   }
 };
