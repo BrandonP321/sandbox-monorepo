@@ -3,7 +3,10 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "sideEffects": ["**/*.css", "**/*.scss"],
+  "sideEffects": [
+    "**/*.css",
+    "**/*.scss"
+  ],
   "main": "./src/index.ts",
   "module": "./src/index.ts",
   "types": "./src/index.ts",
@@ -22,22 +25,26 @@
     "test-storybook": "vitest run --project=storybook"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "clsx": "^2.1.1",
-    "lucide-react": "^0.577.0"
+    "lodash": "^4.17.23",
+    "lucide-react": "^0.577.0",
+    "react-hook-form": "^7.71.2",
+    "zod": "^4.1.12"
   },
   "peerDependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
   "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-test": "workspace:*",
+    "@repo/config-ts": "workspace:*",
     "@storybook/addon-a11y": "^10.2.19",
     "@storybook/addon-docs": "^10.2.19",
     "@storybook/addon-vitest": "^10.2.19",
     "@storybook/react": "^10.2.19",
     "@storybook/react-vite": "^10.2.19",
-    "@repo/config-eslint": "workspace:*",
-    "@repo/config-test": "workspace:*",
-    "@repo/config-ts": "workspace:*",
     "@types/react": "^19.1.12",
     "@types/react-dom": "^19.1.8",
     "@vitest/browser": "^3.2.4",
