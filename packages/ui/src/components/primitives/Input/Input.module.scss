@@ -1,0 +1,14 @@
+@use "../_formControls.shared" as formControls;
+
+.input {
+  @include formControls.field-control-base;
+  @include formControls.field-control-hover;
+  @include formControls.field-control-focus;
+  @include formControls.field-control-disabled;
+  @include formControls.field-control-invalid;
+
+  &::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1;
+  }
+}

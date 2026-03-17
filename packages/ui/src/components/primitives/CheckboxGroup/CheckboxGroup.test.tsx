@@ -2,6 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
+import fieldStyles from "../FormField/FormField.module.scss";
+import checkboxStyles from "./CheckboxGroup.module.scss";
 import { CheckboxGroup } from "./CheckboxGroup";
 
 type ExampleFormValues = {
@@ -82,12 +84,12 @@ describe("CheckboxGroup", () => {
     );
 
     expect(markup).toContain("<fieldset");
-    expect(markup).toContain('class="ui-form-field"');
-    expect(markup).toContain('class="ui-form-field-label"');
-    expect(markup).toContain('class="ui-checkbox-group"');
-    expect(markup).toContain('class="ui-checkbox-control"');
-    expect(markup).toContain('class="ui-checkbox-input"');
-    expect(markup).toContain('class="ui-checkbox-label"');
+    expect(markup).toContain(fieldStyles.root);
+    expect(markup).toContain(fieldStyles.label);
+    expect(markup).toContain(checkboxStyles.group);
+    expect(markup).toContain(checkboxStyles.control);
+    expect(markup).toContain(checkboxStyles.input);
+    expect(markup).toContain(checkboxStyles.label);
     expect(markup).toContain("Audience");
     expect(markup).toContain(
       "Select every audience segment this report applies to."

@@ -1,17 +1,20 @@
 .root {
   --alert-accent: var(--color-info);
+  --alert-background: var(--color-info-subtle);
 
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: var(--space-cluster-md);
   align-items: start;
-  padding: var(--space-inset-md);
-  border: var(--border-width-default) solid var(--color-border);
-  border-left-width: var(--border-width-strong);
-  border-left-color: var(--alert-accent);
+  padding: var(--layout-panel-padding-dense);
+  border: var(--border-width-thin) solid var(--color-border-default);
+  border-inline-start-width: var(--border-width-strong);
+  border-inline-start-color: var(--alert-accent);
   border-radius: var(--radius-md);
-  background: var(--color-surface-muted);
-  color: var(--color-surface-foreground);
+  background:
+    linear-gradient(0deg, var(--alert-background), var(--alert-background)),
+    var(--color-bg-surface);
+  color: var(--color-text-primary);
 }
 
 .noIcon {
@@ -32,14 +35,14 @@
 }
 
 .title {
-  color: var(--alert-accent);
-  font-size: var(--text-label-md-size);
-  font-weight: var(--text-title-sm-weight);
-  line-height: var(--text-label-md-line-height);
+  color: var(--color-text-primary);
+  font-size: var(--text-label-sm-size);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--text-body-sm-line-height);
 }
 
 .message {
-  color: var(--color-surface-muted-foreground);
+  color: var(--color-text-secondary);
   font-size: var(--text-body-sm-size);
   font-weight: var(--text-body-sm-weight);
   line-height: var(--text-body-sm-line-height);
@@ -47,16 +50,20 @@
 
 .info {
   --alert-accent: var(--color-info);
+  --alert-background: var(--color-info-subtle);
 }
 
 .success {
   --alert-accent: var(--color-success);
+  --alert-background: var(--color-success-subtle);
 }
 
 .warning {
   --alert-accent: var(--color-warning);
+  --alert-background: var(--color-warning-subtle);
 }
 
 .danger {
   --alert-accent: var(--color-danger);
+  --alert-background: var(--color-danger-subtle);
 }

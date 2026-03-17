@@ -7,12 +7,13 @@ Shared UI foundation for sandbox apps.
 This package is the shared source-of-truth for:
 
 - lightweight shared styles in [`src/styles/index.scss`](./src/styles/index.scss)
-- starter design tokens in [`src/styles/_tokens.scss`](./src/styles/_tokens.scss)
+- Analyst Core design tokens in [`src/styles/_tokens.scss`](./src/styles/_tokens.scss)
 - small UI utilities in [`src/lib`](./src/lib)
 - future primitives in [`src/components/primitives`](./src/components/primitives)
 - future composed patterns in [`src/components/patterns`](./src/components/patterns)
+- theme guidance in [`docs/THEME_ANALYST_CORE.md`](./docs/THEME_ANALYST_CORE.md)
 
-The first exported primitive is `Button`, implemented with local SCSS module styles that consume the shared tokens.
+The current primitives are implemented with local CSS modules that consume the package tokens.
 
 ## Current direction
 
@@ -21,7 +22,7 @@ This package is intentionally small.
 - Build the system up from scratch in owned source.
 - Prefer SCSS tokens plus plain React primitives over introducing a large component framework up front.
 - Add shared primitives only when they are clearly foundational or already reused.
-- Do not assume dark mode support by default.
+- Analyst Core is the single supported theme today.
 - Keep app-specific layout and pattern code inside the app until reuse is real.
 
 Today the shared surface is:
@@ -33,6 +34,7 @@ Today the shared surface is:
 - `Button` primitive
 - `ButtonGroup` primitive
 - `Alert` primitive
+- `Input`, `Dropdown`, `CheckboxGroup`, and `RadioGroup` form primitives
 - package-local Storybook for UI docs and story tests
 
 Everything else should be added incrementally.
@@ -96,7 +98,7 @@ For UI package docs, examples, and story-based tests, use the package-local Stor
 
 The styles entry is SCSS and currently provides:
 
-- raw and semantic color tokens
+- reference and semantic color tokens for Analyst Core
 - foundational and semantic spacing tokens
 - typography, radius, border, shadow, motion, z-index, and layout tokens
 - icon size and stroke tokens
@@ -104,7 +106,7 @@ The styles entry is SCSS and currently provides:
 
 ## Token guidance
 
-- Prefer semantic tokens in component styles such as `--color-primary` or `--color-border`.
+- Prefer semantic tokens in component styles such as `--color-bg-surface` or `--color-text-secondary`.
 - Use raw palette tokens only when defining semantic tokens.
 - Reach for semantic spacing aliases such as `--space-stack-md` and `--space-inset-md` when they fit the layout intent.
 - Icons should inherit `currentColor` and size from icon tokens unless a specific exception is needed.
@@ -115,5 +117,6 @@ The styles entry is SCSS and currently provides:
 - Keep shared exports small and boring.
 - App code should import Lucide glyphs from `@repo/ui/icons`, not from `lucide-react` directly.
 - Prefer semantic token usage over raw palette usage in components.
+- Keep new components aligned to Analyst Core and document shared style decisions in the theme doc.
 - Add shared components only when they are foundational or clearly reusable.
 - Keep app-specific patterns in the app until reuse is real.

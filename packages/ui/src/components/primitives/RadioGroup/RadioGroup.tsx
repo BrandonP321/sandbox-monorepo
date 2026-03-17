@@ -2,8 +2,15 @@ import type { ReactNode } from "react";
 import type { FieldValues } from "react-hook-form";
 
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
-import { FormField, type FormFieldContentProps } from "../Input/FormField";
-import { type FormFieldName, useFormField } from "../Input/useFormField";
+import {
+  FormField,
+  type FormFieldContentProps
+} from "../FormField/FormField";
+import {
+  type FormFieldName,
+  useFormField
+} from "../FormField/useFormField";
+import styles from "./RadioGroup.module.scss";
 
 export type RadioOption<TValue = string> = {
   disabled?: boolean;
@@ -43,7 +50,7 @@ export function RadioGroup<
 
   return (
     <FormField description={description} error={error} isFieldset label={label}>
-      <div className="ui-radio-group">
+      <div className={styles.group}>
         {options.map((option, index) => {
           const optionId = `${inputId}-${index}`;
           const checked =
@@ -51,10 +58,11 @@ export function RadioGroup<
             normalizeComparableValue(value);
 
           return (
-            <div className="ui-radio-control" key={String(index)}>
+            <div className={styles.control} key={String(index)}>
               <input
+                aria-invalid={error ? true : undefined}
                 checked={checked}
-                className="ui-radio-input"
+                className={styles.input}
                 disabled={isDisabled || option.disabled}
                 id={optionId}
                 name={fieldName}
@@ -63,7 +71,7 @@ export function RadioGroup<
                 onBlur={onBlur}
                 onChange={() => setValue(option.value)}
               />
-              <label className="ui-radio-label" htmlFor={optionId}>
+              <label className={styles.label} htmlFor={optionId}>
                 {option.label}
               </label>
             </div>

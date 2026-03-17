@@ -1,0 +1,69 @@
+:root {
+  /* semantic spacing aliases */
+  --space-stack-xs: var(--space-1);
+  --space-stack-sm: var(--space-2);
+  --space-stack-md: var(--space-4);
+  --space-stack-lg: var(--space-6);
+
+  --space-inset-sm: var(--space-3);
+  --space-inset-md: var(--space-4);
+  --space-inset-lg: var(--space-6);
+
+  --space-cluster-sm: var(--space-2);
+  --space-cluster-md: var(--space-3);
+  --space-cluster-lg: var(--space-4);
+
+  /* typography roles */
+  --text-label-xs-size: var(--font-size-xs);
+  --text-label-xs-line-height: 1rem;
+  --text-label-xs-weight: var(--font-weight-semibold);
+
+  --text-label-sm-size: var(--font-size-sm);
+  --text-label-sm-line-height: 1rem;
+  --text-label-sm-weight: var(--font-weight-semibold);
+
+  --text-body-sm-size: 0.8125rem;
+  --text-body-sm-line-height: 1.25rem;
+  --text-body-sm-weight: var(--font-weight-regular);
+
+  --text-body-md-size: var(--font-size-md);
+  --text-body-md-line-height: 1.375rem;
+  --text-body-md-weight: var(--font-weight-regular);
+
+  --text-body-lg-size: var(--font-size-lg);
+  --text-body-lg-line-height: 1.5rem;
+  --text-body-lg-weight: var(--font-weight-regular);
+
+  --text-title-sm-size: var(--font-size-lg);
+  --text-title-sm-line-height: 1.5rem;
+  --text-title-sm-weight: var(--font-weight-semibold);
+
+  --text-title-md-size: var(--font-size-2xl);
+  --text-title-md-line-height: 1.75rem;
+  --text-title-md-weight: var(--font-weight-semibold);
+
+  --text-title-lg-size: var(--font-size-3xl);
+  --text-title-lg-line-height: 2rem;
+  --text-title-lg-weight: var(--font-weight-bold);
+
+  --text-display-sm-size: var(--font-size-4xl);
+  --text-display-sm-line-height: 2.5rem;
+  --text-display-sm-weight: var(--font-weight-bold);
+
+  /* compatibility aliases for existing internal usage */
+  --border-width-default: var(--border-width-thin);
+
+  --text-label-md-size: var(--text-label-sm-size);
+  --text-label-md-line-height: var(--text-label-sm-line-height);
+  --text-label-md-weight: var(--text-label-sm-weight);
+
+  --text-display-md-size: var(--text-display-sm-size);
+  --text-display-md-line-height: var(--text-display-sm-line-height);
+  --text-display-md-weight: var(--text-display-sm-weight);
+
+  --content-max-width: var(--layout-content-max-width);
+  --sidebar-width: var(--layout-sidebar-width);
+  --header-height: var(--layout-header-height);
+  --input-height: var(--layout-control-height);
+  --button-height: var(--layout-control-height);
+}

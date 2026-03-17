@@ -34,11 +34,11 @@ Storybook lives inside `packages/ui` and is only for the shared UI package.
 - Add local decorators in an individual story file only when the need is specific to that component.
 - Prefer small wrapper decorators over hidden global mocks.
 
-## Theme toolbar
+## Preview theme
 
-- Storybook provides a global theme toolbar in `preview.tsx`.
-- Keep it focused on token-level preview concerns, not app-specific themes.
-- If the token system changes, update the toolbar decorator and the preview styles together.
+- Storybook previews the single Analyst Core theme defined by `@repo/ui/styles`.
+- Keep the preview wrapper in `preview.tsx` aligned with the shared canvas and text tokens.
+- Do not add alternate light/dark or contrast theme toggles until the package intentionally supports more than one theme.
 
 ## MSW
 
@@ -50,4 +50,5 @@ Storybook lives inside `packages/ui` and is only for the shared UI package.
 - Add stories next to the component under `src`.
 - Prefer importing icons from `../icons` or `../../icons` within the package, not from `lucide-react`.
 - If a component already has unit tests, add a small set of stories that cover the same public states rather than duplicating edge-case test logic in Storybook.
+- If a story asserts visual styling, prefer checking computed styles against Analyst Core token outputs rather than reintroducing alternate preview themes.
 - If a story is only useful as documentation, tag it so it does not run as a Storybook test.

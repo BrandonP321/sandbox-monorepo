@@ -2,6 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
+import fieldStyles from "../FormField/FormField.module.scss";
+import inputStyles from "./Input.module.scss";
 import { Input } from "./Input";
 
 type ExampleFormValues = {
@@ -35,10 +37,10 @@ describe("Input", () => {
       </TestForm>
     );
 
-    expect(markup).toContain('class="ui-form-field"');
-    expect(markup).toContain('class="ui-form-field-label"');
-    expect(markup).toContain('class="ui-form-field-description"');
-    expect(markup).toContain('class="ui-input"');
+    expect(markup).toContain(fieldStyles.root);
+    expect(markup).toContain(fieldStyles.label);
+    expect(markup).toContain(fieldStyles.description);
+    expect(markup).toContain(inputStyles.input);
     expect(markup).toContain("Company name");
     expect(markup).toContain("Shown in portfolio project listings.");
     expect(markup).toContain('placeholder="OpenAI"');

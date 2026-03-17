@@ -1,0 +1,61 @@
+@use "../_formControls.shared" as formControls;
+
+.group {
+  @include formControls.option-group;
+}
+
+.control {
+  @include formControls.option-control;
+}
+
+.input {
+  --radio-dot-color: var(--color-accent);
+
+  @include formControls.selection-control-base;
+  @include formControls.selection-control-focus;
+  @include formControls.selection-control-disabled;
+  @include formControls.selection-control-invalid;
+
+  border-radius: var(--radius-full);
+  background:
+    radial-gradient(circle, var(--radio-dot-color) 0 42%, transparent 43%)
+      center / 0 0 no-repeat,
+    var(--color-bg-surface-sunken);
+
+  &:hover:not(:disabled):not([aria-invalid="true"]) {
+    border-color: var(--color-border-accent);
+    background-color: var(--color-bg-surface);
+  }
+
+  &:checked {
+    border-color: var(--color-border-accent);
+    background-size:
+      100% 100%,
+      auto;
+  }
+
+  &:disabled {
+    --radio-dot-color: var(--color-text-secondary);
+  }
+
+  &:disabled:not(:checked) {
+    background-color: var(--color-bg-disabled);
+  }
+
+  &:disabled:checked {
+    border-color: var(--color-border-strong);
+  }
+}
+
+.label {
+  @include formControls.option-label;
+}
+
+.input:checked + .label {
+  color: var(--color-text-primary);
+}
+
+.input:disabled + .label {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

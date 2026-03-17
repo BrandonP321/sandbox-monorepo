@@ -2,8 +2,15 @@ import type { SelectHTMLAttributes } from "react";
 import type { FieldValues } from "react-hook-form";
 
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
-import { FormField, type FormFieldContentProps } from "../Input/FormField";
-import { type FormFieldName, useFormField } from "../Input/useFormField";
+import {
+  FormField,
+  type FormFieldContentProps
+} from "../FormField/FormField";
+import {
+  type FormFieldName,
+  useFormField
+} from "../FormField/useFormField";
+import styles from "./Dropdown.module.scss";
 
 type NativeDropdownPropKeys = "autoFocus" | "required";
 
@@ -54,8 +61,9 @@ export function Dropdown<
   return (
     <FormField description={description} error={error} id={inputId} label={label}>
       <select
+        aria-invalid={error ? true : undefined}
         {...props}
-        className="ui-dropdown"
+        className={styles.dropdown}
         disabled={isDisabled}
         id={inputId}
         name={name}

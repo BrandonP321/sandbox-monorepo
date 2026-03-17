@@ -1,0 +1,101 @@
+:root {
+  /* analyst core semantic colors */
+  --color-bg-canvas: var(--ref-ink-950);
+  --color-bg-subtle: var(--ref-ink-900);
+  --color-bg-surface: var(--ref-ink-850);
+  --color-bg-surface-raised: var(--ref-ink-800);
+  --color-bg-surface-sunken: var(--ref-ink-900);
+  --color-bg-surface-hover: #182536;
+  --color-bg-surface-active: #1d2c3f;
+  --color-bg-disabled: #0e141c;
+  --color-bg-overlay: rgb(2 6 12 / 0.72);
+
+  --color-text-primary: var(--ref-ink-100);
+  --color-text-secondary: var(--ref-ink-300);
+  --color-text-tertiary: var(--ref-ink-400);
+  --color-text-muted: var(--ref-ink-500);
+  --color-text-disabled: #627386;
+  --color-text-on-accent: #061018;
+  --color-text-on-success: #07150f;
+  --color-text-on-warning: #181103;
+  --color-text-on-danger: #fff7f8;
+
+  --color-border-muted: #172231;
+  --color-border-default: var(--ref-ink-700);
+  --color-border-strong: var(--ref-ink-600);
+  --color-border-accent: var(--ref-blue-500);
+  --color-border-danger: var(--ref-red-500);
+
+  --color-accent: var(--ref-blue-500);
+  --color-accent-soft: var(--ref-blue-400);
+  --color-accent-subtle: rgb(89 184 248 / 0.12);
+  --color-focus-ring: var(--ref-blue-400);
+  --color-selection-bg: rgb(143 210 255 / 0.16);
+  --color-selection-border: var(--ref-blue-500);
+
+  --color-success: var(--ref-teal-500);
+  --color-success-subtle: rgb(70 199 174 / 0.12);
+  --color-warning: var(--ref-amber-500);
+  --color-warning-subtle: rgb(217 164 65 / 0.14);
+  --color-danger: var(--ref-red-500);
+  --color-danger-subtle: rgb(215 100 106 / 0.14);
+  --color-info: var(--ref-blue-500);
+  --color-info-subtle: rgb(89 184 248 / 0.12);
+
+  --color-icon-default: #aec0d3;
+  --color-icon-muted: #74879c;
+  --color-icon-accent: var(--ref-blue-400);
+
+  --color-chart-1: var(--ref-blue-500);
+  --color-chart-2: var(--ref-teal-500);
+  --color-chart-3: var(--ref-amber-500);
+  --color-chart-4: #9a8cff;
+  --color-chart-5: var(--ref-red-500);
+  --color-chart-grid: rgb(213 224 235 / 0.1);
+  --color-chart-axis: rgb(213 224 235 / 0.24);
+
+  /* shadows */
+  --shadow-none: none;
+  --shadow-raised: 0 8px 24px rgb(0 0 0 / 0.24);
+  --shadow-overlay: 0 18px 48px rgb(0 0 0 / 0.34);
+  --shadow-focus-glow: 0px 0px 5px 1px rgb(143 210 255 / 0.18);
+
+  /* compatibility aliases for existing package and app usage */
+  --color-background: var(--color-bg-canvas);
+  --color-foreground: var(--color-text-primary);
+
+  --color-surface: var(--color-bg-surface);
+  --color-surface-foreground: var(--color-text-primary);
+  --color-surface-muted: var(--color-bg-surface-sunken);
+  --color-surface-muted-foreground: var(--color-text-secondary);
+  --color-surface-elevated: var(--color-bg-surface-raised);
+  --color-surface-elevated-foreground: var(--color-text-primary);
+
+  --color-border: var(--color-border-default);
+
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-text-on-accent);
+  --color-secondary: var(--color-bg-surface-raised);
+  --color-secondary-foreground: var(--color-text-primary);
+
+  --color-accent-foreground: var(--color-text-on-accent);
+
+  --color-success-foreground: var(--color-text-on-success);
+  --color-warning-foreground: var(--color-text-on-warning);
+  --color-danger-foreground: var(--color-text-on-danger);
+  --color-info-foreground: var(--color-text-on-accent);
+
+  --color-disabled: var(--color-bg-disabled);
+  --color-disabled-foreground: var(--color-text-disabled);
+  --color-disabled-border: var(--color-border-muted);
+
+  --color-overlay: var(--color-bg-overlay);
+  --color-selection: var(--color-selection-bg);
+  --color-selection-foreground: var(--color-text-primary);
+
+  --color-chart-positive: var(--color-success);
+  --color-chart-negative: var(--color-danger);
+  --color-chart-neutral: var(--color-text-muted);
+
+  --shadow-focus: var(--shadow-focus-glow);
+}

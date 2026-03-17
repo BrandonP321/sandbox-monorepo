@@ -2,6 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
+import fieldStyles from "../FormField/FormField.module.scss";
+import dropdownStyles from "./Dropdown.module.scss";
 import { Dropdown } from "./Dropdown";
 
 type ExampleFormValues = {
@@ -66,10 +68,10 @@ describe("Dropdown", () => {
       </TestForm>
     );
 
-    expect(markup).toContain('class="ui-form-field"');
-    expect(markup).toContain('class="ui-form-field-label"');
-    expect(markup).toContain('class="ui-form-field-description"');
-    expect(markup).toContain('class="ui-dropdown"');
+    expect(markup).toContain(fieldStyles.root);
+    expect(markup).toContain(fieldStyles.label);
+    expect(markup).toContain(fieldStyles.description);
+    expect(markup).toContain(dropdownStyles.dropdown);
     expect(markup).toContain("Country");
     expect(markup).toContain("Choose the market for this portfolio entry.");
     expect(markup).toContain("United States");

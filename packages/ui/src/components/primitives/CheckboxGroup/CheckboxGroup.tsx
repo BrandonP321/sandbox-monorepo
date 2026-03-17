@@ -2,8 +2,15 @@ import type { ReactNode } from "react";
 import type { FieldValues } from "react-hook-form";
 
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
-import { FormField, type FormFieldContentProps } from "../Input/FormField";
-import { type FormFieldName, useFormField } from "../Input/useFormField";
+import {
+  FormField,
+  type FormFieldContentProps
+} from "../FormField/FormField";
+import {
+  type FormFieldName,
+  useFormField
+} from "../FormField/useFormField";
+import styles from "./CheckboxGroup.module.scss";
 
 export type CheckboxOption<TValue = string> = {
   disabled?: boolean;
@@ -56,16 +63,17 @@ export function CheckboxGroup<
 
   return (
     <FormField description={description} error={error} isFieldset label={label}>
-      <div className="ui-checkbox-group">
+      <div className={styles.group}>
         {options.map((option, index) => {
           const optionId = `${inputId}-${index}`;
           const checked = includesOptionValue(selectedValues, option.value);
 
           return (
-            <div className="ui-checkbox-control" key={String(index)}>
+            <div className={styles.control} key={String(index)}>
               <input
+                aria-invalid={error ? true : undefined}
                 checked={checked}
-                className="ui-checkbox-input"
+                className={styles.input}
                 disabled={isDisabled || option.disabled}
                 id={optionId}
                 name={fieldName}
@@ -87,7 +95,7 @@ export function CheckboxGroup<
                   );
                 }}
               />
-              <label className="ui-checkbox-label" htmlFor={optionId}>
+              <label className={styles.label} htmlFor={optionId}>
                 {option.label}
               </label>
             </div>

@@ -1,21 +1,7 @@
 .sb-preview-frame {
+  width: 100%;
   min-height: 100vh;
   padding: var(--space-8);
-  background: var(--color-background);
-  color: var(--color-foreground);
-}
-
-.sb-preview-frame[data-theme="contrast"] {
-  --color-background: var(--ref-color-white);
-  --color-foreground: var(--ref-color-black);
-  --color-surface: var(--ref-color-white);
-  --color-surface-muted: var(--ref-color-gray-100);
-  --color-border: var(--ref-color-gray-950);
-  --color-border-strong: var(--ref-color-black);
-  --color-primary: var(--ref-color-blue-700);
-  --color-primary-foreground: var(--ref-color-white);
-  --color-secondary: var(--ref-color-white);
-  --color-secondary-foreground: var(--ref-color-black);
-  --color-focus-ring: var(--ref-color-blue-700);
-  --shadow-focus: 0 0 0 3px rgb(29 78 216 / 0.4);
+  background: var(--color-bg-canvas);
+  color: var(--color-text-primary);
 }

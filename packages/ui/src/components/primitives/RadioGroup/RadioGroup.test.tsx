@@ -2,6 +2,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
+import fieldStyles from "../FormField/FormField.module.scss";
+import radioStyles from "./RadioGroup.module.scss";
 import { RadioGroup } from "./RadioGroup";
 
 type ExampleFormValues = {
@@ -82,12 +84,12 @@ describe("RadioGroup", () => {
     );
 
     expect(markup).toContain("<fieldset");
-    expect(markup).toContain('class="ui-form-field"');
-    expect(markup).toContain('class="ui-form-field-label"');
-    expect(markup).toContain('class="ui-radio-group"');
-    expect(markup).toContain('class="ui-radio-control"');
-    expect(markup).toContain('class="ui-radio-input"');
-    expect(markup).toContain('class="ui-radio-label"');
+    expect(markup).toContain(fieldStyles.root);
+    expect(markup).toContain(fieldStyles.label);
+    expect(markup).toContain(radioStyles.group);
+    expect(markup).toContain(radioStyles.control);
+    expect(markup).toContain(radioStyles.input);
+    expect(markup).toContain(radioStyles.label);
     expect(markup).toContain("Audience");
     expect(markup).toContain("Choose the primary audience for this report.");
     expect(markup).toContain("Founders");

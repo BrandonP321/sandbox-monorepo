@@ -46,7 +46,7 @@ function InputStoryHarness({
         <Input {...props} />
         <div
           style={{
-            color: "var(--color-surface-muted-foreground)",
+            color: "var(--color-text-muted)",
             fontSize: "var(--text-body-sm-size)"
           }}
         >

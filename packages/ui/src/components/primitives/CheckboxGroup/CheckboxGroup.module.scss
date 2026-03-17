@@ -1,0 +1,73 @@
+@use "../_formControls.shared" as formControls;
+
+.group {
+  @include formControls.option-group;
+}
+
+.control {
+  @include formControls.option-control;
+}
+
+.input {
+  --control-indicator-color: var(--color-text-on-accent);
+
+  @include formControls.selection-control-base;
+  @include formControls.selection-control-focus;
+  @include formControls.selection-control-disabled;
+  @include formControls.selection-control-invalid;
+
+  position: relative;
+  border-radius: var(--radius-sm);
+
+  &:hover:not(:disabled):not(:checked):not([aria-invalid="true"]) {
+    border-color: var(--color-border-accent);
+    background: var(--color-bg-surface);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0.2rem 0.18rem 0.32rem 0.36rem;
+    border-bottom: var(--border-width-strong) solid var(--control-indicator-color);
+    border-left: var(--border-width-strong) solid var(--control-indicator-color);
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.8);
+    transition:
+      opacity var(--duration-fast) var(--easing-standard),
+      transform var(--duration-fast) var(--easing-standard);
+  }
+
+  &:checked {
+    border-color: var(--color-border-accent);
+    background: var(--color-accent);
+  }
+
+  &:checked::after {
+    opacity: 1;
+    transform: rotate(-45deg) scale(1);
+  }
+
+  &:disabled:not(:checked) {
+    background: var(--color-bg-disabled);
+  }
+
+  &:disabled:checked {
+    --control-indicator-color: var(--color-text-secondary);
+
+    border-color: var(--color-border-strong);
+    background: var(--color-border-default);
+  }
+}
+
+.label {
+  @include formControls.option-label;
+}
+
+.input:checked + .label {
+  color: var(--color-text-primary);
+}
+
+.input:disabled + .label {
+  color: var(--color-text-disabled);
+  cursor: not-allowed;
+}

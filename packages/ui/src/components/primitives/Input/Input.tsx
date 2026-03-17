@@ -1,8 +1,9 @@
 import { type InputHTMLAttributes } from "react";
 import type { FieldValues } from "react-hook-form";
 
-import { type FormFieldName, useFormField } from "./useFormField";
-import { FormField, type FormFieldContentProps } from "./FormField";
+import { FormField, type FormFieldContentProps } from "../FormField/FormField";
+import { type FormFieldName, useFormField } from "../FormField/useFormField";
+import styles from "./Input.module.scss";
 
 type NativeInputPropKeys =
   | "autoComplete"
@@ -36,10 +37,16 @@ export function Input<TFieldValues extends FieldValues>({
     useFormField<TFieldValues, string>(name, disabled);
 
   return (
-    <FormField description={description} error={error} id={inputId} label={label}>
+    <FormField
+      description={description}
+      error={error}
+      id={inputId}
+      label={label}
+    >
       <input
+        aria-invalid={error ? true : undefined}
         {...props}
-        className="ui-input"
+        className={styles.input}
         disabled={isDisabled}
         id={inputId}
         name={name}

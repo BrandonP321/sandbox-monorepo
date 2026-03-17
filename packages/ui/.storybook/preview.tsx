@@ -14,29 +14,9 @@ const preview: Preview = {
       expanded: true
     }
   },
-  globalTypes: {
-    theme: {
-      description: "Storybook preview token mode",
-      toolbar: {
-        title: "Theme",
-        icon: "paintbrush",
-        dynamicTitle: true,
-        items: [
-          { value: "default", title: "Default" },
-          { value: "contrast", title: "Contrast" }
-        ]
-      }
-    }
-  },
-  initialGlobals: {
-    theme: "default"
-  },
   decorators: [
-    (Story, context) => (
-      <div
-        className="sb-preview-frame"
-        data-theme={context.globals.theme ?? "default"}
-      >
+    (Story) => (
+      <div className="sb-preview-frame">
         <Story />
       </div>
     )
