@@ -1,0 +1,106 @@
+.root {
+  min-block-size: var(--layout-header-height);
+  display: flex;
+  align-items: center;
+  gap: var(--space-cluster-md);
+  min-inline-size: 0;
+  padding: 0 var(--layout-panel-padding);
+  border-block-end: var(--border-width-thin) solid var(--color-border-default);
+  background: var(--color-bg-subtle);
+  color: var(--color-text-primary);
+}
+
+:global(header) > .root {
+  min-block-size: 100%;
+  border-block-end: 0;
+  background: transparent;
+}
+
+.left {
+  min-inline-size: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-cluster-md);
+  flex: 0 1 auto;
+}
+
+.start {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-icon-muted);
+}
+
+.controlButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--layout-control-height-dense);
+  block-size: var(--layout-control-height-dense);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-icon-muted);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--easing-standard),
+    color var(--duration-fast) var(--easing-standard),
+    box-shadow var(--duration-fast) var(--easing-standard);
+}
+
+.controlButton:hover {
+  background: var(--color-bg-surface);
+  color: var(--color-text-primary);
+}
+
+.controlButton:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus-glow);
+  color: var(--color-text-primary);
+}
+
+.titleBlock {
+  min-inline-size: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.label {
+  color: var(--color-text-muted);
+  font-size: var(--text-label-xs-size);
+  font-weight: var(--text-label-xs-weight);
+  line-height: var(--text-label-xs-line-height);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+}
+
+.title {
+  min-inline-size: 0;
+  color: var(--color-text-primary);
+  font-size: var(--text-title-sm-size);
+  font-weight: var(--text-title-sm-weight);
+  line-height: var(--text-title-sm-line-height);
+  white-space: nowrap;
+}
+
+.center {
+  min-inline-size: 0;
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+}
+
+.actions {
+  min-inline-size: 0;
+  margin-inline-start: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-cluster-sm);
+  color: var(--color-text-secondary);
+}
+
+.hasCenter .actions {
+  margin-inline-start: 0;
+}

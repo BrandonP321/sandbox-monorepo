@@ -15,8 +15,14 @@ const preview: Preview = {
     }
   },
   decorators: [
-    (Story) => (
-      <div className="sb-preview-frame">
+    (Story, context) => (
+      <div
+        className={
+          context.parameters.layout === "fullscreen"
+            ? "sb-preview-frame sb-preview-frame--fullscreen"
+            : "sb-preview-frame"
+        }
+      >
         <Story />
       </div>
     )

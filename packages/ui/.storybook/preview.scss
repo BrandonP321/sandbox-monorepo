@@ -5,3 +5,11 @@
   background: var(--color-bg-canvas);
   color: var(--color-text-primary);
 }
+
+.sb-preview-frame--fullscreen {
+  block-size: 100vh;
+  block-size: 100dvh;
+  min-height: 100vh;
+  padding: 0;
+  overflow: hidden;
+}

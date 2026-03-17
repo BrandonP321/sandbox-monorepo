@@ -12,6 +12,7 @@ This package is the shared source-of-truth for:
 - future primitives in [`src/components/primitives`](./src/components/primitives)
 - future composed patterns in [`src/components/patterns`](./src/components/patterns)
 - theme guidance in [`docs/THEME_ANALYST_CORE.md`](./docs/THEME_ANALYST_CORE.md)
+- component ownership guidance in [`docs/COMPONENT_MENTAL_MODEL.md`](./docs/COMPONENT_MENTAL_MODEL.md)
 
 The current primitives are implemented with local CSS modules that consume the package tokens.
 
@@ -24,6 +25,8 @@ This package is intentionally small.
 - Add shared primitives only when they are clearly foundational or already reused.
 - Analyst Core is the single supported theme today.
 - Keep app-specific layout and pattern code inside the app until reuse is real.
+- For the coordinated shell family, follow the ownership rules in
+  [`docs/COMPONENT_MENTAL_MODEL.md`](./docs/COMPONENT_MENTAL_MODEL.md).
 
 Today the shared surface is:
 
@@ -33,11 +36,28 @@ Today the shared surface is:
 - `Icon` primitive backed by `lucide-react`
 - `Button` primitive
 - `ButtonGroup` primitive
+- `AppShell` structural primitive
+- `Masthead` structural primitive
+- `SidebarNav` structural primitive
 - `Alert` primitive
 - `Input`, `Dropdown`, `CheckboxGroup`, and `RadioGroup` form primitives
 - package-local Storybook for UI docs and story tests
 
 Everything else should be added incrementally.
+
+## Mental model
+
+Read [`docs/COMPONENT_MENTAL_MODEL.md`](./docs/COMPONENT_MENTAL_MODEL.md)
+before adding new structural or layout components.
+
+The short version:
+
+- `AppShell` owns shell layout and shell coordination state.
+- `Masthead` owns global chrome.
+- `SidebarNav` owns navigation semantics.
+- Future page/layout components should keep similarly narrow ownership.
+- Context is allowed for the coordinated shell family, but should not become the
+  default answer for unrelated primitives.
 
 ## Usage
 
