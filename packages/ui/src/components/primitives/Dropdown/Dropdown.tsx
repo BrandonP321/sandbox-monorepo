@@ -1,6 +1,7 @@
 import type { SelectHTMLAttributes } from "react";
 import type { FieldValues } from "react-hook-form";
 
+import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
 import { FormField, type FormFieldContentProps } from "../Input/FormField";
 import { type FormFieldName, useFormField } from "../Input/useFormField";
 
@@ -27,27 +28,7 @@ export type DropdownProps<
       name: FormFieldName<TFieldValues, TValue>;
       options: readonly DropdownOption<TValue>[];
       placeholder?: string;
-    };
-
-function normalizeComparableValue(value: unknown): string {
-  if (value === null || value === undefined) {
-    return "";
-  }
-
-  if (typeof value !== "object") {
-    return String(value);
-  }
-
-  if (Array.isArray(value)) {
-    return JSON.stringify(value.map((item) => normalizeComparableValue(item)));
-  }
-
-  const entries = Object.entries(value as Record<string, unknown>)
-    .sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
-    .map(([key, entryValue]) => [key, normalizeComparableValue(entryValue)]);
-
-  return JSON.stringify(entries);
-}
+};
 
 export function Dropdown<
   TFieldValues extends FieldValues,
