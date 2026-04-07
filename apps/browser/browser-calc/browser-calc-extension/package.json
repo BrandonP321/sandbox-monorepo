@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite build --watch --mode development",
+    "dev:ext": "vite build --watch --mode development",
     "build": "vite build",
     "package": "pnpm build && cd dist && zip -r -FS ../browser-calc-extension.zip .",
     "lint": "eslint .",

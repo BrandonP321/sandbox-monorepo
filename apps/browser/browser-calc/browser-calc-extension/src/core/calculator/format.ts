@@ -1,4 +1,3 @@
-const ERROR_DISPLAY = "Error";
 const MAX_FRACTION_DIGITS = 12;
 
 function trimTrailingZeros(value: string): string {
@@ -9,9 +8,9 @@ function trimTrailingZeros(value: string): string {
   return value.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
 }
 
-export function normalizeDisplay(raw: number): string {
+export function formatNumber(raw: number): string {
   if (!Number.isFinite(raw)) {
-    return ERROR_DISPLAY;
+    return "Error";
   }
 
   if (Object.is(raw, -0)) {
@@ -21,7 +20,7 @@ export function normalizeDisplay(raw: number): string {
   const normalized = Number(raw.toPrecision(MAX_FRACTION_DIGITS));
 
   if (!Number.isFinite(normalized)) {
-    return ERROR_DISPLAY;
+    return "Error";
   }
 
   const asString = normalized.toString();
@@ -32,10 +31,3 @@ export function normalizeDisplay(raw: number): string {
 
   return trimTrailingZeros(asString);
 }
-
-export function parseDisplayValue(display: string): number {
-  const parsed = Number.parseFloat(display);
-  return Number.isFinite(parsed) ? parsed : Number.NaN;
-}
-
-export { ERROR_DISPLAY };

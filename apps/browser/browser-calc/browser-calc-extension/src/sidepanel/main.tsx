@@ -1,3 +1,7 @@
+if (import.meta.env.MODE === "development") {
+  void import("./dev-reload");
+}
+
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "@repo/ui/styles";
