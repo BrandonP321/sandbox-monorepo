@@ -3,4 +3,4 @@ export { evaluateExpression } from "./evaluator";
 export { formatNumber } from "./format";
 export { formatExpressionDisplay } from "./input";
 export { getCopyValue, getInitialCalculatorState, reduceCalculator } from "./reducer";
-export type { CalculatorState, HistoryEntry } from "./types";
+export type { AngleMode, CalculatorState, HistoryEntry } from "./types";

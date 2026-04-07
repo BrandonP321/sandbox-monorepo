@@ -16,8 +16,8 @@ type EditResult = {
   selectionEnd: number;
 };
 
-const TOKEN_PATTERN = /^(?:ANS|[−-]?\d*\.?\d+)(?:%+)?$/;
-const OPERATOR_PATTERN = /[+\-*/×÷−]/;
+const TOKEN_PATTERN = /^(?:ANS|π|e|[−-]?\d*\.?\d+(?:EE[+\-−]?\d+)?)(?:[%!]+)?$/;
+const OPERATOR_PATTERN = /[+\-*/^×÷−]/;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
@@ -64,7 +64,7 @@ function withEditingState(state: CalculatorState, edit: EditResult): CalculatorS
 }
 
 function shouldExpandImplicitChainDraft(expression: string): boolean {
-  return /^[+\-−*/×÷]/.test(expression.trimStart());
+  return /^[+\-−*/×÷^]/.test(expression.trimStart());
 }
 
 function clearDisplayedResultForEditing(state: CalculatorState): CalculatorState {
@@ -77,6 +77,28 @@ function clearDisplayedResultForEditing(state: CalculatorState): CalculatorState
     result: null,
     errorMessage: null
   };
+}
+
+function insertValue(state: CalculatorState, value: string): CalculatorState {
+  if (state.result !== null && state.lastResult !== null && shouldExpandImplicitChainDraft(value)) {
+    const resultPrefix = formatExpressionDisplay(formatNumber(state.lastResult));
+
+    return withEditingState(state, {
+      expression: `${resultPrefix}${value}`,
+      selectionStart: resultPrefix.length + value.length,
+      selectionEnd: resultPrefix.length + value.length
+    });
+  }
+
+  if (state.result !== null || state.errorMessage !== null) {
+    return withEditingState(clearDisplayedResultForEditing(state), {
+      expression: value,
+      selectionStart: value.length,
+      selectionEnd: value.length
+    });
+  }
+
+  return withEditingState(state, replaceSelection(state.expression, toSelectionRange(state), value));
 }
 
 function findTokenRange(expression: string, selection: SelectionRange): SelectionRange | null {
@@ -94,11 +116,11 @@ function findTokenRange(expression: string, selection: SelectionRange): Selectio
   let start = boundaryIndex;
   let end = boundaryIndex;
 
-  while (start > 0 && /[A-Za-z0-9.%]/.test(expression[start - 1])) {
+  while (start > 0 && /[A-Za-z0-9.%!πe]/.test(expression[start - 1])) {
     start -= 1;
   }
 
-  while (end < expression.length && /[A-Za-z0-9.%]/.test(expression[end])) {
+  while (end < expression.length && /[A-Za-z0-9.%!πe]/.test(expression[end])) {
     end += 1;
   }
 
@@ -160,6 +182,19 @@ function applyPercent(expression: string, selection: SelectionRange): EditResult
   };
 }
 
+function resolveValueForMemory(state: CalculatorState): number | null {
+  if (state.result !== null) {
+    return state.result;
+  }
+
+  if (state.expression.trim()) {
+    const evaluation = evaluateExpression(state.expression, state.lastResult, state.angleMode);
+    return evaluation.ok ? evaluation.value : null;
+  }
+
+  return state.lastResult;
+}
+
 export function getInitialCalculatorState(): CalculatorState {
   return {
     expression: "",
@@ -168,6 +203,8 @@ export function getInitialCalculatorState(): CalculatorState {
     selectionEnd: 0,
     result: null,
     lastResult: null,
+    memoryValue: null,
+    angleMode: "DEG",
     history: [],
     errorMessage: null
   };
@@ -175,27 +212,8 @@ export function getInitialCalculatorState(): CalculatorState {
 
 export function reduceCalculator(state: CalculatorState, action: CalculatorAction): CalculatorState {
   switch (action.type) {
-    case "INSERT_CHAR": {
-      if (state.result !== null && state.lastResult !== null && shouldExpandImplicitChainDraft(action.value)) {
-        const resultPrefix = formatExpressionDisplay(formatNumber(state.lastResult));
-
-        return withEditingState(state, {
-          expression: `${resultPrefix}${action.value}`,
-          selectionStart: resultPrefix.length + action.value.length,
-          selectionEnd: resultPrefix.length + action.value.length
-        });
-      }
-
-      if (state.result !== null || state.errorMessage !== null) {
-        return withEditingState(clearDisplayedResultForEditing(state), {
-          expression: action.value,
-          selectionStart: action.value.length,
-          selectionEnd: action.value.length
-        });
-      }
-
-      return withEditingState(state, replaceSelection(state.expression, toSelectionRange(state), action.value));
-    }
+    case "INSERT_CHAR":
+      return insertValue(state, action.value);
     case "DELETE_CHAR": {
       const selection = toSelectionRange(state);
 
@@ -290,8 +308,44 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
       const edit = applyPercent(state.expression, toSelectionRange(state));
       return edit ? withEditingState(state, edit) : state;
     }
+    case "SET_ANGLE_MODE":
+      return {
+        ...state,
+        angleMode: action.value
+      };
+    case "MEMORY_CLEAR":
+      return {
+        ...state,
+        memoryValue: null
+      };
+    case "MEMORY_RECALL":
+      return state.memoryValue === null ? state : insertValue(state, formatExpressionDisplay(formatNumber(state.memoryValue)));
+    case "MEMORY_ADD": {
+      const value = resolveValueForMemory(state);
+
+      if (value === null) {
+        return state;
+      }
+
+      return {
+        ...state,
+        memoryValue: (state.memoryValue ?? 0) + value
+      };
+    }
+    case "MEMORY_SUBTRACT": {
+      const value = resolveValueForMemory(state);
+
+      if (value === null) {
+        return state;
+      }
+
+      return {
+        ...state,
+        memoryValue: (state.memoryValue ?? 0) - value
+      };
+    }
     case "EVALUATE": {
-      const evaluation = evaluateExpression(state.expression, state.lastResult);
+      const evaluation = evaluateExpression(state.expression, state.lastResult, state.angleMode);
 
       if (!evaluation.ok) {
         return {
@@ -319,6 +373,17 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
         })
       };
     }
+    case "ALL_CLEAR":
+      return {
+        ...state,
+        expression: "",
+        cursorIndex: 0,
+        selectionStart: 0,
+        selectionEnd: 0,
+        result: null,
+        lastResult: null,
+        errorMessage: null
+      };
     case "CLEAR":
       return {
         ...state,

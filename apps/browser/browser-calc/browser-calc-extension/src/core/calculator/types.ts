@@ -4,6 +4,8 @@ export type HistoryEntry = {
   timestamp: number;
 };
 
+export type AngleMode = "DEG" | "RAD";
+
 export type CalculatorState = {
   expression: string;
   cursorIndex: number;
@@ -11,6 +13,8 @@ export type CalculatorState = {
   selectionEnd: number;
   result: number | null;
   lastResult: number | null;
+  memoryValue: number | null;
+  angleMode: AngleMode;
   history: HistoryEntry[];
   errorMessage: string | null;
 };

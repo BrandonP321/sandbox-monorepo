@@ -1,4 +1,5 @@
 import type { HistoryEntry } from "./types";
+import type { AngleMode } from "./types";
 
 export type DeleteDirection = "backward" | "forward";
 
@@ -13,4 +14,10 @@ export type CalculatorAction =
   | { type: "SET_FROM_HISTORY"; entry: HistoryEntry }
   | { type: "PASTE_INPUT"; value: string }
   | { type: "TOGGLE_SIGN" }
-  | { type: "APPLY_PERCENT" };
+  | { type: "APPLY_PERCENT" }
+  | { type: "ALL_CLEAR" }
+  | { type: "SET_ANGLE_MODE"; value: AngleMode }
+  | { type: "MEMORY_CLEAR" }
+  | { type: "MEMORY_RECALL" }
+  | { type: "MEMORY_ADD" }
+  | { type: "MEMORY_SUBTRACT" };
