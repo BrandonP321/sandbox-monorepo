@@ -20,7 +20,13 @@ Storybook lives inside `packages/ui` and is only for the shared UI package.
 - Use one story file per component.
 - Keep stories args-based and predictable.
 - Show representative states, not every theoretical combination.
-- Use `play` functions only when they validate a meaningful interaction.
+- If multiple stories need the same composed example, extract a small story-only
+  helper under `src/storybook/examples` and reuse that helper.
+- Share args objects, example components, or render helpers instead of exporting
+  a prebuilt React element.
+- Use `play` functions only when they validate browser-only behavior that the unit tests do not already cover.
+- Prefer unit tests for static structure, slot rendering, and prop-driven variants.
+- Do not keep token or layout smoke assertions in stories unless a browser-only regression has made them necessary.
 
 ## Tags
 
@@ -49,6 +55,8 @@ Storybook lives inside `packages/ui` and is only for the shared UI package.
 
 - Add stories next to the component under `src`.
 - Prefer importing icons from `../icons` or `../../icons` within the package, not from `lucide-react`.
-- If a component already has unit tests, add a small set of stories that cover the same public states rather than duplicating edge-case test logic in Storybook.
-- If a story asserts visual styling, prefer checking computed styles against Analyst Core token outputs rather than reintroducing alternate preview themes.
+- Keep story-only helpers package-local; do not export them from `@repo/ui`.
+- If a component already has unit tests, keep Storybook focused on representative states and browser-only behavior rather than repeating static assertions.
+- For this package, Storybook play tests should be rare and intentional: coordinated shell behavior, form interaction flows, and browser-only regressions.
+- Do not add `data-*` hooks or extra ARIA to components just to make Storybook or tests easier to query. Prefer stable native selectors or visible text unless the attribute is part of the real component contract.
 - If a story is only useful as documentation, tag it so it does not run as a Storybook test.

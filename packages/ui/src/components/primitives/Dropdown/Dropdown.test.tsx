@@ -1,18 +1,9 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import fieldStyles from "../FormField/FormField.module.scss";
 import dropdownStyles from "./Dropdown.module.scss";
 import { Dropdown } from "./Dropdown";
-
-type ExampleFormValues = {
-  country?: string | null;
-};
-
-type ExampleNumericFormValues = {
-  priority?: number | null;
-};
 
 const options = [
   { label: "United States", value: "us" },
@@ -26,46 +17,16 @@ const numericOptions = [
   { label: "High", value: 3 }
 ];
 
-function TestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleFormValues;
-}) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
-function NumericTestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleNumericFormValues;
-}) {
-  const form = useForm<ExampleNumericFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
 describe("Dropdown", () => {
   it("renders a generated label/select pair with description text", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ country: "ca" }}>
-        <Dropdown
-          description="Choose the market for this portfolio entry."
-          label="Country"
-          name="country"
-          options={options}
-          placeholder="Select a country"
-        />
-      </TestForm>
+      <Dropdown
+        defaultValue="ca"
+        description="Choose the market for this portfolio entry."
+        label="Country"
+        options={options}
+        placeholder="Select a country"
+      />
     );
 
     expect(markup).toContain(fieldStyles.root);
@@ -87,14 +48,7 @@ describe("Dropdown", () => {
 
   it("renders an empty selection when the field value is nullish", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ country: undefined }}>
-        <Dropdown
-          label="Country"
-          name="country"
-          options={options}
-          placeholder="Select a country"
-        />
-      </TestForm>
+      <Dropdown label="Country" options={options} placeholder="Select a country" />
     );
 
     expect(markup).toContain('value=""');
@@ -103,9 +57,7 @@ describe("Dropdown", () => {
 
   it("respects the disabled prop on the native select", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ country: "us" }}>
-        <Dropdown disabled label="Country" name="country" options={options} />
-      </TestForm>
+      <Dropdown defaultValue="us" disabled label="Country" options={options} />
     );
 
     expect(markup).toContain("disabled");
@@ -114,14 +66,12 @@ describe("Dropdown", () => {
 
   it("supports non-string option values through a generic value type", () => {
     const markup = renderToStaticMarkup(
-      <NumericTestForm defaultValues={{ priority: 2 }}>
-        <Dropdown<ExampleNumericFormValues, number>
-          label="Priority"
-          name="priority"
-          options={numericOptions}
-          placeholder="Select a priority"
-        />
-      </NumericTestForm>
+      <Dropdown<number>
+        defaultValue={2}
+        label="Priority"
+        options={numericOptions}
+        placeholder="Select a priority"
+      />
     );
 
     expect(markup).toContain("Priority");

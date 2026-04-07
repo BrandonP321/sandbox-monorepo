@@ -1,15 +1,19 @@
-import type { ReactNode } from "react";
-import type { FieldValues } from "react-hook-form";
+import {
+  forwardRef,
+  type ForwardedRef,
+  type InputHTMLAttributes,
+  type ReactElement,
+  type ReactNode,
+  type RefAttributes,
+  useId
+} from "react";
 
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
+import { useControllableValue } from "../../../lib/useControllableValue";
 import {
   FormField,
   type FormFieldContentProps
 } from "../FormField/FormField";
-import {
-  type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
 import styles from "./CheckboxGroup.module.scss";
 
 export type CheckboxOption<TValue = string> = {
@@ -18,13 +22,16 @@ export type CheckboxOption<TValue = string> = {
   value: TValue;
 };
 
-export type CheckboxGroupProps<
-  TFieldValues extends FieldValues,
-  TValue = string
-> = FormFieldContentProps & {
+export type CheckboxGroupProps<TValue = string> = FormFieldContentProps & {
+  defaultValue?: readonly TValue[] | null;
   disabled?: boolean;
-  name: FormFieldName<TFieldValues, TValue[]>;
+  error?: string;
+  id?: string;
+  name?: string;
+  onBlur?: InputHTMLAttributes<HTMLInputElement>["onBlur"];
+  onValueChange?: (value: TValue[]) => void;
   options: readonly CheckboxOption<TValue>[];
+  value?: readonly TValue[] | null;
 };
 
 function includesOptionValue<TValue>(
@@ -39,27 +46,39 @@ function includesOptionValue<TValue>(
   );
 }
 
-export function CheckboxGroup<
-  TFieldValues extends FieldValues,
-  TValue = string
->({
-  description,
-  disabled = false,
-  label,
-  name,
-  options
-}: CheckboxGroupProps<TFieldValues, TValue>) {
+type CheckboxGroupComponent = <TValue = string>(
+  props: CheckboxGroupProps<TValue> & RefAttributes<HTMLInputElement>
+) => ReactElement | null;
+
+function CheckboxGroupInner<TValue = string>(
+  props: CheckboxGroupProps<TValue>,
+  ref: ForwardedRef<HTMLInputElement>
+) {
+  const isValueControlled = Object.prototype.hasOwnProperty.call(props, "value");
   const {
+    defaultValue,
+    description,
+    disabled = false,
     error,
-    inputId,
-    isDisabled,
-    name: fieldName,
+    id,
+    label,
+    name,
     onBlur,
-    ref,
-    setValue,
+    onValueChange,
+    options,
     value
-  } = useFormField<TFieldValues, TValue[], HTMLInputElement>(name, disabled);
-  const selectedValues = Array.isArray(value) ? value : [];
+  } = props;
+  const generatedId = useId();
+  const inputId = id ?? `checkbox-group-${generatedId}`;
+  const groupName = name ?? inputId;
+  const [selectedValues, setSelectedValues] = useControllableValue<
+    readonly TValue[]
+  >({
+    defaultValue: defaultValue ?? [],
+    isControlled: isValueControlled,
+    onChange: (nextValue) => onValueChange?.([...nextValue]),
+    value: Array.isArray(value) ? value : []
+  });
 
   return (
     <FormField description={description} error={error} isFieldset label={label}>
@@ -74,19 +93,19 @@ export function CheckboxGroup<
                 aria-invalid={error ? true : undefined}
                 checked={checked}
                 className={styles.input}
-                disabled={isDisabled || option.disabled}
+                disabled={disabled || option.disabled}
                 id={optionId}
-                name={fieldName}
+                name={groupName}
                 ref={index === 0 ? ref : undefined}
                 type="checkbox"
                 onBlur={onBlur}
                 onChange={(event) => {
                   if (event.currentTarget.checked) {
-                    setValue([...selectedValues, option.value]);
+                    setSelectedValues([...selectedValues, option.value]);
                     return;
                   }
 
-                  setValue(
+                  setSelectedValues(
                     selectedValues.filter(
                       (selectedValue) =>
                         normalizeComparableValue(selectedValue) !==
@@ -105,3 +124,9 @@ export function CheckboxGroup<
     </FormField>
   );
 }
+
+const CheckboxGroupBase = forwardRef(CheckboxGroupInner);
+
+CheckboxGroupBase.displayName = "CheckboxGroup";
+
+export const CheckboxGroup = CheckboxGroupBase as CheckboxGroupComponent;

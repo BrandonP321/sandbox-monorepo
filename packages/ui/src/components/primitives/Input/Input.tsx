@@ -1,61 +1,57 @@
-import { type InputHTMLAttributes } from "react";
-import type { FieldValues } from "react-hook-form";
+import { forwardRef, type InputHTMLAttributes, useId } from "react";
+import type { LucideIcon } from "lucide-react";
 
+import { cn } from "../../../lib/cn";
 import { FormField, type FormFieldContentProps } from "../FormField/FormField";
-import { type FormFieldName, useFormField } from "../FormField/useFormField";
+import { Icon } from "../Icon/Icon";
 import styles from "./Input.module.scss";
 
-type NativeInputPropKeys =
-  | "autoComplete"
-  | "autoFocus"
-  | "inputMode"
-  | "placeholder"
-  | "readOnly"
-  | "required"
-  | "type";
-
-type NativeInputProps = Pick<
+export type InputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
-  NativeInputPropKeys
->;
-
-export type InputProps<TFieldValues extends FieldValues> = NativeInputProps &
+  "children"
+> &
   FormFieldContentProps & {
-    disabled?: boolean;
-    name: FormFieldName<TFieldValues, string>;
+    error?: string;
+    iconLeft?: LucideIcon;
   };
 
-export function Input<TFieldValues extends FieldValues>({
-  description,
-  disabled = false,
-  label,
-  name,
-  type = "text",
-  ...props
-}: InputProps<TFieldValues>) {
-  const { error, inputId, isDisabled, onBlur, ref, setValue, value } =
-    useFormField<TFieldValues, string>(name, disabled);
+export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    className,
+    description,
+    error,
+    iconLeft,
+    id,
+    label,
+    type = "text",
+    ...props
+  },
+  ref
+) {
+  const generatedId = useId();
+  const inputId = id ?? `input-${generatedId}`;
 
   return (
-    <FormField
-      description={description}
-      error={error}
-      id={inputId}
-      label={label}
-    >
-      <input
-        aria-invalid={error ? true : undefined}
-        {...props}
-        className={styles.input}
-        disabled={isDisabled}
-        id={inputId}
-        name={name}
-        ref={ref}
-        type={type}
-        value={value ?? ""}
-        onBlur={onBlur}
-        onChange={(event) => setValue(event.currentTarget.value)}
-      />
+    <FormField description={description} error={error} id={inputId} label={label}>
+      <div className={styles.root}>
+        <input
+          aria-invalid={error ? true : undefined}
+          {...props}
+          className={cn(
+            styles.input,
+            iconLeft && styles.inputWithIcon,
+            className
+          )}
+          id={inputId}
+          ref={ref}
+          type={type}
+        />
+        {iconLeft ? (
+          <span className={styles.icon}>
+            <Icon icon={iconLeft} size="sm" />
+          </span>
+        ) : null}
+      </div>
     </FormField>
   );
-}
+});

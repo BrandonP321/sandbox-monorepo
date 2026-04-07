@@ -1,22 +1,24 @@
-import type { SelectHTMLAttributes } from "react";
-import type { FieldValues } from "react-hook-form";
+import {
+  forwardRef,
+  type ForwardedRef,
+  type ReactElement,
+  type RefAttributes,
+  type SelectHTMLAttributes,
+  useId
+} from "react";
 
+import { cn } from "../../../lib/cn";
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
+import { useControllableValue } from "../../../lib/useControllableValue";
 import {
   FormField,
   type FormFieldContentProps
 } from "../FormField/FormField";
-import {
-  type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
 import styles from "./Dropdown.module.scss";
 
-type NativeDropdownPropKeys = "autoFocus" | "required";
-
-type NativeDropdownProps = Pick<
+type NativeDropdownProps = Omit<
   SelectHTMLAttributes<HTMLSelectElement>,
-  NativeDropdownPropKeys
+  "children" | "defaultValue" | "multiple" | "value"
 >;
 
 export type DropdownOption<TValue = string> = {
@@ -25,63 +27,82 @@ export type DropdownOption<TValue = string> = {
   value: TValue;
 };
 
-export type DropdownProps<
-  TFieldValues extends FieldValues,
-  TValue = string
-> =
-  NativeDropdownProps &
-    FormFieldContentProps & {
-      disabled?: boolean;
-      name: FormFieldName<TFieldValues, TValue>;
-      options: readonly DropdownOption<TValue>[];
-      placeholder?: string;
-};
+export type DropdownProps<TValue = string> = NativeDropdownProps &
+  FormFieldContentProps & {
+    defaultValue?: TValue | null;
+    error?: string;
+    options: readonly DropdownOption<TValue>[];
+    placeholder?: string;
+    value?: TValue | null;
+    onValueChange?: (value: TValue | undefined) => void;
+  };
 
-export function Dropdown<
-  TFieldValues extends FieldValues,
-  TValue = string
->({
-  description,
-  disabled = false,
-  label,
-  name,
-  options,
-  placeholder,
-  required = false,
-  ...props
-}: DropdownProps<TFieldValues, TValue>) {
-  const { error, inputId, isDisabled, onBlur, ref, setValue, value } =
-    useFormField<TFieldValues, TValue, HTMLSelectElement>(name, disabled);
+type DropdownComponent = <TValue = string>(
+  props: DropdownProps<TValue> & RefAttributes<HTMLSelectElement>
+) => ReactElement | null;
+
+function DropdownInner<TValue = string>(
+  props: DropdownProps<TValue>,
+  ref: ForwardedRef<HTMLSelectElement>
+) {
+  const isValueControlled = Object.prototype.hasOwnProperty.call(props, "value");
+  const {
+    className,
+    defaultValue,
+    description,
+    disabled = false,
+    error,
+    id,
+    label,
+    onChange,
+    onValueChange,
+    options,
+    placeholder,
+    required = false,
+    value,
+    ...restProps
+  } = props;
+  const generatedId = useId();
+  const inputId = id ?? `input-${generatedId}`;
+  const [selectedOptionValue, setSelectedOptionValue] = useControllableValue<
+    TValue | undefined
+  >({
+    defaultValue: defaultValue ?? undefined,
+    isControlled: isValueControlled,
+    onChange: onValueChange,
+    value: value ?? undefined
+  });
   const selectedIndex = options.findIndex(
     (option) =>
-      normalizeComparableValue(option.value) === normalizeComparableValue(value)
+      normalizeComparableValue(option.value) ===
+      normalizeComparableValue(selectedOptionValue)
   );
-  const selectedValue = selectedIndex >= 0 ? String(selectedIndex) : "";
+  const selectValue = selectedIndex >= 0 ? String(selectedIndex) : "";
 
   return (
     <FormField description={description} error={error} id={inputId} label={label}>
       <select
         aria-invalid={error ? true : undefined}
-        {...props}
-        className={styles.dropdown}
-        disabled={isDisabled}
+        {...restProps}
+        className={cn(styles.dropdown, className)}
+        disabled={disabled}
         id={inputId}
-        name={name}
         ref={ref}
         required={required}
-        value={selectedValue}
-        onBlur={onBlur}
+        value={selectValue}
         onChange={(event) => {
+          onChange?.(event);
+
           const nextIndex = event.currentTarget.value;
 
           if (nextIndex === "") {
-            setValue(undefined);
+            setSelectedOptionValue(undefined);
             return;
           }
 
           const option = options[Number(nextIndex)];
 
-          setValue(option?.value);
+          setSelectedOptionValue(option?.value);
         }}
       >
         {placeholder ? (
@@ -102,3 +123,9 @@ export function Dropdown<
     </FormField>
   );
 }
+
+const DropdownBase = forwardRef(DropdownInner);
+
+DropdownBase.displayName = "Dropdown";
+
+export const Dropdown = DropdownBase as DropdownComponent;

@@ -1,22 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import fieldStyles from "../FormField/FormField.module.scss";
 import radioStyles from "./RadioGroup.module.scss";
 import { RadioGroup } from "./RadioGroup";
 
-type ExampleFormValues = {
-  audience?: string | null;
-};
-
 type RegionValue = {
   code: string;
   label: string;
-};
-
-type ExampleObjectFormValues = {
-  region?: RegionValue | null;
 };
 
 const options = [
@@ -42,45 +33,15 @@ const regionOptions = [
   }
 ] as const;
 
-function TestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleFormValues;
-}) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
-function ObjectValueTestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleObjectFormValues;
-}) {
-  const form = useForm<ExampleObjectFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
 describe("RadioGroup", () => {
   it("renders a grouped radio field with legend and description text", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: "researchers" }}>
-        <RadioGroup
-          description="Choose the primary audience for this report."
-          label="Audience"
-          name="audience"
-          options={options}
-        />
-      </TestForm>
+      <RadioGroup
+        defaultValue="researchers"
+        description="Choose the primary audience for this report."
+        label="Audience"
+        options={options}
+      />
     );
 
     expect(markup).toContain("<fieldset");
@@ -100,9 +61,7 @@ describe("RadioGroup", () => {
 
   it("renders an unselected group when the field value is nullish", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: undefined }}>
-        <RadioGroup label="Audience" name="audience" options={options} />
-      </TestForm>
+      <RadioGroup label="Audience" options={options} />
     );
 
     expect(markup).not.toContain('checked=""');
@@ -110,9 +69,12 @@ describe("RadioGroup", () => {
 
   it("respects the disabled prop on each native radio input", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: "operators" }}>
-        <RadioGroup disabled label="Audience" name="audience" options={options} />
-      </TestForm>
+      <RadioGroup
+        defaultValue="operators"
+        disabled
+        label="Audience"
+        options={options}
+      />
     );
 
     expect(markup.match(/disabled=""/g)?.length).toBe(options.length);
@@ -121,13 +83,11 @@ describe("RadioGroup", () => {
 
   it("supports non-string option values through a generic value type", () => {
     const markup = renderToStaticMarkup(
-      <ObjectValueTestForm defaultValues={{ region: regionOptions[1].value }}>
-        <RadioGroup<ExampleObjectFormValues, RegionValue>
-          label="Region"
-          name="region"
-          options={regionOptions}
-        />
-      </ObjectValueTestForm>
+      <RadioGroup<RegionValue>
+        defaultValue={regionOptions[1].value}
+        label="Region"
+        options={regionOptions}
+      />
     );
 
     expect(markup).toContain("Region");

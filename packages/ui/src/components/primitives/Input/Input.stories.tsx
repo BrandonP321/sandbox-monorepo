@@ -1,62 +1,56 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState } from "react";
 
-import { Button } from "../Button/Button";
+import { Search } from "../../../icons";
 import { Input, type InputProps } from "./Input";
 
-const exampleSchema = z.object({
-  company: z.string().min(1, "Company name is required.")
-});
-
-type ExampleFormValues = z.infer<typeof exampleSchema>;
-
-type InputStoryHarnessProps = InputProps<ExampleFormValues> & {
+type InputStoryHarnessProps = InputProps & {
   defaultValue?: string;
 };
+
+function wait(milliseconds = 50) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
+
+function setTextValue(input: HTMLInputElement, value: string) {
+  const prototype = Object.getPrototypeOf(input) as HTMLInputElement;
+  const valueSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
+
+  valueSetter?.call(input, value);
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+}
 
 function InputStoryHarness({
   defaultValue = "",
   ...props
 }: InputStoryHarnessProps) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues: {
-      company: defaultValue
-    },
-    resolver: zodResolver(exampleSchema)
-  });
-
-  const value = form.watch("company");
+  const [value, setValue] = useState(defaultValue);
 
   return (
-    <FormProvider {...form}>
-      <form
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          void form.handleSubmit(() => undefined)(event);
-        }}
+    <div
+      style={{
+        display: "grid",
+        gap: "var(--space-stack-md)",
+        inlineSize: "min(100%, 28rem)"
+      }}
+    >
+      <Input
+        {...props}
+        value={value}
+        onChange={(event) => setValue(event.currentTarget.value)}
+      />
+      <div
         style={{
-          display: "grid",
-          gap: "var(--space-stack-md)",
-          inlineSize: "min(100%, 28rem)"
+          color: "var(--color-text-muted)",
+          fontSize: "var(--text-body-sm-size)"
         }}
       >
-        <Input {...props} />
-        <div
-          style={{
-            color: "var(--color-text-muted)",
-            fontSize: "var(--text-body-sm-size)"
-          }}
-        >
-          Current value: {value || "<empty>"}
-        </div>
-        <Button type="submit" variant="primary">
-          Submit
-        </Button>
-      </form>
-    </FormProvider>
+        Current value: {value || "<empty>"}
+      </div>
+    </div>
   );
 }
 
@@ -66,10 +60,14 @@ const meta = {
   args: {
     description: "Used internally for portfolio project data entry.",
     label: "Company name",
-    name: "company",
     placeholder: "OpenAI",
     required: true,
     type: "text"
+  },
+  argTypes: {
+    iconLeft: {
+      control: false
+    }
   }
 } satisfies Meta<typeof InputStoryHarness>;
 
@@ -83,6 +81,13 @@ export const WithPrefill: Story = {
   render: (args) => <InputStoryHarness {...args} defaultValue="OpenAI" />
 };
 
+export const WithLeadingIcon: Story = {
+  args: {
+    iconLeft: Search,
+    placeholder: "Search datasets and briefs"
+  }
+};
+
 export const Disabled: Story = {
   args: {
     description: "This field is locked for the current workflow step.",
@@ -90,24 +95,28 @@ export const Disabled: Story = {
   }
 };
 
-export const ValidationError: Story = {
+export const Typing: Story = {
   play: async ({ canvasElement }) => {
-    const submitButton = canvasElement.querySelector('button[type="submit"]');
+    const input = canvasElement.querySelector("input");
 
-    if (!(submitButton instanceof HTMLButtonElement)) {
-      throw new Error("Expected Input story to render a submit button.");
+    if (!(input instanceof HTMLInputElement)) {
+      throw new Error("Expected Input story to render an input element.");
     }
 
-    submitButton.click();
+    setTextValue(input, "OpenAI");
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 50);
-    });
+    await wait();
 
-    const error = canvasElement.textContent;
+    const storyText = canvasElement.textContent;
 
-    if (!error?.includes("Company name is required.")) {
-      throw new Error("Expected validation error to render after submit.");
+    if (!storyText?.includes("Current value: OpenAI")) {
+      throw new Error("Expected the input story preview to update after typing.");
     }
+  }
+};
+
+export const ValidationError: Story = {
+  args: {
+    error: "Company name is required."
   }
 };

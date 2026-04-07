@@ -1,22 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState } from "react";
 
-import { Button } from "../Button/Button";
 import { Dropdown, type DropdownProps } from "./Dropdown";
 
-const exampleSchema = z.object({
-  country: z.string().min(1, "Country is required.")
-});
-
-type ExampleFormValues = z.infer<typeof exampleSchema>;
 type RegionValue = {
   code: string;
   label: string;
-};
-type ExampleObjectFormValues = {
-  region?: RegionValue | null;
 };
 
 const options = [
@@ -49,89 +38,79 @@ const regionOptions = [
   }
 ] as const;
 
-type DropdownStoryHarnessProps = DropdownProps<ExampleFormValues> & {
+type DropdownStoryHarnessProps = DropdownProps<string> & {
   defaultValue?: string;
 };
+
+function wait(milliseconds = 50) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
 
 function DropdownStoryHarness({
   defaultValue = "",
   ...props
 }: DropdownStoryHarnessProps) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues: {
-      country: defaultValue
-    },
-    resolver: zodResolver(exampleSchema)
-  });
-
-  const value = form.watch("country");
+  const [value, setValue] = useState<string | undefined>(
+    defaultValue || undefined
+  );
 
   return (
-    <FormProvider {...form}>
-      <form
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          void form.handleSubmit(() => undefined)(event);
-        }}
+    <div
+      style={{
+        display: "grid",
+        gap: "var(--space-stack-md)",
+        inlineSize: "min(100%, 28rem)"
+      }}
+    >
+      <Dropdown
+        {...props}
+        value={value}
+        onValueChange={(nextValue) => setValue(nextValue)}
+      />
+      <div
         style={{
-          display: "grid",
-          gap: "var(--space-stack-md)",
-          inlineSize: "min(100%, 28rem)"
+          color: "var(--color-text-muted)",
+          fontSize: "var(--text-body-sm-size)"
         }}
       >
-        <Dropdown {...props} />
-        <div
-          style={{
-            color: "var(--color-text-muted)",
-            fontSize: "var(--text-body-sm-size)"
-          }}
-        >
-          Current value: {value || "<empty>"}
-        </div>
-        <Button type="submit" variant="primary">
-          Submit
-        </Button>
-      </form>
-    </FormProvider>
+        Current value: {value || "<empty>"}
+      </div>
+    </div>
   );
 }
 
 function ObjectValueDropdownStoryHarness() {
-  const form = useForm<ExampleObjectFormValues>({
-    defaultValues: {
-      region: regionOptions[1].value
-    }
-  });
-
-  const value = form.watch("region");
+  const [value, setValue] = useState<RegionValue | undefined>(
+    regionOptions[1].value
+  );
 
   return (
-    <FormProvider {...form}>
-      <form
+    <div
+      style={{
+        display: "grid",
+        gap: "var(--space-stack-md)",
+        inlineSize: "min(100%, 28rem)"
+      }}
+    >
+      <Dropdown<RegionValue>
+        description="The selected value is a full object, not just a string."
+        label="Region"
+        options={regionOptions}
+        placeholder="Select a region"
+        value={value}
+        onValueChange={(nextValue) => setValue(nextValue)}
+      />
+      <div
         style={{
-          display: "grid",
-          gap: "var(--space-stack-md)",
-          inlineSize: "min(100%, 28rem)"
+          color: "var(--color-text-muted)",
+          fontSize: "var(--text-body-sm-size)"
         }}
       >
-        <Dropdown<ExampleObjectFormValues, RegionValue>
-          description="The selected value is a full object, not just a string."
-          label="Region"
-          name="region"
-          options={regionOptions}
-          placeholder="Select a region"
-        />
-        <div
-          style={{
-            color: "var(--color-text-muted)",
-            fontSize: "var(--text-body-sm-size)"
-          }}
-        >
-          Current value: {value ? JSON.stringify(value) : "<empty>"}
-        </div>
-      </form>
-    </FormProvider>
+        Current value: {value ? JSON.stringify(value) : "<empty>"}
+      </div>
+    </div>
   );
 }
 
@@ -141,7 +120,6 @@ const meta = {
   args: {
     description: "Used when the choice set is small and fixed.",
     label: "Country",
-    name: "country",
     options,
     placeholder: "Select a country",
     required: true
@@ -165,25 +143,32 @@ export const Disabled: Story = {
   }
 };
 
-export const ValidationError: Story = {
+export const SelectionChange: Story = {
   play: async ({ canvasElement }) => {
-    const submitButton = canvasElement.querySelector('button[type="submit"]');
+    const select = canvasElement.querySelector("select");
 
-    if (!(submitButton instanceof HTMLButtonElement)) {
-      throw new Error("Expected Dropdown story to render a submit button.");
+    if (!(select instanceof HTMLSelectElement)) {
+      throw new Error("Expected Dropdown story to render a select element.");
     }
 
-    submitButton.click();
+    select.value = "1";
+    select.dispatchEvent(new Event("change", { bubbles: true }));
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 50);
-    });
+    await wait();
 
-    const error = canvasElement.textContent;
+    const storyText = canvasElement.textContent;
 
-    if (!error?.includes("Country is required.")) {
-      throw new Error("Expected validation error to render after submit.");
+    if (!storyText?.includes("Current value: ca")) {
+      throw new Error(
+        "Expected the dropdown story preview to update after selection."
+      );
     }
+  }
+};
+
+export const ValidationError: Story = {
+  args: {
+    error: "Country is required."
   }
 };
 
@@ -205,9 +190,7 @@ export const ObjectValue: Story = {
     select.value = "2";
     select.dispatchEvent(new Event("change", { bubbles: true }));
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 50);
-    });
+    await wait();
 
     const updatedLabel = select.selectedOptions[0]?.textContent ?? "";
 

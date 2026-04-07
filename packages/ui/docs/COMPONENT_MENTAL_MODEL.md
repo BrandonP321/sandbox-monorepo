@@ -16,6 +16,35 @@ Default assumptions:
 - Keep public APIs small and obvious.
 - Add coordination logic only when it simplifies a repeated shell-level pattern.
 - Reuse `@repo/ui/icons` and semantic tokens instead of app-local variants.
+- Prefer pragmatic semantics over exhaustive accessibility surface area. This
+  package should keep the native HTML and ARIA that support real behavior or
+  obvious usability, but should not grow extra attributes just for theoretical
+  completeness.
+
+## Pragmatic semantics rule
+
+`@repo/ui` is for personal projects, not a compliance-oriented component
+library.
+
+That means:
+
+- Keep native semantics that come for free or directly support the component
+  contract.
+- Keep ARIA when the component needs it to coordinate behavior or label controls
+  that would otherwise be ambiguous, such as icon-only buttons or shell toggles.
+- Keep data attributes only when they drive styling, state, or a concrete
+  consumer integration.
+- Do not add extra ARIA props, pass-through attributes, or test-only data hooks
+  just to make the API feel more complete.
+- Do not add alternative labeling APIs unless a real usage in this repo needs
+  them.
+
+Examples:
+
+- Worth keeping: form labels, `aria-expanded` on coordinated shell toggles,
+  `aria-controls` when one owned control opens or closes another owned region.
+- Usually not worth adding: arbitrary `data-*` escape hatches, optional ARIA
+  prop passthrough on every primitive, or extra landmarks purely for ceremony.
 
 ## Component categories
 
@@ -30,7 +59,7 @@ There are three useful categories in this package:
 Current examples:
 
 - Structural shell primitives: `AppShell`, `Masthead`, `SidebarNav`
-- Semantic content primitives: `Alert`, `Button`, form controls
+- Semantic content primitives: `Alert`, `Button`, `Container`, form controls, `PageHeader`
 - Future layout helpers: `Stack`, `Grid`
 
 ## Ownership rules
@@ -69,12 +98,33 @@ The answers should stay narrow and defensible.
 - Important rule: `SidebarNav` owns the `nav` landmark. `AppShell` must not wrap
   it in another `nav`.
 
+### PageHeader
+
+- Owns: page identity, page-level heading, optional supporting page context,
+  page-level actions, and optional tools/filter row inside `main`.
+- Usually lives inside: the top of a page or workspace view within `main`
+- Does not own: shell layout, breadcrumb navigation semantics, or page body
+  sections below the header.
+- Important rule: `PageHeader` should usually own the page `h1`, while
+  breadcrumb content passed into it should own its own navigation semantics when
+  needed.
+
+### Container
+
+- Owns: bordered content framing, optional header/footer regions, and optional
+  media placement around a related content group.
+- Usually lives inside: `main`, often below `PageHeader` or inside a broader
+  page layout.
+- Does not own: page identity, shell layout, or highly specialized data-display
+  behavior.
+- Important rule: `Container` is the default panel-like surface for this
+  package. Keep it generic and restrained; if a future use case needs a richer
+  panel abstraction, that should be a separate component.
+
 ### Planned components
 
 These role boundaries should guide future implementation:
 
-- `PageHeader`: page identity and page-level controls inside `main`
-- `PageSection`: consistent page content zone with light layout ownership
 - `Panel`: bordered module surface with optional header/body/footer
 - `SplitPane`: internal two-pane workbench layout only
 - `DetailPanel`: supplemental inspector/filter/detail surface, often inside
@@ -111,10 +161,14 @@ semantic meaning:
 - `AppShell` owns shell-level `header` and `main`
 - `SidebarNav` owns `nav`
 - future `DetailPanel` may own complementary/detail semantics
-- future `PageHeader` may own the page heading
+- `PageHeader` may own the page heading
 
 Do not duplicate landmarks just because a component is visually nested inside
 another one.
+
+Use the smallest semantic surface that keeps the component understandable.
+Prefer native elements first. Add extra ARIA only when it carries real meaning
+for how the component works in these projects.
 
 ## API guidance
 
@@ -125,6 +179,8 @@ When choosing a public API:
 - Prefer slots when the visual structure is stable but content varies.
 - Add controlled/uncontrolled support only where state coordination is a real
   package concern.
+- Do not add generic attribute escape hatches unless there is a concrete need
+  for them in the repo.
 
 Current examples:
 
@@ -153,7 +209,8 @@ Current examples:
 
 - Add at least one regression guard for every behavioral change.
 - Static structure can be covered with server-rendered markup tests.
-- Interactive shell behavior should usually be covered in Storybook play tests.
+- Use Storybook play tests sparingly for browser-only behavior that markup tests do not exercise.
+- Interactive shell behavior and meaningful form flows are the default cases where story-level guards still belong.
 
 ## Change discipline
 

@@ -1,4 +1,3 @@
-import { useId } from "react";
 import {
   type FieldPathByValue,
   type FieldValues,
@@ -21,7 +20,6 @@ export type UseFormFieldResult<
   TValue = string
 > = {
   error?: string;
-  inputId: string;
   isDisabled: boolean;
   name: string;
   onBlur: () => void;
@@ -39,8 +37,6 @@ export function useFormField<
     TValue
   >
 >(name: TName, disabled = false): UseFormFieldResult<TElement, TValue> {
-  const generatedId = useId();
-  const inputId = `input-${generatedId}`;
   const { control, formState } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController<TFieldValues, TName>({
     control,
@@ -53,7 +49,6 @@ export function useFormField<
       typeof fieldState.error?.message === "string"
         ? fieldState.error.message
         : undefined,
-    inputId,
     isDisabled: disabled || formState.isSubmitting,
     name: field.name,
     onBlur: field.onBlur,

@@ -102,37 +102,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Expanded: Story = {
-  play: async ({ canvasElement }) => {
-    const nav = canvasElement.querySelector("nav");
-
-    if (!(nav instanceof HTMLElement)) {
-      throw new Error("Expected SidebarNav to render a nav element.");
-    }
-
-    const links = nav.querySelectorAll("a");
-
-    if (links.length < 4) {
-      throw new Error(
-        `Expected SidebarNav to render multiple navigation links, received ${links.length}.`
-      );
-    }
-
-    const computedStyles = window.getComputedStyle(nav);
-
-    if (computedStyles.backgroundColor !== "rgb(11, 16, 23)") {
-      throw new Error(
-        `Expected SidebarNav to use the Analyst Core sunken surface, received ${computedStyles.backgroundColor}.`
-      );
-    }
-
-    if (computedStyles.borderRightColor !== "rgb(34, 48, 66)") {
-      throw new Error(
-        `Expected SidebarNav to use the Analyst Core default border, received ${computedStyles.borderRightColor}.`
-      );
-    }
-  }
-};
+export const Expanded: Story = {};
 
 export const Collapsed: Story = {
   args: {

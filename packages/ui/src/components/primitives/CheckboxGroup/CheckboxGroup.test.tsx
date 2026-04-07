@@ -1,22 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import fieldStyles from "../FormField/FormField.module.scss";
 import checkboxStyles from "./CheckboxGroup.module.scss";
 import { CheckboxGroup } from "./CheckboxGroup";
 
-type ExampleFormValues = {
-  audience?: string[] | null;
-};
-
 type RegionValue = {
   code: string;
   label: string;
-};
-
-type ExampleObjectFormValues = {
-  regions?: RegionValue[] | null;
 };
 
 const options = [
@@ -42,45 +33,15 @@ const regionOptions = [
   }
 ] as const;
 
-function TestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleFormValues;
-}) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
-function ObjectValueTestForm({
-  children,
-  defaultValues
-}: {
-  children: React.ReactNode;
-  defaultValues?: ExampleObjectFormValues;
-}) {
-  const form = useForm<ExampleObjectFormValues>({
-    defaultValues
-  });
-
-  return <FormProvider {...form}>{children}</FormProvider>;
-}
-
 describe("CheckboxGroup", () => {
   it("renders a grouped checkbox field with legend and description text", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: ["founders", "researchers"] }}>
-        <CheckboxGroup
-          description="Select every audience segment this report applies to."
-          label="Audience"
-          name="audience"
-          options={options}
-        />
-      </TestForm>
+      <CheckboxGroup
+        defaultValue={["founders", "researchers"]}
+        description="Select every audience segment this report applies to."
+        label="Audience"
+        options={options}
+      />
     );
 
     expect(markup).toContain("<fieldset");
@@ -102,9 +63,7 @@ describe("CheckboxGroup", () => {
 
   it("renders an unchecked group when the field value is nullish", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: undefined }}>
-        <CheckboxGroup label="Audience" name="audience" options={options} />
-      </TestForm>
+      <CheckboxGroup label="Audience" options={options} />
     );
 
     expect(markup).not.toContain('checked=""');
@@ -112,14 +71,12 @@ describe("CheckboxGroup", () => {
 
   it("respects the disabled prop on each native checkbox", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ audience: ["operators"] }}>
-        <CheckboxGroup
-          disabled
-          label="Audience"
-          name="audience"
-          options={options}
-        />
-      </TestForm>
+      <CheckboxGroup
+        defaultValue={["operators"]}
+        disabled
+        label="Audience"
+        options={options}
+      />
     );
 
     expect(markup.match(/disabled=""/g)?.length).toBe(options.length);
@@ -128,15 +85,11 @@ describe("CheckboxGroup", () => {
 
   it("supports non-string option values through a generic array value type", () => {
     const markup = renderToStaticMarkup(
-      <ObjectValueTestForm
-        defaultValues={{ regions: [regionOptions[1].value] }}
-      >
-        <CheckboxGroup<ExampleObjectFormValues, RegionValue>
-          label="Regions"
-          name="regions"
-          options={regionOptions}
-        />
-      </ObjectValueTestForm>
+      <CheckboxGroup<RegionValue>
+        defaultValue={[regionOptions[1].value]}
+        label="Regions"
+        options={regionOptions}
+      />
     );
 
     expect(markup).toContain("Regions");

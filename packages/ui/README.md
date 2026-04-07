@@ -39,9 +39,11 @@ Today the shared surface is:
 - `AppShell` structural primitive
 - `Masthead` structural primitive
 - `SidebarNav` structural primitive
+- `PageHeader` page-level structural primitive
+- `Container` content primitive for grouped dashboard content
 - `Alert` primitive
 - `Input`, `Dropdown`, `CheckboxGroup`, and `RadioGroup` form primitives
-- package-local Storybook for UI docs and story tests
+- package-local Storybook for UI docs and targeted browser story tests
 
 Everything else should be added incrementally.
 
@@ -55,9 +57,13 @@ The short version:
 - `AppShell` owns shell layout and shell coordination state.
 - `Masthead` owns global chrome.
 - `SidebarNav` owns navigation semantics.
+- `PageHeader` owns page identity and page-level controls inside `main`.
+- `Container` owns bordered content framing with optional header, footer, and media.
 - Future page/layout components should keep similarly narrow ownership.
 - Context is allowed for the coordinated shell family, but should not become the
   default answer for unrelated primitives.
+- Keep semantics pragmatic: use native HTML and the minimum ARIA/data attributes
+  needed for real behavior, not exhaustive attribute surfaces.
 
 ## Usage
 
@@ -100,10 +106,21 @@ Use the shared button-group primitive to lay out related button actions:
 ```tsx
 import { Button, ButtonGroup } from "@repo/ui";
 
-<ButtonGroup aria-label="Report actions">
+<ButtonGroup>
   <Button variant="secondary">Cancel</Button>
   <Button>Save draft</Button>
 </ButtonGroup>;
+```
+
+Use the shared container primitive to group related content:
+
+```tsx
+import { Container, PageHeader } from "@repo/ui";
+
+<>
+  <PageHeader title="Port of Los Angeles" />
+  <Container header="Summary">Main content region</Container>
+</>;
 ```
 
 Apps should prefer `@repo/ui/icons` over importing `lucide-react` directly. That keeps the icon source centralized in the UI package and makes it easier to swap or wrap later if needed.
@@ -114,7 +131,7 @@ If an app wants shared package styles, it can import:
 import "@repo/ui/styles";
 ```
 
-For UI package docs, examples, and story-based tests, use the package-local Storybook setup documented in [`STORYBOOK.md`](./STORYBOOK.md).
+For UI package docs, examples, and targeted browser story tests, use the package-local Storybook setup documented in [`STORYBOOK.md`](./STORYBOOK.md).
 
 The styles entry is SCSS and currently provides:
 
@@ -140,3 +157,5 @@ The styles entry is SCSS and currently provides:
 - Keep new components aligned to Analyst Core and document shared style decisions in the theme doc.
 - Add shared components only when they are foundational or clearly reusable.
 - Keep app-specific patterns in the app until reuse is real.
+- Do not add extra ARIA or `data-*` APIs unless they support real behavior,
+  styling, or a concrete repo use case.

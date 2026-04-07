@@ -1,9 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { useState } from "react";
 
-import { Button } from "../Button/Button";
 import { CheckboxGroup, type CheckboxGroupProps } from "./CheckboxGroup";
 
 const options = [
@@ -12,60 +9,44 @@ const options = [
   { label: "Researchers", value: "researchers" }
 ] as const;
 
-const exampleSchema = z.object({
-  audience: z.array(z.string()).min(1, "Select at least one audience segment.")
-});
-
-type ExampleFormValues = z.infer<typeof exampleSchema>;
-
-type CheckboxStoryHarnessProps = CheckboxGroupProps<
-  ExampleFormValues,
-  string
-> & {
+type CheckboxStoryHarnessProps = CheckboxGroupProps<string> & {
   defaultValue?: string[];
 };
+
+function wait(milliseconds = 50) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, milliseconds);
+  });
+}
 
 function CheckboxStoryHarness({
   defaultValue = [],
   ...props
 }: CheckboxStoryHarnessProps) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues: {
-      audience: defaultValue
-    },
-    resolver: zodResolver(exampleSchema)
-  });
-
-  const value = form.watch("audience");
+  const [value, setValue] = useState<string[]>(defaultValue);
 
   return (
-    <FormProvider {...form}>
-      <form
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          void form.handleSubmit(() => undefined)(event);
-        }}
+    <div
+      style={{
+        display: "grid",
+        gap: "var(--space-stack-md)",
+        inlineSize: "min(100%, 28rem)"
+      }}
+    >
+      <CheckboxGroup
+        {...props}
+        value={value}
+        onValueChange={(nextValue) => setValue(nextValue)}
+      />
+      <div
         style={{
-          display: "grid",
-          gap: "var(--space-stack-md)",
-          inlineSize: "min(100%, 28rem)"
+          color: "var(--color-text-muted)",
+          fontSize: "var(--text-body-sm-size)"
         }}
       >
-        <CheckboxGroup {...props} />
-        <div
-          style={{
-            color: "var(--color-text-muted)",
-            fontSize: "var(--text-body-sm-size)"
-          }}
-        >
-          Current value: {value.length > 0 ? value.join(", ") : "<empty>"}
-        </div>
-        <Button type="submit" variant="primary">
-          Submit
-        </Button>
-      </form>
-    </FormProvider>
+        Current value: {value.length > 0 ? value.join(", ") : "<empty>"}
+      </div>
+    </div>
   );
 }
 
@@ -75,7 +56,6 @@ const meta = {
   args: {
     description: "Select all audience segments that should see this report.",
     label: "Audience",
-    name: "audience",
     options
   }
 } satisfies Meta<typeof CheckboxStoryHarness>;
@@ -113,9 +93,7 @@ export const Toggle: Story = {
 
     operatorsCheckbox.click();
 
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 50);
-    });
+    await wait();
 
     const storyText = canvasElement.textContent;
 
@@ -128,23 +106,7 @@ export const Toggle: Story = {
 };
 
 export const ValidationError: Story = {
-  play: async ({ canvasElement }) => {
-    const submitButton = canvasElement.querySelector('button[type="submit"]');
-
-    if (!(submitButton instanceof HTMLButtonElement)) {
-      throw new Error("Expected CheckboxGroup story to render a submit button.");
-    }
-
-    submitButton.click();
-
-    await new Promise((resolve) => {
-      window.setTimeout(resolve, 50);
-    });
-
-    const error = canvasElement.textContent;
-
-    if (!error?.includes("Select at least one audience segment.")) {
-      throw new Error("Expected validation error to render after submit.");
-    }
+  args: {
+    error: "Select at least one audience segment."
   }
 };
