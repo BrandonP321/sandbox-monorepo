@@ -1,0 +1,7 @@
+{
+  "extends": "@repo/config-ts/tsconfig.react.json",
+  "compilerOptions": {
+    "types": ["chrome", "vitest/globals", "vite/client"]
+  },
+  "include": ["src"]
+}

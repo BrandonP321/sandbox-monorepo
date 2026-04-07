@@ -74,3 +74,6 @@ Thumbs.db
 
 # Test artifacts
 playwright-report
+
+# Zip files
+*.zip
