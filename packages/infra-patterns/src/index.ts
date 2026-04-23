@@ -64,7 +64,8 @@ export class SpaSite extends Construct {
         sources: [s3deploy.Source.asset(props.distPath)],
         destinationBucket: this.bucket,
         distribution: this.distribution,
-        distributionPaths: ["/*"]
+        distributionPaths: ["/*"],
+        prune: false
       });
     } else {
       cdk.Annotations.of(this).addWarning(`Static site assets missing at ${props.distPath}. Build web app before deploy.`);
@@ -75,6 +76,7 @@ export class SpaSite extends Construct {
       destinationBucket: this.bucket,
       distribution: this.distribution,
       distributionPaths: ["/config.json"],
+      prune: false,
       contentType: "application/json",
       cacheControl: [s3deploy.CacheControl.fromString("no-cache, no-store, must-revalidate")]
     });
