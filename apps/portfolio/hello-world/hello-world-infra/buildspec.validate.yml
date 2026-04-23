@@ -14,6 +14,7 @@ phases:
       - corepack enable
       - corepack prepare "pnpm@${PNPM_VERSION}" --activate
       - pnpm install --frozen-lockfile
+      - pnpm --filter @repo/ui exec playwright install chromium
   build:
     commands:
       - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
