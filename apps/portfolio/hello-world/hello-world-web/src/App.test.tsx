@@ -21,15 +21,26 @@ afterEach(() => {
 });
 
 const useGetHelloQueryMock = vi.mocked(useGetHelloQuery);
+type UseGetHelloQueryResult = ReturnType<typeof useGetHelloQuery>;
+
+const mockHelloQueryResult = (
+  result: Partial<UseGetHelloQueryResult>
+): UseGetHelloQueryResult =>
+  ({
+    refetch: vi.fn(),
+    ...result
+  }) as UseGetHelloQueryResult;
 
 describe("App", () => {
   it("renders backend message", async () => {
-    useGetHelloQueryMock.mockReturnValue({
+    useGetHelloQueryMock.mockReturnValue(
+      mockHelloQueryResult({
       data: { message: "hello world (backend)" },
       isError: false,
       isLoading: false,
       isSuccess: true
-    });
+      })
+    );
 
     render(<App />);
 
@@ -43,12 +54,14 @@ describe("App", () => {
   });
 
   it("renders an error message when the backend fails", async () => {
-    useGetHelloQueryMock.mockReturnValue({
+    useGetHelloQueryMock.mockReturnValue(
+      mockHelloQueryResult({
       data: undefined,
       isError: true,
       isLoading: false,
       isSuccess: false
-    });
+      })
+    );
 
     render(<App />);
 
