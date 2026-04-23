@@ -16,6 +16,10 @@ on:
       - "!apps/**"
       - "apps/portfolio/hello-world/**"
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   hello-world:
     uses: ./.github/workflows/project-cicd.yml
