@@ -4,11 +4,41 @@ AWS CDK stack for the Hello World API and static web site.
 
 ## Prerequisites
 
-- AWS CLI configured (`aws configure`)
-- CDK bootstrap (one-time per account/region):
+- Node `24` from the repo root `.nvmrc`
+- pnpm installed
+- AWS CLI v2 configured with IAM Identity Center / SSO
+- Standard AWS profile: `sandbox-admin`
+- Standard AWS region: `us-east-1`
+- Current AWS account: `498283327683`
+
+On a fresh laptop, configure AWS CLI SSO first:
 
 ```bash
-pnpm --filter hello-world-infra exec cdk bootstrap
+aws configure sso
+aws sso login --profile sandbox-admin
+aws sts get-caller-identity --profile sandbox-admin
+```
+
+Set the expected environment for the terminal session:
+
+```bash
+export AWS_PROFILE=sandbox-admin
+export AWS_REGION=us-east-1
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+On PowerShell:
+
+```powershell
+$env:AWS_PROFILE="sandbox-admin"
+$env:AWS_REGION="us-east-1"
+$env:AWS_DEFAULT_REGION="us-east-1"
+```
+
+CDK bootstrap is one-time per account/region:
+
+```bash
+pnpm --filter hello-world-infra exec cdk bootstrap aws://498283327683/us-east-1
 ```
 
 ## Deploy
@@ -17,6 +47,12 @@ Deploy builds the frontend and deploys API + web in one command:
 
 ```bash
 pnpm --filter hello-world-infra deploy
+```
+
+For Codex or any other non-interactive terminal, pass the CDK approval override so IAM prompts do not block the deploy:
+
+```bash
+pnpm --filter hello-world-infra run deploy -- --require-approval never
 ```
 
 The stack also writes `/config.json` into the site bucket so the frontend picks

@@ -22,6 +22,11 @@ Authoritative map: see REPO_MAP.md.
 - Test:    pnpm test
 - Build:   pnpm build
 
+## Local Tooling Baseline
+- Use the Node version from `.nvmrc` at repo root. Current baseline: `24`.
+- Use the repo-pinned pnpm version from `packageManager` in `package.json`.
+- If `corepack` is unavailable or broken on a machine, install the pinned pnpm version directly rather than changing repo scripts.
+
 ## Workflow Contract (how work is done in this repo)
 1) Implement in small, reviewable commits.
 2) Always add at least one regression guard (unit/integration) for behavioral changes.
@@ -53,6 +58,14 @@ Authoritative playbook: see SHARED_CODE_PLAYBOOK.md.
 ## Safety
 - Never commit secrets. Use environment variables; later integrate AWS-native secret storage.
 - Do not run destructive commands (rm -rf, delete resources, terraform destroy, etc.) without explicit user confirmation.
+
+## AWS Deployment Conventions
+- Use AWS IAM Identity Center / SSO for human and Codex-driven access. Do not use root credentials for daily work.
+- Standard local AWS CLI profile: `sandbox-admin`
+- Standard AWS region for this repo today: `us-east-1`
+- Current shared AWS account for repo deployments: `498283327683`
+- Before deploy/debug work on a fresh machine, verify access with `aws sso login --profile sandbox-admin` and `aws sts get-caller-identity --profile sandbox-admin`.
+- For non-interactive CDK deploys in Codex sessions, prefer `cdk deploy --require-approval never` so IAM-related prompts do not block the run.
 
 ## When you need more context
 Consult these files first:
