@@ -92,6 +92,7 @@ jobs:
           version: ${{ steps.pnpm-version.outputs.version }}
 
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @repo/ui exec playwright install chromium
 
       - name: Lint
         run: |
