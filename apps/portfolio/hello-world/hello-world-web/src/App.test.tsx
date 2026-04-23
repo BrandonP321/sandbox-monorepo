@@ -35,10 +35,10 @@ describe("App", () => {
   it("renders backend message", async () => {
     useGetHelloQueryMock.mockReturnValue(
       mockHelloQueryResult({
-      data: { message: "hello world (backend)" },
-      isError: false,
-      isLoading: false,
-      isSuccess: true
+        data: { message: "hello world (backend asdf)" },
+        isError: false,
+        isLoading: false,
+        isSuccess: true
       })
     );
 
@@ -49,17 +49,34 @@ describe("App", () => {
       screen.getByRole("button", { name: "Click me" })
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Backend says: Hello world (backend)")
+      screen.getByText("Backend says: Hello world (backend asdf)")
     ).toBeInTheDocument();
+  });
+
+  it("renders the loading message while the backend request is in flight", async () => {
+    useGetHelloQueryMock.mockReturnValue(
+      mockHelloQueryResult({
+        data: undefined,
+        isError: false,
+        isLoading: true,
+        isSuccess: false
+      })
+    );
+
+    render(<App />);
+
+    expect(screen.getByRole("status")).toHaveTextContent(
+      "Loading backend message (hi there)..."
+    );
   });
 
   it("renders an error message when the backend fails", async () => {
     useGetHelloQueryMock.mockReturnValue(
       mockHelloQueryResult({
-      data: undefined,
-      isError: true,
-      isLoading: false,
-      isSuccess: false
+        data: undefined,
+        isError: true,
+        isLoading: false,
+        isSuccess: false
       })
     );
 

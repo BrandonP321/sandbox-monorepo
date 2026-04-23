@@ -14,7 +14,7 @@ export default function App() {
   if (isLoading) {
     statusMessage = (
       <p className="app-status app-status--muted" role="status">
-        Loading backend message...
+        Loading backend message (hi there)...
       </p>
     );
   } else if (isError) {

@@ -20,7 +20,9 @@ describe("lambda handler", () => {
     const result = await handler(event);
 
     expect(result.statusCode).toBe(200);
-    expect(result.body).toBe(JSON.stringify({ message: "Hello World (backend)" }));
+    expect(result.body).toBe(
+      JSON.stringify({ message: "Hello World (backend asdf)" })
+    );
   });
 
   it("returns standard not found error payload", async () => {
