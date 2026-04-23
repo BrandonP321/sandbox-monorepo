@@ -16,4 +16,4 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - pnpm --filter hello-world-infra run deploy -- --require-approval never
+      - pnpm --filter hello-world-infra run deploy:ci

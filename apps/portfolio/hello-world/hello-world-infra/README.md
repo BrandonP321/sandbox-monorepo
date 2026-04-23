@@ -52,7 +52,7 @@ pnpm --filter hello-world-infra deploy
 For Codex or any other non-interactive terminal, pass the CDK approval override so IAM prompts do not block the deploy:
 
 ```bash
-pnpm --filter hello-world-infra run deploy -- --require-approval never
+pnpm --filter hello-world-infra run deploy:ci
 ```
 
 The stack also writes `/config.json` into the site bucket so the frontend picks
@@ -92,7 +92,7 @@ That means changes limited to another app under `apps/` do not trigger the `hell
 1. Deploy the stack:
 
 ```bash
-pnpm --filter hello-world-infra run deploy -- --require-approval never
+pnpm --filter hello-world-infra run deploy:ci
 ```
 
 2. Open AWS CodeConnections in `us-east-1` and finish the `hello-world-prod-source` GitHub connection setup if the stack output is still `PENDING`.
@@ -110,7 +110,7 @@ GitHub Actions then assumes the stack-created role named `hello-world-prod-deplo
 The CodeBuild project reads this repo as source and executes:
 
 ```bash
-pnpm --filter hello-world-infra run deploy -- --require-approval never
+pnpm --filter hello-world-infra run deploy:ci
 ```
 
 The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml` and pins:

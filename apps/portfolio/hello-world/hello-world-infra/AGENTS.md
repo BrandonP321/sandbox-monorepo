@@ -4,7 +4,7 @@
 - Synth: `pnpm --filter hello-world-infra synth`
 - Diff: `pnpm --filter hello-world-infra diff`
 - Deploy: `pnpm --filter hello-world-infra deploy`
-- Non-interactive deploy: `pnpm --filter hello-world-infra run deploy -- --require-approval never`
+- Non-interactive deploy: `pnpm --filter hello-world-infra run deploy:ci`
 - Destroy: `pnpm --filter hello-world-infra destroy`
 - Tests: `pnpm --filter hello-world-infra test`
 - Lint: `pnpm --filter hello-world-infra lint`

@@ -58,7 +58,7 @@ For the first deploy in an account/region:
 - `pnpm --filter hello-world-infra exec cdk bootstrap aws://498283327683/us-east-1`
 
 For Codex or any other non-interactive terminal:
-- `pnpm --filter hello-world-infra run deploy -- --require-approval never`
+- `pnpm --filter hello-world-infra run deploy:ci`
 
 ## Hello World CI/CD
 `hello-world` now uses a hybrid CI/CD model:
