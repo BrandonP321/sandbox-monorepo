@@ -1,0 +1,175 @@
+name: Project CI/CD
+
+on:
+  workflow_call:
+    inputs:
+      project_root:
+        required: true
+        type: string
+      web_package:
+        required: true
+        type: string
+      api_package:
+        required: true
+        type: string
+      infra_package:
+        required: true
+        type: string
+      shared_package:
+        required: true
+        type: string
+      aws_region:
+        required: true
+        type: string
+      deploy_codebuild_project:
+        required: true
+        type: string
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      base_sha: ${{ steps.range.outputs.base_sha }}
+      head_sha: ${{ steps.range.outputs.head_sha }}
+      matched_files: ${{ steps.changed.outputs.matched_files }}
+      reason: ${{ steps.changed.outputs.reason }}
+      should_run: ${{ steps.changed.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: range
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE_SHA: ${{ github.event.before }}
+          PUSH_HEAD_SHA: ${{ github.sha }}
+        run: |
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "base_sha=$PR_BASE_SHA" >> "$GITHUB_OUTPUT"
+            echo "head_sha=$PR_HEAD_SHA" >> "$GITHUB_OUTPUT"
+          else
+            echo "base_sha=$PUSH_BEFORE_SHA" >> "$GITHUB_OUTPUT"
+            echo "head_sha=$PUSH_HEAD_SHA" >> "$GITHUB_OUTPUT"
+          fi
+
+      - id: changed
+        run: |
+          node scripts/project-changed.mjs \
+            --base "${{ steps.range.outputs.base_sha }}" \
+            --head "${{ steps.range.outputs.head_sha }}" \
+            --project-root "${{ inputs.project_root }}"
+
+      - name: Report change detection
+        run: |
+          echo "should_run=${{ steps.changed.outputs.should_run }}"
+          echo "reason=${{ steps.changed.outputs.reason }}"
+          echo "matched_files=${{ steps.changed.outputs.matched_files }}"
+
+  validate:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          cache: pnpm
+          node-version-file: .nvmrc
+
+      - id: pnpm-version
+        run: |
+          version=$(node -p 'require("./package.json").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]')
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          version: ${{ steps.pnpm-version.outputs.version }}
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: |
+          pnpm -r \
+            --filter "${{ inputs.web_package }}..." \
+            --filter "${{ inputs.api_package }}..." \
+            --filter "${{ inputs.infra_package }}..." \
+            run lint
+
+      - name: Typecheck
+        run: |
+          pnpm -r \
+            --filter "${{ inputs.web_package }}..." \
+            --filter "${{ inputs.api_package }}..." \
+            --filter "${{ inputs.infra_package }}..." \
+            run typecheck
+
+      - name: Test
+        run: |
+          pnpm -r \
+            --filter "${{ inputs.web_package }}..." \
+            --filter "${{ inputs.api_package }}..." \
+            --filter "${{ inputs.infra_package }}..." \
+            run test
+
+      - name: Build
+        run: |
+          pnpm -r \
+            --filter "${{ inputs.web_package }}..." \
+            --filter "${{ inputs.api_package }}..." \
+            --filter "${{ inputs.infra_package }}..." \
+            run build
+
+      - name: CDK synth
+        run: pnpm --filter "${{ inputs.infra_package }}" run synth
+
+  deploy-prod:
+    needs: [detect-changes, validate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-changes.outputs.should_run == 'true'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ inputs.aws_region }}
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ inputs.deploy_codebuild_project }}-starter
+
+      - id: start-build
+        run: |
+          build_id=$(aws codebuild start-build \
+            --project-name "${{ inputs.deploy_codebuild_project }}" \
+            --source-version "${{ github.sha }}" \
+            --query 'build.id' \
+            --output text)
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+          echo "Started CodeBuild build $build_id"
+
+      - name: Wait for deploy build
+        env:
+          BUILD_ID: ${{ steps.start-build.outputs.build_id }}
+        run: |
+          while true; do
+            status=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].buildStatus' --output text)
+            logs_url=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].logs.deepLink' --output text)
+            echo "CodeBuild status: $status"
+            echo "Logs: $logs_url"
+
+            case "$status" in
+              SUCCEEDED)
+                exit 0
+                ;;
+              FAILED|FAULT|STOPPED|TIMED_OUT)
+                exit 1
+                ;;
+            esac
+
+            sleep 20
+          done

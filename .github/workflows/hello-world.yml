@@ -1,0 +1,29 @@
+name: hello-world
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/portfolio/hello-world/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/portfolio/hello-world/**"
+
+jobs:
+  hello-world:
+    uses: ./.github/workflows/project-cicd.yml
+    with:
+      api_package: hello-world-api
+      aws_region: us-east-1
+      deploy_codebuild_project: hello-world-prod-deploy
+      infra_package: hello-world-infra
+      project_root: apps/portfolio/hello-world
+      shared_package: "@repo/hello-world-shared"
+      web_package: hello-world-web

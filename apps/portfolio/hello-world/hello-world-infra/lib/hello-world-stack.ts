@@ -7,11 +7,28 @@ import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
 import { helloWorldRouteList } from "@repo/hello-world-shared";
-import { HttpLambdaApi, SpaSite } from "@repo/infra-patterns";
+import {
+  GitHubActionsCodeBuildDeploy,
+  HttpLambdaApi,
+  SpaSite
+} from "@repo/infra-patterns";
 
 export class HelloWorldStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const deployProject = new GitHubActionsCodeBuildDeploy(this, "HelloWorldCiCd", {
+      buildSpecPath:
+        "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
+      connectionName: "hello-world-prod-source",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      projectName: "hello-world-prod-deploy",
+      region: "us-east-1"
+    });
 
     const httpMethodByRouteMethod = {
       POST: apigwv2.HttpMethod.POST
@@ -50,6 +67,22 @@ export class HelloWorldStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "WebUrl", {
       value: `https://${site.distribution.domainName}`
+    });
+
+    new cdk.CfnOutput(this, "HelloWorldDeployProjectName", {
+      value: deployProject.project.projectName
+    });
+
+    new cdk.CfnOutput(this, "HelloWorldGitHubActionsRoleArn", {
+      value: deployProject.starterRole.roleArn
+    });
+
+    new cdk.CfnOutput(this, "HelloWorldGitHubConnectionArn", {
+      value: deployProject.connection.attrConnectionArn
+    });
+
+    new cdk.CfnOutput(this, "HelloWorldGitHubConnectionStatus", {
+      value: deployProject.connection.attrConnectionStatus
     });
   }
 }

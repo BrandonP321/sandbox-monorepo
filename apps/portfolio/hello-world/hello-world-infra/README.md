@@ -64,3 +64,55 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
+- `HelloWorldDeployProjectName`: CodeBuild project used for Prod deploys
+- `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy build
+- `HelloWorldGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
+- `HelloWorldGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
+
+## CI/CD
+
+`hello-world` uses a hybrid pipeline:
+- GitHub Actions handles change detection and CI for pull requests and pushes to `main`.
+- AWS CodeBuild runs the actual Prod deploy.
+
+### GitHub workflow behavior
+
+- Workflow file: `.github/workflows/hello-world.yml`
+- Reusable workflow: `.github/workflows/project-cicd.yml`
+- Repo-local change detector: `scripts/project-changed.mjs`
+
+The workflow runs only when:
+- a file under `apps/portfolio/hello-world/` changes, or
+- any file outside `apps/` changes
+
+That means changes limited to another app under `apps/` do not trigger the `hello-world` pipeline.
+
+### One-time setup after stack deploy
+
+1. Deploy the stack:
+
+```bash
+pnpm --filter hello-world-infra run deploy -- --require-approval never
+```
+
+2. Open AWS CodeConnections in `us-east-1` and finish the `hello-world-prod-source` GitHub connection setup if the stack output is still `PENDING`.
+
+3. In GitHub repository variables, set:
+
+```text
+AWS_ACCOUNT_ID=498283327683
+```
+
+GitHub Actions then assumes the stack-created role named `hello-world-prod-deploy-starter` and uses it only to start and poll the `hello-world-prod-deploy` CodeBuild project.
+
+### Prod deploy runner
+
+The CodeBuild project reads this repo as source and executes:
+
+```bash
+pnpm --filter hello-world-infra run deploy -- --require-approval never
+```
+
+The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml` and pins:
+- Node `24`
+- the repo-pinned pnpm version from the root `package.json`

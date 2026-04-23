@@ -59,3 +59,17 @@ For the first deploy in an account/region:
 
 For Codex or any other non-interactive terminal:
 - `pnpm --filter hello-world-infra run deploy -- --require-approval never`
+
+## Hello World CI/CD
+`hello-world` now uses a hybrid CI/CD model:
+- GitHub Actions owns monorepo-aware triggering and validation.
+- AWS CodeBuild owns the Prod deploy execution.
+
+The workflow only runs when a change touches `apps/portfolio/hello-world/**` or any path outside `apps/**`.
+PRs validate only. Pushes to `main` validate first, then trigger the `hello-world-prod-deploy` CodeBuild project.
+
+One-time setup after deploying `hello-world-infra`:
+1. Open the AWS CodeConnections console in `us-east-1` and finish the `hello-world-prod-source` GitHub connection handshake if the stack output still shows `PENDING`.
+2. In GitHub repository variables, set `AWS_ACCOUNT_ID=498283327683` so Actions can assume the starter role created by the stack.
+
+See [apps/portfolio/hello-world/hello-world-infra/README.md](/c:/Users/brand/code/personal/sandbox-monorepo/apps/portfolio/hello-world/hello-world-infra/README.md) for the app-specific CI/CD details.
