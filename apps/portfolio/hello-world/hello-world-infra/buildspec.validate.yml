@@ -1,0 +1,23 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    AWS_REGION: us-east-1
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 24
+    commands:
+      - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
+      - corepack enable
+      - corepack prepare "pnpm@${PNPM_VERSION}" --activate
+      - pnpm install --frozen-lockfile
+  build:
+    commands:
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+      - pnpm --filter hello-world-infra run synth

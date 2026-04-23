@@ -21,6 +21,9 @@ export class HelloWorldStack extends cdk.Stack {
       this,
       "HelloWorldCiCd",
       {
+        validateBuildSpecPath:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        validateProjectName: "hello-world-prod-validate",
         buildSpecPath:
           "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
         connectionName: "hello-world-prod-source",

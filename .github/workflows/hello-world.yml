@@ -24,11 +24,7 @@ jobs:
   hello-world:
     uses: ./.github/workflows/project-cicd.yml
     with:
-      api_package: hello-world-api
       aws_region: us-east-1
       deploy_pipeline_name: hello-world-prod
       deploy_pipeline_source_action_name: Source
-      infra_package: hello-world-infra
       project_root: apps/portfolio/hello-world
-      shared_package: "@repo/hello-world-shared"
-      web_package: hello-world-web

@@ -6,6 +6,8 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 export interface GitHubActionsCodePipelineDeployProps {
+  readonly validateBuildSpecPath: string;
+  readonly validateProjectName: string;
   readonly buildSpecPath: string;
   readonly connectionName: string;
   readonly githubActionsBranch: string;
@@ -23,6 +25,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly connection: codeconnections.CfnConnection;
   public readonly oidcProvider: iam.OpenIdConnectProvider;
   public readonly pipeline: codepipeline.Pipeline;
+  public readonly validationProject: codebuild.Project;
   public readonly project: codebuild.Project;
   public readonly starterRole: iam.Role;
 
@@ -47,11 +50,41 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
     });
 
+    const validationServiceRole = new iam.Role(this, "ValidationCodeBuildServiceRole", {
+      assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
+    });
+
     // Keep the initial deploy runner broad so CDK deploys do not fail on missing
     // service permissions while the monorepo CI/CD model is still being bootstrapped.
     serviceRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")
     );
+
+    this.validationProject = new codebuild.Project(this, "ValidationProject", {
+      description:
+        "Validation runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
+        computeType: codebuild.ComputeType.SMALL
+      },
+      environmentVariables: {
+        AWS_DEFAULT_REGION: { value: props.region },
+        AWS_REGION: { value: props.region },
+        CI: { value: "true" }
+      },
+      buildSpec: codebuild.BuildSpec.fromObject({ version: "0.2" }),
+      projectName: props.validateProjectName,
+      role: validationServiceRole
+    });
+    const validationProjectResource =
+      this.validationProject.node.defaultChild as codebuild.CfnProject;
+    validationProjectResource.addPropertyOverride("Artifacts", {
+      Type: "CODEPIPELINE"
+    });
+    validationProjectResource.addPropertyOverride("Source", {
+      BuildSpec: props.validateBuildSpecPath,
+      Type: "CODEPIPELINE"
+    });
 
     this.project = new codebuild.Project(this, "DeployProject", {
       description:
@@ -105,6 +138,15 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       })
     );
 
+    const validateStage = this.pipeline.addStage({ stageName: "Validate" });
+    validateStage.addAction(
+      new codepipelineActions.CodeBuildAction({
+        actionName: "Validate",
+        input: sourceOutput,
+        project: this.validationProject
+      })
+    );
+
     const prodStage = this.pipeline.addStage({ stageName: "Prod" });
     prodStage.addAction(
       new codepipelineActions.CodeBuildAction({
@@ -128,11 +170,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
     });
     this.starterRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: [
-          "codepipeline:GetPipelineExecution",
-          "codepipeline:ListActionExecutions",
-          "codepipeline:StartPipelineExecution"
-        ],
+        actions: ["codepipeline:StartPipelineExecution"],
         resources: [this.pipeline.pipelineArn]
       })
     );

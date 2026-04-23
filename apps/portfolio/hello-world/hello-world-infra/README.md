@@ -65,16 +65,16 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
 - `HelloWorldDeployPipelineName`: CodePipeline used for Prod deploys
-- `HelloWorldDeployProjectName`: CodeBuild project that performs the deploy stage inside the pipeline
-- `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start and poll the deploy pipeline
+- `HelloWorldDeployProjectName`: CodeBuild project used by the `Prod` stage
+- `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
 - `HelloWorldGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `HelloWorldGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
 
 ## CI/CD
 
 `hello-world` uses a hybrid pipeline:
-- GitHub Actions handles change detection and CI for pull requests and pushes to `main`.
-- AWS CodePipeline runs the Prod deployment flow.
+- GitHub Actions handles monorepo-aware change detection and starts the AWS pipeline for qualifying pushes to `main`.
+- AWS CodePipeline owns the detailed validation and Prod deployment flow.
 
 ### GitHub workflow behavior
 
@@ -87,6 +87,13 @@ The workflow runs only when:
 - any file outside `apps/` changes
 
 That means changes limited to another app under `apps/` do not trigger the `hello-world` pipeline.
+
+For pushes to `main`, GitHub Actions:
+- checks whether the change should affect `hello-world`
+- starts the `hello-world-prod` pipeline with the exact Git commit SHA
+- exits immediately after the pipeline execution has been created
+
+That keeps the GitHub workflow fast and moves the real execution details into CodePipeline and CodeBuild.
 
 ### One-time setup after stack deploy
 
@@ -104,15 +111,26 @@ pnpm --filter hello-world-infra run deploy:ci
 AWS_ACCOUNT_ID=498283327683
 ```
 
-GitHub Actions then assumes the stack-created role named `hello-world-prod-starter` and uses it only to start and poll the `hello-world-prod` pipeline.
+GitHub Actions then assumes the stack-created role named `hello-world-prod-starter` and uses it only to start the `hello-world-prod` pipeline.
 
-### Prod deploy flow
+### Pipeline flow
 
 The `hello-world-prod` pipeline has:
 - a `Source` stage that reads this repo through CodeConnections
+- a `Validate` stage with a CodeBuild validation action
 - a `Prod` stage with a CodeBuild deploy action
 
-GitHub Actions starts the pipeline manually with the exact validated commit SHA, so the pipeline does not auto-run on repo pushes and still deploys the same revision that passed CI.
+GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
+
+The validate stage executes:
+
+```bash
+pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
+pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
+pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
+pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+pnpm --filter hello-world-infra run synth
+```
 
 The deploy stage executes:
 
@@ -120,8 +138,12 @@ The deploy stage executes:
 pnpm --filter hello-world-infra run deploy:ci
 ```
 
-The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`. The deploy project currently uses the standard EC2-backed CodeBuild image because the repo baseline is Node `24`, while AWS-managed Lambda compute images currently top out at Node `22`.
+The buildspecs live at:
+- `apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml`
+- `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`
 
-The buildspec pins:
+Both CodeBuild projects currently use the standard EC2-backed image because the repo baseline is Node `24`, while AWS-managed Lambda compute images currently top out at Node `22`.
+
+The buildspecs pin:
 - Node `24`
 - the repo-pinned pnpm version from the root `package.json`

@@ -10,6 +10,9 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      validateBuildSpecPath:
+        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+      validateProjectName: "hello-world-prod-validate",
       buildSpecPath:
         "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
       connectionName: "hello-world-prod-source",
@@ -29,6 +32,15 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     template.hasResourceProperties("AWS::CodeConnections::Connection", {
       ConnectionName: "hello-world-prod-source",
       ProviderType: "GitHub"
+    });
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "hello-world-prod-validate",
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        Type: "CODEPIPELINE"
+      })
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
@@ -57,6 +69,19 @@ describe("GitHubActionsCodePipelineDeploy", () => {
                 BranchName: "main",
                 DetectChanges: false,
                 FullRepositoryId: "BrandonP321/sandbox-monorepo"
+              })
+            })
+          ])
+        }),
+        Match.objectLike({
+          Name: "Validate",
+          Actions: Match.arrayWith([
+            Match.objectLike({
+              Name: "Validate",
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
               })
             })
           ])
@@ -99,11 +124,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       PolicyDocument: Match.objectLike({
         Statement: Match.arrayWith([
           Match.objectLike({
-            Action: Match.arrayWith([
-              "codepipeline:GetPipelineExecution",
-              "codepipeline:ListActionExecutions",
-              "codepipeline:StartPipelineExecution"
-            ])
+            Action: "codepipeline:StartPipelineExecution"
           })
         ])
       })
