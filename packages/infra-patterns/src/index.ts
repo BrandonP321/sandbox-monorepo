@@ -11,9 +11,9 @@ import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
 
 export {
-  GitHubActionsCodeBuildDeploy,
-  type GitHubActionsCodeBuildDeployProps
-} from "./github-actions-codebuild-deploy.js";
+  GitHubActionsCodePipelineDeploy,
+  type GitHubActionsCodePipelineDeployProps
+} from "./github-actions-codepipeline-deploy.js";
 
 export class HttpLambdaApi extends Construct {
   public readonly httpApi: apigwv2.HttpApi;

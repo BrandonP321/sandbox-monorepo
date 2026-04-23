@@ -1,9 +1,11 @@
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import * as codeconnections from "aws-cdk-lib/aws-codeconnections";
+import * as codepipeline from "aws-cdk-lib/aws-codepipeline";
+import * as codepipelineActions from "aws-cdk-lib/aws-codepipeline-actions";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
-export interface GitHubActionsCodeBuildDeployProps {
+export interface GitHubActionsCodePipelineDeployProps {
   readonly buildSpecPath: string;
   readonly connectionName: string;
   readonly githubActionsBranch: string;
@@ -11,20 +13,23 @@ export interface GitHubActionsCodeBuildDeployProps {
   readonly githubBranch: string;
   readonly githubOwner: string;
   readonly githubRepo: string;
+  readonly pipelineName: string;
   readonly projectName: string;
   readonly region: string;
+  readonly sourceActionName: string;
 }
 
-export class GitHubActionsCodeBuildDeploy extends Construct {
+export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly connection: codeconnections.CfnConnection;
   public readonly oidcProvider: iam.OpenIdConnectProvider;
+  public readonly pipeline: codepipeline.Pipeline;
   public readonly project: codebuild.Project;
   public readonly starterRole: iam.Role;
 
   constructor(
     scope: Construct,
     id: string,
-    props: GitHubActionsCodeBuildDeployProps
+    props: GitHubActionsCodePipelineDeployProps
   ) {
     super(scope, id);
 
@@ -47,20 +52,10 @@ export class GitHubActionsCodeBuildDeploy extends Construct {
     serviceRole.addManagedPolicy(
       iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")
     );
-    serviceRole.addToPolicy(
-      new iam.PolicyStatement({
-        actions: [
-          "codeconnections:GetConnection",
-          "codeconnections:GetConnectionToken",
-          "codeconnections:UseConnection"
-        ],
-        resources: [this.connection.attrConnectionArn]
-      })
-    );
 
     this.project = new codebuild.Project(this, "DeployProject", {
       description:
-        "Prod deploy runner for a monorepo app triggered by GitHub Actions.",
+        "Prod deploy runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
       environment: {
         buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
         computeType: codebuild.ComputeType.SMALL
@@ -70,24 +65,54 @@ export class GitHubActionsCodeBuildDeploy extends Construct {
         AWS_REGION: { value: props.region },
         CI: { value: "true" }
       },
+      buildSpec: codebuild.BuildSpec.fromObject({ version: "0.2" }),
       projectName: props.projectName,
-      role: serviceRole,
-      source: codebuild.Source.gitHub({
-        branchOrRef: props.githubBranch,
-        cloneDepth: 1,
-        owner: props.githubOwner,
-        repo: props.githubRepo,
-        reportBuildStatus: false,
-        webhook: false
-      }),
-      buildSpec: codebuild.BuildSpec.fromSourceFilename(props.buildSpecPath)
+      role: serviceRole
+    });
+    const projectResource = this.project.node.defaultChild as codebuild.CfnProject;
+    projectResource.addPropertyOverride("Artifacts", {
+      Type: "CODEPIPELINE"
+    });
+    projectResource.addPropertyOverride("Source", {
+      BuildSpec: props.buildSpecPath,
+      Type: "CODEPIPELINE"
     });
 
-    const projectResource = this.project.node.defaultChild as codebuild.CfnProject;
-    projectResource.addPropertyOverride("Source.Auth", {
-      Resource: this.connection.attrConnectionArn,
-      Type: "CODECONNECTIONS"
+    const sourceOutput = new codepipeline.Artifact("SourceArtifact");
+
+    this.pipeline = new codepipeline.Pipeline(this, "Pipeline", {
+      pipelineType: codepipeline.PipelineType.V2,
+      pipelineName: props.pipelineName,
+      restartExecutionOnUpdate: false
     });
+    this.pipeline.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["codeconnections:UseConnection"],
+        resources: [this.connection.attrConnectionArn]
+      })
+    );
+
+    const sourceStage = this.pipeline.addStage({ stageName: "Source" });
+    sourceStage.addAction(
+      new codepipelineActions.CodeStarConnectionsSourceAction({
+        actionName: props.sourceActionName,
+        branch: props.githubBranch,
+        connectionArn: this.connection.attrConnectionArn,
+        output: sourceOutput,
+        owner: props.githubOwner,
+        repo: props.githubRepo,
+        triggerOnPush: false
+      })
+    );
+
+    const prodStage = this.pipeline.addStage({ stageName: "Prod" });
+    prodStage.addAction(
+      new codepipelineActions.CodeBuildAction({
+        actionName: "Deploy",
+        input: sourceOutput,
+        project: this.project
+      })
+    );
 
     this.starterRole = new iam.Role(this, "GitHubActionsStarterRole", {
       assumedBy: new iam.WebIdentityPrincipal(
@@ -99,12 +124,16 @@ export class GitHubActionsCodeBuildDeploy extends Construct {
           }
         }
       ),
-      roleName: `${props.projectName}-starter`
+      roleName: `${props.pipelineName}-starter`
     });
     this.starterRole.addToPolicy(
       new iam.PolicyStatement({
-        actions: ["codebuild:BatchGetBuilds", "codebuild:StartBuild"],
-        resources: [this.project.projectArn]
+        actions: [
+          "codepipeline:GetPipelineExecution",
+          "codepipeline:ListActionExecutions",
+          "codepipeline:StartPipelineExecution"
+        ],
+        resources: [this.pipeline.pipelineArn]
       })
     );
   }

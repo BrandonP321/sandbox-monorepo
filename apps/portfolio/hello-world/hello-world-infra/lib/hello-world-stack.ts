@@ -8,7 +8,7 @@ import { Construct } from "constructs";
 
 import { helloWorldRouteList } from "@repo/hello-world-shared";
 import {
-  GitHubActionsCodeBuildDeploy,
+  GitHubActionsCodePipelineDeploy,
   HttpLambdaApi,
   SpaSite
 } from "@repo/infra-patterns";
@@ -17,18 +17,24 @@ export class HelloWorldStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const deployProject = new GitHubActionsCodeBuildDeploy(this, "HelloWorldCiCd", {
-      buildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
-      connectionName: "hello-world-prod-source",
-      githubActionsBranch: "main",
-      githubActionsRepo: "BrandonP321/sandbox-monorepo",
-      githubBranch: "main",
-      githubOwner: "BrandonP321",
-      githubRepo: "sandbox-monorepo",
-      projectName: "hello-world-prod-deploy",
-      region: "us-east-1"
-    });
+    const deployPipeline = new GitHubActionsCodePipelineDeploy(
+      this,
+      "HelloWorldCiCd",
+      {
+        buildSpecPath:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
+        connectionName: "hello-world-prod-source",
+        githubActionsBranch: "main",
+        githubActionsRepo: "BrandonP321/sandbox-monorepo",
+        githubBranch: "main",
+        githubOwner: "BrandonP321",
+        githubRepo: "sandbox-monorepo",
+        pipelineName: "hello-world-prod",
+        projectName: "hello-world-prod-deploy",
+        region: "us-east-1",
+        sourceActionName: "Source"
+      }
+    );
 
     const httpMethodByRouteMethod = {
       POST: apigwv2.HttpMethod.POST
@@ -69,20 +75,24 @@ export class HelloWorldStack extends cdk.Stack {
       value: `https://${site.distribution.domainName}`
     });
 
+    new cdk.CfnOutput(this, "HelloWorldDeployPipelineName", {
+      value: deployPipeline.pipeline.pipelineName
+    });
+
     new cdk.CfnOutput(this, "HelloWorldDeployProjectName", {
-      value: deployProject.project.projectName
+      value: deployPipeline.project.projectName
     });
 
     new cdk.CfnOutput(this, "HelloWorldGitHubActionsRoleArn", {
-      value: deployProject.starterRole.roleArn
+      value: deployPipeline.starterRole.roleArn
     });
 
     new cdk.CfnOutput(this, "HelloWorldGitHubConnectionArn", {
-      value: deployProject.connection.attrConnectionArn
+      value: deployPipeline.connection.attrConnectionArn
     });
 
     new cdk.CfnOutput(this, "HelloWorldGitHubConnectionStatus", {
-      value: deployProject.connection.attrConnectionStatus
+      value: deployPipeline.connection.attrConnectionStatus
     });
   }
 }

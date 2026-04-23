@@ -63,10 +63,10 @@ For Codex or any other non-interactive terminal:
 ## Hello World CI/CD
 `hello-world` now uses a hybrid CI/CD model:
 - GitHub Actions owns monorepo-aware triggering and validation.
-- AWS CodeBuild owns the Prod deploy execution.
+- AWS CodePipeline owns the Prod deployment flow.
 
 The workflow only runs when a change touches `apps/portfolio/hello-world/**` or any path outside `apps/**`.
-PRs validate only. Pushes to `main` validate first, then trigger the `hello-world-prod-deploy` CodeBuild project.
+PRs validate only. Pushes to `main` validate first, then trigger the `hello-world-prod` pipeline with the exact Git commit SHA that passed validation.
 
 One-time setup after deploying `hello-world-infra`:
 1. Open the AWS CodeConnections console in `us-east-1` and finish the `hello-world-prod-source` GitHub connection handshake if the stack output still shows `PENDING`.

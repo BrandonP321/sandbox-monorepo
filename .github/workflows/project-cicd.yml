@@ -21,7 +21,10 @@ on:
       aws_region:
         required: true
         type: string
-      deploy_codebuild_project:
+      deploy_pipeline_name:
+        required: true
+        type: string
+      deploy_pipeline_source_action_name:
         required: true
         type: string
 
@@ -140,33 +143,42 @@ jobs:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ${{ inputs.aws_region }}
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ inputs.deploy_codebuild_project }}-starter
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/${{ inputs.deploy_pipeline_name }}-starter
 
-      - id: start-build
+      - id: start-pipeline
         run: |
-          build_id=$(aws codebuild start-build \
-            --project-name "${{ inputs.deploy_codebuild_project }}" \
-            --source-version "${{ github.sha }}" \
-            --query 'build.id' \
+          execution_id=$(aws codepipeline start-pipeline-execution \
+            --name "${{ inputs.deploy_pipeline_name }}" \
+            --source-revisions actionName="${{ inputs.deploy_pipeline_source_action_name }}",revisionType=COMMIT_ID,revisionValue="${{ github.sha }}" \
+            --query 'pipelineExecutionId' \
             --output text)
-          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
-          echo "Started CodeBuild build $build_id"
+          echo "execution_id=$execution_id" >> "$GITHUB_OUTPUT"
+          echo "Started CodePipeline execution $execution_id"
 
-      - name: Wait for deploy build
+      - name: Wait for deploy pipeline
         env:
-          BUILD_ID: ${{ steps.start-build.outputs.build_id }}
+          EXECUTION_ID: ${{ steps.start-pipeline.outputs.execution_id }}
         run: |
           while true; do
-            status=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].buildStatus' --output text)
-            logs_url=$(aws codebuild batch-get-builds --ids "$BUILD_ID" --query 'builds[0].logs.deepLink' --output text)
-            echo "CodeBuild status: $status"
-            echo "Logs: $logs_url"
+            status=$(aws codepipeline get-pipeline-execution \
+              --pipeline-name "${{ inputs.deploy_pipeline_name }}" \
+              --pipeline-execution-id "$EXECUTION_ID" \
+              --query 'pipelineExecution.status' \
+              --output text)
+            timeline_url="https://console.aws.amazon.com/codesuite/codepipeline/pipelines/${{ inputs.deploy_pipeline_name }}/executions/$EXECUTION_ID/timeline?region=${{ inputs.aws_region }}"
+            echo "CodePipeline status: $status"
+            echo "Timeline: $timeline_url"
 
             case "$status" in
-              SUCCEEDED)
+              Succeeded)
                 exit 0
                 ;;
-              FAILED|FAULT|STOPPED|TIMED_OUT)
+              Failed|Cancelled|Stopped|Superseded)
+                aws codepipeline list-action-executions \
+                  --pipeline-name "${{ inputs.deploy_pipeline_name }}" \
+                  --filter pipelineExecutionId="$EXECUTION_ID" \
+                  --query 'actionExecutionDetails[?status!=`Succeeded`].[stageName,actionName,status,errorDetails.message]' \
+                  --output table
                 exit 1
                 ;;
             esac

@@ -64,8 +64,9 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
-- `HelloWorldDeployProjectName`: CodeBuild project used for Prod deploys
-- `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy build
+- `HelloWorldDeployPipelineName`: CodePipeline used for Prod deploys
+- `HelloWorldDeployProjectName`: CodeBuild project that performs the deploy stage inside the pipeline
+- `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start and poll the deploy pipeline
 - `HelloWorldGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `HelloWorldGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
 
@@ -73,7 +74,7 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 
 `hello-world` uses a hybrid pipeline:
 - GitHub Actions handles change detection and CI for pull requests and pushes to `main`.
-- AWS CodeBuild runs the actual Prod deploy.
+- AWS CodePipeline runs the Prod deployment flow.
 
 ### GitHub workflow behavior
 
@@ -103,16 +104,24 @@ pnpm --filter hello-world-infra run deploy:ci
 AWS_ACCOUNT_ID=498283327683
 ```
 
-GitHub Actions then assumes the stack-created role named `hello-world-prod-deploy-starter` and uses it only to start and poll the `hello-world-prod-deploy` CodeBuild project.
+GitHub Actions then assumes the stack-created role named `hello-world-prod-starter` and uses it only to start and poll the `hello-world-prod` pipeline.
 
-### Prod deploy runner
+### Prod deploy flow
 
-The CodeBuild project reads this repo as source and executes:
+The `hello-world-prod` pipeline has:
+- a `Source` stage that reads this repo through CodeConnections
+- a `Prod` stage with a CodeBuild deploy action
+
+GitHub Actions starts the pipeline manually with the exact validated commit SHA, so the pipeline does not auto-run on repo pushes and still deploys the same revision that passed CI.
+
+The deploy stage executes:
 
 ```bash
 pnpm --filter hello-world-infra run deploy:ci
 ```
 
-The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml` and pins:
+The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`. The deploy project currently uses the standard EC2-backed CodeBuild image because the repo baseline is Node `24`, while AWS-managed Lambda compute images currently top out at Node `22`.
+
+The buildspec pins:
 - Node `24`
 - the repo-pinned pnpm version from the root `package.json`
