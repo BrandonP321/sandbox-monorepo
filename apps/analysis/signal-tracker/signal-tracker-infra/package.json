@@ -1,0 +1,35 @@
+{
+  "name": "signal-tracker-infra",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('No dev server for infra.')\"",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "pnpm --filter signal-tracker-web build && cdk deploy",
+    "deploy:ci": "pnpm --filter signal-tracker-web build && cdk deploy --require-approval never",
+    "destroy": "cdk destroy",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node -e \"console.log('No tests for signal-tracker-infra')\""
+  },
+  "dependencies": {
+    "@repo/infra-patterns": "workspace:*",
+    "@repo/signal-tracker-shared": "workspace:*",
+    "aws-cdk-lib": "^2.212.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-test": "workspace:*",
+    "@repo/config-ts": "workspace:*",
+    "@types/node": "^24.1.0",
+    "aws-cdk": "^2.212.0",
+    "esbuild": "^0.25.10",
+    "eslint": "^9.39.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,37 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { loadRuntimeConfig } from "./config";
+
+describe("loadRuntimeConfig", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns the deployed config when present", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ apiBaseUrl: "https://example.com" })
+      })
+    );
+
+    const config = await loadRuntimeConfig();
+
+    expect(config.apiBaseUrl).toBe("https://example.com");
+  });
+
+  it("falls back to localhost when config is missing", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404
+      })
+    );
+
+    const config = await loadRuntimeConfig();
+
+    expect(config.apiBaseUrl).toBe("http://localhost:3001");
+  });
+});
