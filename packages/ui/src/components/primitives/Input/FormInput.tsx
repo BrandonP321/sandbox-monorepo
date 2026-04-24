@@ -2,36 +2,62 @@ import type { FieldValues } from "react-hook-form";
 
 import {
   type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
-import { Input, type InputProps } from "./Input";
+  FormInputControl,
+  type FormInputControlRenderProps
+} from "@repo/ui-base";
 
-export type FormInputProps<TFieldValues extends FieldValues> = Omit<
-  InputProps,
-  "defaultValue" | "error" | "name" | "onBlur" | "onChange" | "value"
+import { InputView, type InputViewProps } from "./InputView";
+
+type StyledFormInputProps = Omit<
+  InputViewProps,
+  | "defaultValue"
+  | "error"
+  | "id"
+  | "name"
+  | "onBlur"
+  | "onChange"
+  | "type"
+  | "value"
 > & {
-  disabled?: boolean;
-  name: FormFieldName<TFieldValues, string>;
+  type?: InputViewProps["type"];
 };
 
-export function FormInput<TFieldValues extends FieldValues>({
-  disabled = false,
-  name,
-  ...props
-}: FormInputProps<TFieldValues>) {
-  const { error, isDisabled, name: fieldName, onBlur, ref, setValue, value } =
-    useFormField<TFieldValues, string>(name, disabled);
+export type FormInputProps<TFieldValues extends FieldValues> =
+  StyledFormInputProps & {
+    disabled?: boolean;
+    id?: string;
+    name: FormFieldName<TFieldValues, string>;
+  };
 
+export function FormInput<TFieldValues extends FieldValues>({
+  ariaLabel,
+  description,
+  disabled = false,
+  iconLeft,
+  id,
+  label,
+  name,
+  placeholder,
+  readOnly,
+  required,
+  type = "text"
+}: FormInputProps<TFieldValues>) {
   return (
-    <Input
-      {...props}
-      disabled={isDisabled}
-      error={error}
-      name={fieldName}
-      ref={ref}
-      value={value ?? ""}
-      onBlur={onBlur}
-      onChange={(event) => setValue(event.currentTarget.value)}
-    />
+    <FormInputControl disabled={disabled} id={id} name={name}>
+      {({ ref, ...inputProps }: FormInputControlRenderProps) => (
+        <InputView
+          {...inputProps}
+          ariaLabel={ariaLabel}
+          description={description}
+          iconLeft={iconLeft}
+          label={label}
+          placeholder={placeholder}
+          readOnly={readOnly}
+          ref={ref}
+          required={required}
+          type={type}
+        />
+      )}
+    </FormInputControl>
   );
 }

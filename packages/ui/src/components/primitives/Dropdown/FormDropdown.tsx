@@ -1,9 +1,11 @@
 import type { FieldValues } from "react-hook-form";
 
 import {
-  type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
+  FormDropdownControl,
+  type FormDropdownControlRenderProps,
+  type FormFieldName
+} from "@repo/ui-base";
+
 import { Dropdown, type DropdownProps } from "./Dropdown";
 
 export type FormDropdownProps<
@@ -27,22 +29,18 @@ export function FormDropdown<
   TValue = string
 >({
   disabled = false,
+  id,
   name,
   ...props
 }: FormDropdownProps<TFieldValues, TValue>) {
-  const { error, isDisabled, name: fieldName, onBlur, ref, setValue, value } =
-    useFormField<TFieldValues, TValue, HTMLSelectElement>(name, disabled);
-
   return (
-    <Dropdown
-      {...props}
-      disabled={isDisabled}
-      error={error}
-      name={fieldName}
-      ref={ref}
-      value={value}
-      onBlur={onBlur}
-      onValueChange={setValue}
-    />
+    <FormDropdownControl disabled={disabled} id={id} name={name}>
+      {({
+        ref,
+        ...dropdownProps
+      }: FormDropdownControlRenderProps<TValue>) => (
+        <Dropdown {...props} {...dropdownProps} ref={ref} />
+      )}
+    </FormDropdownControl>
   );
 }

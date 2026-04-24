@@ -1,9 +1,11 @@
 import type { FieldValues } from "react-hook-form";
 
 import {
-  type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
+  FormCheckboxGroupControl,
+  type FormCheckboxGroupControlRenderProps,
+  type FormFieldName
+} from "@repo/ui-base";
+
 import { CheckboxGroup, type CheckboxGroupProps } from "./CheckboxGroup";
 
 export type FormCheckboxGroupProps<
@@ -27,29 +29,18 @@ export function FormCheckboxGroup<
   TValue = string
 >({
   disabled = false,
+  id,
   name,
   ...props
 }: FormCheckboxGroupProps<TFieldValues, TValue>) {
-  const {
-    error,
-    isDisabled,
-    name: fieldName,
-    onBlur,
-    ref,
-    setValue,
-    value
-  } = useFormField<TFieldValues, TValue[], HTMLInputElement>(name, disabled);
-
   return (
-    <CheckboxGroup
-      {...props}
-      disabled={isDisabled}
-      error={error}
-      name={fieldName}
-      ref={ref}
-      value={value}
-      onBlur={onBlur}
-      onValueChange={setValue}
-    />
+    <FormCheckboxGroupControl disabled={disabled} id={id} name={name}>
+      {({
+        ref,
+        ...checkboxGroupProps
+      }: FormCheckboxGroupControlRenderProps<TValue>) => (
+        <CheckboxGroup {...props} {...checkboxGroupProps} ref={ref} />
+      )}
+    </FormCheckboxGroupControl>
   );
 }

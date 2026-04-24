@@ -1,9 +1,11 @@
 import type { FieldValues } from "react-hook-form";
 
 import {
+  FormRadioGroupControl,
   type FormFieldName,
-  useFormField
-} from "../FormField/useFormField";
+  type FormRadioGroupControlRenderProps
+} from "@repo/ui-base";
+
 import { RadioGroup, type RadioGroupProps } from "./RadioGroup";
 
 export type FormRadioGroupProps<
@@ -27,22 +29,18 @@ export function FormRadioGroup<
   TValue = string
 >({
   disabled = false,
+  id,
   name,
   ...props
 }: FormRadioGroupProps<TFieldValues, TValue>) {
-  const { error, isDisabled, name: fieldName, onBlur, ref, setValue, value } =
-    useFormField<TFieldValues, TValue, HTMLInputElement>(name, disabled);
-
   return (
-    <RadioGroup
-      {...props}
-      disabled={isDisabled}
-      error={error}
-      name={fieldName}
-      ref={ref}
-      value={value}
-      onBlur={onBlur}
-      onValueChange={setValue}
-    />
+    <FormRadioGroupControl disabled={disabled} id={id} name={name}>
+      {({
+        ref,
+        ...radioGroupProps
+      }: FormRadioGroupControlRenderProps<TValue>) => (
+        <RadioGroup {...props} {...radioGroupProps} ref={ref} />
+      )}
+    </FormRadioGroupControl>
   );
 }

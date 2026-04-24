@@ -13,6 +13,7 @@
   api-core        # shared API runtime/router/error/logging/helpers
   api-contracts   # shared request/response schemas and DTOs
   infra-patterns  # reusable CDK constructs and deployment helpers
+  ui-base         # shared UI behavior primitives and form wiring
   ui              # shared UI package: tokens, styles, utilities, and reusable React primitives
   config-eslint   # shared eslint config
   config-ts       # shared tsconfig(s)

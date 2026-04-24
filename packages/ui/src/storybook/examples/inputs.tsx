@@ -9,7 +9,7 @@ export type StorybookSearchInputProps = Omit<ComponentProps<typeof Input>, "icon
 };
 
 export function StorybookSearchInput({
-  "aria-label": ariaLabel = "Search",
+  ariaLabel = "Search",
   iconLeft = Search,
   placeholder = "Search",
   width = "min(100%, 20rem)",
@@ -19,7 +19,7 @@ export function StorybookSearchInput({
     <div style={{ inlineSize: width }}>
       <Input
         {...props}
-        aria-label={ariaLabel}
+        ariaLabel={ariaLabel}
         iconLeft={iconLeft}
         placeholder={placeholder}
       />

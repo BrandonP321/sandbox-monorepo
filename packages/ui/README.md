@@ -1,6 +1,6 @@
 # @repo/ui
 
-Shared UI foundation for sandbox apps.
+Shared styled UI foundation for sandbox apps.
 
 ## Scope
 
@@ -9,12 +9,13 @@ This package is the shared source-of-truth for:
 - lightweight shared styles in [`src/styles/index.scss`](./src/styles/index.scss)
 - Analyst Core design tokens in [`src/styles/_tokens.scss`](./src/styles/_tokens.scss)
 - small UI utilities in [`src/lib`](./src/lib)
+- styled wrappers around behavior primitives from `@repo/ui-base`
 - future primitives in [`src/components/primitives`](./src/components/primitives)
 - future composed patterns in [`src/components/patterns`](./src/components/patterns)
 - theme guidance in [`docs/THEME_ANALYST_CORE.md`](./docs/THEME_ANALYST_CORE.md)
 - component ownership guidance in [`docs/COMPONENT_MENTAL_MODEL.md`](./docs/COMPONENT_MENTAL_MODEL.md)
 
-The current primitives are implemented with local CSS modules that consume the package tokens.
+The current primitives are implemented with local CSS modules that consume the package tokens. Shared behavior that should be reused across multiple designed UI packages is being migrated into `@repo/ui-base`.
 
 ## Current direction
 
