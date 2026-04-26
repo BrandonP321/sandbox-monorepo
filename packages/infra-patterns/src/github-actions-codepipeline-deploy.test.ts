@@ -16,6 +16,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       buildSpecPath:
         "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
       connectionName: "hello-world-prod-source",
+      deployStackName: "HelloWorldStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubBranch: "main",
@@ -48,6 +49,22 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       Source: Match.objectLike({
         BuildSpec:
           "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
+        Type: "CODEPIPELINE"
+      })
+    });
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "hello-world-prod-emit-urls",
+      Environment: Match.objectLike({
+        EnvironmentVariables: Match.arrayWith([
+          Match.objectLike({
+            Name: "STACK_NAME",
+            Type: "PLAINTEXT",
+            Value: "HelloWorldStack"
+          })
+        ])
+      }),
+      Source: Match.objectLike({
         Type: "CODEPIPELINE"
       })
     });
@@ -95,7 +112,18 @@ describe("GitHubActionsCodePipelineDeploy", () => {
                 Category: "Build",
                 Owner: "AWS",
                 Provider: "CodeBuild"
-              })
+              }),
+              RunOrder: 1
+            }),
+            Match.objectLike({
+              Name: "EmitUrls",
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
+              }),
+              Namespace: "ProdUrls",
+              RunOrder: 2
             })
           ])
         })
@@ -144,6 +172,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       buildSpecPath:
         "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
       connectionName: "signal-tracker-prod-source",
+      deployStackName: "SignalTrackerStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubOidcProviderArn:

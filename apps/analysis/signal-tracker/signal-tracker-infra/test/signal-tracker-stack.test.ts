@@ -31,12 +31,34 @@ describe("SignalTrackerStack", () => {
       })
     });
 
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "signal-tracker-prod-emit-urls",
+      Environment: Match.objectLike({
+        EnvironmentVariables: Match.arrayWith([
+          Match.objectLike({
+            Name: "STACK_NAME",
+            Type: "PLAINTEXT",
+            Value: "SignalTrackerStack"
+          })
+        ])
+      })
+    });
+
     template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
       Name: "signal-tracker-prod",
       Stages: Match.arrayWith([
         Match.objectLike({ Name: "Source" }),
         Match.objectLike({ Name: "Validate" }),
-        Match.objectLike({ Name: "Prod" })
+        Match.objectLike({
+          Name: "Prod",
+          Actions: Match.arrayWith([
+            Match.objectLike({
+              Name: "EmitUrls",
+              Namespace: "ProdUrls",
+              RunOrder: 2
+            })
+          ])
+        })
       ])
     });
 

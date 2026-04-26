@@ -1,3 +1,4 @@
+import * as cdk from "aws-cdk-lib";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import * as codeconnections from "aws-cdk-lib/aws-codeconnections";
 import * as codepipeline from "aws-cdk-lib/aws-codepipeline";
@@ -10,6 +11,7 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly validateProjectName: string;
   readonly buildSpecPath: string;
   readonly connectionName: string;
+  readonly deployStackName: string;
   readonly githubActionsBranch: string;
   readonly githubActionsRepo: string;
   readonly githubOidcProviderArn?: string;
@@ -28,6 +30,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly pipeline: codepipeline.Pipeline;
   public readonly validationProject: codebuild.Project;
   public readonly project: codebuild.Project;
+  public readonly urlReportProject: codebuild.Project;
   public readonly starterRole: iam.Role;
 
   constructor(
@@ -118,6 +121,65 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       Type: "CODEPIPELINE"
     });
 
+    const urlReportServiceRole = new iam.Role(this, "UrlReportCodeBuildServiceRole", {
+      assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
+    });
+    urlReportServiceRole.addToPolicy(
+      new iam.PolicyStatement({
+        actions: ["cloudformation:DescribeStacks"],
+        resources: [
+          cdk.Stack.of(this).formatArn({
+            arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+            service: "cloudformation",
+            resource: "stack",
+            resourceName: `${props.deployStackName}/*`
+          })
+        ]
+      })
+    );
+
+    this.urlReportProject = new codebuild.Project(this, "UrlReportProject", {
+      description:
+        "Reads deployed app URLs from CloudFormation outputs and exposes them as CodePipeline output variables.",
+      environment: {
+        buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
+        computeType: codebuild.ComputeType.SMALL
+      },
+      environmentVariables: {
+        AWS_DEFAULT_REGION: { value: props.region },
+        AWS_REGION: { value: props.region },
+        STACK_NAME: { value: props.deployStackName }
+      },
+      buildSpec: codebuild.BuildSpec.fromObjectToYaml({
+        version: "0.2",
+        env: {
+          "exported-variables": ["WEB_URL", "API_BASE_URL"]
+        },
+        phases: {
+          build: {
+            commands: [
+              'export WEB_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==\'WebUrl\'].OutputValue | [0]" --output text)',
+              'export API_BASE_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==\'ApiBaseUrl\'].OutputValue | [0]" --output text)',
+              'test "$WEB_URL" != "None"',
+              'test "$API_BASE_URL" != "None"',
+              'echo "Web URL: $WEB_URL"',
+              'echo "API URL: $API_BASE_URL"'
+            ]
+          }
+        }
+      }),
+      projectName: `${props.pipelineName}-emit-urls`,
+      role: urlReportServiceRole
+    });
+    const urlReportProjectResource =
+      this.urlReportProject.node.defaultChild as codebuild.CfnProject;
+    urlReportProjectResource.addPropertyOverride("Artifacts", {
+      Type: "CODEPIPELINE"
+    });
+    urlReportProjectResource.addPropertyOverride("Source", {
+      Type: "CODEPIPELINE"
+    });
+
     const sourceOutput = new codepipeline.Artifact("SourceArtifact");
 
     this.pipeline = new codepipeline.Pipeline(this, "Pipeline", {
@@ -160,6 +222,15 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
         actionName: "Deploy",
         input: sourceOutput,
         project: this.project
+      })
+    );
+    prodStage.addAction(
+      new codepipelineActions.CodeBuildAction({
+        actionName: "EmitUrls",
+        input: sourceOutput,
+        project: this.urlReportProject,
+        runOrder: 2,
+        variablesNamespace: "ProdUrls"
       })
     );
 

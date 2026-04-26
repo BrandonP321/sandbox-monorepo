@@ -27,6 +27,7 @@ export class HelloWorldStack extends cdk.Stack {
         buildSpecPath:
           "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
         connectionName: "hello-world-prod-source",
+        deployStackName: "HelloWorldStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",
         githubBranch: "main",
@@ -84,6 +85,10 @@ export class HelloWorldStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "HelloWorldDeployProjectName", {
       value: deployPipeline.project.projectName
+    });
+
+    new cdk.CfnOutput(this, "HelloWorldUrlReportProjectName", {
+      value: deployPipeline.urlReportProject.projectName
     });
 
     new cdk.CfnOutput(this, "HelloWorldGitHubActionsRoleArn", {

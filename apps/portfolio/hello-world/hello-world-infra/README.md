@@ -66,6 +66,7 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 - `WebUrl`: CloudFront distribution URL for the frontend
 - `HelloWorldDeployPipelineName`: CodePipeline used for Prod deploys
 - `HelloWorldDeployProjectName`: CodeBuild project used by the `Prod` stage
+- `HelloWorldUrlReportProjectName`: CodeBuild project that emits deployed URLs after Prod deploys
 - `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
 - `HelloWorldGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `HelloWorldGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
@@ -118,7 +119,14 @@ GitHub Actions then assumes the stack-created role named `hello-world-prod-start
 The `hello-world-prod` pipeline has:
 - a `Source` stage that reads this repo through CodeConnections
 - a `Validate` stage with a CodeBuild validation action
-- a `Prod` stage with a CodeBuild deploy action
+- a `Prod` stage with a CodeBuild deploy action followed by `EmitUrls`
+
+After `Prod/EmitUrls` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
+
+- `WEB_URL`: deployed frontend URL
+- `API_BASE_URL`: deployed API base URL
+
+The same values are printed in the `hello-world-prod-emit-urls` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 

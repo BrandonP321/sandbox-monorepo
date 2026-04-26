@@ -66,6 +66,7 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 - `WebUrl`: CloudFront distribution URL for the frontend
 - `SignalTrackerDeployPipelineName`: CodePipeline used for Prod deploys
 - `SignalTrackerDeployProjectName`: CodeBuild project used by the `Prod` stage
+- `SignalTrackerUrlReportProjectName`: CodeBuild project that emits deployed URLs after Prod deploys
 - `SignalTrackerGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
 - `SignalTrackerGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `SignalTrackerGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
@@ -120,7 +121,14 @@ The `signal-tracker-prod` pipeline has:
 
 - a `Source` stage that reads this repo through CodeConnections
 - a `Validate` stage with a CodeBuild validation action
-- a `Prod` stage with a CodeBuild deploy action
+- a `Prod` stage with a CodeBuild deploy action followed by `EmitUrls`
+
+After `Prod/EmitUrls` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
+
+- `WEB_URL`: deployed frontend URL
+- `API_BASE_URL`: deployed API base URL
+
+The same values are printed in the `signal-tracker-prod-emit-urls` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 
