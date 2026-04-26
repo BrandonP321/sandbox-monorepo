@@ -1,0 +1,17 @@
+{
+  "name": "Signal Tracker - Prod",
+  "values": [
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true,
+      "type": "secret"
+    },
+    {
+      "key": "baseUrl",
+      "value": "{{SIGNAL_TRACKER_PROD_API_URL}}",
+      "enabled": true,
+      "type": "default"
+    }
+  ]
+}

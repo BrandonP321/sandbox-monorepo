@@ -13,6 +13,7 @@
   api-core        # shared API runtime/router/error/logging/helpers
   api-contracts   # shared request/response schemas and DTOs
   infra-patterns  # reusable CDK constructs and deployment helpers
+  postman-sync    # repo-wide Postman collection/environment generation and sync tooling
   ui-base         # shared UI behavior primitives and form wiring
   ui              # shared UI package: tokens, styles, utilities, and reusable React primitives
   config-eslint   # shared eslint config
@@ -44,6 +45,7 @@ Signal Tracker UI is intentionally different from other app families: it may use
 ## Where new code should go (rule of thumb)
 - API request handling primitives: `packages/api-core`
 - Repo-wide shared web/api schemas: `packages/api-contracts`
+- Postman collection/environment generation: `packages/postman-sync`
 - Project-scoped schemas/routes/types used by multiple project packages: `<project>-shared`
 - Reusable infra constructs/patterns: `packages/infra-patterns`
 - Reusable UI tokens/utilities/primitives: `packages/ui`

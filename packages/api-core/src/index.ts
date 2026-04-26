@@ -1,4 +1,4 @@
-import { createServer } from "node:http";
+import { createServer, type IncomingMessage } from "node:http";
 
 export type ApiRequest = {
   method: string;
@@ -146,7 +146,8 @@ export function startLocalDevServer(
     const result = await appRouter({
       method: request.method ?? "GET",
       path: url.pathname,
-      headers: request.headers as Record<string, string | undefined>
+      headers: request.headers as Record<string, string | undefined>,
+      body: await readRequestBody(request)
     });
 
     response.writeHead(result.statusCode, result.headers);
@@ -158,4 +159,20 @@ export function startLocalDevServer(
   });
 
   return server;
+}
+
+function readRequestBody(request: IncomingMessage): Promise<string | null> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+
+    request.on("data", (chunk: Buffer | string) => {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    });
+    request.on("end", () => {
+      resolve(
+        chunks.length === 0 ? null : Buffer.concat(chunks).toString("utf8")
+      );
+    });
+    request.on("error", reject);
+  });
 }

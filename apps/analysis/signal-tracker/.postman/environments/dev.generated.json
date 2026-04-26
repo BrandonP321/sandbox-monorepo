@@ -1,0 +1,17 @@
+{
+  "name": "Signal Tracker - Dev",
+  "values": [
+    {
+      "key": "authToken",
+      "value": "",
+      "enabled": true,
+      "type": "secret"
+    },
+    {
+      "key": "baseUrl",
+      "value": "{{SIGNAL_TRACKER_DEV_API_URL}}",
+      "enabled": true,
+      "type": "default"
+    }
+  ]
+}

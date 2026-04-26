@@ -30,7 +30,11 @@
     "prebuild:project": "node scripts/check-node-version.mjs",
     "build:project": "node scripts/project-command.mjs build",
     "predeploy:project": "node scripts/check-node-version.mjs",
-    "deploy:project": "node scripts/project-command.mjs deploy"
+    "deploy:project": "node scripts/project-command.mjs deploy",
+    "postman:generate": "pnpm --filter @repo/postman-sync postman-sync generate",
+    "postman:run": "pnpm --filter @repo/postman-sync postman-sync run",
+    "postman:sync": "pnpm --filter @repo/postman-sync postman-sync sync",
+    "postman:validate": "pnpm --filter @repo/postman-sync postman-sync validate"
   },
   "devDependencies": {
     "eslint": "^9.39.2",

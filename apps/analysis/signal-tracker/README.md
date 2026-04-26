@@ -60,3 +60,16 @@ pnpm --filter signal-tracker-web dev
 ```
 
 The API defaults to `http://localhost:3001`. The web app loads `/config.json` in deployment and defaults to the local API during development when runtime config is missing.
+
+## Postman
+
+Signal Tracker Postman collections and environments are generated from route configs in this repo:
+
+```bash
+pnpm postman:generate --project signal-tracker
+pnpm postman:validate --project signal-tracker
+pnpm postman:run --project signal-tracker --env local
+pnpm postman:sync --project signal-tracker
+```
+
+`postman:sync` reads `POSTMAN_API_KEY` from the shell or from a repo-root `.env.local` file. `.env.local` is ignored by git and must not be committed.

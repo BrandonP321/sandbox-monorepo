@@ -1,0 +1,52 @@
+{
+  "info": {
+    "name": "Signal Tracker API",
+    "description": "Generated from Signal Tracker route configs. Do not edit by hand.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Topics",
+      "item": [
+        {
+          "name": "Create Topic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-topic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "create-topic"
+              ]
+            },
+            "description": "Creates a new tracked topic dossier container.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Iran strike risk\",\n  \"framingQuestion\": \"Will U.S.-Iran tensions escalate within the next month?\",\n  \"scopeNote\": \"Track military posture, official statements, diplomacy, and credible reporting.\",\n  \"reviewCadence\": \"weekly\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "{{baseUrl}}"
+    }
+  ]
+}

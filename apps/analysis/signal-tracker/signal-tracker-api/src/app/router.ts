@@ -9,8 +9,10 @@ import {
 } from "@repo/signal-tracker-shared";
 
 import { getHealth } from "../routes/health/get-health";
+import { createTopic } from "../routes/topics/create-topic";
 
 const routeHandlers = {
+  createTopic,
   getHealth
 } satisfies Record<SignalTrackerRouteName, RouteHandler>;
 

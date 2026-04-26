@@ -1,0 +1,11 @@
+{
+  "name": "Signal Tracker - Local",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "enabled": true,
+      "type": "default"
+    }
+  ]
+}

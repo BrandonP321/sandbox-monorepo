@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@repo/api-core": "workspace:*",
+    "@repo/postman-sync": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*"
   },
   "devDependencies": {
