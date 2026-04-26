@@ -19,6 +19,18 @@
   config-ts       # shared tsconfig(s)
   config-test     # shared test config (vitest)
 
+## Current app families
+
+/apps/analysis/signal-tracker
+  signal-tracker-web     # React/Vite web UI
+  signal-tracker-api     # Lambda-style TypeScript API
+  signal-tracker-shared  # Signal Tracker scoped routes, schemas, and shared types
+  signal-tracker-infra   # AWS CDK deployment package
+
+Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AGENTS.md`.
+
+Signal Tracker UI is intentionally different from other app families: it may use `@repo/ui-base` for behavior-only primitives, but it must not import `@repo/ui` or other styled shared UI packages. Signal Tracker-specific components belong in `signal-tracker-web`.
+
 ## Dependency Direction
 - apps/* may depend on packages/*
 - packages/* must not depend on apps/*
@@ -36,3 +48,5 @@
 - Reusable infra constructs/patterns: `packages/infra-patterns`
 - Reusable UI tokens/utilities/primitives: `packages/ui`
 - App-specific logic: inside an app package, then promote when reused.
+
+Signal Tracker-specific rule: promote reusable contracts/domain types to `signal-tracker-shared`; promote reusable UI behavior to `@repo/ui-base`; keep Signal Tracker visual components in `signal-tracker-web`.

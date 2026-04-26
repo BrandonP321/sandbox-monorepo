@@ -1,5 +1,7 @@
 # AGENTS.md - signal-tracker-infra
 
+Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source-of-truth docs, and R1 MVP boundaries.
+
 ## Commands
 - Synth: `pnpm --filter signal-tracker-infra synth`
 - Diff: `pnpm --filter signal-tracker-infra diff`

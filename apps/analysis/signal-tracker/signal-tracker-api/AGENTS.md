@@ -1,5 +1,7 @@
 # AGENTS.md - signal-tracker-api
 
+Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source-of-truth docs, and R1 MVP boundaries.
+
 ## Commands
 - Dev server: `pnpm --filter signal-tracker-api dev`
 - Tests: `pnpm --filter signal-tracker-api test`
