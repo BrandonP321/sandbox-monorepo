@@ -19,6 +19,19 @@ For a fresh machine:
 2. Enable pnpm via `corepack`, or install `pnpm@10.28.2` directly if `corepack` is not working on that machine.
 3. Run `pnpm install`.
 
+The repo enforces Node `24` before install and standard scripts. If a command
+fails with a Node version error, switch the active shell to Node `24` and rerun:
+
+- macOS/Linux: `nvm use`, `fnm use`, or your Node manager equivalent
+- Windows: `nvm use 24` or ensure Node `24` appears first on `PATH`
+- Codex cloud/local: select or install Node `24` in the active environment
+
+To check the active runtime directly:
+
+```bash
+pnpm check:node
+```
+
 ## AWS Deploy Setup
 This repo currently standardizes on:
 - AWS account: `498283327683`

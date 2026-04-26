@@ -7,12 +7,14 @@
 ## Daily loop
 1. Implement the smallest shippable change.
 2. Consolidate reusable code into `packages/*` before copying. If reuse is limited to a single project, prefer `apps/<domain>/<project>/<project>-shared`.
-3. Run standard commands from repo root:
+3. Confirm the active shell is on the repo Node version:
+   - `pnpm check:node`
+4. Run standard commands from repo root:
    - `pnpm lint`
    - `pnpm typecheck`
    - `pnpm test`
    - `pnpm build`
-4. For project-scoped workflows:
+5. For project-scoped workflows:
    - `pnpm dev:project <project>`
    - `pnpm build:project <project>`
    - `pnpm deploy:project <project>`
