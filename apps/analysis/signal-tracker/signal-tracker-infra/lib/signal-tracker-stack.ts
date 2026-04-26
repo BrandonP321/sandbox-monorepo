@@ -6,12 +6,48 @@ import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 
-import { HttpLambdaApi, SpaSite } from "@repo/infra-patterns";
+import {
+  GitHubActionsCodePipelineDeploy,
+  HttpLambdaApi,
+  SpaSite
+} from "@repo/infra-patterns";
 import { signalTrackerRouteList } from "@repo/signal-tracker-shared";
 
 export class SignalTrackerStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+
+    const deployPipeline = new GitHubActionsCodePipelineDeploy(
+      this,
+      "SignalTrackerCiCd",
+      {
+        validateBuildSpecPath:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
+        validateProjectName: "signal-tracker-prod-validate",
+        buildSpecPath:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
+        connectionName: "signal-tracker-prod-source",
+        githubActionsBranch: "main",
+        githubActionsRepo: "BrandonP321/sandbox-monorepo",
+        githubOidcProviderArn: cdk.Arn.format(
+          {
+            service: "iam",
+            region: "",
+            account: cdk.Stack.of(this).account,
+            resource: "oidc-provider",
+            resourceName: "token.actions.githubusercontent.com"
+          },
+          this
+        ),
+        githubBranch: "main",
+        githubOwner: "BrandonP321",
+        githubRepo: "sandbox-monorepo",
+        pipelineName: "signal-tracker-prod",
+        projectName: "signal-tracker-prod-deploy",
+        region: "us-east-1",
+        sourceActionName: "Source"
+      }
+    );
 
     const httpMethodByRouteMethod = {
       POST: apigwv2.HttpMethod.POST
@@ -54,6 +90,26 @@ export class SignalTrackerStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "WebUrl", {
       value: `https://${site.distribution.domainName}`
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDeployPipelineName", {
+      value: deployPipeline.pipeline.pipelineName
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDeployProjectName", {
+      value: deployPipeline.project.projectName
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerGitHubActionsRoleArn", {
+      value: deployPipeline.starterRole.roleArn
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerGitHubConnectionArn", {
+      value: deployPipeline.connection.attrConnectionArn
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerGitHubConnectionStatus", {
+      value: deployPipeline.connection.attrConnectionStatus
     });
   }
 }

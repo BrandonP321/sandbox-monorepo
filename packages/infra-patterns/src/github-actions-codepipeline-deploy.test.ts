@@ -130,4 +130,48 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       })
     });
   });
+
+  it("can reuse an existing GitHub OIDC provider", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack", {
+      env: { account: "123456789012", region: "us-east-1" }
+    });
+
+    new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      validateBuildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
+      validateProjectName: "signal-tracker-prod-validate",
+      buildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
+      connectionName: "signal-tracker-prod-source",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubOidcProviderArn:
+        "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      pipelineName: "signal-tracker-prod",
+      projectName: "signal-tracker-prod-deploy",
+      region: "us-east-1",
+      sourceActionName: "Source"
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs("AWS::IAM::OIDCProvider", 0);
+    template.hasResourceProperties("AWS::IAM::Role", {
+      RoleName: "signal-tracker-prod-starter",
+      AssumeRolePolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Principal: Match.objectLike({
+              Federated:
+                "arn:aws:iam::123456789012:oidc-provider/token.actions.githubusercontent.com"
+            })
+          })
+        ])
+      })
+    });
+  });
 });

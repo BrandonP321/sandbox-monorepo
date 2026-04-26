@@ -1,0 +1,30 @@
+name: signal-tracker
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/analysis/signal-tracker/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/analysis/signal-tracker/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  signal-tracker:
+    uses: ./.github/workflows/project-cicd.yml
+    with:
+      aws_region: us-east-1
+      deploy_pipeline_name: signal-tracker-prod
+      deploy_pipeline_source_action_name: Source
+      project_root: apps/analysis/signal-tracker

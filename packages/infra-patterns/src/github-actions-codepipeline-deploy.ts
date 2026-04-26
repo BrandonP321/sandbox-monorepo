@@ -12,6 +12,7 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly connectionName: string;
   readonly githubActionsBranch: string;
   readonly githubActionsRepo: string;
+  readonly githubOidcProviderArn?: string;
   readonly githubBranch: string;
   readonly githubOwner: string;
   readonly githubRepo: string;
@@ -23,7 +24,7 @@ export interface GitHubActionsCodePipelineDeployProps {
 
 export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly connection: codeconnections.CfnConnection;
-  public readonly oidcProvider: iam.OpenIdConnectProvider;
+  public readonly oidcProvider: iam.IOpenIdConnectProvider;
   public readonly pipeline: codepipeline.Pipeline;
   public readonly validationProject: codebuild.Project;
   public readonly project: codebuild.Project;
@@ -41,10 +42,16 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       providerType: "GitHub"
     });
 
-    this.oidcProvider = new iam.OpenIdConnectProvider(this, "GitHubOidc", {
-      clientIds: ["sts.amazonaws.com"],
-      url: "https://token.actions.githubusercontent.com"
-    });
+    this.oidcProvider = props.githubOidcProviderArn
+      ? iam.OpenIdConnectProvider.fromOpenIdConnectProviderArn(
+          this,
+          "GitHubOidc",
+          props.githubOidcProviderArn
+        )
+      : new iam.OpenIdConnectProvider(this, "GitHubOidc", {
+          clientIds: ["sts.amazonaws.com"],
+          url: "https://token.actions.githubusercontent.com"
+        });
 
     const serviceRole = new iam.Role(this, "CodeBuildServiceRole", {
       assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
