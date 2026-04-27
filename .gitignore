@@ -67,7 +67,6 @@ storybook-static
 Thumbs.db
 
 # Editor directories and files
-.vscode
 .idea
 *.swp
 *.swo
