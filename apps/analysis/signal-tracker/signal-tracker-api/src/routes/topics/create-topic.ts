@@ -10,10 +10,8 @@ import {
 } from "@repo/signal-tracker-shared";
 
 import { createTopicRecord } from "../../domain/topics/create-topic";
-import {
-  InMemoryTopicRepository,
-  type TopicRepository
-} from "../../domain/topics/topic-repository";
+import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
+import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type CreateTopicHandlerDependencies = {
   repository: TopicRepository;
@@ -21,7 +19,7 @@ type CreateTopicHandlerDependencies = {
   now?: () => Date;
 };
 
-const defaultTopicRepository = new InMemoryTopicRepository();
+const defaultTopicRepository = new PostgresTopicRepository();
 
 export function createCreateTopicHandler(
   dependencies: CreateTopicHandlerDependencies = {
@@ -40,7 +38,7 @@ export function createCreateTopicHandler(
       );
     }
 
-    const topic = await createTopicRecord(parsedRequest.data, dependencies);
+    const topic = await persistTopic(parsedRequest.data, dependencies);
     const response = createTopicResponseSchema.parse({ topic });
 
     return responses.ok(response);
@@ -48,6 +46,21 @@ export function createCreateTopicHandler(
 }
 
 export const createTopic = createCreateTopicHandler();
+
+async function persistTopic(
+  input: Parameters<typeof createTopicRecord>[0],
+  dependencies: CreateTopicHandlerDependencies
+) {
+  try {
+    return await createTopicRecord(input, dependencies);
+  } catch {
+    throw new AppError(
+      "PERSISTENCE_UNAVAILABLE",
+      "Topic persistence is temporarily unavailable",
+      503
+    );
+  }
+}
 
 function parseJsonBody(body: string | null | undefined): unknown {
   if (!body) {

@@ -12,9 +12,8 @@ The server listens on `http://localhost:3001` by default.
 
 ## Database workflow
 
-Issue #13 establishes the database and migration foundation only. The API still
-uses the in-memory topic repository until the topic persistence issue adds the
-first product table and adapter.
+`POST /create-topic` uses PostgreSQL-backed durable persistence after the
+database migrations have been applied.
 
 `POST /get-health` intentionally remains DB-free so health checks still work
 while Aurora is paused or resuming.
@@ -30,6 +29,8 @@ pnpm --filter signal-tracker-api run db:migrate:local
 ```
 
 The compose file lives at `apps/analysis/signal-tracker/docker-compose.yml`.
+Run the local migration before using `POST /create-topic`; otherwise topic
+creation will return `PERSISTENCE_UNAVAILABLE`.
 
 ### Drizzle migrations
 
@@ -65,7 +66,7 @@ deploy pipeline, and there is no migration Lambda.
 ### Endpoints
 
 - `POST /get-health` -> `{ "ok": true }`
-- `POST /create-topic` -> creates an in-memory topic and returns `{ "topic": ... }`
+- `POST /create-topic` -> creates a durable topic row and returns `{ "topic": ... }`
 
 ### Postman
 

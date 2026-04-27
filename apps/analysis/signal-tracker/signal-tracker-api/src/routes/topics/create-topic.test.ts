@@ -6,7 +6,8 @@ import { createCreateTopicHandler } from "./create-topic";
 
 describe("createTopic route", () => {
   const repository = {
-    create: vi.fn(async (topic: Topic): Promise<Topic> => topic)
+    create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
+    findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
   };
 
   it("creates a topic from a valid request", async () => {
@@ -146,6 +147,33 @@ describe("createTopic route", () => {
     ).rejects.toMatchObject({
       code: "VALIDATION_ERROR",
       statusCode: 400
+    });
+  });
+
+  it("returns a persistence unavailable error when topic storage fails", async () => {
+    const handler = createCreateTopicHandler({
+      repository: {
+        create: vi.fn(async () => {
+          throw new Error("database unavailable");
+        }),
+        findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
+      },
+      createId: () => "topic-3",
+      now: () => new Date("2026-04-25T00:00:00.000Z")
+    });
+
+    await expect(
+      handler({
+        method: "POST",
+        path: "/create-topic",
+        body: JSON.stringify({
+          title: "Fed independence debate",
+          framingQuestion: "Will institutional constraints hold?"
+        })
+      })
+    ).rejects.toMatchObject({
+      code: "PERSISTENCE_UNAVAILABLE",
+      statusCode: 503
     });
   });
 });

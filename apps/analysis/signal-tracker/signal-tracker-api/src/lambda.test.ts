@@ -23,40 +23,6 @@ describe("lambda handler", () => {
     expect(result.body).toBe(JSON.stringify({ ok: true }));
   });
 
-  it("creates a topic", async () => {
-    const event = {
-      rawPath: signalTrackerRoutes.createTopic.path,
-      body: JSON.stringify({
-        title: "Iran strike risk",
-        framingQuestion: "Will tensions escalate?",
-        reviewCadence: "weekly"
-      }),
-      requestContext: {
-        http: {
-          method: signalTrackerRoutes.createTopic.method,
-          path: signalTrackerRoutes.createTopic.path
-        }
-      }
-    } as APIGatewayProxyEventV2;
-
-    const result = await handler(event);
-    expect(result.body).toBeDefined();
-    const payload = JSON.parse(result.body ?? "{}") as {
-      topic: Record<string, unknown>;
-    };
-
-    expect(result.statusCode).toBe(200);
-    expect(payload.topic).toMatchObject({
-      title: "Iran strike risk",
-      framingQuestion: "Will tensions escalate?",
-      status: "active",
-      reviewCadence: "weekly"
-    });
-    expect(typeof payload.topic.id).toBe("string");
-    expect(typeof payload.topic.createdAt).toBe("string");
-    expect(payload.topic.updatedAt).toBe(payload.topic.createdAt);
-  });
-
   it("returns the standard validation error payload for invalid topic requests", async () => {
     const event = {
       rawPath: signalTrackerRoutes.createTopic.path,

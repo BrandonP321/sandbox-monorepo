@@ -2,6 +2,7 @@ import type { Topic } from "@repo/signal-tracker-shared";
 
 export type TopicRepository = {
   create(topic: Topic): Promise<Topic>;
+  findById(id: string): Promise<Topic | undefined>;
 };
 
 export class InMemoryTopicRepository implements TopicRepository {
@@ -10,5 +11,9 @@ export class InMemoryTopicRepository implements TopicRepository {
   async create(topic: Topic): Promise<Topic> {
     this.topics.set(topic.id, topic);
     return topic;
+  }
+
+  async findById(id: string): Promise<Topic | undefined> {
+    return this.topics.get(id);
   }
 }
