@@ -75,6 +75,11 @@ Use GitHub Issue #12 as the implementation-facing decision record for the databa
 
 Aurora infrastructure and migration foundation are tracked in GitHub Issue #13. Topic persistence is tracked in GitHub Issue #7. DB-backed UI wake-up handling is tracked in GitHub Issue #14.
 
+Issue #13 uses Aurora Data API with Drizzle Kit migrations. Deployed migrations
+are explicit commands, not automatic pipeline steps. The first product schema
+migration, including `topics`, remains owned by Issue #7 unless that issue is
+respecified.
+
 ## Postman
 
 Signal Tracker Postman collections and environments are generated from route configs in this repo:

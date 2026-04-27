@@ -1,6 +1,7 @@
 # Signal Tracker Infra
 
-AWS CDK stack for the Signal Tracker API and static web site.
+AWS CDK stack for the Signal Tracker API, Aurora PostgreSQL database foundation,
+and static web site.
 
 ## Prerequisites
 
@@ -60,10 +61,38 @@ up the deployed API URL at runtime.
 
 If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 
+### Database capacity modes
+
+The Aurora PostgreSQL Serverless v2 cluster defaults to the low-idle-cost mode:
+
+- min capacity: `0 ACU`
+- max capacity: `2 ACU`
+- auto-pause: `10 minutes`
+- RDS Data API: enabled
+- RDS Proxy: deferred
+
+For recruiting or portfolio-review windows, deploy with min `0.5 ACU` so first
+reviewer requests avoid database wake-up latency:
+
+```bash
+pnpm --filter signal-tracker-infra run deploy:ci -- -c dbCapacityMode=recruiting
+```
+
+Return to the default/dormant scale-to-zero mode by omitting the context value or
+passing `-c dbCapacityMode=default`.
+
+The database lives in an isolated VPC with no NAT Gateway. Application and
+migration access uses Aurora Data API, not direct TCP connectivity from a laptop
+or deploy runner.
+
 ## Outputs
 
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
+- `SignalTrackerDatabaseName`: default database name for API and migration config
+- `SignalTrackerDatabaseResourceArn`: Aurora cluster ARN for Data API calls
+- `SignalTrackerDatabaseSecretArn`: Secrets Manager credential ARN for Data API calls
+- `SignalTrackerDatabaseCapacityMode`: `default` or `recruiting`
 - `SignalTrackerDeployPipelineName`: CodePipeline used for Prod deploys
 - `SignalTrackerDeployProjectName`: CodeBuild project used by the `Prod` stage
 - `SignalTrackerUrlReportProjectName`: CodeBuild project that emits deployed URLs after Prod deploys
@@ -147,6 +176,10 @@ The deploy stage executes:
 ```bash
 pnpm --filter signal-tracker-infra run deploy:ci
 ```
+
+Database migrations are not executed by the pipeline yet. Run the explicit
+`signal-tracker-api` Data API migration command after deployment when a PR adds
+new migration files.
 
 The buildspecs live at:
 

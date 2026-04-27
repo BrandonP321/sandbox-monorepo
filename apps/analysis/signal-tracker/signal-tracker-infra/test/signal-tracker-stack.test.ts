@@ -1,7 +1,8 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
+import { resolveSignalTrackerDatabaseCapacityMode } from "../lib/signal-tracker-database.js";
 import { SignalTrackerStack } from "../lib/signal-tracker-stack.js";
 
 describe("SignalTrackerStack", () => {
@@ -76,4 +77,116 @@ describe("SignalTrackerStack", () => {
       })
     });
   });
+
+  it("creates the default Aurora PostgreSQL Serverless v2 database foundation", () => {
+    const template = synthSignalTrackerStack();
+
+    template.resourceCountIs("AWS::EC2::NatGateway", 0);
+
+    template.hasResourceProperties("AWS::RDS::DBCluster", {
+      DatabaseName: "signal_tracker",
+      EnableHttpEndpoint: true,
+      Engine: "aurora-postgresql",
+      EngineVersion: "16.10",
+      StorageEncrypted: true,
+      BackupRetentionPeriod: 7,
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: 0,
+        MaxCapacity: 2,
+        SecondsUntilAutoPause: 600
+      }
+    });
+
+    template.hasResource("AWS::RDS::DBCluster", {
+      DeletionPolicy: "Snapshot",
+      UpdateReplacePolicy: "Snapshot"
+    });
+
+    template.hasResourceProperties("AWS::RDS::DBInstance", {
+      DBInstanceClass: "db.serverless",
+      Engine: "aurora-postgresql",
+      PubliclyAccessible: false
+    });
+
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Environment: {
+        Variables: Match.objectLike({
+          SIGNAL_TRACKER_DB_NAME: "signal_tracker",
+          SIGNAL_TRACKER_DB_RESOURCE_ARN: {
+            "Fn::Join": Match.anyValue()
+          },
+          SIGNAL_TRACKER_DB_SECRET_ARN: {
+            Ref: Match.anyValue()
+          }
+        })
+      }
+    });
+
+    template.hasResourceProperties("AWS::IAM::Policy", {
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Action: Match.arrayWith([
+              "rds-data:BatchExecuteStatement",
+              "rds-data:BeginTransaction",
+              "rds-data:CommitTransaction",
+              "rds-data:ExecuteStatement",
+              "rds-data:RollbackTransaction"
+            ]),
+            Resource: Match.anyValue()
+          }),
+          Match.objectLike({
+            Action: Match.arrayWith([
+              "secretsmanager:GetSecretValue",
+              "secretsmanager:DescribeSecret"
+            ]),
+            Resource: Match.anyValue()
+          })
+        ])
+      })
+    });
+
+    template.hasOutput("SignalTrackerDatabaseName", {
+      Value: "signal_tracker"
+    });
+    template.hasOutput("SignalTrackerDatabaseCapacityMode", {
+      Value: "default"
+    });
+  });
+
+  it("can synthesize recruiting capacity mode without auto-pause", () => {
+    const template = synthSignalTrackerStack("recruiting");
+
+    template.hasResourceProperties("AWS::RDS::DBCluster", {
+      ServerlessV2ScalingConfiguration: {
+        MinCapacity: 0.5,
+        MaxCapacity: 2,
+        SecondsUntilAutoPause: Match.absent()
+      }
+    });
+
+    template.hasOutput("SignalTrackerDatabaseCapacityMode", {
+      Value: "recruiting"
+    });
+  });
+
+  it("resolves database capacity mode from CDK context", () => {
+    const app = new cdk.App({
+      context: { dbCapacityMode: "recruiting" }
+    });
+
+    expect(resolveSignalTrackerDatabaseCapacityMode(app)).toBe("recruiting");
+  });
 });
+
+function synthSignalTrackerStack(
+  databaseCapacityMode: "default" | "recruiting" = "default"
+) {
+  const app = new cdk.App();
+  const stack = new SignalTrackerStack(app, "SignalTrackerStack", {
+    databaseCapacityMode,
+    env: { account: "498283327683", region: "us-east-1" }
+  });
+
+  return Template.fromStack(stack);
+}

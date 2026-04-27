@@ -13,9 +13,20 @@ import {
 } from "@repo/infra-patterns";
 import { signalTrackerRouteList } from "@repo/signal-tracker-shared";
 
+import {
+  SignalTrackerDatabase,
+  type SignalTrackerDatabaseCapacityMode
+} from "./signal-tracker-database.js";
+
+export interface SignalTrackerStackProps extends cdk.StackProps {
+  readonly databaseCapacityMode?: SignalTrackerDatabaseCapacityMode;
+}
+
 export class SignalTrackerStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: SignalTrackerStackProps) {
     super(scope, id, props);
+
+    const databaseCapacityMode = props?.databaseCapacityMode ?? "default";
 
     const deployPipeline = new GitHubActionsCodePipelineDeploy(
       this,
@@ -50,6 +61,10 @@ export class SignalTrackerStack extends cdk.Stack {
       }
     );
 
+    const database = new SignalTrackerDatabase(this, "SignalTrackerDatabase", {
+      capacityMode: databaseCapacityMode
+    });
+
     const httpMethodByRouteMethod = {
       POST: apigwv2.HttpMethod.POST
     } as const;
@@ -68,9 +83,16 @@ export class SignalTrackerStack extends cdk.Stack {
         ),
         handler: "handler",
         runtime: lambda.Runtime.NODEJS_22_X,
+        environment: {
+          SIGNAL_TRACKER_DB_NAME: database.databaseName,
+          SIGNAL_TRACKER_DB_RESOURCE_ARN: database.cluster.clusterArn,
+          SIGNAL_TRACKER_DB_SECRET_ARN: database.cluster.secret!.secretArn
+        },
         bundling: { target: "node22" }
       }
     );
+    database.cluster.grantDataApiAccess(handler);
+    database.cluster.secret!.grantRead(handler);
 
     const api = new HttpLambdaApi(this, "SignalTrackerApi", {
       handler,
@@ -82,6 +104,22 @@ export class SignalTrackerStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "ApiBaseUrl", {
       value: api.httpApi.apiEndpoint
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDatabaseName", {
+      value: database.databaseName
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDatabaseResourceArn", {
+      value: database.cluster.clusterArn
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDatabaseSecretArn", {
+      value: database.cluster.secret!.secretArn
+    });
+
+    new cdk.CfnOutput(this, "SignalTrackerDatabaseCapacityMode", {
+      value: databaseCapacityMode
     });
 
     const site = new SpaSite(this, "SignalTrackerSite", {

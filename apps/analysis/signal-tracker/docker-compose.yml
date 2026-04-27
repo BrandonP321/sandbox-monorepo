@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: signal-tracker-postgres
+    environment:
+      POSTGRES_DB: signal_tracker
+      POSTGRES_USER: signal_tracker
+      POSTGRES_PASSWORD: signal_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - signal-tracker-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U signal_tracker -d signal_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  signal-tracker-postgres-data:
