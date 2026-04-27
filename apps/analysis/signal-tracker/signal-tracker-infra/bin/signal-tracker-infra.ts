@@ -5,11 +5,13 @@ import { resolveSignalTrackerDatabaseCapacityMode } from "../lib/signal-tracker-
 import { SignalTrackerStack } from "../lib/signal-tracker-stack";
 
 const app = new cdk.App();
+const SIGNAL_TRACKER_AWS_ACCOUNT = "498283327683";
+const SIGNAL_TRACKER_AWS_REGION = "us-east-1";
 
 new SignalTrackerStack(app, "SignalTrackerStack", {
   databaseCapacityMode: resolveSignalTrackerDatabaseCapacityMode(app),
   env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: process.env.CDK_DEFAULT_REGION
+    account: SIGNAL_TRACKER_AWS_ACCOUNT,
+    region: SIGNAL_TRACKER_AWS_REGION
   }
 });
