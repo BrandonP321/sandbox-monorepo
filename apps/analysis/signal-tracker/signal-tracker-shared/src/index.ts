@@ -10,6 +10,10 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/create-topic"
   },
+  getTopic: {
+    method: "POST",
+    path: "/get-topic"
+  },
   getHealth: {
     method: "POST",
     path: "/get-health"
@@ -81,3 +85,15 @@ export const createTopicResponseSchema = z.object({
 });
 
 export type CreateTopicResponse = z.infer<typeof createTopicResponseSchema>;
+
+export const getTopicRequestSchema = z.object({
+  topicId: trimmedRequiredString
+});
+
+export type GetTopicRequest = z.infer<typeof getTopicRequestSchema>;
+
+export const getTopicResponseSchema = z.object({
+  topic: topicSchema
+});
+
+export type GetTopicResponse = z.infer<typeof getTopicResponseSchema>;

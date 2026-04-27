@@ -39,6 +39,38 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Topic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/get-topic",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "get-topic"
+              ]
+            },
+            "description": "Reads one tracked topic dossier container by ID.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
       ]
     }

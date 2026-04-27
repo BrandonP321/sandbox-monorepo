@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createTopicRequestSchema,
   createTopicResponseSchema,
+  getTopicRequestSchema,
+  getTopicResponseSchema,
   signalTrackerHealthResponseSchema,
   signalTrackerRouteEntries,
   signalTrackerRouteList,
@@ -16,6 +18,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/create-topic"
     });
+    expect(signalTrackerRoutes.getTopic).toEqual({
+      method: "POST",
+      path: "/get-topic"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -27,9 +33,10 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRouteEntries.map(
         ([name]: (typeof signalTrackerRouteEntries)[number]) => name
       )
-    ).toEqual(["createTopic", "getHealth"]);
+    ).toEqual(["createTopic", "getTopic", "getHealth"]);
     expect(signalTrackerRouteList).toEqual([
       signalTrackerRoutes.createTopic,
+      signalTrackerRoutes.getTopic,
       signalTrackerRoutes.getHealth
     ]);
   });
@@ -107,5 +114,29 @@ describe("topic contracts", () => {
     });
 
     expect(createTopicResponseSchema.parse({ topic })).toEqual({ topic });
+  });
+
+  it("validates a topic read request", () => {
+    expect(getTopicRequestSchema.parse({ topicId: " topic-1 " })).toEqual({
+      topicId: "topic-1"
+    });
+  });
+
+  it("rejects a blank topic read ID", () => {
+    expect(() => getTopicRequestSchema.parse({ topicId: " " })).toThrow();
+  });
+
+  it("validates the get-topic response shape", () => {
+    const topic = topicSchema.parse({
+      id: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      status: "active",
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-25T00:00:00.000Z",
+      reviewCadence: "weekly"
+    });
+
+    expect(getTopicResponseSchema.parse({ topic })).toEqual({ topic });
   });
 });

@@ -61,6 +61,10 @@ pnpm --filter signal-tracker-web dev
 
 The API defaults to `http://localhost:3001`. The web app loads `/config.json` in deployment and defaults to the local API during development when runtime config is missing.
 
+For local API development, `pnpm --filter signal-tracker-api dev`
+automatically loads `apps/analysis/signal-tracker/.env.local` when present.
+Use `apps/analysis/signal-tracker/.env.example` as the template.
+
 ## Persistence Decision
 
 R1 persistence uses Aurora PostgreSQL Serverless v2 with a relational PostgreSQL model.
@@ -69,7 +73,10 @@ Use GitHub Issue #12 as the implementation-facing decision record for the databa
 
 - default/development mode: min `0 ACU`
 - recruiting/portfolio-review mode: min `0.5 ACU`
-- local development: local PostgreSQL, not the deployed Aurora cluster
+- baseline local development: local PostgreSQL
+- temporary early-development exception: local API work may point at the Prod
+  Aurora cluster through `apps/analysis/signal-tracker/.env.local` while the
+  app is pre-release and low-traffic
 - basic health checks must remain DB-free
 - DB-backed API calls must tolerate Aurora wake-up latency
 
