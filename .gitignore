@@ -57,6 +57,7 @@ storybook-static
 # dotenv environment files
 .env
 .env.*
+!.env.example
 
 # TypeScript
 *.tsbuildinfo
