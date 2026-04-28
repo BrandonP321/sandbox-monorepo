@@ -35,7 +35,8 @@ export class HelloWorldStack extends cdk.Stack {
         region: "us-east-1",
         sourceActionName: "Source",
         validationBuildSpecPath:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml"
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        validationProjectConstructId: "ValidationProject"
       }
     );
 

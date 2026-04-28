@@ -28,6 +28,7 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly sourceActionName: string;
   readonly validationBuildEnvironment?: CodePipelineDeployBuildEnvironmentProps;
   readonly validationBuildSpecPath?: string;
+  readonly validationProjectConstructId?: string;
   readonly validationProjectName?: string;
 }
 
@@ -113,7 +114,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
 
     if (props.validationBuildSpecPath) {
       this.validationProject = this.createBuildProject(
-        "ValidateProject",
+        props.validationProjectConstructId ?? "ValidateProject",
         props.validationProjectName ?? `${props.pipelineName}-validate`,
         "Validation runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
         props.validationBuildSpecPath,

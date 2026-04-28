@@ -1,6 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { GitHubActionsCodePipelineDeploy } from "./github-actions-codepipeline-deploy.js";
 
@@ -199,6 +199,41 @@ describe("GitHubActionsCodePipelineDeploy", () => {
         ])
       })
     });
+  });
+
+  it("can preserve a legacy validation project construct id", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+
+    new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      buildSpecPath:
+        "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
+      connectionName: "hello-world-prod-source",
+      deployStackName: "HelloWorldStack",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      pipelineName: "hello-world-prod",
+      projectName: "hello-world-prod-deploy",
+      region: "us-east-1",
+      sourceActionName: "Source",
+      validationBuildSpecPath:
+        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+      validationProjectConstructId: "ValidationProject"
+    });
+
+    const template = Template.fromStack(stack);
+    const validationProjectLogicalIds = Object.keys(
+      template.findResources("AWS::CodeBuild::Project", {
+        Properties: { Name: "hello-world-prod-validate" }
+      })
+    );
+
+    expect(validationProjectLogicalIds).toHaveLength(1);
+    expect(validationProjectLogicalIds[0]).toContain("ValidationProject");
+    expect(validationProjectLogicalIds[0]).not.toContain("ValidateProject");
   });
 
   it("can use Lambda compute for the deploy project", () => {
