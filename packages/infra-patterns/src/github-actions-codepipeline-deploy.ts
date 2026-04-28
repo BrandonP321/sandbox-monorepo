@@ -5,9 +5,16 @@ import * as codepipelineActions from "aws-cdk-lib/aws-codepipeline-actions";
 import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
+export interface CodePipelineDeployBuildEnvironmentProps {
+  readonly computeMode?: "ec2" | "lambda";
+  readonly lambdaComputeType?: codebuild.ComputeType;
+  readonly lambdaBuildImage?: codebuild.IBuildImage;
+}
+
 export interface GitHubActionsCodePipelineDeployProps {
   readonly buildSpecPath: string;
   readonly connectionName: string;
+  readonly deployBuildEnvironment?: CodePipelineDeployBuildEnvironmentProps;
   readonly deployStackName: string;
   readonly githubActionsBranch: string;
   readonly githubActionsRepo: string;
@@ -20,6 +27,35 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly region: string;
   readonly sourceActionName: string;
 }
+
+const NODE_24_LAMBDA_BUILD_IMAGE: codebuild.IBuildImage = {
+  defaultComputeType: codebuild.ComputeType.LAMBDA_4GB,
+  imageId: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+  imagePullPrincipalType: codebuild.ImagePullPrincipalType.CODEBUILD,
+  runScriptBuildspec: (entrypoint: string) =>
+    codebuild.LinuxLambdaBuildImage.AMAZON_LINUX_2023_NODE_22.runScriptBuildspec(
+      entrypoint
+    ),
+  type: "LINUX_LAMBDA_CONTAINER",
+  validate: (buildEnvironment: codebuild.BuildEnvironment) => {
+    const errors: string[] = [];
+
+    if (buildEnvironment.privileged) {
+      errors.push("Lambda compute type does not support privileged mode");
+    }
+
+    if (
+      buildEnvironment.computeType &&
+      !buildEnvironment.computeType.startsWith("BUILD_LAMBDA")
+    ) {
+      errors.push(
+        `Lambda build images only support Lambda compute types, got '${buildEnvironment.computeType}'`
+      );
+    }
+
+    return errors;
+  }
+};
 
 export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly connection: codeconnections.CfnConnection;
@@ -61,13 +97,30 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")
     );
 
+    const deployBuildEnvironment =
+      props.deployBuildEnvironment ?? ({} satisfies CodePipelineDeployBuildEnvironmentProps);
+    const deployComputeMode = deployBuildEnvironment.computeMode ?? "ec2";
+    const deployBuildImage =
+      deployComputeMode === "lambda"
+        ? (deployBuildEnvironment.lambdaBuildImage ??
+          NODE_24_LAMBDA_BUILD_IMAGE)
+        : codebuild.LinuxBuildImage.STANDARD_7_0;
+    const deployComputeType =
+      deployComputeMode === "lambda"
+        ? (deployBuildEnvironment.lambdaComputeType ??
+          codebuild.ComputeType.LAMBDA_4GB)
+        : codebuild.ComputeType.SMALL;
+
     this.project = new codebuild.Project(this, "DeployProject", {
       description:
         "Validation and prod deploy runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
-      cache: codebuild.Cache.local(codebuild.LocalCacheMode.CUSTOM),
+      cache:
+        deployComputeMode === "ec2"
+          ? codebuild.Cache.local(codebuild.LocalCacheMode.CUSTOM)
+          : undefined,
       environment: {
-        buildImage: codebuild.LinuxBuildImage.STANDARD_7_0,
-        computeType: codebuild.ComputeType.SMALL
+        buildImage: deployBuildImage,
+        computeType: deployComputeType
       },
       environmentVariables: {
         AWS_DEFAULT_REGION: { value: props.region },

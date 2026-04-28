@@ -39,6 +39,9 @@ describe("GitHubActionsCodePipelineDeploy", () => {
         Type: "LOCAL"
       }),
       Environment: Match.objectLike({
+        ComputeType: "BUILD_GENERAL1_SMALL",
+        Image: "aws/codebuild/standard:7.0",
+        Type: "LINUX_CONTAINER",
         EnvironmentVariables: Match.arrayWith([
           Match.objectLike({
             Name: "STACK_NAME",
@@ -160,6 +163,43 @@ describe("GitHubActionsCodePipelineDeploy", () => {
           })
         ])
       })
+    });
+  });
+
+  it("can use Lambda compute for the deploy project", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+
+    new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      buildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
+      connectionName: "signal-tracker-prod-source",
+      deployBuildEnvironment: { computeMode: "lambda" },
+      deployStackName: "SignalTrackerStack",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      pipelineName: "signal-tracker-prod",
+      projectName: "signal-tracker-prod-deploy",
+      region: "us-east-1",
+      sourceActionName: "Source"
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "signal-tracker-prod-deploy",
+      Environment: Match.objectLike({
+        ComputeType: "BUILD_LAMBDA_4GB",
+        Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+        ImagePullCredentialsType: "CODEBUILD",
+        Type: "LINUX_LAMBDA_CONTAINER"
+      })
+    });
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Cache: { Type: "NO_CACHE" }
     });
   });
 });

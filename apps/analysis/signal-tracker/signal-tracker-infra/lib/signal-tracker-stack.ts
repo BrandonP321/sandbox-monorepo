@@ -35,6 +35,7 @@ export class SignalTrackerStack extends cdk.Stack {
         buildSpecPath:
           "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
         connectionName: "signal-tracker-prod-source",
+        deployBuildEnvironment: { computeMode: "lambda" },
         deployStackName: "SignalTrackerStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",

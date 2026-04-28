@@ -16,11 +16,12 @@ describe("SignalTrackerStack", () => {
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
       Name: "signal-tracker-prod-deploy",
-      Cache: Match.objectLike({
-        Modes: ["LOCAL_CUSTOM_CACHE"],
-        Type: "LOCAL"
-      }),
+      Cache: { Type: "NO_CACHE" },
       Environment: Match.objectLike({
+        ComputeType: "BUILD_LAMBDA_4GB",
+        Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+        ImagePullCredentialsType: "CODEBUILD",
+        Type: "LINUX_LAMBDA_CONTAINER",
         EnvironmentVariables: Match.arrayWith([
           Match.objectLike({
             Name: "STACK_NAME",
