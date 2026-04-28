@@ -65,8 +65,7 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
 - `HelloWorldDeployPipelineName`: CodePipeline used for Prod deploys
-- `HelloWorldDeployProjectName`: CodeBuild project used by the `Prod` stage
-- `HelloWorldUrlReportProjectName`: CodeBuild project that emits deployed URLs after Prod deploys
+- `HelloWorldDeployProjectName`: CodeBuild project used by the `Prod` stage for validation, deployment, and URL output variables
 - `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
 - `HelloWorldGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `HelloWorldGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
@@ -118,40 +117,31 @@ GitHub Actions then assumes the stack-created role named `hello-world-prod-start
 
 The `hello-world-prod` pipeline has:
 - a `Source` stage that reads this repo through CodeConnections
-- a `Validate` stage with a CodeBuild validation action
-- a `Prod` stage with a CodeBuild deploy action followed by `EmitUrls`
+- a `Prod` stage with one CodeBuild action that validates, deploys, and exports deployment URLs
 
-After `Prod/EmitUrls` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
+After `Prod/Deploy` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
 
 - `WEB_URL`: deployed frontend URL
 - `API_BASE_URL`: deployed API base URL
 
-The same values are printed in the `hello-world-prod-emit-urls` CodeBuild logs.
+The same values are printed in the `hello-world-prod-deploy` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 
-The validate stage executes:
+The deploy buildspec executes:
 
 ```bash
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
-pnpm --filter hello-world-infra run synth
+pnpm --filter hello-world-infra exec cdk deploy --require-approval never
 ```
 
-The deploy stage executes:
+The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`.
 
-```bash
-pnpm --filter hello-world-infra run deploy:ci
-```
+The CodeBuild project uses the standard EC2-backed image for the full CDK deploy. AWS-managed Lambda compute now has Node `24` images, but the previous short-lived URL-reporting project was removed and the remaining job may wait on CloudFormation updates long enough that the standard runner is the safer default.
 
-The buildspecs live at:
-- `apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml`
-- `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`
-
-Both CodeBuild projects currently use the standard EC2-backed image because the repo baseline is Node `24`, while AWS-managed Lambda compute images currently top out at Node `22`.
-
-The buildspecs pin:
+The buildspec pins:
 - Node `24`
 - the repo-pinned pnpm version from the root `package.json`

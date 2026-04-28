@@ -32,9 +32,6 @@ export class SignalTrackerStack extends cdk.Stack {
       this,
       "SignalTrackerCiCd",
       {
-        validateBuildSpecPath:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
-        validateProjectName: "signal-tracker-prod-validate",
         buildSpecPath:
           "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
         connectionName: "signal-tracker-prod-source",
@@ -137,10 +134,6 @@ export class SignalTrackerStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "SignalTrackerDeployProjectName", {
       value: deployPipeline.project.projectName
-    });
-
-    new cdk.CfnOutput(this, "SignalTrackerUrlReportProjectName", {
-      value: deployPipeline.urlReportProject.projectName
     });
 
     new cdk.CfnOutput(this, "SignalTrackerGitHubActionsRoleArn", {

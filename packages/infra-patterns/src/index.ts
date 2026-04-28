@@ -64,7 +64,7 @@ export class SpaSite extends Construct {
         sources: [s3deploy.Source.asset(props.distPath)],
         destinationBucket: this.bucket,
         distribution: this.distribution,
-        distributionPaths: ["/*"],
+        distributionPaths: ["/", "/index.html"],
         prune: false
       });
     } else {

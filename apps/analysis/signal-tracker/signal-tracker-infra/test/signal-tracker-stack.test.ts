@@ -15,25 +15,11 @@ describe("SignalTrackerStack", () => {
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate",
-      Source: Match.objectLike({
-        BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
-        Type: "CODEPIPELINE"
-      })
-    });
-
-    template.hasResourceProperties("AWS::CodeBuild::Project", {
       Name: "signal-tracker-prod-deploy",
-      Source: Match.objectLike({
-        BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
-        Type: "CODEPIPELINE"
-      })
-    });
-
-    template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-emit-urls",
+      Cache: Match.objectLike({
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      }),
       Environment: Match.objectLike({
         EnvironmentVariables: Match.arrayWith([
           Match.objectLike({
@@ -42,6 +28,11 @@ describe("SignalTrackerStack", () => {
             Value: "SignalTrackerStack"
           })
         ])
+      }),
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
+        Type: "CODEPIPELINE"
       })
     });
 
@@ -49,14 +40,12 @@ describe("SignalTrackerStack", () => {
       Name: "signal-tracker-prod",
       Stages: Match.arrayWith([
         Match.objectLike({ Name: "Source" }),
-        Match.objectLike({ Name: "Validate" }),
         Match.objectLike({
           Name: "Prod",
           Actions: Match.arrayWith([
             Match.objectLike({
-              Name: "EmitUrls",
-              Namespace: "ProdUrls",
-              RunOrder: 2
+              Name: "Deploy",
+              Namespace: "ProdUrls"
             })
           ])
         })

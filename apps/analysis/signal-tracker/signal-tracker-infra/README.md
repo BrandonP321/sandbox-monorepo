@@ -94,8 +94,7 @@ or deploy runner.
 - `SignalTrackerDatabaseSecretArn`: Secrets Manager credential ARN for Data API calls
 - `SignalTrackerDatabaseCapacityMode`: `default` or `recruiting`
 - `SignalTrackerDeployPipelineName`: CodePipeline used for Prod deploys
-- `SignalTrackerDeployProjectName`: CodeBuild project used by the `Prod` stage
-- `SignalTrackerUrlReportProjectName`: CodeBuild project that emits deployed URLs after Prod deploys
+- `SignalTrackerDeployProjectName`: CodeBuild project used by the `Prod` stage for validation, deployment, and URL output variables
 - `SignalTrackerGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
 - `SignalTrackerGitHubConnectionArn`: AWS CodeConnections ARN for the GitHub source
 - `SignalTrackerGitHubConnectionStatus`: Connection status, usually `PENDING` until the one-time console handshake is finished
@@ -149,46 +148,36 @@ GitHub Actions then assumes the stack-created role named `signal-tracker-prod-st
 The `signal-tracker-prod` pipeline has:
 
 - a `Source` stage that reads this repo through CodeConnections
-- a `Validate` stage with a CodeBuild validation action
-- a `Prod` stage with a CodeBuild deploy action followed by `EmitUrls`
+- a `Prod` stage with one CodeBuild action that validates, deploys, and exports deployment URLs
 
-After `Prod/EmitUrls` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
+After `Prod/Deploy` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
 
 - `WEB_URL`: deployed frontend URL
 - `API_BASE_URL`: deployed API base URL
 
-The same values are printed in the `signal-tracker-prod-emit-urls` CodeBuild logs.
+The same values are printed in the `signal-tracker-prod-deploy` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 
-The validate stage executes:
+The deploy buildspec executes:
 
 ```bash
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
-pnpm --filter signal-tracker-infra run synth
-```
-
-The deploy stage executes:
-
-```bash
-pnpm --filter signal-tracker-infra run deploy:ci
+pnpm --filter signal-tracker-infra exec cdk deploy --require-approval never
 ```
 
 Database migrations are not executed by the pipeline yet. Run the explicit
 `signal-tracker-api` Data API migration command after deployment when a PR adds
 new migration files.
 
-The buildspecs live at:
+The buildspec lives at `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`.
 
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml`
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`
+The CodeBuild project uses the standard EC2-backed image for the full CDK deploy. AWS-managed Lambda compute now has Node `24` images, but the previous short-lived URL-reporting project was removed and the remaining job may wait on CloudFormation updates long enough that the standard runner is the safer default.
 
-Both CodeBuild projects currently use the standard EC2-backed image because the repo baseline is Node `24`, while AWS-managed Lambda compute images currently top out at Node `22`.
-
-The buildspecs pin:
+The buildspec pins:
 
 - Node `24`
 - the repo-pinned pnpm version from the root `package.json`

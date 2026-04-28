@@ -42,7 +42,7 @@ describe("SpaSite", () => {
     });
 
     template.hasResourceProperties("Custom::CDKBucketDeployment", {
-      DistributionPaths: ["/*"],
+      DistributionPaths: ["/", "/index.html"],
       Prune: false
     });
 

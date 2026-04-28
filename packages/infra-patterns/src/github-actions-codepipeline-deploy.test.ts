@@ -10,9 +10,6 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      validateBuildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
-      validateProjectName: "hello-world-prod-validate",
       buildSpecPath:
         "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
       connectionName: "hello-world-prod-source",
@@ -36,25 +33,11 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "hello-world-prod-validate",
-      Source: Match.objectLike({
-        BuildSpec:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
-        Type: "CODEPIPELINE"
-      })
-    });
-
-    template.hasResourceProperties("AWS::CodeBuild::Project", {
       Name: "hello-world-prod-deploy",
-      Source: Match.objectLike({
-        BuildSpec:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
-        Type: "CODEPIPELINE"
-      })
-    });
-
-    template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "hello-world-prod-emit-urls",
+      Cache: Match.objectLike({
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      }),
       Environment: Match.objectLike({
         EnvironmentVariables: Match.arrayWith([
           Match.objectLike({
@@ -65,6 +48,8 @@ describe("GitHubActionsCodePipelineDeploy", () => {
         ])
       }),
       Source: Match.objectLike({
+        BuildSpec:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
         Type: "CODEPIPELINE"
       })
     });
@@ -91,19 +76,6 @@ describe("GitHubActionsCodePipelineDeploy", () => {
           ])
         }),
         Match.objectLike({
-          Name: "Validate",
-          Actions: Match.arrayWith([
-            Match.objectLike({
-              Name: "Validate",
-              ActionTypeId: Match.objectLike({
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild"
-              })
-            })
-          ])
-        }),
-        Match.objectLike({
           Name: "Prod",
           Actions: Match.arrayWith([
             Match.objectLike({
@@ -113,17 +85,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
                 Owner: "AWS",
                 Provider: "CodeBuild"
               }),
-              RunOrder: 1
-            }),
-            Match.objectLike({
-              Name: "EmitUrls",
-              ActionTypeId: Match.objectLike({
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild"
-              }),
-              Namespace: "ProdUrls",
-              RunOrder: 2
+              Namespace: "ProdUrls"
             })
           ])
         })
@@ -166,9 +128,6 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     });
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      validateBuildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
-      validateProjectName: "signal-tracker-prod-validate",
       buildSpecPath:
         "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
       connectionName: "signal-tracker-prod-source",

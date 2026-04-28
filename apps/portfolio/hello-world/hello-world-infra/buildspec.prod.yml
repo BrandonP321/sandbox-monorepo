@@ -4,6 +4,13 @@ env:
   variables:
     AWS_DEFAULT_REGION: us-east-1
     AWS_REGION: us-east-1
+  exported-variables:
+    - WEB_URL
+    - API_BASE_URL
+
+cache:
+  paths:
+    - .pnpm-store/**/*
 
 phases:
   install:
@@ -13,7 +20,19 @@ phases:
       - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
       - corepack enable
       - corepack prepare "pnpm@${PNPM_VERSION}" --activate
+      - pnpm config set store-dir .pnpm-store
       - pnpm install --frozen-lockfile
+      - pnpm --filter @repo/ui exec playwright install chromium
   build:
     commands:
-      - pnpm --filter hello-world-infra run deploy:ci
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
+      - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+      - pnpm --filter hello-world-infra exec cdk deploy --require-approval never
+      - 'export WEB_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebUrl''].OutputValue | [0]" --output text)'
+      - 'export API_BASE_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''ApiBaseUrl''].OutputValue | [0]" --output text)'
+      - test "$WEB_URL" != "None"
+      - test "$API_BASE_URL" != "None"
+      - 'echo "Web URL: $WEB_URL"'
+      - 'echo "API URL: $API_BASE_URL"'

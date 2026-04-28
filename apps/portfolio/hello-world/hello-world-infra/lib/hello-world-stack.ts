@@ -21,9 +21,6 @@ export class HelloWorldStack extends cdk.Stack {
       this,
       "HelloWorldCiCd",
       {
-        validateBuildSpecPath:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
-        validateProjectName: "hello-world-prod-validate",
         buildSpecPath:
           "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
         connectionName: "hello-world-prod-source",
@@ -85,10 +82,6 @@ export class HelloWorldStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, "HelloWorldDeployProjectName", {
       value: deployPipeline.project.projectName
-    });
-
-    new cdk.CfnOutput(this, "HelloWorldUrlReportProjectName", {
-      value: deployPipeline.urlReportProject.projectName
     });
 
     new cdk.CfnOutput(this, "HelloWorldGitHubActionsRoleArn", {
