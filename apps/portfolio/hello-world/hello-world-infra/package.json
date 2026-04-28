@@ -8,6 +8,7 @@
     "diff": "cdk diff",
     "deploy": "pnpm --filter hello-world-web build && cdk deploy",
     "deploy:ci": "pnpm --filter hello-world-web build && cdk deploy --require-approval never",
+    "deploy:ci:no-build": "cdk deploy --require-approval never",
     "destroy": "cdk destroy",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",

@@ -135,7 +135,7 @@ pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-w
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
-pnpm --filter hello-world-infra exec cdk deploy --require-approval never
+pnpm --filter hello-world-infra run deploy:ci:no-build
 ```
 
 The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`.

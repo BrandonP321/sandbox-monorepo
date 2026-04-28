@@ -166,7 +166,7 @@ pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter s
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
-pnpm --filter signal-tracker-infra exec cdk deploy --require-approval never
+pnpm --filter signal-tracker-infra run deploy:ci:no-build
 ```
 
 Database migrations are not executed by the pipeline yet. Run the explicit

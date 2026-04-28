@@ -28,7 +28,7 @@ phases:
       - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
       - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
       - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
-      - pnpm --filter signal-tracker-infra exec cdk deploy --require-approval never
+      - pnpm --filter signal-tracker-infra run deploy:ci:no-build
       - 'export WEB_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebUrl''].OutputValue | [0]" --output text)'
       - 'export API_BASE_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''ApiBaseUrl''].OutputValue | [0]" --output text)'
       - test "$WEB_URL" != "None"
