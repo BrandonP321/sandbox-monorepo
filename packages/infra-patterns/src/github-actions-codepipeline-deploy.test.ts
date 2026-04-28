@@ -22,7 +22,9 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       pipelineName: "hello-world-prod",
       projectName: "hello-world-prod-deploy",
       region: "us-east-1",
-      sourceActionName: "Source"
+      sourceActionName: "Source",
+      validationBuildSpecPath:
+        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -57,6 +59,24 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       })
     });
 
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "hello-world-prod-validate",
+      Cache: Match.objectLike({
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      }),
+      Environment: Match.objectLike({
+        ComputeType: "BUILD_GENERAL1_SMALL",
+        Image: "aws/codebuild/standard:7.0",
+        Type: "LINUX_CONTAINER"
+      }),
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        Type: "CODEPIPELINE"
+      })
+    });
+
     template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
       Name: "hello-world-prod",
       Stages: Match.arrayWith([
@@ -74,6 +94,19 @@ describe("GitHubActionsCodePipelineDeploy", () => {
                 BranchName: "main",
                 DetectChanges: false,
                 FullRepositoryId: "BrandonP321/sandbox-monorepo"
+              })
+            })
+          ])
+        }),
+        Match.objectLike({
+          Name: "Validate",
+          Actions: Match.arrayWith([
+            Match.objectLike({
+              Name: "Validate",
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
               })
             })
           ])
@@ -145,7 +178,9 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       pipelineName: "signal-tracker-prod",
       projectName: "signal-tracker-prod-deploy",
       region: "us-east-1",
-      sourceActionName: "Source"
+      sourceActionName: "Source",
+      validationBuildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -184,7 +219,9 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       pipelineName: "signal-tracker-prod",
       projectName: "signal-tracker-prod-deploy",
       region: "us-east-1",
-      sourceActionName: "Source"
+      sourceActionName: "Source",
+      validationBuildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -200,6 +237,21 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     });
     template.hasResourceProperties("AWS::CodeBuild::Project", {
       Cache: { Type: "NO_CACHE" }
+    });
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "signal-tracker-prod-validate",
+      Cache: { Type: "NO_CACHE" },
+      Environment: Match.objectLike({
+        ComputeType: "BUILD_LAMBDA_4GB",
+        Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+        ImagePullCredentialsType: "CODEBUILD",
+        Type: "LINUX_LAMBDA_CONTAINER"
+      }),
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
+        Type: "CODEPIPELINE"
+      })
     });
   });
 });

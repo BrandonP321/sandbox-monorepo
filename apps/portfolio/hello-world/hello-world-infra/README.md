@@ -117,7 +117,8 @@ GitHub Actions then assumes the stack-created role named `hello-world-prod-start
 
 The `hello-world-prod` pipeline has:
 - a `Source` stage that reads this repo through CodeConnections
-- a `Prod` stage with one CodeBuild action that validates, deploys, and exports deployment URLs
+- a `Validate` stage with one CodeBuild action that runs lint, typecheck, tests, and builds
+- a `Prod` stage with one CodeBuild action that builds deployable assets, deploys, and exports deployment URLs
 
 After `Prod/Deploy` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
 
@@ -128,19 +129,28 @@ The same values are printed in the `hello-world-prod-deploy` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 
-The deploy buildspec executes:
+The validate buildspec executes:
 
 ```bash
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
 pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+```
+
+The deploy buildspec executes:
+
+```bash
+pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
 pnpm --filter hello-world-infra run deploy:ci:no-build
 ```
 
-The buildspec lives at `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`.
+The buildspecs live at:
 
-The CodeBuild project uses the standard EC2-backed image for the full CDK deploy. AWS-managed Lambda compute now has Node `24` images, but the previous short-lived URL-reporting project was removed and the remaining job may wait on CloudFormation updates long enough that the standard runner is the safer default.
+- `apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml`
+- `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`
+
+The CodeBuild projects use the standard EC2-backed image.
 
 The buildspec pins:
 - Node `24`

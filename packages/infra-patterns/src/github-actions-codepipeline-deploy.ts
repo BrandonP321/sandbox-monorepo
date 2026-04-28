@@ -26,6 +26,9 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly projectName: string;
   readonly region: string;
   readonly sourceActionName: string;
+  readonly validationBuildEnvironment?: CodePipelineDeployBuildEnvironmentProps;
+  readonly validationBuildSpecPath?: string;
+  readonly validationProjectName?: string;
 }
 
 const NODE_24_LAMBDA_BUILD_IMAGE: codebuild.IBuildImage = {
@@ -63,6 +66,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly pipeline: codepipeline.Pipeline;
   public readonly project: codebuild.Project;
   public readonly starterRole: iam.Role;
+  public readonly validationProject?: codebuild.Project;
 
   constructor(
     scope: Construct,
@@ -97,49 +101,27 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess")
     );
 
-    const deployBuildEnvironment =
-      props.deployBuildEnvironment ?? ({} satisfies CodePipelineDeployBuildEnvironmentProps);
-    const deployComputeMode = deployBuildEnvironment.computeMode ?? "ec2";
-    const deployBuildImage =
-      deployComputeMode === "lambda"
-        ? (deployBuildEnvironment.lambdaBuildImage ??
-          NODE_24_LAMBDA_BUILD_IMAGE)
-        : codebuild.LinuxBuildImage.STANDARD_7_0;
-    const deployComputeType =
-      deployComputeMode === "lambda"
-        ? (deployBuildEnvironment.lambdaComputeType ??
-          codebuild.ComputeType.LAMBDA_4GB)
-        : codebuild.ComputeType.SMALL;
+    this.project = this.createBuildProject(
+      "DeployProject",
+      props.projectName,
+      "Prod deploy runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
+      props.buildSpecPath,
+      props.deployBuildEnvironment,
+      props,
+      serviceRole
+    );
 
-    this.project = new codebuild.Project(this, "DeployProject", {
-      description:
-        "Validation and prod deploy runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
-      cache:
-        deployComputeMode === "ec2"
-          ? codebuild.Cache.local(codebuild.LocalCacheMode.CUSTOM)
-          : undefined,
-      environment: {
-        buildImage: deployBuildImage,
-        computeType: deployComputeType
-      },
-      environmentVariables: {
-        AWS_DEFAULT_REGION: { value: props.region },
-        AWS_REGION: { value: props.region },
-        CI: { value: "true" },
-        STACK_NAME: { value: props.deployStackName }
-      },
-      buildSpec: codebuild.BuildSpec.fromObject({ version: "0.2" }),
-      projectName: props.projectName,
-      role: serviceRole
-    });
-    const projectResource = this.project.node.defaultChild as codebuild.CfnProject;
-    projectResource.addPropertyOverride("Artifacts", {
-      Type: "CODEPIPELINE"
-    });
-    projectResource.addPropertyOverride("Source", {
-      BuildSpec: props.buildSpecPath,
-      Type: "CODEPIPELINE"
-    });
+    if (props.validationBuildSpecPath) {
+      this.validationProject = this.createBuildProject(
+        "ValidateProject",
+        props.validationProjectName ?? `${props.pipelineName}-validate`,
+        "Validation runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
+        props.validationBuildSpecPath,
+        props.validationBuildEnvironment ?? props.deployBuildEnvironment,
+        props,
+        serviceRole
+      );
+    }
 
     const sourceOutput = new codepipeline.Artifact("SourceArtifact");
 
@@ -167,6 +149,17 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
         triggerOnPush: false
       })
     );
+
+    if (this.validationProject) {
+      const validateStage = this.pipeline.addStage({ stageName: "Validate" });
+      validateStage.addAction(
+        new codepipelineActions.CodeBuildAction({
+          actionName: "Validate",
+          input: sourceOutput,
+          project: this.validationProject
+        })
+      );
+    }
 
     const prodStage = this.pipeline.addStage({ stageName: "Prod" });
     prodStage.addAction(
@@ -196,5 +189,60 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
         resources: [this.pipeline.pipelineArn]
       })
     );
+  }
+
+  private createBuildProject(
+    id: string,
+    projectName: string,
+    description: string,
+    buildSpecPath: string,
+    buildEnvironment: CodePipelineDeployBuildEnvironmentProps | undefined,
+    props: GitHubActionsCodePipelineDeployProps,
+    role: iam.IRole
+  ): codebuild.Project {
+    const resolvedBuildEnvironment =
+      buildEnvironment ?? ({} satisfies CodePipelineDeployBuildEnvironmentProps);
+    const computeMode = resolvedBuildEnvironment.computeMode ?? "ec2";
+    const buildImage =
+      computeMode === "lambda"
+        ? (resolvedBuildEnvironment.lambdaBuildImage ??
+          NODE_24_LAMBDA_BUILD_IMAGE)
+        : codebuild.LinuxBuildImage.STANDARD_7_0;
+    const computeType =
+      computeMode === "lambda"
+        ? (resolvedBuildEnvironment.lambdaComputeType ??
+          codebuild.ComputeType.LAMBDA_4GB)
+        : codebuild.ComputeType.SMALL;
+
+    const project = new codebuild.Project(this, id, {
+      description,
+      cache:
+        computeMode === "ec2"
+          ? codebuild.Cache.local(codebuild.LocalCacheMode.CUSTOM)
+          : undefined,
+      environment: {
+        buildImage,
+        computeType
+      },
+      environmentVariables: {
+        AWS_DEFAULT_REGION: { value: props.region },
+        AWS_REGION: { value: props.region },
+        CI: { value: "true" },
+        STACK_NAME: { value: props.deployStackName }
+      },
+      buildSpec: codebuild.BuildSpec.fromObject({ version: "0.2" }),
+      projectName,
+      role
+    });
+    const projectResource = project.node.defaultChild as codebuild.CfnProject;
+    projectResource.addPropertyOverride("Artifacts", {
+      Type: "CODEPIPELINE"
+    });
+    projectResource.addPropertyOverride("Source", {
+      BuildSpec: buildSpecPath,
+      Type: "CODEPIPELINE"
+    });
+
+    return project;
   }
 }

@@ -55,7 +55,9 @@ export class SignalTrackerStack extends cdk.Stack {
         pipelineName: "signal-tracker-prod",
         projectName: "signal-tracker-prod-deploy",
         region: "us-east-1",
-        sourceActionName: "Source"
+        sourceActionName: "Source",
+        validationBuildSpecPath:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
       }
     );
 

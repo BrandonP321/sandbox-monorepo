@@ -33,7 +33,9 @@ export class HelloWorldStack extends cdk.Stack {
         pipelineName: "hello-world-prod",
         projectName: "hello-world-prod-deploy",
         region: "us-east-1",
-        sourceActionName: "Source"
+        sourceActionName: "Source",
+        validationBuildSpecPath:
+          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml"
       }
     );
 

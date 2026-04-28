@@ -148,7 +148,8 @@ GitHub Actions then assumes the stack-created role named `signal-tracker-prod-st
 The `signal-tracker-prod` pipeline has:
 
 - a `Source` stage that reads this repo through CodeConnections
-- a `Prod` stage with one CodeBuild action that validates, deploys, and exports deployment URLs
+- a `Validate` stage with one CodeBuild action that runs lint, typecheck, tests, and builds
+- a `Prod` stage with one CodeBuild action that builds deployable assets, deploys, and exports deployment URLs
 
 After `Prod/Deploy` succeeds, open the action execution details in CodePipeline and view the `ProdUrls` output variables:
 
@@ -159,12 +160,18 @@ The same values are printed in the `signal-tracker-prod-deploy` CodeBuild logs.
 
 GitHub Actions starts the pipeline manually with the exact Git commit SHA, so the pipeline does not auto-run on repo pushes.
 
-The deploy buildspec executes:
+The validate buildspec executes:
 
 ```bash
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
+pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
+```
+
+The deploy buildspec executes:
+
+```bash
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
 pnpm --filter signal-tracker-infra run deploy:ci:no-build
 ```
@@ -173,11 +180,14 @@ Database migrations are not executed by the pipeline yet. Run the explicit
 `signal-tracker-api` Data API migration command after deployment when a PR adds
 new migration files.
 
-The buildspec lives at `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`.
+The buildspecs live at:
 
-The CodeBuild project uses the standard EC2-backed image for the full CDK deploy. AWS-managed Lambda compute now has Node `24` images, but the previous short-lived URL-reporting project was removed and the remaining job may wait on CloudFormation updates long enough that the standard runner is the safer default.
+- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml`
+- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`
 
-The buildspec pins:
+Both Signal Tracker CodeBuild projects use the AWS-managed Node `24` Lambda compute image.
 
-- Node `24`
+The buildspecs pin:
+
+- Node `24` through the CodeBuild Lambda image
 - the repo-pinned pnpm version from the root `package.json`
