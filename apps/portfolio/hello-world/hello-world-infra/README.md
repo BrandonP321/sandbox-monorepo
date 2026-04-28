@@ -132,16 +132,16 @@ GitHub Actions starts the pipeline manually with the exact Git commit SHA, so th
 The validate buildspec executes:
 
 ```bash
-pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint
-pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run typecheck
-pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run test
-pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run lint
+pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run typecheck
+pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run test
+pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run build
 ```
 
 The deploy buildspec executes:
 
 ```bash
-pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run build
+pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run build
 pnpm --filter hello-world-infra run deploy:ci:no-build
 ```
 
@@ -152,4 +152,4 @@ The buildspecs live at:
 
 The CodeBuild projects use the Lambda-backed Node 24 image for faster startup.
 
-The buildspec installs the repo-pinned pnpm version from the root `package.json`; the validate build also installs Chromium for the `@repo/ui` Storybook browser tests pulled in by the `hello-world-web...` filter.
+The buildspec installs the repo-pinned pnpm version from the root `package.json`.
