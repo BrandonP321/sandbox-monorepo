@@ -24,6 +24,7 @@ export class HelloWorldStack extends cdk.Stack {
         buildSpecPath:
           "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
         connectionName: "hello-world-prod-source",
+        deployBuildEnvironment: { computeMode: "lambda" },
         deployStackName: "HelloWorldStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",

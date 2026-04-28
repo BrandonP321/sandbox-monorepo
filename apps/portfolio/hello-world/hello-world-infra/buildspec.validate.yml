@@ -5,21 +5,15 @@ env:
     AWS_DEFAULT_REGION: us-east-1
     AWS_REGION: us-east-1
 
-cache:
-  paths:
-    - .pnpm-store/**/*
-
 phases:
   install:
-    runtime-versions:
-      nodejs: 24
     commands:
       - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
-      - corepack enable
-      - corepack prepare "pnpm@${PNPM_VERSION}" --activate
+      - export PNPM_HOME=/tmp/pnpm
+      - 'export PATH="${PNPM_HOME}/bin:${PATH}"'
+      - npm install --global --prefix "${PNPM_HOME}" "pnpm@${PNPM_VERSION}"
       - pnpm config set store-dir .pnpm-store
       - pnpm install --frozen-lockfile
-      - pnpm --filter @repo/ui exec playwright install chromium
   build:
     commands:
       - pnpm -r --filter hello-world-web... --filter hello-world-api... --filter hello-world-infra... run lint

@@ -150,8 +150,6 @@ The buildspecs live at:
 - `apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml`
 - `apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml`
 
-The CodeBuild projects use the standard EC2-backed image.
+The CodeBuild projects use the Lambda-backed Node 24 image for faster startup.
 
-The buildspec pins:
-- Node `24`
-- the repo-pinned pnpm version from the root `package.json`
+The buildspec installs the repo-pinned pnpm version from the root `package.json`.
