@@ -152,4 +152,4 @@ The buildspecs live at:
 
 The CodeBuild projects use the Lambda-backed Node 24 image for faster startup.
 
-The buildspec installs the repo-pinned pnpm version from the root `package.json`.
+The buildspec installs the repo-pinned pnpm version from the root `package.json`; the validate build also installs Chromium for the `@repo/ui` Storybook browser tests pulled in by the `hello-world-web...` filter.
