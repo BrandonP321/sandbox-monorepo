@@ -8,16 +8,13 @@ env:
     - WEB_URL
     - API_BASE_URL
 
-cache:
-  paths:
-    - .pnpm-store/**/*
-
 phases:
   install:
     commands:
       - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
-      - corepack enable
-      - corepack prepare "pnpm@${PNPM_VERSION}" --activate
+      - export PNPM_HOME=/tmp/pnpm
+      - export PATH="${PNPM_HOME}/bin:${PATH}"
+      - npm install --global --prefix "${PNPM_HOME}" "pnpm@${PNPM_VERSION}"
       - pnpm config set store-dir .pnpm-store
       - pnpm install --frozen-lockfile
   build:
