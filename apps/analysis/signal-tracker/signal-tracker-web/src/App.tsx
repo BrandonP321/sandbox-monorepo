@@ -2,13 +2,15 @@ import {
   createTopicRequestSchema,
   type CreateTopicRequest,
   type CreateTopicResponse,
+  type GetTopicResponse,
   type ReviewCadence,
   type Topic
 } from "@repo/signal-tracker-shared";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 
-import { createTopic } from "./api/topics";
+import { SignalTrackerApiError } from "./api/client";
+import { createTopic, getTopic } from "./api/topics";
 import { DbWakeUpStatus } from "./dbWakeUp/DbWakeUpStatus";
 import type { DbBackedRequestState } from "./dbWakeUp/useDbBackedRequest";
 import { fetchHealthStatus } from "./health";
@@ -17,6 +19,11 @@ type HealthState =
   | { status: "loading" }
   | { status: "ready"; ok: boolean }
   | { status: "error" };
+
+type AppRoute =
+  | { name: "createTopic" }
+  | { name: "topicDetail"; topicId: string }
+  | { name: "notFound" };
 
 type TopicFormValues = {
   title: string;
@@ -41,18 +48,57 @@ const reviewCadenceOptions = [
   { value: "monthly", label: "Monthly" }
 ] satisfies Array<{ value: ReviewCadence; label: string }>;
 
+const dossierSections = [
+  {
+    title: "Events",
+    body: "Future dated events will preserve what happened over time."
+  },
+  {
+    title: "Assessment updates",
+    body: "Future assessment updates will preserve what you thought, why, and how your judgment changed."
+  },
+  {
+    title: "Review notes",
+    body: "Future review notes will record what you concluded when revisiting this dossier."
+  },
+  {
+    title: "Evidence and citations",
+    body: "Future evidence and citations will connect entries to reusable sources and precise anchors."
+  },
+  {
+    title: "Review workflow",
+    body: "Future review workflow will support since-last-review checks and review completion."
+  },
+  {
+    title: "Export",
+    body: "Future export will preserve the dossier and underlying data outside Signal Tracker."
+  }
+] as const;
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  dateStyle: "medium",
+  timeZone: "UTC"
+});
+
 export default function App() {
+  const [route, setRoute] = useState<AppRoute>(() =>
+    parseAppRoute(window.location.pathname)
+  );
   const [healthState, setHealthState] = useState<HealthState>({
     status: "loading"
   });
-  const [topicForm, setTopicForm] = useState<TopicFormValues>(
-    defaultTopicFormValues
-  );
-  const [fieldErrors, setFieldErrors] = useState<TopicFieldErrors>({});
-  const [topicCreationState, setTopicCreationState] = useState<
-    DbBackedRequestState<CreateTopicResponse>
-  >({ status: "idle" });
-  const lastSubmittedRequest = useRef<CreateTopicRequest | null>(null);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setRoute(parseAppRoute(window.location.pathname));
+    };
+
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   useEffect(() => {
     let isActive = true;
@@ -74,13 +120,92 @@ export default function App() {
     };
   }, []);
 
+  const navigateTo = useCallback((nextRoute: AppRoute) => {
+    const nextPath = getRoutePath(nextRoute);
+
+    window.history.pushState({}, "", nextPath);
+    setRoute(nextRoute);
+  }, []);
+
+  return (
+    <main className="app-shell">
+      <section className="product-shell">
+        <header className="app-header">
+          <div>
+            <p className="eyebrow">R1 Manual Evidence-Backed Dossier</p>
+            <h1 className="headline">Signal Tracker</h1>
+          </div>
+          <p className="lede">
+            Create a topic dossier with a clear framing question, scope, and
+            review cadence before adding evidence-backed timeline work.
+          </p>
+        </header>
+
+        <BackendStatus healthState={healthState} />
+
+        {route.name === "createTopic" ? (
+          <TopicCreationScreen
+            onTopicCreated={(topic) =>
+              navigateTo({ name: "topicDetail", topicId: topic.id })
+            }
+          />
+        ) : null}
+
+        {route.name === "topicDetail" ? (
+          <TopicDetailScreen
+            topicId={route.topicId}
+            onNavigateHome={() => navigateTo({ name: "createTopic" })}
+          />
+        ) : null}
+
+        {route.name === "notFound" ? (
+          <RouteNotFound onNavigateHome={() => navigateTo({ name: "createTopic" })} />
+        ) : null}
+      </section>
+    </main>
+  );
+}
+
+function BackendStatus({ healthState }: { healthState: HealthState }) {
+  return (
+    <section className="status-panel" aria-labelledby="backend-status-title">
+      <h2 id="backend-status-title">Backend connectivity</h2>
+      {healthState.status === "loading" ? (
+        <p className="status-text" role="status">
+          Checking the API scaffold...
+        </p>
+      ) : null}
+      {healthState.status === "ready" ? (
+        <p className="status-text" role="status">
+          API scaffold ready: {healthState.ok ? "healthy" : "unhealthy"}.
+        </p>
+      ) : null}
+      {healthState.status === "error" ? (
+        <p className="status-text status-text--error" role="alert">
+          API scaffold unavailable.
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function TopicCreationScreen({
+  onTopicCreated
+}: {
+  onTopicCreated: (topic: Topic) => void;
+}) {
+  const [topicForm, setTopicForm] = useState<TopicFormValues>(
+    defaultTopicFormValues
+  );
+  const [fieldErrors, setFieldErrors] = useState<TopicFieldErrors>({});
+  const [topicCreationState, setTopicCreationState] = useState<
+    DbBackedRequestState<CreateTopicResponse>
+  >({ status: "idle" });
+  const lastSubmittedRequest = useRef<CreateTopicRequest | null>(null);
+
   const isSubmitting =
     topicCreationState.status === "loading" ||
     topicCreationState.status === "waking";
-  const createdTopic =
-    topicCreationState.status === "success"
-      ? topicCreationState.data.topic
-      : null;
 
   function updateField<FieldName extends keyof TopicFormValues>(
     fieldName: FieldName,
@@ -132,197 +257,266 @@ export default function App() {
 
       setTopicCreationState({ status: "success", data: response });
       setTopicForm(defaultTopicFormValues);
+      onTopicCreated(response.topic);
     } catch (error) {
       setTopicCreationState({ status: "error", error });
     }
   }
 
   return (
-    <main className="app-shell">
-      <section className="product-shell">
-        <header className="app-header">
-          <div>
-            <p className="eyebrow">R1 Manual Evidence-Backed Dossier</p>
-            <h1 className="headline">Signal Tracker</h1>
-          </div>
-          <p className="lede">
-            Create a topic dossier with a clear framing question, scope, and
-            review cadence before adding evidence-backed timeline work.
-          </p>
-        </header>
+    <section className="topic-workspace">
+      <form
+        className="topic-form"
+        aria-labelledby="topic-form-title"
+        onSubmit={(event) => void handleTopicSubmit(event)}
+      >
+        <div className="section-heading">
+          <p className="eyebrow">New topic</p>
+          <h2 id="topic-form-title">Create a topic dossier</h2>
+        </div>
 
-        <section className="status-panel" aria-labelledby="backend-status-title">
-          <h2 id="backend-status-title">Backend connectivity</h2>
-          {healthState.status === "loading" ? (
-            <p className="status-text" role="status">
-              Checking the API scaffold...
-            </p>
+        <label className="form-field" htmlFor="topic-title">
+          <span>Title</span>
+          <input
+            id="topic-title"
+            name="title"
+            type="text"
+            value={topicForm.title}
+            aria-describedby={fieldErrors.title ? "topic-title-error" : undefined}
+            aria-invalid={fieldErrors.title ? true : undefined}
+            onChange={(event) => updateField("title", event.target.value)}
+          />
+          {fieldErrors.title ? (
+            <span className="field-error" id="topic-title-error">
+              {fieldErrors.title}
+            </span>
           ) : null}
-          {healthState.status === "ready" ? (
-            <p className="status-text" role="status">
-              API scaffold ready: {healthState.ok ? "healthy" : "unhealthy"}.
-            </p>
-          ) : null}
-          {healthState.status === "error" ? (
-            <p className="status-text status-text--error" role="alert">
-              API scaffold unavailable.
-            </p>
-          ) : null}
-        </section>
+        </label>
 
-        <section className="topic-workspace">
-          <form
-            className="topic-form"
-            aria-labelledby="topic-form-title"
-            onSubmit={(event) => void handleTopicSubmit(event)}
+        <label className="form-field" htmlFor="topic-framing-question">
+          <span>Framing question</span>
+          <textarea
+            id="topic-framing-question"
+            name="framingQuestion"
+            rows={3}
+            value={topicForm.framingQuestion}
+            aria-describedby={
+              fieldErrors.framingQuestion
+                ? "topic-framing-question-error"
+                : undefined
+            }
+            aria-invalid={fieldErrors.framingQuestion ? true : undefined}
+            onChange={(event) =>
+              updateField("framingQuestion", event.target.value)
+            }
+          />
+          {fieldErrors.framingQuestion ? (
+            <span className="field-error" id="topic-framing-question-error">
+              {fieldErrors.framingQuestion}
+            </span>
+          ) : null}
+        </label>
+
+        <label className="form-field" htmlFor="topic-scope-note">
+          <span>Scope note</span>
+          <textarea
+            id="topic-scope-note"
+            name="scopeNote"
+            rows={4}
+            value={topicForm.scopeNote}
+            onChange={(event) => updateField("scopeNote", event.target.value)}
+          />
+        </label>
+
+        <label className="form-field" htmlFor="topic-review-cadence">
+          <span>Review cadence</span>
+          <select
+            id="topic-review-cadence"
+            name="reviewCadence"
+            value={topicForm.reviewCadence}
+            onChange={(event) =>
+              updateField("reviewCadence", event.target.value as ReviewCadence)
+            }
           >
-            <div className="section-heading">
-              <p className="eyebrow">New topic</p>
-              <h2 id="topic-form-title">Create a topic dossier</h2>
-            </div>
+            {reviewCadenceOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-            <label className="form-field" htmlFor="topic-title">
-              <span>Title</span>
-              <input
-                id="topic-title"
-                name="title"
-                type="text"
-                value={topicForm.title}
-                aria-describedby={
-                  fieldErrors.title ? "topic-title-error" : undefined
-                }
-                aria-invalid={fieldErrors.title ? true : undefined}
-                onChange={(event) => updateField("title", event.target.value)}
-              />
-              {fieldErrors.title ? (
-                <span className="field-error" id="topic-title-error">
-                  {fieldErrors.title}
-                </span>
-              ) : null}
-            </label>
+        <button className="primary-action" type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Creating topic..." : "Create topic"}
+        </button>
 
-            <label className="form-field" htmlFor="topic-framing-question">
-              <span>Framing question</span>
-              <textarea
-                id="topic-framing-question"
-                name="framingQuestion"
-                rows={3}
-                value={topicForm.framingQuestion}
-                aria-describedby={
-                  fieldErrors.framingQuestion
-                    ? "topic-framing-question-error"
-                    : undefined
-                }
-                aria-invalid={fieldErrors.framingQuestion ? true : undefined}
-                onChange={(event) =>
-                  updateField("framingQuestion", event.target.value)
-                }
-              />
-              {fieldErrors.framingQuestion ? (
-                <span className="field-error" id="topic-framing-question-error">
-                  {fieldErrors.framingQuestion}
-                </span>
-              ) : null}
-            </label>
+        <DbWakeUpStatus
+          state={topicCreationState}
+          onRetry={() => void retryTopicSubmit()}
+        />
+      </form>
 
-            <label className="form-field" htmlFor="topic-scope-note">
-              <span>Scope note</span>
-              <textarea
-                id="topic-scope-note"
-                name="scopeNote"
-                rows={4}
-                value={topicForm.scopeNote}
-                onChange={(event) =>
-                  updateField("scopeNote", event.target.value)
-                }
-              />
-            </label>
-
-            <label className="form-field" htmlFor="topic-review-cadence">
-              <span>Review cadence</span>
-              <select
-                id="topic-review-cadence"
-                name="reviewCadence"
-                value={topicForm.reviewCadence}
-                onChange={(event) =>
-                  updateField(
-                    "reviewCadence",
-                    event.target.value as ReviewCadence
-                  )
-                }
-              >
-                {reviewCadenceOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <button
-              className="primary-action"
-              type="submit"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Creating topic..." : "Create topic"}
-            </button>
-
-            <DbWakeUpStatus
-              state={topicCreationState}
-              onRetry={() => void retryTopicSubmit()}
-            />
-          </form>
-
-          <CreatedTopicSummary topic={createdTopic} />
-        </section>
-      </section>
-    </main>
+      <aside className="topic-summary topic-summary--empty">
+        <p className="eyebrow">Topic home</p>
+        <h2>No topic selected</h2>
+        <p>
+          Submit the form to create a durable dossier home for future events,
+          assessments, review notes, evidence, citations, reviews, and export.
+        </p>
+      </aside>
+    </section>
   );
 }
 
-function CreatedTopicSummary({ topic }: { topic: Topic | null }) {
-  if (!topic) {
-    return (
-      <aside className="topic-summary topic-summary--empty">
-        <p className="eyebrow">Created topic</p>
-        <h2>No topic created yet</h2>
-        <p>
-          Submit the form to create the top-level dossier container for future
-          events, assessments, review notes, and citations.
-        </p>
-      </aside>
-    );
-  }
+function TopicDetailScreen({
+  topicId,
+  onNavigateHome
+}: {
+  topicId: string;
+  onNavigateHome: () => void;
+}) {
+  const [topicState, setTopicState] = useState<
+    DbBackedRequestState<GetTopicResponse>
+  >({ status: "loading" });
+  const latestRunId = useRef(0);
+
+  const loadTopic = useCallback(async () => {
+    const runId = latestRunId.current + 1;
+    latestRunId.current = runId;
+    setTopicState({ status: "loading" });
+
+    try {
+      const response = await getTopic(
+        { topicId },
+        {
+          onProgress: (progress) => {
+            if (latestRunId.current === runId) {
+              setTopicState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (latestRunId.current === runId) {
+        setTopicState({ status: "success", data: response });
+      }
+    } catch (error) {
+      if (latestRunId.current === runId) {
+        setTopicState({ status: "error", error });
+      }
+    }
+  }, [topicId]);
+
+  useEffect(() => {
+    void loadTopic();
+
+    return () => {
+      latestRunId.current += 1;
+    };
+  }, [loadTopic]);
+
+  const isNotFound =
+    topicState.status === "error" && isTopicNotFoundError(topicState.error);
 
   return (
-    <aside className="topic-summary" aria-live="polite">
-      <p className="eyebrow">Created topic</p>
-      <h2>{topic.title}</h2>
-      <dl>
-        <div>
-          <dt>Framing question</dt>
-          <dd>{topic.framingQuestion}</dd>
-        </div>
+    <section className="topic-detail" aria-labelledby="topic-detail-title">
+      <button className="text-action" type="button" onClick={onNavigateHome}>
+        New topic
+      </button>
+
+      {topicState.status === "loading" ? (
+        <p className="status-text topic-detail__status" role="status">
+          Loading topic dossier...
+        </p>
+      ) : null}
+
+      {isNotFound ? null : (
+        <DbWakeUpStatus state={topicState} onRetry={() => void loadTopic()} />
+      )}
+
+      {isNotFound ? (
+        <TopicNotFound topicId={topicId} />
+      ) : null}
+
+      {topicState.status === "success" ? (
+        <TopicDossierShell topic={topicState.data.topic} />
+      ) : null}
+    </section>
+  );
+}
+
+function TopicDossierShell({ topic }: { topic: Topic }) {
+  return (
+    <>
+      <header className="topic-detail__header">
+        <p className="eyebrow">Topic dossier</p>
+        <h2 id="topic-detail-title">{topic.title}</h2>
+        <p className="topic-detail__framing-question">
+          {topic.framingQuestion}
+        </p>
+      </header>
+
+      <dl className="topic-detail__metadata" aria-label="Topic metadata">
+        <MetadataItem label="Status" value={formatTopicStatus(topic.status)} />
+        <MetadataItem
+          label="Review cadence"
+          value={formatReviewCadence(topic.reviewCadence)}
+        />
+        <MetadataItem label="Created" value={formatTopicDate(topic.createdAt)} />
+        <MetadataItem label="Updated" value={formatTopicDate(topic.updatedAt)} />
         {topic.scopeNote ? (
-          <div>
-            <dt>Scope note</dt>
-            <dd>{topic.scopeNote}</dd>
-          </div>
+          <MetadataItem label="Scope note" value={topic.scopeNote} />
         ) : null}
-        <div>
-          <dt>Review cadence</dt>
-          <dd>{formatReviewCadence(topic.reviewCadence)}</dd>
-        </div>
-        <div>
-          <dt>Status</dt>
-          <dd>{topic.status}</dd>
-        </div>
-        <div>
-          <dt>Topic ID</dt>
-          <dd>{topic.id}</dd>
-        </div>
       </dl>
-    </aside>
+
+      <section className="dossier-empty-sections" aria-label="Future R1 sections">
+        {dossierSections.map((section) => (
+          <article className="dossier-empty-section" key={section.title}>
+            <p className="eyebrow">Future R1 area</p>
+            <h3>{section.title}</h3>
+            <p>{section.body}</p>
+            <p className="dossier-empty-section__status">
+              Shell only. Not functional yet.
+            </p>
+          </article>
+        ))}
+      </section>
+    </>
+  );
+}
+
+function MetadataItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function TopicNotFound({ topicId }: { topicId: string }) {
+  return (
+    <section className="topic-empty-state" aria-labelledby="topic-detail-title">
+      <p className="eyebrow">Topic not found</p>
+      <h2 id="topic-detail-title">No topic dossier found</h2>
+      <p>
+        Signal Tracker could not find a topic dossier for{" "}
+        <strong>{topicId}</strong>.
+      </p>
+    </section>
+  );
+}
+
+function RouteNotFound({ onNavigateHome }: { onNavigateHome: () => void }) {
+  return (
+    <section className="topic-empty-state" aria-labelledby="topic-detail-title">
+      <p className="eyebrow">Unknown route</p>
+      <h2 id="topic-detail-title">This Signal Tracker page does not exist</h2>
+      <p>Open the topic creation surface to create a dossier.</p>
+      <button className="primary-action" type="button" onClick={onNavigateHome}>
+        Create a topic
+      </button>
+    </section>
   );
 }
 
@@ -350,9 +544,53 @@ function createFieldErrors(
   return errors;
 }
 
+function parseAppRoute(pathname: string): AppRoute {
+  const normalizedPath = pathname.replace(/\/+$/, "") || "/";
+
+  if (normalizedPath === "/") {
+    return { name: "createTopic" };
+  }
+
+  const topicMatch = /^\/topics\/([^/]+)$/.exec(normalizedPath);
+
+  if (topicMatch) {
+    return { name: "topicDetail", topicId: decodeURIComponent(topicMatch[1]) };
+  }
+
+  return { name: "notFound" };
+}
+
+function getRoutePath(route: AppRoute): string {
+  if (route.name === "topicDetail") {
+    return `/topics/${encodeURIComponent(route.topicId)}`;
+  }
+
+  return "/";
+}
+
+function isTopicNotFoundError(error: unknown): boolean {
+  return (
+    error instanceof SignalTrackerApiError && error.code === "TOPIC_NOT_FOUND"
+  );
+}
+
 function formatReviewCadence(reviewCadence: ReviewCadence): string {
   return (
     reviewCadenceOptions.find((option) => option.value === reviewCadence)
       ?.label ?? reviewCadence
   );
+}
+
+function formatTopicStatus(status: Topic["status"]): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
+
+function formatTopicDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return dateFormatter.format(date);
 }

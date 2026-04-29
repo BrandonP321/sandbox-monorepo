@@ -1,10 +1,20 @@
-import type { CreateTopicResponse } from "@repo/signal-tracker-shared";
+import type {
+  CreateTopicResponse,
+  GetTopicResponse
+} from "@repo/signal-tracker-shared";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from "@testing-library/react";
 
 import App from "./App";
-import { createTopic } from "./api/topics";
+import { SignalTrackerApiError } from "./api/client";
+import { createTopic, getTopic } from "./api/topics";
 import { fetchHealthStatus } from "./health";
 
 vi.mock("./health", async () => {
@@ -23,21 +33,28 @@ vi.mock("./api/topics", async () => {
 
   return {
     ...actual,
-    createTopic: vi.fn()
+    createTopic: vi.fn(),
+    getTopic: vi.fn()
   };
 });
 
+const topicFixture = {
+  id: "topic-1",
+  title: "Iran strike risk",
+  framingQuestion: "Will tensions escalate?",
+  scopeNote: "Track official signals and credible reporting.",
+  status: "active" as const,
+  reviewCadence: "weekly" as const,
+  createdAt: "2026-04-26T00:00:00.000Z",
+  updatedAt: "2026-04-27T00:00:00.000Z"
+};
+
 const createdTopicResponse: CreateTopicResponse = {
-  topic: {
-    id: "topic-1",
-    title: "Iran strike risk",
-    framingQuestion: "Will tensions escalate?",
-    scopeNote: "Track official signals and credible reporting.",
-    status: "active",
-    reviewCadence: "weekly",
-    createdAt: "2026-04-26T00:00:00.000Z",
-    updatedAt: "2026-04-26T00:00:00.000Z"
-  }
+  topic: topicFixture
+};
+
+const getTopicResponse: GetTopicResponse = {
+  topic: topicFixture
 };
 
 afterEach(() => {
@@ -46,11 +63,14 @@ afterEach(() => {
 
 const fetchHealthStatusMock = vi.mocked(fetchHealthStatus);
 const createTopicMock = vi.mocked(createTopic);
+const getTopicMock = vi.mocked(getTopic);
 
 describe("App", () => {
   beforeEach(() => {
+    window.history.pushState({}, "", "/");
     fetchHealthStatusMock.mockResolvedValue({ ok: true });
     createTopicMock.mockResolvedValue(createdTopicResponse);
+    getTopicMock.mockResolvedValue(getTopicResponse);
   });
 
   it("renders the loading state while the health check is in flight", () => {
@@ -72,7 +92,7 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the topic creation form without placeholder module copy", async () => {
+  it("renders the root topic creation route without placeholder module copy", async () => {
     render(<App />);
 
     expect(
@@ -99,7 +119,7 @@ describe("App", () => {
     expect(createTopicMock).not.toHaveBeenCalled();
   });
 
-  it("submits a parsed topic request and shows the created topic summary", async () => {
+  it("submits a parsed topic request and navigates to the durable topic route", async () => {
     render(<App />);
 
     fireEvent.change(screen.getByLabelText("Title"), {
@@ -130,11 +150,16 @@ describe("App", () => {
       );
     });
 
-    expect(await screen.findByText("Iran strike risk")).toBeInTheDocument();
-    expect(screen.getByText("Will tensions escalate?")).toBeInTheDocument();
-    expect(screen.getAllByText("Weekly")).toHaveLength(2);
-    expect(screen.getByText("topic-1")).toBeInTheDocument();
-    expect(screen.getByLabelText("Title")).toHaveValue("");
+    await waitFor(() => {
+      expect(window.location.pathname).toBe("/topics/topic-1");
+    });
+    expect(getTopicMock).toHaveBeenCalledWith(
+      { topicId: "topic-1" },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
   });
 
   it("omits a blank scope note through the shared schema", async () => {
@@ -164,7 +189,130 @@ describe("App", () => {
     });
   });
 
-  it("shows a final request error with a retry affordance", async () => {
+  it("loads a topic detail route by ID and renders core dossier metadata", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(getTopicMock).toHaveBeenCalledWith(
+      { topicId: "topic-1" },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Will tensions escalate?")).toBeInTheDocument();
+    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText("Weekly")).toBeInTheDocument();
+    expect(screen.getByText("Apr 26, 2026")).toBeInTheDocument();
+    expect(screen.getByText("Apr 27, 2026")).toBeInTheDocument();
+    expect(
+      screen.getByText("Track official signals and credible reporting.")
+    ).toBeInTheDocument();
+  });
+
+  it("omits the optional scope note on the topic detail route when absent", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    getTopicMock.mockResolvedValue({
+      topic: {
+        ...topicFixture,
+        scopeNote: undefined
+      }
+    });
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Scope note")).not.toBeInTheDocument();
+  });
+
+  it("renders non-interactive empty states for future R1 dossier sections", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(await screen.findByText("Events")).toBeInTheDocument();
+    for (const sectionName of [
+      "Events",
+      "Assessment updates",
+      "Review notes",
+      "Evidence and citations",
+      "Review workflow",
+      "Export"
+    ]) {
+      const section = screen.getByRole("heading", { name: sectionName })
+        .closest("article");
+
+      expect(section).not.toBeNull();
+      expect(within(section!).getByText("Shell only. Not functional yet."))
+        .toBeInTheDocument();
+      expect(within(section!).queryByRole("button")).not.toBeInTheDocument();
+      expect(within(section!).queryByRole("link")).not.toBeInTheDocument();
+    }
+  });
+
+  it("renders a not-found state for a missing topic", async () => {
+    window.history.pushState({}, "", "/topics/topic-missing");
+    getTopicMock.mockRejectedValue(
+      new SignalTrackerApiError(404, "TOPIC_NOT_FOUND", "Topic not found")
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "No topic dossier found" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("topic-missing")).toBeInTheDocument();
+    expect(
+      screen.queryByText("The database-backed request could not be completed.")
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a topic detail request error with a retry affordance", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    getTopicMock
+      .mockRejectedValueOnce(new Error("database unavailable"))
+      .mockResolvedValueOnce(getTopicResponse);
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(getTopicMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows the shared wake-up status when get-topic reports waking progress", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    getTopicMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<GetTopicResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows a final create-topic request error with a retry affordance", async () => {
     createTopicMock
       .mockRejectedValueOnce(new Error("database unavailable"))
       .mockResolvedValueOnce(createdTopicResponse);
@@ -220,6 +368,21 @@ describe("App", () => {
     expect(
       screen.getByRole("button", { name: "Creating topic..." })
     ).toBeDisabled();
+  });
+
+  it("keeps R1 copy clear of deferred monitoring and AI behavior", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/signal ingestion/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/source bias/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/alerts/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/AI summaries/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/social monitoring/i)).not.toBeInTheDocument();
   });
 
   it("renders an error message when the health check fails", async () => {

@@ -221,6 +221,22 @@ select {
   opacity: 0.72;
 }
 
+.text-action {
+  min-height: 2.25rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #214f43;
+  cursor: pointer;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 0.2rem;
+}
+
+.text-action:hover {
+  color: #183f35;
+}
+
 .topic-summary {
   align-self: start;
 }
@@ -255,6 +271,110 @@ select {
   line-height: 1.5;
 }
 
+.topic-detail {
+  margin-top: 2rem;
+}
+
+.topic-detail__status {
+  margin-top: 1.25rem;
+}
+
+.topic-detail__header {
+  margin-top: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #d5ded9;
+}
+
+.topic-detail__header h2,
+.topic-empty-state h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.topic-detail__framing-question {
+  max-width: 54rem;
+  margin: 0.75rem 0 0;
+  color: #314034;
+  font-size: 1.15rem;
+  line-height: 1.65;
+}
+
+.topic-detail__metadata {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+  margin: 1.25rem 0 0;
+}
+
+.topic-detail__metadata div {
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.topic-detail__metadata div:last-child:nth-child(5) {
+  grid-column: 1 / -1;
+}
+
+.topic-detail__metadata dt {
+  color: #637064;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.topic-detail__metadata dd {
+  margin: 0.35rem 0 0;
+  overflow-wrap: anywhere;
+  color: #1f2d28;
+  line-height: 1.5;
+}
+
+.dossier-empty-sections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.dossier-empty-section {
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.dossier-empty-section h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.dossier-empty-section p {
+  margin: 0.65rem 0 0;
+  color: #526151;
+  line-height: 1.55;
+}
+
+.dossier-empty-section__status {
+  font-weight: 800;
+}
+
+.topic-empty-state {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.topic-empty-state p {
+  margin: 0.75rem 0 0;
+  color: #526151;
+  line-height: 1.6;
+}
+
 @media (max-width: 768px) {
   .app-shell {
     padding: 1.5rem 1rem 2rem;
@@ -266,6 +386,11 @@ select {
 
   .app-header,
   .topic-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .topic-detail__metadata,
+  .dossier-empty-sections {
     grid-template-columns: 1fr;
   }
 
