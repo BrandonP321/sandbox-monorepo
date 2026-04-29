@@ -67,7 +67,18 @@ export SIGNAL_TRACKER_DB_RESOURCE_ARN=<SignalTrackerDatabaseResourceArn>
 export SIGNAL_TRACKER_DB_SECRET_ARN=<SignalTrackerDatabaseSecretArn>
 pnpm --filter signal-tracker-api run db:migrate:deployed
 pnpm --filter signal-tracker-api run db:smoke:deployed
+pnpm --filter signal-tracker-api run db:verify:deployed
 ```
+
+`db:migrate:deployed` uses the app-owned AWS Data API runner in `scripts/`
+rather than the Drizzle Kit CLI. It performs a Data API preflight, retries known
+Aurora resume errors such as `DatabaseResumingException`, applies migrations
+through Drizzle ORM, and prints the phase, SQLState, and AWS request ID when a
+deployed database operation fails.
+
+`db:verify:deployed` reads `drizzle.__drizzle_migrations` and prints the
+deployed migration ledger. Use it after deployed migrations to confirm the
+database has the expected Drizzle migration history.
 
 Deployed migrations are manual for now. They do not run automatically in the
 deploy pipeline, and there is no migration Lambda.

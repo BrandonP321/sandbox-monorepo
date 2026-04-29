@@ -80,12 +80,16 @@ Use GitHub Issue #12 as the implementation-facing decision record for the databa
 - basic health checks must remain DB-free
 - DB-backed API calls must tolerate Aurora wake-up latency
 
-Aurora infrastructure and migration foundation are tracked in GitHub Issue #13. Topic persistence is tracked in GitHub Issue #7. DB-backed UI wake-up handling is tracked in GitHub Issue #14.
+Aurora infrastructure and migration foundation are tracked in GitHub Issue #13.
+Topic persistence is tracked in GitHub Issue #7. DB-backed UI wake-up handling
+is tracked in GitHub Issue #14.
 
-Issue #13 uses Aurora Data API with Drizzle Kit migrations. Deployed migrations
-are explicit commands, not automatic pipeline steps. The first product schema
-migration, including `topics`, remains owned by Issue #7 unless that issue is
-respecified.
+Issue #13 uses Aurora Data API with Drizzle migrations. Deployed migrations are
+explicit commands, not automatic pipeline steps. The deployed migration command
+uses the Signal Tracker API runner, retries known Aurora resume errors, and can
+be verified with `pnpm --filter signal-tracker-api run db:verify:deployed`.
+The first product schema migration, including `topics`, remains owned by Issue
+#7 unless that issue is respecified.
 
 ## Postman
 
