@@ -25,6 +25,21 @@
 
 Google Drive holds durable product direction. Use the Google Drive plugin/connector when product context is needed, especially before making implementation decisions that affect behavior, data model, scope, or release sequencing.
 
+### Google Drive Navigation
+
+The canonical Signal Tracker Drive folder is:
+
+- `Signal Tracker`: `https://drive.google.com/drive/folders/16VAZNP9MZSc_yKdZP1shB3ofi0jhPF2e`
+
+When looking for Signal Tracker product context:
+
+- Prefer listing the canonical folder first, then open the relevant docs from that folder.
+- If the folder URL is inaccessible or the connector cannot list it, search Google Drive for `Signal Tracker` and prefer results whose title starts with `Signal Tracker`.
+- Every durable Signal Tracker product doc should start with `Signal Tracker`. Treat non-prefixed docs as background only unless the user explicitly points to them.
+- Use concise Drive search queries such as `Signal Tracker Product Requirements`, `Signal Tracker Project Tracker`, or `Signal Tracker Decisions` instead of long natural-language queries.
+- If the Google Drive plugin/connector is not enabled and product context is needed, stop and ask the user to enable the Google Drive plugin before making product-affecting decisions.
+- Do not infer product direction from stale local notes when a Drive source-of-truth doc is needed but unavailable. Explain the missing Drive access and proceed only with implementation-neutral repo inspection.
+
 Current Signal Tracker source-of-truth docs:
 
 - `Signal Tracker - Project Charter`
