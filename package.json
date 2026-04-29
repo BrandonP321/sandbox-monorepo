@@ -31,6 +31,7 @@
     "build:project": "node scripts/project-command.mjs build",
     "predeploy:project": "node scripts/check-node-version.mjs",
     "deploy:project": "node scripts/project-command.mjs deploy",
+    "aws:login:sandbox": "aws sso login --profile sandbox-admin",
     "postman:generate": "pnpm --filter @repo/postman-sync postman-sync generate",
     "postman:run": "pnpm --filter @repo/postman-sync postman-sync run",
     "postman:sync": "pnpm --filter @repo/postman-sync postman-sync sync",
