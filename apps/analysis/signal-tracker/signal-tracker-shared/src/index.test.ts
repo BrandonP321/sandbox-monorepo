@@ -5,7 +5,10 @@ import {
   createTopicResponseSchema,
   getTopicRequestSchema,
   getTopicResponseSchema,
+  isSignalTrackerRetryableDbErrorCode,
+  signalTrackerApiErrorCodes,
   signalTrackerHealthResponseSchema,
+  signalTrackerRetryableDbErrorCodes,
   signalTrackerRouteEntries,
   signalTrackerRouteList,
   signalTrackerRoutes,
@@ -45,6 +48,24 @@ describe("signalTrackerRoutes", () => {
     const payload = signalTrackerHealthResponseSchema.parse({ ok: true });
 
     expect(payload.ok).toBe(true);
+  });
+});
+
+describe("signalTracker API error conventions", () => {
+  it("classifies retryable DB-backed API errors", () => {
+    expect(signalTrackerRetryableDbErrorCodes).toEqual([
+      "PERSISTENCE_UNAVAILABLE",
+      "DATABASE_UNAVAILABLE",
+      "DATABASE_WAKING",
+      "REQUEST_TIMEOUT"
+    ]);
+
+    expect(
+      isSignalTrackerRetryableDbErrorCode(
+        signalTrackerApiErrorCodes.persistenceUnavailable
+      )
+    ).toBe(true);
+    expect(isSignalTrackerRetryableDbErrorCode("VALIDATION_ERROR")).toBe(false);
   });
 });
 

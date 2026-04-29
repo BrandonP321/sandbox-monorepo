@@ -10,6 +10,7 @@ import {
   type Topic
 } from "@repo/signal-tracker-shared";
 
+import { createPersistenceUnavailableError } from "../../app/errors";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
@@ -65,11 +66,7 @@ async function findTopicById(
   try {
     return await dependencies.repository.findById(topicId);
   } catch {
-    throw new AppError(
-      "PERSISTENCE_UNAVAILABLE",
-      "Topic persistence is temporarily unavailable",
-      503
-    );
+    throw createPersistenceUnavailableError();
   }
 }
 

@@ -9,6 +9,7 @@ import {
   createTopicResponseSchema
 } from "@repo/signal-tracker-shared";
 
+import { createPersistenceUnavailableError } from "../../app/errors";
 import { createTopicRecord } from "../../domain/topics/create-topic";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -54,11 +55,7 @@ async function persistTopic(
   try {
     return await createTopicRecord(input, dependencies);
   } catch {
-    throw new AppError(
-      "PERSISTENCE_UNAVAILABLE",
-      "Topic persistence is temporarily unavailable",
-      503
-    );
+    throw createPersistenceUnavailableError();
   }
 }
 

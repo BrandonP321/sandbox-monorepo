@@ -161,6 +161,9 @@ importers:
 
   apps/analysis/signal-tracker/signal-tracker-web:
     dependencies:
+      '@repo/api-contracts':
+        specifier: workspace:*
+        version: link:../../../../packages/api-contracts
       '@repo/signal-tracker-shared':
         specifier: workspace:*
         version: link:../signal-tracker-shared

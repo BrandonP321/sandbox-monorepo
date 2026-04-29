@@ -93,6 +93,32 @@ select {
   font-weight: 600;
 }
 
+.db-wake-up-status {
+  margin-top: 0.75rem;
+}
+
+.db-wake-up-status--error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.db-wake-up-status__retry {
+  min-height: 2.25rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid #a11b1b;
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #841717;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.db-wake-up-status__retry:hover {
+  background: #fff5f5;
+}
+
 .placeholder-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
