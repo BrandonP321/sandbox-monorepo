@@ -12,8 +12,8 @@ export function DbWakeUpStatus<TResponse>({
   if (state.status === "waking") {
     return (
       <p className="status-text db-wake-up-status" role="status">
-        The database is waking up after inactivity. This can take a few seconds.
-        Retrying automatically...
+        The database is waking up after inactivity. This can take a minute or
+        two. Retrying automatically...
       </p>
     );
   }

@@ -8,9 +8,9 @@ import {
 
 export const DB_BACKED_API_DEFAULTS = {
   wakeUpDelayMs: 4_000,
-  requestTimeoutMs: 15_000,
-  maxAttempts: 3,
-  retryDelaysMs: [1_000, 2_000]
+  requestTimeoutMs: 20_000,
+  maxAttempts: 5,
+  retryDelaysMs: [2_000, 5_000, 10_000, 15_000]
 } as const;
 
 export type DbBackedRequestProgressPhase = "loading" | "waking";

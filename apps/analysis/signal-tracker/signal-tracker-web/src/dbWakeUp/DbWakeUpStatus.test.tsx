@@ -12,7 +12,7 @@ describe("DbWakeUpStatus", () => {
     render(<DbWakeUpStatus state={{ status: "waking" }} onRetry={vi.fn()} />);
 
     expect(screen.getByRole("status")).toHaveTextContent(
-      "The database is waking up after inactivity. This can take a few seconds. Retrying automatically..."
+      "The database is waking up after inactivity. This can take a minute or two. Retrying automatically..."
     );
   });
 

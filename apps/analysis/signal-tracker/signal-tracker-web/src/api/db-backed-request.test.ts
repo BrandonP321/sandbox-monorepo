@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { SignalTrackerApiError } from "./client";
 import {
+  DB_BACKED_API_DEFAULTS,
   isRetryableDbBackedRequestError,
   runDbBackedRequest
 } from "./db-backed-request";
@@ -21,7 +22,7 @@ describe("runDbBackedRequest", () => {
     expect(onProgress).toHaveBeenCalledWith({
       phase: "loading",
       attempt: 1,
-      maxAttempts: 3
+      maxAttempts: DB_BACKED_API_DEFAULTS.maxAttempts
     });
     expect(onProgress).not.toHaveBeenCalledWith(
       expect.objectContaining({ phase: "waking" })
@@ -49,7 +50,7 @@ describe("runDbBackedRequest", () => {
     expect(onProgress).toHaveBeenCalledWith({
       phase: "waking",
       attempt: 1,
-      maxAttempts: 3
+      maxAttempts: DB_BACKED_API_DEFAULTS.maxAttempts
     });
 
     await vi.advanceTimersByTimeAsync(1_000);
@@ -77,6 +78,24 @@ describe("runDbBackedRequest", () => {
 
     await expect(result).resolves.toBe("ok");
     expect(request).toHaveBeenCalledTimes(2);
+  });
+
+  it("uses a longer default retry budget for dormant database wake-up", async () => {
+    vi.useFakeTimers();
+    const error = new SignalTrackerApiError(
+      503,
+      "PERSISTENCE_UNAVAILABLE",
+      "Persistence unavailable"
+    );
+    const request = vi.fn<() => Promise<string>>().mockRejectedValue(error);
+
+    const result = runDbBackedRequest(request);
+    const expectation = expect(result).rejects.toBe(error);
+
+    await vi.advanceTimersByTimeAsync(32_000);
+
+    await expectation;
+    expect(request).toHaveBeenCalledTimes(5);
   });
 
   it("stops after bounded transient retry attempts", async () => {
