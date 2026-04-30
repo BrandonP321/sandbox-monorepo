@@ -1,11 +1,14 @@
 import {
   createTopicResponseSchema,
   getTopicResponseSchema,
+  listTopicsResponseSchema,
   signalTrackerRoutes,
   type CreateTopicRequest,
   type CreateTopicResponse,
   type GetTopicRequest,
-  type GetTopicResponse
+  type GetTopicResponse,
+  type ListTopicsRequest,
+  type ListTopicsResponse
 } from "@repo/signal-tracker-shared";
 
 import {
@@ -36,6 +39,20 @@ export function getTopic(
       route: signalTrackerRoutes.getTopic,
       body: request,
       responseSchema: getTopicResponseSchema
+    },
+    options
+  );
+}
+
+export function listTopics(
+  request: ListTopicsRequest = { query: undefined },
+  options?: DbBackedRequestOptions
+): Promise<ListTopicsResponse> {
+  return postSignalTrackerDbBackedApi(
+    {
+      route: signalTrackerRoutes.listTopics,
+      body: request,
+      responseSchema: listTopicsResponseSchema
     },
     options
   );

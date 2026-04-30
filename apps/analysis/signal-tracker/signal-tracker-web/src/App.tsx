@@ -3,6 +3,7 @@ import {
   type CreateTopicRequest,
   type CreateTopicResponse,
   type GetTopicResponse,
+  type ListTopicsResponse,
   type ReviewCadence,
   type Topic
 } from "@repo/signal-tracker-shared";
@@ -12,11 +13,12 @@ import {
   useEffect,
   useRef,
   useState,
-  type FormEvent
+  type FormEvent,
+  type MouseEvent
 } from "react";
 
 import { SignalTrackerApiError } from "./api/client";
-import { createTopic, getTopic } from "./api/topics";
+import { createTopic, getTopic, listTopics } from "./api/topics";
 import { DbWakeUpStatus } from "./dbWakeUp/DbWakeUpStatus";
 import type { DbBackedRequestState } from "./dbWakeUp/useDbBackedRequest";
 import { fetchHealthStatus } from "./health";
@@ -27,6 +29,7 @@ type HealthState =
   | { status: "error" };
 
 type AppRoute =
+  | { name: "topicList" }
   | { name: "createTopic" }
   | { name: "topicDetail"; topicId: string }
   | { name: "notFound" };
@@ -142,35 +145,199 @@ export default function App() {
             <h1 className="headline">Signal Tracker</h1>
           </div>
           <p className="lede">
-            Create a topic dossier with a clear framing question, scope, and
-            review cadence before adding evidence-backed timeline work.
+            Keep a durable home for active topic dossiers before adding
+            evidence-backed timeline work, assessment updates, and review notes.
           </p>
         </header>
 
         <BackendStatus healthState={healthState} />
+
+        {route.name === "topicList" ? (
+          <TopicListScreen
+            onCreateTopic={() => navigateTo({ name: "createTopic" })}
+            onOpenTopic={(topicId) =>
+              navigateTo({ name: "topicDetail", topicId })
+            }
+          />
+        ) : null}
 
         {route.name === "createTopic" ? (
           <TopicCreationScreen
             onTopicCreated={(topic) =>
               navigateTo({ name: "topicDetail", topicId: topic.id })
             }
+            onNavigateTopics={() => navigateTo({ name: "topicList" })}
           />
         ) : null}
 
         {route.name === "topicDetail" ? (
           <TopicDetailScreen
             topicId={route.topicId}
-            onNavigateHome={() => navigateTo({ name: "createTopic" })}
+            onNavigateTopics={() => navigateTo({ name: "topicList" })}
+            onCreateTopic={() => navigateTo({ name: "createTopic" })}
           />
         ) : null}
 
         {route.name === "notFound" ? (
           <RouteNotFound
-            onNavigateHome={() => navigateTo({ name: "createTopic" })}
+            onNavigateHome={() => navigateTo({ name: "topicList" })}
           />
         ) : null}
       </section>
     </main>
+  );
+}
+
+function TopicListScreen({
+  onCreateTopic,
+  onOpenTopic
+}: {
+  onCreateTopic: () => void;
+  onOpenTopic: (topicId: string) => void;
+}) {
+  const [topicListState, setTopicListState] = useState<
+    DbBackedRequestState<ListTopicsResponse>
+  >({ status: "loading" });
+  const latestRunId = useRef(0);
+
+  const loadTopics = useCallback(async () => {
+    const runId = latestRunId.current + 1;
+    latestRunId.current = runId;
+    setTopicListState({ status: "loading" });
+
+    try {
+      const response = await listTopics(
+        { query: undefined },
+        {
+          onProgress: (progress) => {
+            if (latestRunId.current === runId) {
+              setTopicListState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (latestRunId.current === runId) {
+        setTopicListState({ status: "success", data: response });
+      }
+    } catch (error) {
+      if (latestRunId.current === runId) {
+        setTopicListState({ status: "error", error });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadTopics();
+
+    return () => {
+      latestRunId.current += 1;
+    };
+  }, [loadTopics]);
+
+  return (
+    <section className="topic-list" aria-labelledby="topic-list-title">
+      <header className="section-heading topic-list__header">
+        <div>
+          <p className="eyebrow">Topic home</p>
+          <h2 id="topic-list-title">Active topic dossiers</h2>
+        </div>
+        <button
+          className="primary-action"
+          type="button"
+          onClick={onCreateTopic}
+        >
+          New topic
+        </button>
+      </header>
+
+      {topicListState.status === "loading" ? (
+        <p className="status-text topic-list__status" role="status">
+          Loading active topic dossiers...
+        </p>
+      ) : null}
+
+      <DbWakeUpStatus
+        state={topicListState}
+        onRetry={() => void loadTopics()}
+      />
+
+      {topicListState.status === "success" &&
+      topicListState.data.topics.length === 0 ? (
+        <section
+          className="topic-empty-state"
+          aria-labelledby="topic-list-empty-title"
+        >
+          <p className="eyebrow">No active topics</p>
+          <h3 id="topic-list-empty-title">Create your first topic dossier</h3>
+          <p>
+            Topics are evidence-backed dossiers organized around a framing
+            question, review cadence, and clear scope.
+          </p>
+          <button
+            className="primary-action"
+            type="button"
+            onClick={onCreateTopic}
+          >
+            Create a topic
+          </button>
+        </section>
+      ) : null}
+
+      {topicListState.status === "success" &&
+      topicListState.data.topics.length > 0 ? (
+        <div className="topic-list__grid" aria-label="Active topics">
+          {topicListState.data.topics.map((topic) => (
+            <TopicListCard
+              key={topic.id}
+              topic={topic}
+              onOpenTopic={onOpenTopic}
+            />
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function TopicListCard({
+  topic,
+  onOpenTopic
+}: {
+  topic: Topic;
+  onOpenTopic: (topicId: string) => void;
+}) {
+  const topicPath = getRoutePath({ name: "topicDetail", topicId: topic.id });
+
+  function handleOpenTopic(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    onOpenTopic(topic.id);
+  }
+
+  return (
+    <article className="topic-list-card">
+      <header>
+        <p className="eyebrow">{formatTopicStatus(topic.status)}</p>
+        <h3>
+          <a href={topicPath} onClick={handleOpenTopic}>
+            {topic.title}
+          </a>
+        </h3>
+      </header>
+      <p className="topic-list-card__framing-question">
+        {topic.framingQuestion}
+      </p>
+      <dl className="topic-list-card__metadata" aria-label="Topic metadata">
+        <MetadataItem
+          label="Review cadence"
+          value={formatReviewCadence(topic.reviewCadence)}
+        />
+        <MetadataItem
+          label="Updated"
+          value={formatTopicDate(topic.updatedAt)}
+        />
+      </dl>
+    </article>
   );
 }
 
@@ -198,9 +365,11 @@ function BackendStatus({ healthState }: { healthState: HealthState }) {
 }
 
 function TopicCreationScreen({
-  onTopicCreated
+  onTopicCreated,
+  onNavigateTopics
 }: {
   onTopicCreated: (topic: Topic) => void;
+  onNavigateTopics: () => void;
 }) {
   const [topicForm, setTopicForm] = useState<TopicFormValues>(
     defaultTopicFormValues
@@ -278,6 +447,14 @@ function TopicCreationScreen({
         aria-labelledby="topic-form-title"
         onSubmit={(event) => void handleTopicSubmit(event)}
       >
+        <button
+          className="text-action"
+          type="button"
+          onClick={onNavigateTopics}
+        >
+          View topics
+        </button>
+
         <div className="section-heading">
           <p className="eyebrow">New topic</p>
           <h2 id="topic-form-title">Create a topic dossier</h2>
@@ -384,10 +561,12 @@ function TopicCreationScreen({
 
 function TopicDetailScreen({
   topicId,
-  onNavigateHome
+  onNavigateTopics,
+  onCreateTopic
 }: {
   topicId: string;
-  onNavigateHome: () => void;
+  onNavigateTopics: () => void;
+  onCreateTopic: () => void;
 }) {
   const [topicState, setTopicState] = useState<
     DbBackedRequestState<GetTopicResponse>
@@ -434,9 +613,18 @@ function TopicDetailScreen({
 
   return (
     <section className="topic-detail" aria-labelledby="topic-detail-title">
-      <button className="text-action" type="button" onClick={onNavigateHome}>
-        New topic
-      </button>
+      <div className="topic-detail__actions">
+        <button
+          className="text-action"
+          type="button"
+          onClick={onNavigateTopics}
+        >
+          View topics
+        </button>
+        <button className="text-action" type="button" onClick={onCreateTopic}>
+          New topic
+        </button>
+      </div>
 
       {topicState.status === "loading" ? (
         <p className="status-text topic-detail__status" role="status">
@@ -533,9 +721,9 @@ function RouteNotFound({ onNavigateHome }: { onNavigateHome: () => void }) {
     <section className="topic-empty-state" aria-labelledby="topic-detail-title">
       <p className="eyebrow">Unknown route</p>
       <h2 id="topic-detail-title">This Signal Tracker page does not exist</h2>
-      <p>Open the topic creation surface to create a dossier.</p>
+      <p>Open the topic list to choose or create a dossier.</p>
       <button className="primary-action" type="button" onClick={onNavigateHome}>
-        Create a topic
+        View topics
       </button>
     </section>
   );
@@ -569,6 +757,10 @@ function parseAppRoute(pathname: string): AppRoute {
   const normalizedPath = pathname.replace(/\/+$/, "") || "/";
 
   if (normalizedPath === "/") {
+    return { name: "topicList" };
+  }
+
+  if (normalizedPath === "/topics/new") {
     return { name: "createTopic" };
   }
 
@@ -584,6 +776,10 @@ function parseAppRoute(pathname: string): AppRoute {
 function getRoutePath(route: AppRoute): string {
   if (route.name === "topicDetail") {
     return `/topics/${encodeURIComponent(route.topicId)}`;
+  }
+
+  if (route.name === "createTopic") {
+    return "/topics/new";
   }
 
   return "/";

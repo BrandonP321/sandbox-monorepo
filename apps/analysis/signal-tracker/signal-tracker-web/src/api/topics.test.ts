@@ -3,11 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import {
   createTopicResponseSchema,
   getTopicResponseSchema,
+  listTopicsResponseSchema,
   signalTrackerRoutes
 } from "@repo/signal-tracker-shared";
 
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
-import { createTopic, getTopic } from "./topics";
+import { createTopic, getTopic, listTopics } from "./topics";
 
 vi.mock("./db-backed-request", async () => {
   const actual = await vi.importActual<typeof import("./db-backed-request")>(
@@ -58,6 +59,22 @@ describe("topic API wrappers", () => {
         responseSchema: getTopicResponseSchema
       },
       undefined
+    );
+  });
+
+  it("lists topics through the DB-backed API path", async () => {
+    const request = { query: undefined };
+    const options = { requestTimeoutMs: 50 };
+
+    await listTopics(request, options);
+
+    expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
+      {
+        route: signalTrackerRoutes.listTopics,
+        body: request,
+        responseSchema: listTopicsResponseSchema
+      },
+      options
     );
   });
 });

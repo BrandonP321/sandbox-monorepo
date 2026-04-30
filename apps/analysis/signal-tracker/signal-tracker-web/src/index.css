@@ -274,8 +274,91 @@ select {
   line-height: 1.5;
 }
 
+.topic-list {
+  margin-top: 2rem;
+}
+
+.topic-list__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.topic-list__header .primary-action,
+.topic-empty-state .primary-action {
+  margin-top: 0;
+}
+
+.topic-list__status {
+  margin-top: 1rem;
+}
+
+.topic-list__grid {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.topic-list-card {
+  padding: 1.25rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.topic-list-card h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  line-height: 1.25;
+}
+
+.topic-list-card a {
+  color: #214f43;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.18em;
+}
+
+.topic-list-card a:hover {
+  color: #183f35;
+}
+
+.topic-list-card__framing-question {
+  max-width: 56rem;
+  margin: 0.75rem 0 0;
+  color: #314034;
+  line-height: 1.65;
+}
+
+.topic-list-card__metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  gap: 1rem 2rem;
+  margin: 1rem 0 0;
+}
+
+.topic-list-card__metadata dt {
+  color: #637064;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.topic-list-card__metadata dd {
+  margin: 0.25rem 0 0;
+  color: #1f2d28;
+  line-height: 1.5;
+}
+
 .topic-detail {
   margin-top: 2rem;
+}
+
+.topic-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .topic-detail__status {
@@ -289,7 +372,8 @@ select {
 }
 
 .topic-detail__header h2,
-.topic-empty-state h2 {
+.topic-empty-state h2,
+.topic-empty-state h3 {
   margin: 0;
   font-size: 2rem;
   line-height: 1.15;
@@ -393,7 +477,8 @@ select {
   }
 
   .topic-detail__metadata,
-  .dossier-empty-sections {
+  .dossier-empty-sections,
+  .topic-list-card__metadata {
     grid-template-columns: 1fr;
   }
 
