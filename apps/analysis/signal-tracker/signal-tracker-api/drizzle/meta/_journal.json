@@ -15,6 +15,13 @@
       "when": 1777517831393,
       "tag": "0001_lazy_slayback",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777522660937,
+      "tag": "0002_flat_blade",
+      "breakpoints": true
     }
   ]
 }

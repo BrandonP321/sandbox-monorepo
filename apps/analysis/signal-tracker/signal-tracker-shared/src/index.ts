@@ -108,6 +108,27 @@ const optionalClearableTrimmedString = z
 export const topicStatusSchema = z.enum(["active", "paused", "archived"]);
 export type TopicStatus = z.infer<typeof topicStatusSchema>;
 
+export const entryKindSchema = z.enum(["event", "assessment", "review"]);
+export type EntryKind = z.infer<typeof entryKindSchema>;
+
+export const entryEpistemicStatusSchema = z.enum([
+  "observed",
+  "reported",
+  "inferred",
+  "forecast"
+]);
+export type EntryEpistemicStatus = z.infer<typeof entryEpistemicStatusSchema>;
+
+export const entryOriginTypeSchema = z.enum([
+  "manual",
+  "import",
+  "ai_suggestion"
+]);
+export type EntryOriginType = z.infer<typeof entryOriginTypeSchema>;
+
+export const entryStatusSchema = z.enum(["active", "archived", "deleted"]);
+export type EntryStatus = z.infer<typeof entryStatusSchema>;
+
 export const reviewCadenceSchema = z.enum([
   "weekly",
   "biweekly",
@@ -129,6 +150,25 @@ export const topicSchema = z.object({
 });
 
 export type Topic = z.infer<typeof topicSchema>;
+
+export const entrySchema = z.object({
+  id: trimmedRequiredString,
+  topicId: trimmedRequiredString,
+  kind: entryKindSchema,
+  epistemicStatus: entryEpistemicStatusSchema,
+  title: trimmedRequiredString,
+  bodyMd: trimmedRequiredString,
+  sortAt: trimmedRequiredString,
+  isApproximateDate: z.boolean(),
+  originType: entryOriginTypeSchema,
+  status: entryStatusSchema,
+  createdAt: trimmedRequiredString,
+  updatedAt: trimmedRequiredString,
+  archivedAt: trimmedRequiredString.optional(),
+  deletedAt: trimmedRequiredString.optional()
+});
+
+export type Entry = z.infer<typeof entrySchema>;
 
 export const createTopicRequestSchema = z.object({
   title: trimmedRequiredString,

@@ -88,8 +88,8 @@ Issue #13 uses Aurora Data API with Drizzle migrations. Deployed migrations are
 explicit commands, not automatic pipeline steps. The deployed migration command
 uses the Signal Tracker API runner, retries known Aurora resume errors, and can
 be verified with `pnpm --filter signal-tracker-api run db:verify:deployed`.
-The first product schema migration, including `topics`, remains owned by Issue
-#7 unless that issue is respecified.
+Schema migrations are generated from `signal-tracker-api/src/db/schema.ts` and
+committed under `signal-tracker-api/drizzle/` after reviewing the generated SQL.
 
 ## Postman
 

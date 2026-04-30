@@ -1,0 +1,260 @@
+{
+  "id": "26fb98a7-05f3-41e0-bb41-2f7b9b99936a",
+  "prevId": "65aea9e9-0a9d-4d0a-9844-4ba88a3301f1",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.entries": {
+      "name": "entries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "topic_id": {
+          "name": "topic_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "epistemic_status": {
+          "name": "epistemic_status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "body_md": {
+          "name": "body_md",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_at": {
+          "name": "sort_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "is_approximate_date": {
+          "name": "is_approximate_date",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "origin_type": {
+          "name": "origin_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'manual'"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "entries_topic_sort_idx": {
+          "name": "entries_topic_sort_idx",
+          "columns": [
+            {
+              "expression": "topic_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "sort_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "entries_topic_id_topics_id_fk": {
+          "name": "entries_topic_id_topics_id_fk",
+          "tableFrom": "entries",
+          "tableTo": "topics",
+          "columnsFrom": ["topic_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "entries_title_not_blank": {
+          "name": "entries_title_not_blank",
+          "value": "length(trim(\"entries\".\"title\")) > 0"
+        },
+        "entries_body_md_not_blank": {
+          "name": "entries_body_md_not_blank",
+          "value": "length(trim(\"entries\".\"body_md\")) > 0"
+        },
+        "entries_kind_valid": {
+          "name": "entries_kind_valid",
+          "value": "\"entries\".\"kind\" in ('event', 'assessment', 'review')"
+        },
+        "entries_epistemic_status_valid": {
+          "name": "entries_epistemic_status_valid",
+          "value": "\"entries\".\"epistemic_status\" in ('observed', 'reported', 'inferred', 'forecast')"
+        },
+        "entries_origin_type_valid": {
+          "name": "entries_origin_type_valid",
+          "value": "\"entries\".\"origin_type\" in ('manual', 'import', 'ai_suggestion')"
+        },
+        "entries_status_valid": {
+          "name": "entries_status_valid",
+          "value": "\"entries\".\"status\" in ('active', 'archived', 'deleted')"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.topics": {
+      "name": "topics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "framing_question": {
+          "name": "framing_question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope_note": {
+          "name": "scope_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "review_cadence": {
+          "name": "review_cadence",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "topics_title_not_blank": {
+          "name": "topics_title_not_blank",
+          "value": "length(trim(\"topics\".\"title\")) > 0"
+        },
+        "topics_framing_question_not_blank": {
+          "name": "topics_framing_question_not_blank",
+          "value": "length(trim(\"topics\".\"framing_question\")) > 0"
+        },
+        "topics_review_cadence_valid": {
+          "name": "topics_review_cadence_valid",
+          "value": "\"topics\".\"review_cadence\" in ('weekly', 'biweekly', 'monthly', 'ad_hoc')"
+        },
+        "topics_status_valid": {
+          "name": "topics_status_valid",
+          "value": "\"topics\".\"status\" in ('active', 'paused', 'archived')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

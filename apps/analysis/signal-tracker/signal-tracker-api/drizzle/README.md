@@ -1,6 +1,13 @@
 # Signal Tracker Migrations
 
-This directory is reserved for Drizzle-generated SQL migrations.
+This directory contains Drizzle-generated SQL migrations and snapshot metadata
+for the Signal Tracker PostgreSQL schema.
 
-Issue #13 establishes the migration workflow only. The first product schema,
-including the `topics` table, belongs to the follow-on topic persistence issue.
+Generate migrations from `src/db/schema.ts` with:
+
+```bash
+pnpm --filter signal-tracker-api run db:generate
+```
+
+Apply them locally with `db:migrate:local`, and apply deployed migrations
+explicitly with `db:migrate:deployed` after reviewing the generated SQL.
