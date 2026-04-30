@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   archiveTopicRequestSchema,
   archiveTopicResponseSchema,
+  createEventEntryRequestSchema,
+  createEventEntryResponseSchema,
   createTopicRequestSchema,
   createTopicResponseSchema,
   deleteTopicRequestSchema,
@@ -12,6 +14,8 @@ import {
   entryOriginTypeSchema,
   entrySchema,
   entryStatusSchema,
+  getEventEntryRequestSchema,
+  getEventEntryResponseSchema,
   getTopicRequestSchema,
   getTopicResponseSchema,
   isSignalTrackerRetryableDbErrorCode,
@@ -24,6 +28,8 @@ import {
   signalTrackerRouteList,
   signalTrackerRoutes,
   topicStatusSchema,
+  updateEventEntryRequestSchema,
+  updateEventEntryResponseSchema,
   updateTopicRequestSchema,
   updateTopicResponseSchema,
   topicSchema
@@ -55,6 +61,18 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/delete-topic"
     });
+    expect(signalTrackerRoutes.createEventEntry).toEqual({
+      method: "POST",
+      path: "/create-event-entry"
+    });
+    expect(signalTrackerRoutes.getEventEntry).toEqual({
+      method: "POST",
+      path: "/get-event-entry"
+    });
+    expect(signalTrackerRoutes.updateEventEntry).toEqual({
+      method: "POST",
+      path: "/update-event-entry"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -73,6 +91,9 @@ describe("signalTrackerRoutes", () => {
       "updateTopic",
       "archiveTopic",
       "deleteTopic",
+      "createEventEntry",
+      "getEventEntry",
+      "updateEventEntry",
       "getHealth"
     ]);
     expect(signalTrackerRouteList).toEqual([
@@ -82,6 +103,9 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.updateTopic,
       signalTrackerRoutes.archiveTopic,
       signalTrackerRoutes.deleteTopic,
+      signalTrackerRoutes.createEventEntry,
+      signalTrackerRoutes.getEventEntry,
+      signalTrackerRoutes.updateEventEntry,
       signalTrackerRoutes.getHealth
     ]);
   });
@@ -197,6 +221,106 @@ describe("entry contracts", () => {
     ).toThrow();
     expect(() => entrySchema.parse({ ...baseEntry, title: " " })).toThrow();
     expect(() => entrySchema.parse({ ...baseEntry, bodyMd: " " })).toThrow();
+  });
+
+  it("validates event entry creation requests", () => {
+    expect(
+      createEventEntryRequestSchema.parse({
+        topicId: " topic-1 ",
+        title: " Court grants injunction ",
+        bodyMd: " A federal court granted an injunction. ",
+        sortAt: " 2026-04-25T00:00:00.000Z ",
+        epistemicStatus: "reported"
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      title: "Court grants injunction",
+      bodyMd: "A federal court granted an injunction.",
+      sortAt: "2026-04-25T00:00:00.000Z",
+      epistemicStatus: "reported"
+    });
+
+    expect(() =>
+      createEventEntryRequestSchema.parse({
+        topicId: "topic-1",
+        title: " ",
+        bodyMd: "A federal court granted an injunction.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "reported"
+      })
+    ).toThrow();
+    expect(() =>
+      createEventEntryRequestSchema.parse({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: " ",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "reported"
+      })
+    ).toThrow();
+    expect(() =>
+      createEventEntryRequestSchema.parse({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "A federal court granted an injunction.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "rumored"
+      })
+    ).toThrow();
+  });
+
+  it("validates event entry read and update requests", () => {
+    expect(getEventEntryRequestSchema.parse({ entryId: " entry-1 " })).toEqual({
+      entryId: "entry-1"
+    });
+    expect(() => getEventEntryRequestSchema.parse({ entryId: " " })).toThrow();
+
+    expect(
+      updateEventEntryRequestSchema.parse({
+        entryId: " entry-1 ",
+        title: " Updated event ",
+        bodyMd: " Updated description. ",
+        sortAt: " 2026-04-26T00:00:00.000Z ",
+        epistemicStatus: "observed"
+      })
+    ).toEqual({
+      entryId: "entry-1",
+      title: "Updated event",
+      bodyMd: "Updated description.",
+      sortAt: "2026-04-26T00:00:00.000Z",
+      epistemicStatus: "observed"
+    });
+
+    expect(() =>
+      updateEventEntryRequestSchema.parse({ entryId: "entry-1" })
+    ).toThrow();
+    expect(() =>
+      updateEventEntryRequestSchema.parse({
+        entryId: "entry-1",
+        epistemicStatus: "rumored"
+      })
+    ).toThrow();
+  });
+
+  it("validates event entry response shapes", () => {
+    const entry = entrySchema.parse({
+      id: "entry-1",
+      topicId: "topic-1",
+      kind: "event",
+      epistemicStatus: "reported",
+      title: "Court grants injunction",
+      bodyMd: "A federal court granted an injunction.",
+      sortAt: "2026-04-25T00:00:00.000Z",
+      isApproximateDate: false,
+      originType: "manual",
+      status: "active",
+      createdAt: "2026-04-25T01:00:00.000Z",
+      updatedAt: "2026-04-25T01:00:00.000Z"
+    });
+
+    expect(createEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(getEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
   });
 });
 

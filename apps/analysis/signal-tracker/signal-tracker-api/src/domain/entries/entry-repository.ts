@@ -1,5 +1,9 @@
 import type { Entry } from "@repo/signal-tracker-shared";
 
+export type UpdateEntryFields = Partial<
+  Pick<Entry, "title" | "bodyMd" | "sortAt" | "epistemicStatus">
+>;
+
 export type ListEntriesByTopicOptions = {
   includeArchived?: boolean;
   includeDeleted?: boolean;
@@ -12,6 +16,11 @@ export type EntryRepository = {
     topicId: string,
     options?: ListEntriesByTopicOptions
   ): Promise<Entry[]>;
+  update(
+    id: string,
+    updates: UpdateEntryFields,
+    updatedAt: string
+  ): Promise<Entry | undefined>;
 };
 
 export class InMemoryEntryRepository implements EntryRepository {
@@ -44,6 +53,28 @@ export class InMemoryEntryRepository implements EntryRepository {
         return entry.status === "active";
       })
       .sort(compareEntriesForList);
+  }
+
+  async update(
+    id: string,
+    updates: UpdateEntryFields,
+    updatedAt: string
+  ): Promise<Entry | undefined> {
+    const existingEntry = await this.findById(id);
+
+    if (!existingEntry) {
+      return undefined;
+    }
+
+    const updatedEntry: Entry = {
+      ...existingEntry,
+      ...updates,
+      updatedAt
+    };
+
+    this.entries.set(id, updatedEntry);
+
+    return updatedEntry;
   }
 }
 

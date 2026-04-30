@@ -30,6 +30,18 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/delete-topic"
   },
+  createEventEntry: {
+    method: "POST",
+    path: "/create-event-entry"
+  },
+  getEventEntry: {
+    method: "POST",
+    path: "/get-event-entry"
+  },
+  updateEventEntry: {
+    method: "POST",
+    path: "/update-event-entry"
+  },
   getHealth: {
     method: "POST",
     path: "/get-health"
@@ -257,3 +269,64 @@ export const deleteTopicResponseSchema = z.object({
 });
 
 export type DeleteTopicResponse = z.infer<typeof deleteTopicResponseSchema>;
+
+export const createEventEntryRequestSchema = z.object({
+  topicId: trimmedRequiredString,
+  title: trimmedRequiredString,
+  bodyMd: trimmedRequiredString,
+  sortAt: trimmedRequiredString,
+  epistemicStatus: entryEpistemicStatusSchema
+});
+
+export type CreateEventEntryRequest = z.infer<
+  typeof createEventEntryRequestSchema
+>;
+
+export const createEventEntryResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type CreateEventEntryResponse = z.infer<
+  typeof createEventEntryResponseSchema
+>;
+
+export const getEventEntryRequestSchema = z.object({
+  entryId: trimmedRequiredString
+});
+
+export type GetEventEntryRequest = z.infer<typeof getEventEntryRequestSchema>;
+
+export const getEventEntryResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type GetEventEntryResponse = z.infer<typeof getEventEntryResponseSchema>;
+
+export const updateEventEntryRequestSchema = z
+  .object({
+    entryId: trimmedRequiredString,
+    title: trimmedRequiredString.optional(),
+    bodyMd: trimmedRequiredString.optional(),
+    sortAt: trimmedRequiredString.optional(),
+    epistemicStatus: entryEpistemicStatusSchema.optional()
+  })
+  .refine(
+    ({ title, bodyMd, sortAt, epistemicStatus }) =>
+      title !== undefined ||
+      bodyMd !== undefined ||
+      sortAt !== undefined ||
+      epistemicStatus !== undefined,
+    "At least one editable event entry field is required"
+  );
+
+export type UpdateEventEntryRequest = z.infer<
+  typeof updateEventEntryRequestSchema
+>;
+
+export const updateEventEntryResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type UpdateEventEntryResponse = z.infer<
+  typeof updateEventEntryResponseSchema
+>;

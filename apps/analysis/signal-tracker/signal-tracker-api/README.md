@@ -90,6 +90,9 @@ deploy pipeline, and there is no migration Lambda.
 - `POST /update-topic` -> updates editable topic metadata and returns `{ "topic": ... }`
 - `POST /archive-topic` -> archives a topic without hard deletion and returns `{ "topic": ... }`
 - `POST /delete-topic` -> permanently deletes a topic row and returns `{ "topic": ... }`
+- `POST /create-event-entry` -> creates a manual event entry row and returns `{ "entry": ... }`
+- `POST /get-event-entry` -> reads an event entry row by ID and returns `{ "entry": ... }`
+- `POST /update-event-entry` -> updates editable event entry fields and returns `{ "entry": ... }`
 
 Archived topics are hidden from `POST /list-topics` by default but remain
 directly readable by ID. Deleted topics are removed from persistence.

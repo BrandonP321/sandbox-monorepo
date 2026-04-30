@@ -4,6 +4,9 @@ import {
   type SignalTrackerRouteName
 } from "@repo/signal-tracker-shared";
 
+import { createEventEntry } from "../routes/event-entries/create-event-entry";
+import { getEventEntry } from "../routes/event-entries/get-event-entry";
+import { updateEventEntry } from "../routes/event-entries/update-event-entry";
 import { getHealth } from "../routes/health/get-health";
 import { archiveTopic } from "../routes/topics/archive-topic";
 import { createTopic } from "../routes/topics/create-topic";
@@ -19,6 +22,9 @@ const routeHandlers = {
   updateTopic,
   archiveTopic,
   deleteTopic,
+  createEventEntry,
+  getEventEntry,
+  updateEventEntry,
   getHealth
 } satisfies Record<SignalTrackerRouteName, RouteHandler>;
 

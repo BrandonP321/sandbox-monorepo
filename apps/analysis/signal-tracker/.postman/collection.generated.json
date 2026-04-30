@@ -6,6 +6,95 @@
   },
   "item": [
     {
+      "name": "Event Entries",
+      "item": [
+        {
+          "name": "Create Event Entry",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-event-entry",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-event-entry"]
+            },
+            "description": "Creates a manual dated event entry inside a tracked topic.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"title\": \"Court grants injunction\",\n  \"bodyMd\": \"A federal court granted an injunction.\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\",\n  \"epistemicStatus\": \"reported\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Event Entry",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/get-event-entry",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-event-entry"]
+            },
+            "description": "Reads one event entry by ID.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryId\": \"entry-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Event Entry",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/update-event-entry",
+              "host": ["{{baseUrl}}"],
+              "path": ["update-event-entry"]
+            },
+            "description": "Updates editable manual event entry fields.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryId\": \"entry-1\",\n  \"title\": \"Updated court injunction\",\n  \"bodyMd\": \"The injunction remains active after the latest court order.\",\n  \"sortAt\": \"2026-04-26T00:00:00.000Z\",\n  \"epistemicStatus\": \"observed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Topics",
       "item": [
         {

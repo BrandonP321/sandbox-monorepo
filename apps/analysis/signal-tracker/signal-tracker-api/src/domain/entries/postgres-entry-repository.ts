@@ -11,6 +11,12 @@ import type {
 
 export type EntryRow = typeof entries.$inferSelect;
 export type NewEntryRow = typeof entries.$inferInsert;
+type EntryRowUpdate = Partial<
+  Pick<
+    NewEntryRow,
+    "title" | "bodyMd" | "sortAt" | "epistemicStatus" | "updatedAt"
+  >
+>;
 
 export type EntryRowStore = {
   insertEntry(entry: NewEntryRow): Promise<EntryRow>;
@@ -19,6 +25,10 @@ export type EntryRowStore = {
     topicId: string,
     options?: ListEntriesByTopicOptions
   ): Promise<EntryRow[]>;
+  updateEntry(
+    id: string,
+    updates: EntryRowUpdate
+  ): Promise<EntryRow | undefined>;
 };
 
 export class DrizzleEntryRowStore implements EntryRowStore {
@@ -60,6 +70,19 @@ export class DrizzleEntryRowStore implements EntryRowStore {
         and(eq(entries.topicId, topicId), inArray(entries.status, statuses))
       )
       .orderBy(desc(entries.sortAt), desc(entries.createdAt), asc(entries.id));
+  }
+
+  async updateEntry(
+    id: string,
+    updates: EntryRowUpdate
+  ): Promise<EntryRow | undefined> {
+    const [row] = await this.getDatabase()
+      .update(entries)
+      .set(updates)
+      .where(eq(entries.id, id))
+      .returning();
+
+    return row;
   }
 }
 
@@ -105,6 +128,19 @@ export class PostgresEntryRepository implements EntryRepository {
 
     return rows.map(mapEntryRow);
   }
+
+  async update(
+    id: string,
+    updates: Parameters<EntryRepository["update"]>[1],
+    updatedAt: string
+  ): Promise<Entry | undefined> {
+    const row = await this.store.updateEntry(id, {
+      ...mapEntryUpdatesToRow(updates),
+      updatedAt: new Date(updatedAt)
+    });
+
+    return row ? mapEntryRow(row) : undefined;
+  }
 }
 
 export function mapEntryRow(row: EntryRow): Entry {
@@ -140,6 +176,30 @@ function getIncludedStatuses(
   }
 
   return statuses;
+}
+
+function mapEntryUpdatesToRow(
+  updates: Parameters<EntryRepository["update"]>[1]
+): EntryRowUpdate {
+  const rowUpdates: EntryRowUpdate = {};
+
+  if (updates.title !== undefined) {
+    rowUpdates.title = updates.title;
+  }
+
+  if (updates.bodyMd !== undefined) {
+    rowUpdates.bodyMd = updates.bodyMd;
+  }
+
+  if (updates.sortAt !== undefined) {
+    rowUpdates.sortAt = new Date(updates.sortAt);
+  }
+
+  if (updates.epistemicStatus !== undefined) {
+    rowUpdates.epistemicStatus = updates.epistemicStatus;
+  }
+
+  return rowUpdates;
 }
 
 function toIsoTimestamp(value: Date | string): string {

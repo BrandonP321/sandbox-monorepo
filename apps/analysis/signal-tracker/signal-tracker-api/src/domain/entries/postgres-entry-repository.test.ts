@@ -123,6 +123,45 @@ describe("PostgresEntryRepository", () => {
       entryFixture
     ]);
   });
+
+  it("updates editable entry fields through the entry row store", async () => {
+    const store = new FakeEntryRowStore();
+    const repository = new PostgresEntryRepository(store);
+    store.seed(entryFixture);
+
+    await expect(
+      repository.update(
+        entryFixture.id,
+        {
+          title: "Updated event",
+          bodyMd: "Updated event description.",
+          sortAt: "2026-04-26T00:00:00.000Z",
+          epistemicStatus: "observed"
+        },
+        "2026-04-26T01:00:00.000Z"
+      )
+    ).resolves.toEqual({
+      ...entryFixture,
+      title: "Updated event",
+      bodyMd: "Updated event description.",
+      sortAt: "2026-04-26T00:00:00.000Z",
+      epistemicStatus: "observed",
+      updatedAt: "2026-04-26T01:00:00.000Z"
+    });
+  });
+
+  it("returns undefined when updating a missing entry", async () => {
+    const store = new FakeEntryRowStore();
+    const repository = new PostgresEntryRepository(store);
+
+    await expect(
+      repository.update(
+        "missing-entry",
+        { title: "Updated event" },
+        "2026-04-26T01:00:00.000Z"
+      )
+    ).resolves.toBeUndefined();
+  });
 });
 
 const entryFixture: Entry = {
@@ -231,6 +270,25 @@ class FakeEntryRowStore implements EntryRowStore {
         return row.status === "active";
       })
       .sort(compareEntryRowsForList);
+  }
+
+  async updateEntry(
+    id: string,
+    updates: Partial<NewEntryRow>
+  ): Promise<EntryRow | undefined> {
+    const existingRow = this.entries.get(id);
+
+    if (!existingRow) {
+      return undefined;
+    }
+
+    const updatedRow: EntryRow = {
+      ...existingRow,
+      ...updates
+    };
+    this.entries.set(id, updatedRow);
+
+    return updatedRow;
   }
 
   seed(entry: Entry): void {
