@@ -1,11 +1,17 @@
 import {
+  createEventEntryRequestSchema,
   updateTopicRequestSchema,
   type ArchiveTopicResponse,
+  type CreateEventEntryRequest,
+  type CreateEventEntryResponse,
   createTopicRequestSchema,
   type CreateTopicRequest,
   type CreateTopicResponse,
   type DeleteTopicResponse,
+  type Entry,
+  type EntryEpistemicStatus,
   type GetTopicResponse,
+  type ListEventEntriesResponse,
   type ListTopicsResponse,
   type ReviewCadence,
   type Topic,
@@ -23,6 +29,7 @@ import {
 } from "react";
 
 import { SignalTrackerApiError } from "./api/client";
+import { createEventEntry, listEventEntries } from "./api/event-entries";
 import {
   archiveTopic,
   createTopic,
@@ -55,6 +62,17 @@ type TopicFormValues = {
 
 type TopicFieldErrors = Partial<Record<keyof TopicFormValues, string>>;
 
+type EventEntryFormValues = {
+  title: string;
+  bodyMd: string;
+  sortDate: string;
+  epistemicStatus: EntryEpistemicStatus;
+};
+
+type EventEntryFieldErrors = Partial<
+  Record<keyof EventEntryFormValues, string>
+>;
+
 const defaultTopicFormValues: TopicFormValues = {
   title: "",
   framingQuestion: "",
@@ -69,11 +87,21 @@ const reviewCadenceOptions = [
   { value: "monthly", label: "Monthly" }
 ] satisfies Array<{ value: ReviewCadence; label: string }>;
 
+const epistemicStatusOptions = [
+  { value: "reported", label: "Reported" },
+  { value: "observed", label: "Observed" },
+  { value: "inferred", label: "Inferred" },
+  { value: "forecast", label: "Forecast" }
+] satisfies Array<{ value: EntryEpistemicStatus; label: string }>;
+
+const defaultEventEntryFormValues: EventEntryFormValues = {
+  title: "",
+  bodyMd: "",
+  sortDate: "",
+  epistemicStatus: "reported"
+};
+
 const dossierSections = [
-  {
-    title: "Events",
-    body: "Future dated events will preserve what happened over time."
-  },
   {
     title: "Assessment updates",
     body: "Future assessment updates will preserve what you thought, why, and how your judgment changed."
@@ -807,6 +835,20 @@ function TopicDossierShell({
     DbBackedRequestState<DeleteTopicResponse>
   >({ status: "idle" });
   const lastSubmittedUpdate = useRef<UpdateTopicRequest | null>(null);
+  const [eventListState, setEventListState] = useState<
+    DbBackedRequestState<ListEventEntriesResponse>
+  >({ status: "loading" });
+  const eventListRunId = useRef(0);
+  const [isEventFormOpen, setIsEventFormOpen] = useState(false);
+  const [eventForm, setEventForm] = useState<EventEntryFormValues>(
+    defaultEventEntryFormValues
+  );
+  const [eventFieldErrors, setEventFieldErrors] =
+    useState<EventEntryFieldErrors>({});
+  const [createEventState, setCreateEventState] = useState<
+    DbBackedRequestState<CreateEventEntryResponse>
+  >({ status: "idle" });
+  const lastSubmittedEvent = useRef<CreateEventEntryRequest | null>(null);
 
   const isUpdating =
     updateState.status === "loading" || updateState.status === "waking";
@@ -814,13 +856,56 @@ function TopicDossierShell({
     archiveState.status === "loading" || archiveState.status === "waking";
   const isDeleting =
     deleteState.status === "loading" || deleteState.status === "waking";
+  const isCreatingEvent =
+    createEventState.status === "loading" ||
+    createEventState.status === "waking";
   const canDelete = deleteConfirmationTitle === topic.title && !isDeleting;
+
+  const loadEventEntries = useCallback(async () => {
+    const runId = eventListRunId.current + 1;
+    eventListRunId.current = runId;
+    setEventListState({ status: "loading" });
+
+    try {
+      const response = await listEventEntries(
+        { topicId: topic.id },
+        {
+          onProgress: (progress) => {
+            if (eventListRunId.current === runId) {
+              setEventListState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (eventListRunId.current === runId) {
+        setEventListState({
+          status: "success",
+          data: {
+            entries: sortEventEntries(response.entries)
+          }
+        });
+      }
+    } catch (error) {
+      if (eventListRunId.current === runId) {
+        setEventListState({ status: "error", error });
+      }
+    }
+  }, [topic.id]);
 
   useEffect(() => {
     if (!isEditing) {
       setTopicForm(topicToFormValues(topic));
     }
   }, [isEditing, topic]);
+
+  useEffect(() => {
+    void loadEventEntries();
+
+    return () => {
+      eventListRunId.current += 1;
+    };
+  }, [loadEventEntries]);
 
   function updateField<FieldName extends keyof TopicFormValues>(
     fieldName: FieldName,
@@ -834,6 +919,34 @@ function TopicDossierShell({
       ...currentErrors,
       [fieldName]: undefined
     }));
+  }
+
+  function updateEventField<FieldName extends keyof EventEntryFormValues>(
+    fieldName: FieldName,
+    value: EventEntryFormValues[FieldName]
+  ) {
+    setEventForm((currentValues) => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+    setEventFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [fieldName]: undefined
+    }));
+  }
+
+  function openEventForm() {
+    setIsEventFormOpen(true);
+    setCreateEventState({ status: "idle" });
+    setEventFieldErrors({});
+  }
+
+  function cancelEventForm() {
+    setIsEventFormOpen(false);
+    setEventForm(defaultEventEntryFormValues);
+    setEventFieldErrors({});
+    setCreateEventState({ status: "idle" });
+    lastSubmittedEvent.current = null;
   }
 
   function startEditing() {
@@ -940,6 +1053,73 @@ function TopicDossierShell({
     }
   }
 
+  async function handleCreateEventSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const parsedRequest = createEventEntryRequestSchema.safeParse({
+      topicId: topic.id,
+      title: eventForm.title,
+      bodyMd: eventForm.bodyMd,
+      sortAt: toEventSortAt(eventForm.sortDate),
+      epistemicStatus: eventForm.epistemicStatus
+    });
+
+    if (!parsedRequest.success) {
+      setEventFieldErrors(createEventFieldErrors(parsedRequest.error.issues));
+      setCreateEventState({ status: "idle" });
+      return;
+    }
+
+    lastSubmittedEvent.current = parsedRequest.data;
+    await submitEventEntry(parsedRequest.data);
+  }
+
+  async function retryCreateEvent() {
+    if (!lastSubmittedEvent.current) {
+      return;
+    }
+
+    await submitEventEntry(lastSubmittedEvent.current);
+  }
+
+  async function submitEventEntry(request: CreateEventEntryRequest) {
+    setEventFieldErrors({});
+    setCreateEventState({ status: "loading" });
+
+    try {
+      const response = await createEventEntry(request, {
+        onProgress: (progress) => {
+          setCreateEventState({ status: progress.phase });
+        }
+      });
+
+      setCreateEventState({ status: "success", data: response });
+      setEventForm(defaultEventEntryFormValues);
+      setEventListState((currentState) => {
+        if (currentState.status !== "success") {
+          return {
+            status: "success",
+            data: { entries: [response.entry] }
+          };
+        }
+
+        return {
+          status: "success",
+          data: {
+            entries: sortEventEntries([
+              response.entry,
+              ...currentState.data.entries.filter(
+                (entry) => entry.id !== response.entry.id
+              )
+            ])
+          }
+        };
+      });
+    } catch (error) {
+      setCreateEventState({ status: "error", error });
+    }
+  }
+
   if (isEditing) {
     return (
       <form
@@ -1018,6 +1198,24 @@ function TopicDossierShell({
           <MetadataItem label="Scope note" value={topic.scopeNote} />
         ) : null}
       </dl>
+
+      <EventEntriesSection
+        entries={
+          eventListState.status === "success" ? eventListState.data.entries : []
+        }
+        eventListState={eventListState}
+        isEventFormOpen={isEventFormOpen}
+        formValues={eventForm}
+        fieldErrors={eventFieldErrors}
+        createState={createEventState}
+        isCreating={isCreatingEvent}
+        onOpenForm={openEventForm}
+        onCancelForm={cancelEventForm}
+        onUpdateField={updateEventField}
+        onSubmit={(event) => void handleCreateEventSubmit(event)}
+        onRetryList={() => void loadEventEntries()}
+        onRetryCreate={() => void retryCreateEvent()}
+      />
 
       <section
         className="topic-lifecycle-panel"
@@ -1146,6 +1344,235 @@ function TopicDossierShell({
   );
 }
 
+function EventEntriesSection({
+  entries,
+  eventListState,
+  isEventFormOpen,
+  formValues,
+  fieldErrors,
+  createState,
+  isCreating,
+  onOpenForm,
+  onCancelForm,
+  onUpdateField,
+  onSubmit,
+  onRetryList,
+  onRetryCreate
+}: {
+  entries: Entry[];
+  eventListState: DbBackedRequestState<ListEventEntriesResponse>;
+  isEventFormOpen: boolean;
+  formValues: EventEntryFormValues;
+  fieldErrors: EventEntryFieldErrors;
+  createState: DbBackedRequestState<CreateEventEntryResponse>;
+  isCreating: boolean;
+  onOpenForm: () => void;
+  onCancelForm: () => void;
+  onUpdateField: <FieldName extends keyof EventEntryFormValues>(
+    fieldName: FieldName,
+    value: EventEntryFormValues[FieldName]
+  ) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onRetryList: () => void;
+  onRetryCreate: () => void;
+}) {
+  return (
+    <section className="event-entries" aria-labelledby="event-entries-title">
+      <div className="event-entries__header">
+        <div>
+          <p className="eyebrow">Events</p>
+          <h3 id="event-entries-title">Topic events</h3>
+          <p>
+            Event entries record what happened, was reported, or was observed.
+            Assessment updates and review notes stay separate.
+          </p>
+        </div>
+        {isEventFormOpen ? null : (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={onOpenForm}
+          >
+            Add event
+          </button>
+        )}
+      </div>
+
+      {isEventFormOpen ? (
+        <form
+          className="event-entry-form"
+          aria-label="Add event entry"
+          onSubmit={onSubmit}
+        >
+          <div className="event-entry-form__header">
+            <h4>Add event entry</h4>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isCreating}
+              onClick={onCancelForm}
+            >
+              Cancel
+            </button>
+          </div>
+          <EventEntryFields
+            values={formValues}
+            fieldErrors={fieldErrors}
+            onUpdateField={onUpdateField}
+          />
+          <button
+            className="primary-action"
+            type="submit"
+            disabled={isCreating}
+          >
+            {isCreating ? "Saving event..." : "Save event"}
+          </button>
+          {createState.status === "success" ? (
+            <p className="status-text event-entry-form__success" role="status">
+              Event saved.
+            </p>
+          ) : null}
+          <DbWakeUpStatus state={createState} onRetry={onRetryCreate} />
+        </form>
+      ) : null}
+
+      {eventListState.status === "loading" ? (
+        <p className="status-text event-entries__status" role="status">
+          Loading event entries...
+        </p>
+      ) : null}
+      <DbWakeUpStatus state={eventListState} onRetry={onRetryList} />
+
+      {eventListState.status === "success" && entries.length === 0 ? (
+        <p className="event-entries__empty">
+          No events yet. Add dated developments here when something happens, is
+          reported, or is observed.
+        </p>
+      ) : null}
+
+      {entries.length > 0 ? (
+        <div className="event-entry-list" aria-label="Event entries">
+          {entries.map((entry) => (
+            <article className="event-entry-card" key={entry.id}>
+              <div className="event-entry-card__metadata">
+                <time dateTime={entry.sortAt}>
+                  {formatTopicDate(entry.sortAt)}
+                </time>
+                <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
+                <span>Uncited</span>
+              </div>
+              <h4>{entry.title}</h4>
+              <p>{entry.bodyMd}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function EventEntryFields({
+  values,
+  fieldErrors,
+  onUpdateField
+}: {
+  values: EventEntryFormValues;
+  fieldErrors: EventEntryFieldErrors;
+  onUpdateField: <FieldName extends keyof EventEntryFormValues>(
+    fieldName: FieldName,
+    value: EventEntryFormValues[FieldName]
+  ) => void;
+}) {
+  const titleErrorId = "event-title-error";
+  const bodyErrorId = "event-body-error";
+  const dateErrorId = "event-date-error";
+  const epistemicStatusErrorId = "event-epistemic-status-error";
+
+  return (
+    <>
+      <label className="form-field" htmlFor="event-title">
+        <span>Event title</span>
+        <input
+          id="event-title"
+          type="text"
+          value={values.title}
+          aria-invalid={fieldErrors.title ? "true" : undefined}
+          aria-describedby={fieldErrors.title ? titleErrorId : undefined}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+        />
+        {fieldErrors.title ? (
+          <span className="field-error" id={titleErrorId}>
+            {fieldErrors.title}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="event-body">
+        <span>Event description</span>
+        <textarea
+          id="event-body"
+          rows={4}
+          value={values.bodyMd}
+          aria-invalid={fieldErrors.bodyMd ? "true" : undefined}
+          aria-describedby={fieldErrors.bodyMd ? bodyErrorId : undefined}
+          onChange={(event) => onUpdateField("bodyMd", event.target.value)}
+        />
+        {fieldErrors.bodyMd ? (
+          <span className="field-error" id={bodyErrorId}>
+            {fieldErrors.bodyMd}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="event-date">
+        <span>Event date</span>
+        <input
+          id="event-date"
+          type="date"
+          value={values.sortDate}
+          aria-invalid={fieldErrors.sortDate ? "true" : undefined}
+          aria-describedby={fieldErrors.sortDate ? dateErrorId : undefined}
+          onChange={(event) => onUpdateField("sortDate", event.target.value)}
+        />
+        {fieldErrors.sortDate ? (
+          <span className="field-error" id={dateErrorId}>
+            {fieldErrors.sortDate}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="event-epistemic-status">
+        <span>Epistemic label</span>
+        <select
+          id="event-epistemic-status"
+          value={values.epistemicStatus}
+          aria-invalid={fieldErrors.epistemicStatus ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.epistemicStatus ? epistemicStatusErrorId : undefined
+          }
+          onChange={(event) =>
+            onUpdateField(
+              "epistemicStatus",
+              event.target.value as EntryEpistemicStatus
+            )
+          }
+        >
+          {epistemicStatusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        {fieldErrors.epistemicStatus ? (
+          <span className="field-error" id={epistemicStatusErrorId}>
+            {fieldErrors.epistemicStatus}
+          </span>
+        ) : null}
+      </label>
+    </>
+  );
+}
+
 function MetadataItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -1199,6 +1626,34 @@ function createFieldErrors(
 
     if (fieldName === "reviewCadence") {
       errors.reviewCadence = "Choose a valid review cadence.";
+    }
+  }
+
+  return errors;
+}
+
+function createEventFieldErrors(
+  issues: Array<{ path: PropertyKey[] }>
+): EventEntryFieldErrors {
+  const errors: EventEntryFieldErrors = {};
+
+  for (const issue of issues) {
+    const fieldName = issue.path[0];
+
+    if (fieldName === "title") {
+      errors.title = "Enter an event title.";
+    }
+
+    if (fieldName === "bodyMd") {
+      errors.bodyMd = "Enter an event description.";
+    }
+
+    if (fieldName === "sortAt") {
+      errors.sortDate = "Choose an event date.";
+    }
+
+    if (fieldName === "epistemicStatus") {
+      errors.epistemicStatus = "Choose a valid epistemic label.";
     }
   }
 
@@ -1259,6 +1714,13 @@ function formatReviewCadence(reviewCadence: ReviewCadence): string {
   );
 }
 
+function formatEpistemicStatus(status: EntryEpistemicStatus): string {
+  return (
+    epistemicStatusOptions.find((option) => option.value === status)?.label ??
+    status
+  );
+}
+
 function formatTopicStatus(status: Topic["status"]): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -1271,4 +1733,30 @@ function formatTopicDate(value: string): string {
   }
 
   return dateFormatter.format(date);
+}
+
+function toEventSortAt(sortDate: string): string {
+  if (!sortDate) {
+    return "";
+  }
+
+  return `${sortDate}T00:00:00.000Z`;
+}
+
+function sortEventEntries(entries: Entry[]): Entry[] {
+  return [...entries].sort((left, right) => {
+    const sortAtComparison = right.sortAt.localeCompare(left.sortAt);
+
+    if (sortAtComparison !== 0) {
+      return sortAtComparison;
+    }
+
+    const createdAtComparison = right.createdAt.localeCompare(left.createdAt);
+
+    if (createdAtComparison !== 0) {
+      return createdAtComparison;
+    }
+
+    return left.id.localeCompare(right.id);
+  });
 }

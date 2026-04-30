@@ -504,6 +504,83 @@ select {
   margin-top: 1.25rem;
 }
 
+.event-entries {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.event-entries__header,
+.event-entry-form__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.event-entries__header h3,
+.event-entry-form h4,
+.event-entry-card h4 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.event-entries__header p,
+.event-entries__empty,
+.event-entry-card p {
+  max-width: 48rem;
+  margin: 0.65rem 0 0;
+  color: #526151;
+  line-height: 1.55;
+}
+
+.event-entry-form {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #f8fbf4;
+}
+
+.event-entry-form__success,
+.event-entries__status {
+  margin-top: 0.75rem;
+}
+
+.event-entry-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.event-entry-card {
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fbfcf8;
+}
+
+.event-entry-card__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.event-entry-card__metadata time,
+.event-entry-card__metadata span {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #d5ded9;
+  border-radius: 999px;
+  background: #fff;
+  color: #4b5a50;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
 .topic-edit-form__header {
   display: flex;
   flex-wrap: wrap;

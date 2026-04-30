@@ -65,6 +65,34 @@
           "response": []
         },
         {
+          "name": "List Event Entries",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-event-entries",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-event-entries"]
+            },
+            "description": "Lists active manual event entries for a tracked topic.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Update Event Entry",
           "request": {
             "method": "POST",

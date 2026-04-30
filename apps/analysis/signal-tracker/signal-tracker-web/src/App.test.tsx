@@ -1,8 +1,11 @@
 import type {
   ArchiveTopicResponse,
+  CreateEventEntryResponse,
   CreateTopicResponse,
   DeleteTopicResponse,
+  Entry,
   GetTopicResponse,
+  ListEventEntriesResponse,
   ListTopicsResponse,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
@@ -18,6 +21,7 @@ import {
 
 import App from "./App";
 import { SignalTrackerApiError } from "./api/client";
+import { createEventEntry, listEventEntries } from "./api/event-entries";
 import {
   archiveTopic,
   createTopic,
@@ -49,6 +53,18 @@ vi.mock("./api/topics", async () => {
     getTopic: vi.fn(),
     listTopics: vi.fn(),
     updateTopic: vi.fn()
+  };
+});
+
+vi.mock("./api/event-entries", async () => {
+  const actual = await vi.importActual<typeof import("./api/event-entries")>(
+    "./api/event-entries"
+  );
+
+  return {
+    ...actual,
+    createEventEntry: vi.fn(),
+    listEventEntries: vi.fn()
   };
 });
 
@@ -114,6 +130,29 @@ const listTopicsResponse: ListTopicsResponse = {
   topics: [newerTopicFixture, topicFixture]
 };
 
+const eventEntryFixture: Entry = {
+  id: "entry-1",
+  topicId: "topic-1",
+  kind: "event",
+  epistemicStatus: "reported",
+  title: "Court grants injunction",
+  bodyMd: "A federal court granted an injunction.",
+  sortAt: "2026-04-25T00:00:00.000Z",
+  isApproximateDate: false,
+  originType: "manual",
+  status: "active",
+  createdAt: "2026-04-25T01:00:00.000Z",
+  updatedAt: "2026-04-25T01:00:00.000Z"
+};
+
+const eventEntryResponse: CreateEventEntryResponse = {
+  entry: eventEntryFixture
+};
+
+const listEventEntriesResponse: ListEventEntriesResponse = {
+  entries: []
+};
+
 afterEach(() => {
   vi.clearAllMocks();
 });
@@ -125,6 +164,8 @@ const listTopicsMock = vi.mocked(listTopics);
 const updateTopicMock = vi.mocked(updateTopic);
 const archiveTopicMock = vi.mocked(archiveTopic);
 const deleteTopicMock = vi.mocked(deleteTopic);
+const createEventEntryMock = vi.mocked(createEventEntry);
+const listEventEntriesMock = vi.mocked(listEventEntries);
 
 describe("App", () => {
   beforeEach(() => {
@@ -136,6 +177,8 @@ describe("App", () => {
     updateTopicMock.mockResolvedValue(updatedTopicResponse);
     archiveTopicMock.mockResolvedValue(archivedTopicResponse);
     deleteTopicMock.mockResolvedValue(deletedTopicResponse);
+    createEventEntryMock.mockResolvedValue(eventEntryResponse);
+    listEventEntriesMock.mockResolvedValue(listEventEntriesResponse);
   });
 
   it("renders the loading state while the health check is in flight", () => {
@@ -671,14 +714,237 @@ describe("App", () => {
     expect(window.location.pathname).toBe("/");
   });
 
+  it("renders the event section with an empty state on the topic detail route", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    expect(listEventEntriesMock).toHaveBeenCalledWith(
+      { topicId: "topic-1" },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    expect(
+      await screen.findByText(
+        /No events yet. Add dated developments here when something happens/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders persisted event entries with epistemic and uncited state", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockResolvedValue({
+      entries: [eventEntryFixture]
+    });
+
+    render(<App />);
+
+    const eventSection = (
+      await screen.findByRole("heading", {
+        name: "Topic events"
+      })
+    ).closest("section");
+
+    expect(eventSection).not.toBeNull();
+    expect(
+      await screen.findByRole("heading", {
+        name: "Court grants injunction"
+      })
+    ).toBeInTheDocument();
+    expect(within(eventSection!).getByText("Reported")).toBeInTheDocument();
+    expect(within(eventSection!).getByText("Uncited")).toBeInTheDocument();
+    expect(within(eventSection!).getByText("Apr 25, 2026")).toBeInTheDocument();
+  });
+
+  it("opens and cancels the collapsible event form", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+
+    expect(
+      screen.getByRole("form", { name: "Add event entry" })
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Event title"), {
+      target: { value: "Draft event" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(
+      screen.queryByRole("form", { name: "Add event entry" })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    expect(screen.getByLabelText("Event title")).toHaveValue("");
+  });
+
+  it("shows event form validation errors before calling the create API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save event" }));
+
+    expect(
+      await screen.findByText("Enter an event title.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Enter an event description.")).toBeInTheDocument();
+    expect(screen.getByText("Choose an event date.")).toBeInTheDocument();
+    expect(createEventEntryMock).not.toHaveBeenCalled();
+  });
+
+  it("creates an event entry and renders it in the topic event section", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    fireEvent.change(screen.getByLabelText("Event title"), {
+      target: { value: " Court grants injunction " }
+    });
+    fireEvent.change(screen.getByLabelText("Event description"), {
+      target: { value: " A federal court granted an injunction. " }
+    });
+    fireEvent.change(screen.getByLabelText("Event date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.change(screen.getByLabelText("Epistemic label"), {
+      target: { value: "reported" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save event" }));
+
+    await waitFor(() => {
+      expect(createEventEntryMock).toHaveBeenCalledWith(
+        {
+          topicId: "topic-1",
+          title: "Court grants injunction",
+          bodyMd: "A federal court granted an injunction.",
+          sortAt: "2026-04-25T00:00:00.000Z",
+          epistemicStatus: "reported"
+        },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(await screen.findByText("Event saved.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Court grants injunction" })
+    ).toBeInTheDocument();
+  });
+
+  it("shows an event create request error without clearing entered text", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createEventEntryMock.mockRejectedValueOnce(
+      new Error("database unavailable")
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    fireEvent.change(screen.getByLabelText("Event title"), {
+      target: { value: "Court grants injunction" }
+    });
+    fireEvent.change(screen.getByLabelText("Event description"), {
+      target: { value: "A federal court granted an injunction." }
+    });
+    fireEvent.change(screen.getByLabelText("Event date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save event" }));
+
+    expect(
+      await screen.findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Event title")).toHaveValue(
+      "Court grants injunction"
+    );
+    expect(screen.getByLabelText("Event description")).toHaveValue(
+      "A federal court granted an injunction."
+    );
+    expect(screen.getByLabelText("Event date")).toHaveValue("2026-04-25");
+  });
+
+  it("shows wake-up progress while loading event entries", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<ListEventEntriesResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows wake-up progress while creating an event entry", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createEventEntryMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<CreateEventEntryResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic events" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    fireEvent.change(screen.getByLabelText("Event title"), {
+      target: { value: "Court grants injunction" }
+    });
+    fireEvent.change(screen.getByLabelText("Event description"), {
+      target: { value: "A federal court granted an injunction." }
+    });
+    fireEvent.change(screen.getByLabelText("Event date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save event" }));
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Saving event..." })
+    ).toBeDisabled();
+  });
+
   it("renders non-interactive empty states for future R1 dossier sections", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
 
     render(<App />);
 
-    expect(await screen.findByText("Events")).toBeInTheDocument();
+    expect(await screen.findByText("Assessment updates")).toBeInTheDocument();
     for (const sectionName of [
-      "Events",
       "Assessment updates",
       "Review notes",
       "Evidence and citations",

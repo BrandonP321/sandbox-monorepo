@@ -38,6 +38,10 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/get-event-entry"
   },
+  listEventEntries: {
+    method: "POST",
+    path: "/list-event-entries"
+  },
   updateEventEntry: {
     method: "POST",
     path: "/update-event-entry"
@@ -301,6 +305,22 @@ export const getEventEntryResponseSchema = z.object({
 });
 
 export type GetEventEntryResponse = z.infer<typeof getEventEntryResponseSchema>;
+
+export const listEventEntriesRequestSchema = z.object({
+  topicId: trimmedRequiredString
+});
+
+export type ListEventEntriesRequest = z.infer<
+  typeof listEventEntriesRequestSchema
+>;
+
+export const listEventEntriesResponseSchema = z.object({
+  entries: z.array(entrySchema)
+});
+
+export type ListEventEntriesResponse = z.infer<
+  typeof listEventEntriesResponseSchema
+>;
 
 export const updateEventEntryRequestSchema = z
   .object({

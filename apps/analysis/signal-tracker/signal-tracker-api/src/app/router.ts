@@ -6,6 +6,7 @@ import {
 
 import { createEventEntry } from "../routes/event-entries/create-event-entry";
 import { getEventEntry } from "../routes/event-entries/get-event-entry";
+import { listEventEntries } from "../routes/event-entries/list-event-entries";
 import { updateEventEntry } from "../routes/event-entries/update-event-entry";
 import { getHealth } from "../routes/health/get-health";
 import { archiveTopic } from "../routes/topics/archive-topic";
@@ -24,6 +25,7 @@ const routeHandlers = {
   deleteTopic,
   createEventEntry,
   getEventEntry,
+  listEventEntries,
   updateEventEntry,
   getHealth
 } satisfies Record<SignalTrackerRouteName, RouteHandler>;

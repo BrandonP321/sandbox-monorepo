@@ -19,6 +19,8 @@ import {
   getTopicRequestSchema,
   getTopicResponseSchema,
   isSignalTrackerRetryableDbErrorCode,
+  listEventEntriesRequestSchema,
+  listEventEntriesResponseSchema,
   listTopicsRequestSchema,
   listTopicsResponseSchema,
   signalTrackerApiErrorCodes,
@@ -69,6 +71,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/get-event-entry"
     });
+    expect(signalTrackerRoutes.listEventEntries).toEqual({
+      method: "POST",
+      path: "/list-event-entries"
+    });
     expect(signalTrackerRoutes.updateEventEntry).toEqual({
       method: "POST",
       path: "/update-event-entry"
@@ -93,6 +99,7 @@ describe("signalTrackerRoutes", () => {
       "deleteTopic",
       "createEventEntry",
       "getEventEntry",
+      "listEventEntries",
       "updateEventEntry",
       "getHealth"
     ]);
@@ -105,6 +112,7 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.deleteTopic,
       signalTrackerRoutes.createEventEntry,
       signalTrackerRoutes.getEventEntry,
+      signalTrackerRoutes.listEventEntries,
       signalTrackerRoutes.updateEventEntry,
       signalTrackerRoutes.getHealth
     ]);
@@ -274,6 +282,14 @@ describe("entry contracts", () => {
       entryId: "entry-1"
     });
     expect(() => getEventEntryRequestSchema.parse({ entryId: " " })).toThrow();
+    expect(
+      listEventEntriesRequestSchema.parse({ topicId: " topic-1 " })
+    ).toEqual({
+      topicId: "topic-1"
+    });
+    expect(() =>
+      listEventEntriesRequestSchema.parse({ topicId: " " })
+    ).toThrow();
 
     expect(
       updateEventEntryRequestSchema.parse({
@@ -320,6 +336,9 @@ describe("entry contracts", () => {
 
     expect(createEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
     expect(getEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(listEventEntriesResponseSchema.parse({ entries: [entry] })).toEqual({
+      entries: [entry]
+    });
     expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
   });
 });

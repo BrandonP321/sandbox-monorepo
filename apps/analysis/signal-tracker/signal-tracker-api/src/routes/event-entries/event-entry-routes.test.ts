@@ -6,6 +6,7 @@ import { InMemoryEntryRepository } from "../../domain/entries/entry-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { createCreateEventEntryHandler } from "./create-event-entry";
 import { createGetEventEntryHandler } from "./get-event-entry";
+import { createListEventEntriesHandler } from "./list-event-entries";
 import { createUpdateEventEntryHandler } from "./update-event-entry";
 
 describe("event entry routes", () => {
@@ -193,6 +194,82 @@ describe("event entry routes", () => {
     });
   });
 
+  it("lists active event entries for a topic in repository order", async () => {
+    const entryRepository = new InMemoryEntryRepository();
+    const olderEntry: Entry = {
+      ...eventEntryFixture,
+      id: "entry-older",
+      title: "Older event",
+      sortAt: "2026-04-24T00:00:00.000Z",
+      createdAt: "2026-04-24T01:00:00.000Z",
+      updatedAt: "2026-04-24T01:00:00.000Z"
+    };
+    const newerEntry: Entry = {
+      ...eventEntryFixture,
+      id: "entry-newer",
+      title: "Newer event",
+      sortAt: "2026-04-26T00:00:00.000Z",
+      createdAt: "2026-04-26T01:00:00.000Z",
+      updatedAt: "2026-04-26T01:00:00.000Z"
+    };
+    await entryRepository.create(olderEntry);
+    await entryRepository.create(newerEntry);
+    await entryRepository.create({
+      ...eventEntryFixture,
+      id: "entry-other-topic",
+      topicId: "topic-2"
+    });
+    await entryRepository.create(reviewEntryFixture);
+    await entryRepository.create({
+      ...eventEntryFixture,
+      id: "entry-archived",
+      status: "archived",
+      archivedAt: "2026-04-27T00:00:00.000Z"
+    });
+    const handler = createListEventEntriesHandler({ entryRepository });
+
+    const result = await handler({
+      method: "POST",
+      path: "/list-event-entries",
+      body: JSON.stringify({ topicId: " topic-1 " })
+    });
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body)).toEqual({
+      entries: [newerEntry, olderEntry]
+    });
+  });
+
+  it("rejects invalid event entry list requests", async () => {
+    const handler = createListEventEntriesHandler({
+      entryRepository: new InMemoryEntryRepository()
+    });
+
+    for (const body of [{}, { topicId: " " }]) {
+      await expect(
+        handler({
+          method: "POST",
+          path: "/list-event-entries",
+          body: JSON.stringify(body)
+        })
+      ).rejects.toMatchObject({
+        code: "VALIDATION_ERROR",
+        statusCode: 400
+      });
+    }
+
+    await expect(
+      handler({
+        method: "POST",
+        path: "/list-event-entries",
+        body: "{"
+      })
+    ).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+      statusCode: 400
+    });
+  });
+
   it("updates editable event entry fields", async () => {
     const entryRepository = new InMemoryEntryRepository();
     await entryRepository.create(eventEntryFixture);
@@ -269,13 +346,15 @@ describe("event entry routes", () => {
     }
   });
 
-  it("returns persistence unavailable when event read or update storage fails", async () => {
+  it("returns persistence unavailable when event read, list, or update storage fails", async () => {
     const entryRepository = {
       create: vi.fn(async (entry: Entry): Promise<Entry> => entry),
       findById: vi.fn(async () => {
         throw new Error("database unavailable");
       }),
-      listByTopic: vi.fn(async (): Promise<Entry[]> => []),
+      listByTopic: vi.fn(async () => {
+        throw new Error("database unavailable");
+      }),
       update: vi.fn(async (): Promise<Entry | undefined> => undefined)
     };
 
@@ -284,6 +363,17 @@ describe("event entry routes", () => {
         method: "POST",
         path: "/get-event-entry",
         body: JSON.stringify({ entryId: "entry-1" })
+      })
+    ).rejects.toMatchObject({
+      code: "PERSISTENCE_UNAVAILABLE",
+      statusCode: 503
+    });
+
+    await expect(
+      createListEventEntriesHandler({ entryRepository })({
+        method: "POST",
+        path: "/list-event-entries",
+        body: JSON.stringify({ topicId: "topic-1" })
       })
     ).rejects.toMatchObject({
       code: "PERSISTENCE_UNAVAILABLE",
