@@ -1,7 +1,10 @@
 import type {
+  ArchiveTopicResponse,
   CreateTopicResponse,
+  DeleteTopicResponse,
   GetTopicResponse,
-  ListTopicsResponse
+  ListTopicsResponse,
+  UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -15,7 +18,14 @@ import {
 
 import App from "./App";
 import { SignalTrackerApiError } from "./api/client";
-import { createTopic, getTopic, listTopics } from "./api/topics";
+import {
+  archiveTopic,
+  createTopic,
+  deleteTopic,
+  getTopic,
+  listTopics,
+  updateTopic
+} from "./api/topics";
 import { fetchHealthStatus } from "./health";
 
 vi.mock("./health", async () => {
@@ -33,9 +43,12 @@ vi.mock("./api/topics", async () => {
 
   return {
     ...actual,
+    archiveTopic: vi.fn(),
     createTopic: vi.fn(),
+    deleteTopic: vi.fn(),
     getTopic: vi.fn(),
-    listTopics: vi.fn()
+    listTopics: vi.fn(),
+    updateTopic: vi.fn()
   };
 });
 
@@ -55,6 +68,34 @@ const createdTopicResponse: CreateTopicResponse = {
 };
 
 const getTopicResponse: GetTopicResponse = {
+  topic: topicFixture
+};
+
+const updatedTopicFixture = {
+  ...topicFixture,
+  title: "Iran escalation risk",
+  framingQuestion: "Will direct conflict escalate?",
+  scopeNote: undefined,
+  reviewCadence: "monthly" as const,
+  updatedAt: "2026-04-29T00:00:00.000Z"
+};
+
+const updatedTopicResponse: UpdateTopicResponse = {
+  topic: updatedTopicFixture
+};
+
+const archivedTopicFixture = {
+  ...topicFixture,
+  status: "archived" as const,
+  archivedAt: "2026-04-30T00:00:00.000Z",
+  updatedAt: "2026-04-30T00:00:00.000Z"
+};
+
+const archivedTopicResponse: ArchiveTopicResponse = {
+  topic: archivedTopicFixture
+};
+
+const deletedTopicResponse: DeleteTopicResponse = {
   topic: topicFixture
 };
 
@@ -81,6 +122,9 @@ const fetchHealthStatusMock = vi.mocked(fetchHealthStatus);
 const createTopicMock = vi.mocked(createTopic);
 const getTopicMock = vi.mocked(getTopic);
 const listTopicsMock = vi.mocked(listTopics);
+const updateTopicMock = vi.mocked(updateTopic);
+const archiveTopicMock = vi.mocked(archiveTopic);
+const deleteTopicMock = vi.mocked(deleteTopic);
 
 describe("App", () => {
   beforeEach(() => {
@@ -89,6 +133,9 @@ describe("App", () => {
     createTopicMock.mockResolvedValue(createdTopicResponse);
     getTopicMock.mockResolvedValue(getTopicResponse);
     listTopicsMock.mockResolvedValue(listTopicsResponse);
+    updateTopicMock.mockResolvedValue(updatedTopicResponse);
+    archiveTopicMock.mockResolvedValue(archivedTopicResponse);
+    deleteTopicMock.mockResolvedValue(deletedTopicResponse);
   });
 
   it("renders the loading state while the health check is in flight", () => {
@@ -356,6 +403,272 @@ describe("App", () => {
       await screen.findByRole("heading", { name: "Iran strike risk" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Scope note")).not.toBeInTheDocument();
+  });
+
+  it("edits topic metadata from the detail route and refreshes the rendered topic", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit topic" }));
+    fireEvent.change(screen.getByLabelText("Title"), {
+      target: { value: "  Iran escalation risk  " }
+    });
+    fireEvent.change(screen.getByLabelText("Framing question"), {
+      target: { value: " Will direct conflict escalate? " }
+    });
+    fireEvent.change(screen.getByLabelText("Scope note"), {
+      target: { value: "   " }
+    });
+    fireEvent.change(screen.getByLabelText("Review cadence"), {
+      target: { value: "monthly" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    await waitFor(() => {
+      expect(updateTopicMock).toHaveBeenCalledWith(
+        {
+          topicId: "topic-1",
+          title: "Iran escalation risk",
+          framingQuestion: "Will direct conflict escalate?",
+          scopeNote: null,
+          reviewCadence: "monthly"
+        },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran escalation risk" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Will direct conflict escalate?")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Monthly")).toBeInTheDocument();
+    expect(screen.queryByText("Scope note")).not.toBeInTheDocument();
+  });
+
+  it("shows edit validation errors before calling the update API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit topic" }));
+    fireEvent.change(screen.getByLabelText("Title"), {
+      target: { value: " " }
+    });
+    fireEvent.change(screen.getByLabelText("Framing question"), {
+      target: { value: " " }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(await screen.findByText("Enter a topic title.")).toBeInTheDocument();
+    expect(screen.getByText("Enter a framing question.")).toBeInTheDocument();
+    expect(updateTopicMock).not.toHaveBeenCalled();
+  });
+
+  it("shows an update request error with retry state", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    updateTopicMock
+      .mockRejectedValueOnce(new Error("database unavailable"))
+      .mockResolvedValueOnce(updatedTopicResponse);
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit topic" }));
+    fireEvent.change(screen.getByLabelText("Title"), {
+      target: { value: "Iran escalation risk" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+
+    expect(
+      await screen.findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Try again" }));
+
+    await waitFor(() => {
+      expect(updateTopicMock).toHaveBeenCalledTimes(2);
+    });
+    expect(
+      await screen.findByRole("heading", { name: "Iran escalation risk" })
+    ).toBeInTheDocument();
+  });
+
+  it("archives a topic from the detail route and keeps the direct route readable", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Archive topic" }));
+    expect(
+      screen.getByText(/preserving the dossier record/)
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm archive" }));
+
+    await waitFor(() => {
+      expect(archiveTopicMock).toHaveBeenCalledWith(
+        { topicId: "topic-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(await screen.findByText("Archived")).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/topics/topic-1");
+  });
+
+  it("shows wake-up progress while archiving a topic", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    archiveTopicMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<ArchiveTopicResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Archive topic" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm archive" }));
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Archiving..." })).toBeDisabled();
+  });
+
+  it("archives a topic from the list and removes it from active topics", async () => {
+    render(<App />);
+
+    const topicLink = await screen.findByRole("link", {
+      name: "Iran strike risk"
+    });
+    const topicCard = topicLink.closest("article");
+
+    expect(topicCard).not.toBeNull();
+    fireEvent.click(
+      within(topicCard!).getByRole("button", { name: "Archive" })
+    );
+    fireEvent.click(
+      within(topicCard!).getByRole("button", { name: "Confirm archive" })
+    );
+
+    await waitFor(() => {
+      expect(archiveTopicMock).toHaveBeenCalledWith(
+        { topicId: "topic-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("link", { name: "Iran strike risk" })
+      ).not.toBeInTheDocument();
+    });
+    expect(
+      screen.getByRole("link", { name: "AI copyright litigation" })
+    ).toBeInTheDocument();
+  });
+
+  it("renders the empty list state after archiving the last active topic", async () => {
+    listTopicsMock.mockResolvedValue({ topics: [topicFixture] });
+
+    render(<App />);
+
+    const topicLink = await screen.findByRole("link", {
+      name: "Iran strike risk"
+    });
+    const topicCard = topicLink.closest("article");
+
+    expect(topicCard).not.toBeNull();
+    fireEvent.click(
+      within(topicCard!).getByRole("button", { name: "Archive" })
+    );
+    fireEvent.click(
+      within(topicCard!).getByRole("button", { name: "Confirm archive" })
+    );
+
+    expect(
+      await screen.findByRole("heading", {
+        name: "Create your first topic dossier"
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("keeps delete off list cards and exposes detail-only hard delete confirmation", async () => {
+    render(<App />);
+
+    expect(
+      await screen.findByRole("link", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Delete topic" })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("link", { name: "Iran strike risk" }));
+    expect(
+      await screen.findByRole("heading", { name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/current API permanently removes the topic row/)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/soft delete/i)).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete topic" }));
+
+    const deleteButton = screen.getByRole("button", {
+      name: "Permanently delete topic"
+    });
+    expect(deleteButton).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByLabelText("Type Iran strike risk to confirm"),
+      {
+        target: { value: "wrong title" }
+      }
+    );
+    expect(deleteButton).toBeDisabled();
+
+    fireEvent.change(
+      screen.getByLabelText("Type Iran strike risk to confirm"),
+      {
+        target: { value: "Iran strike risk" }
+      }
+    );
+    expect(deleteButton).toBeEnabled();
+    fireEvent.click(deleteButton);
+
+    await waitFor(() => {
+      expect(deleteTopicMock).toHaveBeenCalledWith(
+        { topicId: "topic-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(window.location.pathname).toBe("/");
   });
 
   it("renders non-interactive empty states for future R1 dossier sections", async () => {

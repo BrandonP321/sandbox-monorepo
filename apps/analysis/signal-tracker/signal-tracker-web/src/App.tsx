@@ -1,11 +1,16 @@
 import {
+  updateTopicRequestSchema,
+  type ArchiveTopicResponse,
   createTopicRequestSchema,
   type CreateTopicRequest,
   type CreateTopicResponse,
+  type DeleteTopicResponse,
   type GetTopicResponse,
   type ListTopicsResponse,
   type ReviewCadence,
-  type Topic
+  type Topic,
+  type UpdateTopicRequest,
+  type UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
 import {
@@ -18,7 +23,14 @@ import {
 } from "react";
 
 import { SignalTrackerApiError } from "./api/client";
-import { createTopic, getTopic, listTopics } from "./api/topics";
+import {
+  archiveTopic,
+  createTopic,
+  deleteTopic,
+  getTopic,
+  listTopics,
+  updateTopic
+} from "./api/topics";
 import { DbWakeUpStatus } from "./dbWakeUp/DbWakeUpStatus";
 import type { DbBackedRequestState } from "./dbWakeUp/useDbBackedRequest";
 import { fetchHealthStatus } from "./health";
@@ -235,6 +247,23 @@ function TopicListScreen({
     };
   }, [loadTopics]);
 
+  const removeArchivedTopic = useCallback((topicId: string) => {
+    setTopicListState((currentState) => {
+      if (currentState.status !== "success") {
+        return currentState;
+      }
+
+      return {
+        status: "success",
+        data: {
+          topics: currentState.data.topics.filter(
+            (topic) => topic.id !== topicId
+          )
+        }
+      };
+    });
+  }, []);
+
   return (
     <section className="topic-list" aria-labelledby="topic-list-title">
       <header className="section-heading topic-list__header">
@@ -292,6 +321,7 @@ function TopicListScreen({
               key={topic.id}
               topic={topic}
               onOpenTopic={onOpenTopic}
+              onTopicArchived={removeArchivedTopic}
             />
           ))}
         </div>
@@ -302,16 +332,46 @@ function TopicListScreen({
 
 function TopicListCard({
   topic,
-  onOpenTopic
+  onOpenTopic,
+  onTopicArchived
 }: {
   topic: Topic;
   onOpenTopic: (topicId: string) => void;
+  onTopicArchived: (topicId: string) => void;
 }) {
   const topicPath = getRoutePath({ name: "topicDetail", topicId: topic.id });
+  const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
+  const [archiveState, setArchiveState] = useState<
+    DbBackedRequestState<ArchiveTopicResponse>
+  >({ status: "idle" });
+
+  const isArchiving =
+    archiveState.status === "loading" || archiveState.status === "waking";
 
   function handleOpenTopic(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
     onOpenTopic(topic.id);
+  }
+
+  async function submitArchive() {
+    setArchiveState({ status: "loading" });
+
+    try {
+      await archiveTopic(
+        { topicId: topic.id },
+        {
+          onProgress: (progress) => {
+            setArchiveState({ status: progress.phase });
+          }
+        }
+      );
+
+      setArchiveState({ status: "idle" });
+      setIsConfirmingArchive(false);
+      onTopicArchived(topic.id);
+    } catch (error) {
+      setArchiveState({ status: "error", error });
+    }
   }
 
   return (
@@ -337,6 +397,44 @@ function TopicListCard({
           value={formatTopicDate(topic.updatedAt)}
         />
       </dl>
+      <div className="topic-list-card__actions">
+        {isConfirmingArchive ? (
+          <div className="inline-confirmation">
+            <p>
+              Archive hides this topic from active lists while preserving the
+              dossier record.
+            </p>
+            <button
+              className="secondary-action"
+              type="button"
+              disabled={isArchiving}
+              onClick={() => void submitArchive()}
+            >
+              {isArchiving ? "Archiving..." : "Confirm archive"}
+            </button>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isArchiving}
+              onClick={() => setIsConfirmingArchive(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            className="text-action"
+            type="button"
+            onClick={() => setIsConfirmingArchive(true)}
+          >
+            Archive
+          </button>
+        )}
+      </div>
+      <DbWakeUpStatus
+        state={archiveState}
+        onRetry={() => void submitArchive()}
+      />
     </article>
   );
 }
@@ -460,78 +558,12 @@ function TopicCreationScreen({
           <h2 id="topic-form-title">Create a topic dossier</h2>
         </div>
 
-        <label className="form-field" htmlFor="topic-title">
-          <span>Title</span>
-          <input
-            id="topic-title"
-            name="title"
-            type="text"
-            value={topicForm.title}
-            aria-describedby={
-              fieldErrors.title ? "topic-title-error" : undefined
-            }
-            aria-invalid={fieldErrors.title ? true : undefined}
-            onChange={(event) => updateField("title", event.target.value)}
-          />
-          {fieldErrors.title ? (
-            <span className="field-error" id="topic-title-error">
-              {fieldErrors.title}
-            </span>
-          ) : null}
-        </label>
-
-        <label className="form-field" htmlFor="topic-framing-question">
-          <span>Framing question</span>
-          <textarea
-            id="topic-framing-question"
-            name="framingQuestion"
-            rows={3}
-            value={topicForm.framingQuestion}
-            aria-describedby={
-              fieldErrors.framingQuestion
-                ? "topic-framing-question-error"
-                : undefined
-            }
-            aria-invalid={fieldErrors.framingQuestion ? true : undefined}
-            onChange={(event) =>
-              updateField("framingQuestion", event.target.value)
-            }
-          />
-          {fieldErrors.framingQuestion ? (
-            <span className="field-error" id="topic-framing-question-error">
-              {fieldErrors.framingQuestion}
-            </span>
-          ) : null}
-        </label>
-
-        <label className="form-field" htmlFor="topic-scope-note">
-          <span>Scope note</span>
-          <textarea
-            id="topic-scope-note"
-            name="scopeNote"
-            rows={4}
-            value={topicForm.scopeNote}
-            onChange={(event) => updateField("scopeNote", event.target.value)}
-          />
-        </label>
-
-        <label className="form-field" htmlFor="topic-review-cadence">
-          <span>Review cadence</span>
-          <select
-            id="topic-review-cadence"
-            name="reviewCadence"
-            value={topicForm.reviewCadence}
-            onChange={(event) =>
-              updateField("reviewCadence", event.target.value as ReviewCadence)
-            }
-          >
-            {reviewCadenceOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <TopicMetadataFields
+          idPrefix="topic"
+          values={topicForm}
+          fieldErrors={fieldErrors}
+          onUpdateField={updateField}
+        />
 
         <button
           className="primary-action"
@@ -556,6 +588,101 @@ function TopicCreationScreen({
         </p>
       </aside>
     </section>
+  );
+}
+
+function TopicMetadataFields({
+  idPrefix,
+  values,
+  fieldErrors,
+  onUpdateField
+}: {
+  idPrefix: string;
+  values: TopicFormValues;
+  fieldErrors: TopicFieldErrors;
+  onUpdateField: <FieldName extends keyof TopicFormValues>(
+    fieldName: FieldName,
+    value: TopicFormValues[FieldName]
+  ) => void;
+}) {
+  const titleId = `${idPrefix}-title`;
+  const titleErrorId = `${titleId}-error`;
+  const framingQuestionId = `${idPrefix}-framing-question`;
+  const framingQuestionErrorId = `${framingQuestionId}-error`;
+  const scopeNoteId = `${idPrefix}-scope-note`;
+  const reviewCadenceId = `${idPrefix}-review-cadence`;
+
+  return (
+    <>
+      <label className="form-field" htmlFor={titleId}>
+        <span>Title</span>
+        <input
+          id={titleId}
+          name="title"
+          type="text"
+          value={values.title}
+          aria-describedby={fieldErrors.title ? titleErrorId : undefined}
+          aria-invalid={fieldErrors.title ? true : undefined}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+        />
+        {fieldErrors.title ? (
+          <span className="field-error" id={titleErrorId}>
+            {fieldErrors.title}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor={framingQuestionId}>
+        <span>Framing question</span>
+        <textarea
+          id={framingQuestionId}
+          name="framingQuestion"
+          rows={3}
+          value={values.framingQuestion}
+          aria-describedby={
+            fieldErrors.framingQuestion ? framingQuestionErrorId : undefined
+          }
+          aria-invalid={fieldErrors.framingQuestion ? true : undefined}
+          onChange={(event) =>
+            onUpdateField("framingQuestion", event.target.value)
+          }
+        />
+        {fieldErrors.framingQuestion ? (
+          <span className="field-error" id={framingQuestionErrorId}>
+            {fieldErrors.framingQuestion}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor={scopeNoteId}>
+        <span>Scope note</span>
+        <textarea
+          id={scopeNoteId}
+          name="scopeNote"
+          rows={4}
+          value={values.scopeNote}
+          onChange={(event) => onUpdateField("scopeNote", event.target.value)}
+        />
+      </label>
+
+      <label className="form-field" htmlFor={reviewCadenceId}>
+        <span>Review cadence</span>
+        <select
+          id={reviewCadenceId}
+          name="reviewCadence"
+          value={values.reviewCadence}
+          onChange={(event) =>
+            onUpdateField("reviewCadence", event.target.value as ReviewCadence)
+          }
+        >
+          {reviewCadenceOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </>
   );
 }
 
@@ -608,6 +735,10 @@ function TopicDetailScreen({
     };
   }, [loadTopic]);
 
+  const updateLoadedTopic = useCallback((topic: Topic) => {
+    setTopicState({ status: "success", data: { topic } });
+  }, []);
+
   const isNotFound =
     topicState.status === "error" && isTopicNotFoundError(topicState.error);
 
@@ -639,18 +770,231 @@ function TopicDetailScreen({
       {isNotFound ? <TopicNotFound topicId={topicId} /> : null}
 
       {topicState.status === "success" ? (
-        <TopicDossierShell topic={topicState.data.topic} />
+        <TopicDossierShell
+          topic={topicState.data.topic}
+          onTopicChanged={updateLoadedTopic}
+          onTopicDeleted={onNavigateTopics}
+        />
       ) : null}
     </section>
   );
 }
 
-function TopicDossierShell({ topic }: { topic: Topic }) {
+function TopicDossierShell({
+  topic,
+  onTopicChanged,
+  onTopicDeleted
+}: {
+  topic: Topic;
+  onTopicChanged: (topic: Topic) => void;
+  onTopicDeleted: () => void;
+}) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [topicForm, setTopicForm] = useState<TopicFormValues>(() =>
+    topicToFormValues(topic)
+  );
+  const [fieldErrors, setFieldErrors] = useState<TopicFieldErrors>({});
+  const [updateState, setUpdateState] = useState<
+    DbBackedRequestState<UpdateTopicResponse>
+  >({ status: "idle" });
+  const [isConfirmingArchive, setIsConfirmingArchive] = useState(false);
+  const [archiveState, setArchiveState] = useState<
+    DbBackedRequestState<ArchiveTopicResponse>
+  >({ status: "idle" });
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [deleteConfirmationTitle, setDeleteConfirmationTitle] = useState("");
+  const [deleteState, setDeleteState] = useState<
+    DbBackedRequestState<DeleteTopicResponse>
+  >({ status: "idle" });
+  const lastSubmittedUpdate = useRef<UpdateTopicRequest | null>(null);
+
+  const isUpdating =
+    updateState.status === "loading" || updateState.status === "waking";
+  const isArchiving =
+    archiveState.status === "loading" || archiveState.status === "waking";
+  const isDeleting =
+    deleteState.status === "loading" || deleteState.status === "waking";
+  const canDelete = deleteConfirmationTitle === topic.title && !isDeleting;
+
+  useEffect(() => {
+    if (!isEditing) {
+      setTopicForm(topicToFormValues(topic));
+    }
+  }, [isEditing, topic]);
+
+  function updateField<FieldName extends keyof TopicFormValues>(
+    fieldName: FieldName,
+    value: TopicFormValues[FieldName]
+  ) {
+    setTopicForm((currentValues) => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+    setFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [fieldName]: undefined
+    }));
+  }
+
+  function startEditing() {
+    setTopicForm(topicToFormValues(topic));
+    setFieldErrors({});
+    setUpdateState({ status: "idle" });
+    setIsEditing(true);
+  }
+
+  function cancelEditing() {
+    setTopicForm(topicToFormValues(topic));
+    setFieldErrors({});
+    setUpdateState({ status: "idle" });
+    setIsEditing(false);
+  }
+
+  async function handleTopicUpdateSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const parsedRequest = updateTopicRequestSchema.safeParse({
+      topicId: topic.id,
+      ...topicForm
+    });
+
+    if (!parsedRequest.success) {
+      setFieldErrors(createFieldErrors(parsedRequest.error.issues));
+      setUpdateState({ status: "idle" });
+      return;
+    }
+
+    lastSubmittedUpdate.current = parsedRequest.data;
+    await submitTopicUpdate(parsedRequest.data);
+  }
+
+  async function retryTopicUpdate() {
+    if (!lastSubmittedUpdate.current) {
+      return;
+    }
+
+    await submitTopicUpdate(lastSubmittedUpdate.current);
+  }
+
+  async function submitTopicUpdate(request: UpdateTopicRequest) {
+    setFieldErrors({});
+    setUpdateState({ status: "loading" });
+
+    try {
+      const response = await updateTopic(request, {
+        onProgress: (progress) => {
+          setUpdateState({ status: progress.phase });
+        }
+      });
+
+      setUpdateState({ status: "success", data: response });
+      onTopicChanged(response.topic);
+      setIsEditing(false);
+    } catch (error) {
+      setUpdateState({ status: "error", error });
+    }
+  }
+
+  async function submitArchive() {
+    setArchiveState({ status: "loading" });
+
+    try {
+      const response = await archiveTopic(
+        { topicId: topic.id },
+        {
+          onProgress: (progress) => {
+            setArchiveState({ status: progress.phase });
+          }
+        }
+      );
+
+      setArchiveState({ status: "success", data: response });
+      setIsConfirmingArchive(false);
+      onTopicChanged(response.topic);
+    } catch (error) {
+      setArchiveState({ status: "error", error });
+    }
+  }
+
+  async function submitDelete() {
+    if (deleteConfirmationTitle !== topic.title) {
+      return;
+    }
+
+    setDeleteState({ status: "loading" });
+
+    try {
+      const response = await deleteTopic(
+        { topicId: topic.id },
+        {
+          onProgress: (progress) => {
+            setDeleteState({ status: progress.phase });
+          }
+        }
+      );
+
+      setDeleteState({ status: "success", data: response });
+      onTopicDeleted();
+    } catch (error) {
+      setDeleteState({ status: "error", error });
+    }
+  }
+
+  if (isEditing) {
+    return (
+      <form
+        className="topic-form topic-edit-form"
+        aria-labelledby="topic-detail-title"
+        onSubmit={(event) => void handleTopicUpdateSubmit(event)}
+      >
+        <div className="section-heading topic-edit-form__header">
+          <div>
+            <p className="eyebrow">Edit topic</p>
+            <h2 id="topic-detail-title">Edit topic metadata</h2>
+          </div>
+          <button
+            className="text-action"
+            type="button"
+            disabled={isUpdating}
+            onClick={cancelEditing}
+          >
+            Cancel
+          </button>
+        </div>
+
+        <TopicMetadataFields
+          idPrefix="topic-edit"
+          values={topicForm}
+          fieldErrors={fieldErrors}
+          onUpdateField={updateField}
+        />
+
+        <button className="primary-action" type="submit" disabled={isUpdating}>
+          {isUpdating ? "Saving topic..." : "Save changes"}
+        </button>
+
+        <DbWakeUpStatus
+          state={updateState}
+          onRetry={() => void retryTopicUpdate()}
+        />
+      </form>
+    );
+  }
+
   return (
     <>
       <header className="topic-detail__header">
-        <p className="eyebrow">Topic dossier</p>
-        <h2 id="topic-detail-title">{topic.title}</h2>
+        <div>
+          <p className="eyebrow">Topic dossier</p>
+          <h2 id="topic-detail-title">{topic.title}</h2>
+        </div>
+        <button
+          className="secondary-action"
+          type="button"
+          onClick={startEditing}
+        >
+          Edit topic
+        </button>
         <p className="topic-detail__framing-question">
           {topic.framingQuestion}
         </p>
@@ -674,6 +1018,114 @@ function TopicDossierShell({ topic }: { topic: Topic }) {
           <MetadataItem label="Scope note" value={topic.scopeNote} />
         ) : null}
       </dl>
+
+      <section
+        className="topic-lifecycle-panel"
+        aria-labelledby="topic-lifecycle-title"
+      >
+        <div>
+          <p className="eyebrow">Lifecycle</p>
+          <h3 id="topic-lifecycle-title">Manage topic visibility</h3>
+          <p>
+            Archive hides this topic from active lists while preserving the
+            dossier record.
+          </p>
+        </div>
+        {topic.status === "archived" ? (
+          <p className="status-text">This topic is archived.</p>
+        ) : isConfirmingArchive ? (
+          <div className="inline-confirmation">
+            <p>
+              Confirm archive to remove this topic from active lists. The topic
+              remains directly readable by URL.
+            </p>
+            <button
+              className="secondary-action"
+              type="button"
+              disabled={isArchiving}
+              onClick={() => void submitArchive()}
+            >
+              {isArchiving ? "Archiving..." : "Confirm archive"}
+            </button>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isArchiving}
+              onClick={() => setIsConfirmingArchive(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={() => setIsConfirmingArchive(true)}
+          >
+            Archive topic
+          </button>
+        )}
+        <DbWakeUpStatus
+          state={archiveState}
+          onRetry={() => void submitArchive()}
+        />
+      </section>
+
+      <section className="danger-zone" aria-labelledby="topic-delete-title">
+        <p className="eyebrow">Danger zone</p>
+        <h3 id="topic-delete-title">Permanently delete topic row</h3>
+        <p>
+          The current API permanently removes the topic row. Use archive when
+          you only need to clean up active lists.
+        </p>
+        {isConfirmingDelete ? (
+          <div className="delete-confirmation">
+            <label className="form-field" htmlFor="topic-delete-confirmation">
+              <span>Type {topic.title} to confirm</span>
+              <input
+                id="topic-delete-confirmation"
+                type="text"
+                value={deleteConfirmationTitle}
+                onChange={(event) =>
+                  setDeleteConfirmationTitle(event.target.value)
+                }
+              />
+            </label>
+            <button
+              className="danger-action"
+              type="button"
+              disabled={!canDelete}
+              onClick={() => void submitDelete()}
+            >
+              {isDeleting ? "Deleting topic..." : "Permanently delete topic"}
+            </button>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isDeleting}
+              onClick={() => {
+                setIsConfirmingDelete(false);
+                setDeleteConfirmationTitle("");
+                setDeleteState({ status: "idle" });
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            className="danger-link-action"
+            type="button"
+            onClick={() => setIsConfirmingDelete(true)}
+          >
+            Delete topic
+          </button>
+        )}
+        <DbWakeUpStatus
+          state={deleteState}
+          onRetry={() => void submitDelete()}
+        />
+      </section>
 
       <section
         className="dossier-empty-sections"
@@ -751,6 +1203,15 @@ function createFieldErrors(
   }
 
   return errors;
+}
+
+function topicToFormValues(topic: Topic): TopicFormValues {
+  return {
+    title: topic.title,
+    framingQuestion: topic.framingQuestion,
+    scopeNote: topic.scopeNote ?? "",
+    reviewCadence: topic.reviewCadence
+  };
 }
 
 function parseAppRoute(pathname: string): AppRoute {

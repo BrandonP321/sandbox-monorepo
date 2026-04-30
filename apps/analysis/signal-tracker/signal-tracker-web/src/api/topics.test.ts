@@ -1,14 +1,24 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  archiveTopicResponseSchema,
   createTopicResponseSchema,
+  deleteTopicResponseSchema,
   getTopicResponseSchema,
   listTopicsResponseSchema,
-  signalTrackerRoutes
+  signalTrackerRoutes,
+  updateTopicResponseSchema
 } from "@repo/signal-tracker-shared";
 
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
-import { createTopic, getTopic, listTopics } from "./topics";
+import {
+  archiveTopic,
+  createTopic,
+  deleteTopic,
+  getTopic,
+  listTopics,
+  updateTopic
+} from "./topics";
 
 vi.mock("./db-backed-request", async () => {
   const actual = await vi.importActual<typeof import("./db-backed-request")>(
@@ -75,6 +85,59 @@ describe("topic API wrappers", () => {
         responseSchema: listTopicsResponseSchema
       },
       options
+    );
+  });
+
+  it("updates topics through the DB-backed API path", async () => {
+    const request = {
+      topicId: "topic-1",
+      title: "Updated topic",
+      framingQuestion: "What changed?",
+      scopeNote: null,
+      reviewCadence: "monthly" as const
+    };
+    const options = { maxAttempts: 2 };
+
+    await updateTopic(request, options);
+
+    expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
+      {
+        route: signalTrackerRoutes.updateTopic,
+        body: request,
+        responseSchema: updateTopicResponseSchema
+      },
+      options
+    );
+  });
+
+  it("archives topics through the DB-backed API path", async () => {
+    const request = { topicId: "topic-1" };
+    const options = { wakeUpDelayMs: 50 };
+
+    await archiveTopic(request, options);
+
+    expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
+      {
+        route: signalTrackerRoutes.archiveTopic,
+        body: request,
+        responseSchema: archiveTopicResponseSchema
+      },
+      options
+    );
+  });
+
+  it("deletes topics through the DB-backed API path", async () => {
+    const request = { topicId: "topic-1" };
+
+    await deleteTopic(request);
+
+    expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
+      {
+        route: signalTrackerRoutes.deleteTopic,
+        body: request,
+        responseSchema: deleteTopicResponseSchema
+      },
+      undefined
     );
   });
 });
