@@ -146,11 +146,13 @@ describe("FormRadioGroupControl", () => {
 
   it("supports non-string RHF values", () => {
     const markup = renderToStaticMarkup(
-      <ObjectValueTestForm defaultValues={{ region: { code: "eu", label: "Europe" } }}>
+      <ObjectValueTestForm
+        defaultValues={{ region: { code: "eu", label: "Europe" } }}
+      >
         <ObjectValueTestField name="region" />
       </ObjectValueTestForm>
     );
 
-    expect(markup).toContain('&quot;code&quot;:&quot;eu&quot;');
+    expect(markup).toContain("&quot;code&quot;:&quot;eu&quot;");
   });
 });

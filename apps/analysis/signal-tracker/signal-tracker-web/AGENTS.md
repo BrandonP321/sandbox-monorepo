@@ -3,6 +3,7 @@
 Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source-of-truth docs, and R1 MVP boundaries.
 
 ## Commands
+
 - Dev server: `pnpm --filter signal-tracker-web dev`
 - Tests: `pnpm --filter signal-tracker-web test`
 - Lint: `pnpm --filter signal-tracker-web lint`
@@ -10,6 +11,7 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Build: `pnpm --filter signal-tracker-web build`
 
 ## Notes
+
 - Configure API base URL with `VITE_API_URL`.
 - Do not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
 - Use `@repo/ui-base` only for behavior abstractions; keep Signal Tracker-specific UI components, markup, and styling in this web package.

@@ -124,7 +124,9 @@ describe("FormCheckboxGroupControl", () => {
     );
 
     expect(markup).toContain('data-name="audience"');
-    expect(markup).toContain('data-value="[&quot;founders&quot;,&quot;researchers&quot;]"');
+    expect(markup).toContain(
+      'data-value="[&quot;founders&quot;,&quot;researchers&quot;]"'
+    );
   });
 
   it("normalizes nullish RHF values to an empty array", () => {
@@ -149,11 +151,13 @@ describe("FormCheckboxGroupControl", () => {
 
   it("supports non-string RHF values", () => {
     const markup = renderToStaticMarkup(
-      <ObjectValueTestForm defaultValues={{ regions: [{ code: "eu", label: "Europe" }] }}>
+      <ObjectValueTestForm
+        defaultValues={{ regions: [{ code: "eu", label: "Europe" }] }}
+      >
         <ObjectValueTestField name="regions" />
       </ObjectValueTestForm>
     );
 
-    expect(markup).toContain('&quot;code&quot;:&quot;eu&quot;');
+    expect(markup).toContain("&quot;code&quot;:&quot;eu&quot;");
   });
 });

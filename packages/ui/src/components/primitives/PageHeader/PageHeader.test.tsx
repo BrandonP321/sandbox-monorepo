@@ -44,7 +44,10 @@ describe("PageHeader", () => {
 
   it("renders breadcrumbs before the page heading", () => {
     const markup = renderToStaticMarkup(
-      <PageHeader breadcrumbs={<nav aria-label="Breadcrumb">Crumbs</nav>} title="Signals" />
+      <PageHeader
+        breadcrumbs={<nav aria-label="Breadcrumb">Crumbs</nav>}
+        title="Signals"
+      />
     );
 
     expect(markup.indexOf("Crumbs")).toBeLessThan(markup.indexOf("Signals"));

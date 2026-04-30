@@ -8,10 +8,11 @@ import {
 } from "../FormControl.types";
 import { type FormFieldName, useFormField } from "../../form/useFormField";
 
-export type FormInputControlRenderProps = FormControlRenderPropsBase<HTMLInputElement> & {
-  onChange: ChangeEventHandler<HTMLInputElement>;
-  value: string;
-};
+export type FormInputControlRenderProps =
+  FormControlRenderPropsBase<HTMLInputElement> & {
+    onChange: ChangeEventHandler<HTMLInputElement>;
+    value: string;
+  };
 
 export type FormInputControlProps<TFieldValues extends FieldValues> = {
   children: FormControlChildren<FormInputControlRenderProps>;

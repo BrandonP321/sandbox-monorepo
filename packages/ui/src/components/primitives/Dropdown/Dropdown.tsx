@@ -10,10 +10,7 @@ import {
 import { cn } from "../../../lib/cn";
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
 import { useControllableValue } from "../../../lib/useControllableValue";
-import {
-  FormField,
-  type FormFieldContentProps
-} from "../FormField/FormField";
+import { FormField, type FormFieldContentProps } from "../FormField/FormField";
 import styles from "./Dropdown.module.scss";
 
 type NativeDropdownProps = Omit<
@@ -45,7 +42,10 @@ function DropdownInner<TValue = string>(
   props: DropdownProps<TValue>,
   ref: ForwardedRef<HTMLSelectElement>
 ) {
-  const isValueControlled = Object.prototype.hasOwnProperty.call(props, "value");
+  const isValueControlled = Object.prototype.hasOwnProperty.call(
+    props,
+    "value"
+  );
   const {
     className,
     defaultValue,
@@ -80,7 +80,12 @@ function DropdownInner<TValue = string>(
   const selectValue = selectedIndex >= 0 ? String(selectedIndex) : "";
 
   return (
-    <FormField description={description} error={error} id={inputId} label={label}>
+    <FormField
+      description={description}
+      error={error}
+      id={inputId}
+      label={label}
+    >
       <select
         aria-invalid={error ? true : undefined}
         {...restProps}

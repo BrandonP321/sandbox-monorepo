@@ -44,7 +44,9 @@ export async function resolveProjects(options: {
   );
 
   if (!project) {
-    throw new Error(`No Postman project config found for ${options.projectSlug}.`);
+    throw new Error(
+      `No Postman project config found for ${options.projectSlug}.`
+    );
   }
 
   return [project];

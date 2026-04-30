@@ -115,7 +115,9 @@ describe("runDbBackedRequest", () => {
   });
 
   it("classifies network and timeout failures as retryable", () => {
-    expect(isRetryableDbBackedRequestError(new TypeError("network"))).toBe(true);
+    expect(isRetryableDbBackedRequestError(new TypeError("network"))).toBe(
+      true
+    );
     expect(
       isRetryableDbBackedRequestError(
         new DOMException("The request was aborted.", "AbortError")

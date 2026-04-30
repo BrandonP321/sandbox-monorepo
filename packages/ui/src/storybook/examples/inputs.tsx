@@ -3,7 +3,10 @@ import type { CSSProperties, ComponentProps } from "react";
 import { Search } from "../../icons";
 import { Input } from "../../components/primitives/Input/Input";
 
-export type StorybookSearchInputProps = Omit<ComponentProps<typeof Input>, "iconLeft"> & {
+export type StorybookSearchInputProps = Omit<
+  ComponentProps<typeof Input>,
+  "iconLeft"
+> & {
   iconLeft?: ComponentProps<typeof Input>["iconLeft"];
   width?: CSSProperties["inlineSize"];
 };

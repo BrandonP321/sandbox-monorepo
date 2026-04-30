@@ -46,7 +46,9 @@ describe("SpaSite", () => {
       Prune: false
     });
 
-    expect(template.findResources("Custom::CDKBucketDeployment")).toHaveProperty(
+    expect(
+      template.findResources("Custom::CDKBucketDeployment")
+    ).toHaveProperty(
       Object.keys(template.findResources("Custom::CDKBucketDeployment"))[0]
     );
   });

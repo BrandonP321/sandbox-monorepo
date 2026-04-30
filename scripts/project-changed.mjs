@@ -67,9 +67,11 @@ function listChangedFiles({ base, head }) {
 }
 
 function main() {
-  const { base, head, "project-root": projectRoot } = parseArgs(
-    process.argv.slice(2)
-  );
+  const {
+    base,
+    head,
+    "project-root": projectRoot
+  } = parseArgs(process.argv.slice(2));
 
   if (!head || !projectRoot) {
     throw new Error(

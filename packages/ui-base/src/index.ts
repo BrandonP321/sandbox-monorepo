@@ -1,7 +1,4 @@
-export {
-  Form,
-  type FormSubmitHandler
-} from "./components/Form/Form";
+export { Form, type FormSubmitHandler } from "./components/Form/Form";
 export { FormProvider } from "./components/FormProvider/FormProvider";
 export {
   FormCheckboxGroupControl,
@@ -23,7 +20,4 @@ export {
   type FormRadioGroupControlProps,
   type FormRadioGroupControlRenderProps
 } from "./components/RadioGroup/FormRadioGroupControl";
-export {
-  type FormFieldName,
-  useFormField
-} from "./form/useFormField";
+export { type FormFieldName, useFormField } from "./form/useFormField";

@@ -32,7 +32,9 @@ const TOKEN_ALIASES = [
   { inputs: ["pi"], display: "π" },
   { inputs: ["ee"], display: "EE" }
 ]
-  .flatMap((alias) => alias.inputs.map((input) => ({ input, display: alias.display })))
+  .flatMap((alias) =>
+    alias.inputs.map((input) => ({ input, display: alias.display }))
+  )
   .sort((left, right) => right.input.length - left.input.length);
 
 export type SanitizedSelection = {
@@ -42,14 +44,23 @@ export type SanitizedSelection = {
 };
 
 export function normalizeExpressionOperators(value: string): string {
-  return Array.from(value, (character) => RAW_OPERATOR_GLYPHS.get(character) ?? character).join("");
+  return Array.from(
+    value,
+    (character) => RAW_OPERATOR_GLYPHS.get(character) ?? character
+  ).join("");
 }
 
 export function formatExpressionDisplay(value: string): string {
-  return Array.from(value, (character) => DISPLAY_OPERATOR_GLYPHS.get(character) ?? character).join("");
+  return Array.from(
+    value,
+    (character) => DISPLAY_OPERATOR_GLYPHS.get(character) ?? character
+  ).join("");
 }
 
-function matchAlias(value: string, index: number): { display: string; length: number } | null {
+function matchAlias(
+  value: string,
+  index: number
+): { display: string; length: number } | null {
   const remainder = value.slice(index);
 
   for (const alias of TOKEN_ALIASES) {
@@ -64,7 +75,10 @@ function matchAlias(value: string, index: number): { display: string; length: nu
   return null;
 }
 
-function shouldTreatAsScientificExponent(result: string, remainder: string): boolean {
+function shouldTreatAsScientificExponent(
+  result: string,
+  remainder: string
+): boolean {
   if (!/[0-9.]$/.test(result)) {
     return false;
   }
@@ -72,7 +86,10 @@ function shouldTreatAsScientificExponent(result: string, remainder: string): boo
   return /^[eE][+-]?\d/.test(remainder);
 }
 
-function sanitizeExpression(value: string, keepUnmatchedLetters: boolean): string {
+function sanitizeExpression(
+  value: string,
+  keepUnmatchedLetters: boolean
+): string {
   const normalized = normalizeExpressionOperators(value);
   let result = "";
 
@@ -134,7 +151,8 @@ export function sanitizeExpressionWithSelection(
 
   return {
     expression: sanitizedExpression,
-    selectionStart: sanitizeExpressionDraft(expression.slice(0, safeStart)).length,
+    selectionStart: sanitizeExpressionDraft(expression.slice(0, safeStart))
+      .length,
     selectionEnd: sanitizeExpressionDraft(expression.slice(0, safeEnd)).length
   };
 }

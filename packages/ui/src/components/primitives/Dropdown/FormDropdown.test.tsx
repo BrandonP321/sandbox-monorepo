@@ -93,7 +93,12 @@ describe("FormDropdown", () => {
   it("respects the disabled prop on the RHF-backed select", () => {
     const markup = renderToStaticMarkup(
       <TestForm defaultValues={{ country: "us" }}>
-        <FormDropdown disabled label="Country" name="country" options={options} />
+        <FormDropdown
+          disabled
+          label="Country"
+          name="country"
+          options={options}
+        />
       </TestForm>
     );
 

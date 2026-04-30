@@ -45,7 +45,9 @@ export async function postSignalTrackerApi<TResponse>(
   return options.responseSchema.parse(await response.json());
 }
 
-async function createApiError(response: Response): Promise<SignalTrackerApiError> {
+async function createApiError(
+  response: Response
+): Promise<SignalTrackerApiError> {
   try {
     const parsedError = apiErrorSchema.safeParse(await response.json());
 

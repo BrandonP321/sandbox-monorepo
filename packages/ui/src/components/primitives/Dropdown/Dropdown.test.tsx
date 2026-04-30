@@ -48,7 +48,11 @@ describe("Dropdown", () => {
 
   it("renders an empty selection when the field value is nullish", () => {
     const markup = renderToStaticMarkup(
-      <Dropdown label="Country" options={options} placeholder="Select a country" />
+      <Dropdown
+        label="Country"
+        options={options}
+        placeholder="Select a country"
+      />
     );
 
     expect(markup).toContain('value=""');

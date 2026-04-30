@@ -27,10 +27,14 @@ export function PageHeader({
     <header className={styles.root} {...props}>
       <div className={styles.topRow}>
         <div className={styles.identity}>
-          {breadcrumbs ? <div className={styles.breadcrumbs}>{breadcrumbs}</div> : null}
+          {breadcrumbs ? (
+            <div className={styles.breadcrumbs}>{breadcrumbs}</div>
+          ) : null}
           {eyebrow ? <div className={styles.eyebrow}>{eyebrow}</div> : null}
           <h1 className={styles.title}>{title}</h1>
-          {description ? <div className={styles.description}>{description}</div> : null}
+          {description ? (
+            <div className={styles.description}>{description}</div>
+          ) : null}
         </div>
         {actions ? <div className={styles.actions}>{actions}</div> : null}
       </div>

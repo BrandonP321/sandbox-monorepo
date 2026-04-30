@@ -2,7 +2,11 @@ import type { CalculatorAction } from "./actions";
 import { evaluateExpression } from "./evaluator";
 import { formatNumber } from "./format";
 import { appendHistoryEntry, clearHistory } from "./history";
-import { formatExpressionDisplay, sanitizeExpressionWithSelection, sanitizePastedExpression } from "./input";
+import {
+  formatExpressionDisplay,
+  sanitizeExpressionWithSelection,
+  sanitizePastedExpression
+} from "./input";
 import type { CalculatorState } from "./types";
 
 type SelectionRange = {
@@ -30,7 +34,11 @@ function toSelectionRange(state: CalculatorState): SelectionRange {
   };
 }
 
-function replaceSelection(expression: string, selection: SelectionRange, value: string): EditResult {
+function replaceSelection(
+  expression: string,
+  selection: SelectionRange,
+  value: string
+): EditResult {
   const nextExpression = `${expression.slice(0, selection.start)}${value}${expression.slice(selection.end)}`;
   const cursor = selection.start + value.length;
 
@@ -41,7 +49,12 @@ function replaceSelection(expression: string, selection: SelectionRange, value: 
   };
 }
 
-function withSelectionState(state: CalculatorState, expression: string, selectionStart: number, selectionEnd: number): CalculatorState {
+function withSelectionState(
+  state: CalculatorState,
+  expression: string,
+  selectionStart: number,
+  selectionEnd: number
+): CalculatorState {
   const maxIndex = expression.length;
   const start = clamp(selectionStart, 0, maxIndex);
   const end = clamp(selectionEnd, 0, maxIndex);
@@ -55,9 +68,17 @@ function withSelectionState(state: CalculatorState, expression: string, selectio
   };
 }
 
-function withEditingState(state: CalculatorState, edit: EditResult): CalculatorState {
+function withEditingState(
+  state: CalculatorState,
+  edit: EditResult
+): CalculatorState {
   return {
-    ...withSelectionState(state, edit.expression, edit.selectionStart, edit.selectionEnd),
+    ...withSelectionState(
+      state,
+      edit.expression,
+      edit.selectionStart,
+      edit.selectionEnd
+    ),
     result: null,
     errorMessage: null
   };
@@ -67,7 +88,9 @@ function shouldExpandImplicitChainDraft(expression: string): boolean {
   return /^[+\-−*/×÷^]/.test(expression.trimStart());
 }
 
-function clearDisplayedResultForEditing(state: CalculatorState): CalculatorState {
+function clearDisplayedResultForEditing(
+  state: CalculatorState
+): CalculatorState {
   return {
     ...state,
     expression: "",
@@ -80,8 +103,14 @@ function clearDisplayedResultForEditing(state: CalculatorState): CalculatorState
 }
 
 function insertValue(state: CalculatorState, value: string): CalculatorState {
-  if (state.result !== null && state.lastResult !== null && shouldExpandImplicitChainDraft(value)) {
-    const resultPrefix = formatExpressionDisplay(formatNumber(state.lastResult));
+  if (
+    state.result !== null &&
+    state.lastResult !== null &&
+    shouldExpandImplicitChainDraft(value)
+  ) {
+    const resultPrefix = formatExpressionDisplay(
+      formatNumber(state.lastResult)
+    );
 
     return withEditingState(state, {
       expression: `${resultPrefix}${value}`,
@@ -98,10 +127,16 @@ function insertValue(state: CalculatorState, value: string): CalculatorState {
     });
   }
 
-  return withEditingState(state, replaceSelection(state.expression, toSelectionRange(state), value));
+  return withEditingState(
+    state,
+    replaceSelection(state.expression, toSelectionRange(state), value)
+  );
 }
 
-function findTokenRange(expression: string, selection: SelectionRange): SelectionRange | null {
+function findTokenRange(
+  expression: string,
+  selection: SelectionRange
+): SelectionRange | null {
   const selectedText = expression.slice(selection.start, selection.end);
 
   if (selectedText && TOKEN_PATTERN.test(selectedText)) {
@@ -134,7 +169,10 @@ function findTokenRange(expression: string, selection: SelectionRange): Selectio
     const prefix = expression.slice(0, start - 1);
     const previousNonWhitespace = prefix.match(/\S(?=\s*$)/)?.[0];
 
-    if (!previousNonWhitespace || OPERATOR_PATTERN.test(previousNonWhitespace)) {
+    if (
+      !previousNonWhitespace ||
+      OPERATOR_PATTERN.test(previousNonWhitespace)
+    ) {
       start -= 1;
     }
   }
@@ -143,7 +181,10 @@ function findTokenRange(expression: string, selection: SelectionRange): Selectio
   return TOKEN_PATTERN.test(token) ? { start, end } : null;
 }
 
-function toggleSign(expression: string, selection: SelectionRange): EditResult | null {
+function toggleSign(
+  expression: string,
+  selection: SelectionRange
+): EditResult | null {
   const tokenRange = findTokenRange(expression, selection);
 
   if (!tokenRange) {
@@ -151,7 +192,10 @@ function toggleSign(expression: string, selection: SelectionRange): EditResult |
   }
 
   const token = expression.slice(tokenRange.start, tokenRange.end);
-  const nextToken = token.startsWith("−") || token.startsWith("-") ? token.slice(1) : `−${token}`;
+  const nextToken =
+    token.startsWith("−") || token.startsWith("-")
+      ? token.slice(1)
+      : `−${token}`;
 
   return {
     expression: `${expression.slice(0, tokenRange.start)}${nextToken}${expression.slice(tokenRange.end)}`,
@@ -160,7 +204,10 @@ function toggleSign(expression: string, selection: SelectionRange): EditResult |
   };
 }
 
-function applyPercent(expression: string, selection: SelectionRange): EditResult | null {
+function applyPercent(
+  expression: string,
+  selection: SelectionRange
+): EditResult | null {
   const tokenRange = findTokenRange(expression, selection);
 
   if (!tokenRange) {
@@ -188,7 +235,11 @@ function resolveValueForMemory(state: CalculatorState): number | null {
   }
 
   if (state.expression.trim()) {
-    const evaluation = evaluateExpression(state.expression, state.lastResult, state.angleMode);
+    const evaluation = evaluateExpression(
+      state.expression,
+      state.lastResult,
+      state.angleMode
+    );
     return evaluation.ok ? evaluation.value : null;
   }
 
@@ -210,7 +261,10 @@ export function getInitialCalculatorState(): CalculatorState {
   };
 }
 
-export function reduceCalculator(state: CalculatorState, action: CalculatorAction): CalculatorState {
+export function reduceCalculator(
+  state: CalculatorState,
+  action: CalculatorAction
+): CalculatorState {
   switch (action.type) {
     case "INSERT_CHAR":
       return insertValue(state, action.value);
@@ -218,14 +272,20 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
       const selection = toSelectionRange(state);
 
       if (selection.start !== selection.end) {
-        return withEditingState(state, replaceSelection(state.expression, selection, ""));
+        return withEditingState(
+          state,
+          replaceSelection(state.expression, selection, "")
+        );
       }
 
       if (action.direction === "backward" && selection.start === 0) {
         return state;
       }
 
-      if (action.direction === "forward" && selection.end === state.expression.length) {
+      if (
+        action.direction === "forward" &&
+        selection.end === state.expression.length
+      ) {
         return state;
       }
 
@@ -234,15 +294,33 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
           ? { start: selection.start - 1, end: selection.end }
           : { start: selection.start, end: selection.end + 1 };
 
-      return withEditingState(state, replaceSelection(state.expression, nextSelection, ""));
+      return withEditingState(
+        state,
+        replaceSelection(state.expression, nextSelection, "")
+      );
     }
     case "MOVE_CURSOR":
-      return withSelectionState(state, state.expression, action.selectionStart, action.selectionEnd);
+      return withSelectionState(
+        state,
+        state.expression,
+        action.selectionStart,
+        action.selectionEnd
+      );
     case "SET_EXPRESSION": {
-      const sanitized = sanitizeExpressionWithSelection(action.expression, action.selectionStart, action.selectionEnd);
+      const sanitized = sanitizeExpressionWithSelection(
+        action.expression,
+        action.selectionStart,
+        action.selectionEnd
+      );
 
-      if (state.result !== null && state.lastResult !== null && shouldExpandImplicitChainDraft(sanitized.expression)) {
-        const resultPrefix = formatExpressionDisplay(formatNumber(state.lastResult));
+      if (
+        state.result !== null &&
+        state.lastResult !== null &&
+        shouldExpandImplicitChainDraft(sanitized.expression)
+      ) {
+        const resultPrefix = formatExpressionDisplay(
+          formatNumber(state.lastResult)
+        );
 
         return {
           ...withSelectionState(
@@ -257,7 +335,12 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
       }
 
       return {
-        ...withSelectionState(state, sanitized.expression, sanitized.selectionStart, sanitized.selectionEnd),
+        ...withSelectionState(
+          state,
+          sanitized.expression,
+          sanitized.selectionStart,
+          sanitized.selectionEnd
+        ),
         result: null,
         errorMessage: null
       };
@@ -269,8 +352,14 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
         return state;
       }
 
-      if (state.result !== null && state.lastResult !== null && shouldExpandImplicitChainDraft(sanitizedValue)) {
-        const resultPrefix = formatExpressionDisplay(formatNumber(state.lastResult));
+      if (
+        state.result !== null &&
+        state.lastResult !== null &&
+        shouldExpandImplicitChainDraft(sanitizedValue)
+      ) {
+        const resultPrefix = formatExpressionDisplay(
+          formatNumber(state.lastResult)
+        );
 
         return withEditingState(state, {
           expression: `${resultPrefix}${sanitizedValue}`,
@@ -287,7 +376,14 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
         });
       }
 
-      return withEditingState(state, replaceSelection(state.expression, toSelectionRange(state), sanitizedValue));
+      return withEditingState(
+        state,
+        replaceSelection(
+          state.expression,
+          toSelectionRange(state),
+          sanitizedValue
+        )
+      );
     }
     case "SET_FROM_HISTORY":
       return {
@@ -319,7 +415,12 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
         memoryValue: null
       };
     case "MEMORY_RECALL":
-      return state.memoryValue === null ? state : insertValue(state, formatExpressionDisplay(formatNumber(state.memoryValue)));
+      return state.memoryValue === null
+        ? state
+        : insertValue(
+            state,
+            formatExpressionDisplay(formatNumber(state.memoryValue))
+          );
     case "MEMORY_ADD": {
       const value = resolveValueForMemory(state);
 
@@ -345,7 +446,11 @@ export function reduceCalculator(state: CalculatorState, action: CalculatorActio
       };
     }
     case "EVALUATE": {
-      const evaluation = evaluateExpression(state.expression, state.lastResult, state.angleMode);
+      const evaluation = evaluateExpression(
+        state.expression,
+        state.lastResult,
+        state.angleMode
+      );
 
       if (!evaluation.ok) {
         return {

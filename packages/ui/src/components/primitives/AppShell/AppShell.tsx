@@ -7,10 +7,7 @@ import {
 } from "react";
 
 import { cn } from "../../../lib/cn";
-import {
-  AppShellContext,
-  type AppShellRegionMode
-} from "./AppShellContext";
+import { AppShellContext, type AppShellRegionMode } from "./AppShellContext";
 import styles from "./AppShell.module.scss";
 
 const regionModeClasses = {
@@ -105,7 +102,8 @@ export function AppShell({
 
     onAsideOpenChange?.(open);
   };
-  const renderInlineSidebar = !!sidebar && sidebarMode === "inline" && isSidebarOpen;
+  const renderInlineSidebar =
+    !!sidebar && sidebarMode === "inline" && isSidebarOpen;
   const renderInlineAside = !!aside && asideMode === "inline" && isAsideOpen;
   const bodyStyle: AppShellStyle = {
     "--app-shell-sidebar-track": renderInlineSidebar ? sidebarWidth : "0px",
@@ -115,8 +113,10 @@ export function AppShell({
     ...style
   };
   const { className: mainClassName, ...restMainProps } = mainProps ?? {};
-  const { className: mastheadClassName, ...restMastheadProps } = mastheadProps ?? {};
-  const { className: sidebarClassName, ...restSidebarProps } = sidebarProps ?? {};
+  const { className: mastheadClassName, ...restMastheadProps } =
+    mastheadProps ?? {};
+  const { className: sidebarClassName, ...restSidebarProps } =
+    sidebarProps ?? {};
   const { className: asideClassName, ...restAsideProps } = asideProps ?? {};
 
   return (

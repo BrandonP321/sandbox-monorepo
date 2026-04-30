@@ -27,9 +27,8 @@ vi.mock("./health", async () => {
 });
 
 vi.mock("./api/topics", async () => {
-  const actual = await vi.importActual<typeof import("./api/topics")>(
-    "./api/topics"
-  );
+  const actual =
+    await vi.importActual<typeof import("./api/topics")>("./api/topics");
 
   return {
     ...actual,
@@ -242,12 +241,14 @@ describe("App", () => {
       "Review workflow",
       "Export"
     ]) {
-      const section = screen.getByRole("heading", { name: sectionName })
+      const section = screen
+        .getByRole("heading", { name: sectionName })
         .closest("article");
 
       expect(section).not.toBeNull();
-      expect(within(section!).getByText("Shell only. Not functional yet."))
-        .toBeInTheDocument();
+      expect(
+        within(section!).getByText("Shell only. Not functional yet.")
+      ).toBeInTheDocument();
       expect(within(section!).queryByRole("button")).not.toBeInTheDocument();
       expect(within(section!).queryByRole("link")).not.toBeInTheDocument();
     }

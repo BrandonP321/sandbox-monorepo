@@ -12,13 +12,7 @@ import type { DeployedDataApiDatabaseConfig } from "../src/db/config";
 export const DEPLOYED_MIGRATIONS_SCHEMA = "drizzle";
 export const DEPLOYED_MIGRATIONS_TABLE = "__drizzle_migrations";
 export const AURORA_WAKE_RETRY_DELAYS_MS = [
-  2_000,
-  5_000,
-  10_000,
-  15_000,
-  20_000,
-  30_000,
-  30_000
+  2_000, 5_000, 10_000, 15_000, 20_000, 30_000, 30_000
 ] as const;
 
 export type DeployedMigrationLedgerRow = {
@@ -27,10 +21,7 @@ export type DeployedMigrationLedgerRow = {
   readonly createdAt: number;
 };
 
-export type DeployedDbPhase =
-  | "preflight"
-  | "migration"
-  | "verification";
+export type DeployedDbPhase = "preflight" | "migration" | "verification";
 
 type RunnerOptions = {
   readonly log?: (message: string) => void;
@@ -144,10 +135,7 @@ export function formatMigrationLedgerRows(
   }
 
   return rows
-    .map(
-      (row) =>
-        `- id=${row.id} created_at=${row.createdAt} hash=${row.hash}`
-    )
+    .map((row) => `- id=${row.id} created_at=${row.createdAt} hash=${row.hash}`)
     .join("\n");
 }
 
@@ -203,10 +191,7 @@ function wait(delayMs: number): Promise<void> {
   });
 }
 
-function enrichErrorWithPhase(
-  error: unknown,
-  phase: DeployedDbPhase
-): unknown {
+function enrichErrorWithPhase(error: unknown, phase: DeployedDbPhase): unknown {
   if (
     error &&
     typeof error === "object" &&

@@ -7,7 +7,12 @@ export type CalculatorAction =
   | { type: "INSERT_CHAR"; value: string }
   | { type: "DELETE_CHAR"; direction: DeleteDirection }
   | { type: "MOVE_CURSOR"; selectionStart: number; selectionEnd: number }
-  | { type: "SET_EXPRESSION"; expression: string; selectionStart: number; selectionEnd: number }
+  | {
+      type: "SET_EXPRESSION";
+      expression: string;
+      selectionStart: number;
+      selectionEnd: number;
+    }
   | { type: "EVALUATE" }
   | { type: "CLEAR" }
   | { type: "CLEAR_HISTORY" }

@@ -61,7 +61,10 @@ function fromRadians(value: number, angleMode: AngleMode): number {
   return angleMode === "DEG" ? (value * 180) / Math.PI : value;
 }
 
-function normalizeExpression(expression: string, lastResult: number | null): string {
+function normalizeExpression(
+  expression: string,
+  lastResult: number | null
+): string {
   const trimmed = formatExpressionDisplay(expression).trim();
 
   if (!trimmed) {
@@ -86,7 +89,10 @@ function normalizeExpression(expression: string, lastResult: number | null): str
   return trimmed;
 }
 
-function readNumber(expression: string, start: number): { token: Token; nextIndex: number } | null {
+function readNumber(
+  expression: string,
+  start: number
+): { token: Token; nextIndex: number } | null {
   let index = start;
   let seenDecimal = false;
 
@@ -118,13 +124,19 @@ function readNumber(expression: string, start: number): { token: Token; nextInde
   if (expression.slice(index, index + 2) === "EE") {
     let exponentIndex = index + 2;
 
-    if (expression[exponentIndex] === "+" || expression[exponentIndex] === "−") {
+    if (
+      expression[exponentIndex] === "+" ||
+      expression[exponentIndex] === "−"
+    ) {
       exponentIndex += 1;
     }
 
     const exponentStart = exponentIndex;
 
-    while (exponentIndex < expression.length && isDigit(expression[exponentIndex])) {
+    while (
+      exponentIndex < expression.length &&
+      isDigit(expression[exponentIndex])
+    ) {
       exponentIndex += 1;
     }
 
@@ -186,7 +198,9 @@ function tokenize(expression: string): Token[] | null {
       continue;
     }
 
-    const matchedFunction = FUNCTION_TOKENS.find((token) => expression.slice(index).startsWith(token.display));
+    const matchedFunction = FUNCTION_TOKENS.find((token) =>
+      expression.slice(index).startsWith(token.display)
+    );
 
     if (matchedFunction) {
       tokens.push({ type: "function", name: matchedFunction.name });
@@ -224,7 +238,13 @@ function tokenize(expression: string): Token[] | null {
       continue;
     }
 
-    if (character === "+" || character === "−" || character === "×" || character === "÷" || character === "^") {
+    if (
+      character === "+" ||
+      character === "−" ||
+      character === "×" ||
+      character === "÷" ||
+      character === "^"
+    ) {
       tokens.push({
         type: "operator",
         value:
@@ -268,7 +288,11 @@ function factorial(value: number): number {
   return result;
 }
 
-function evaluateFunction(name: FunctionName, value: number, angleMode: AngleMode): number {
+function evaluateFunction(
+  name: FunctionName,
+  value: number,
+  angleMode: AngleMode
+): number {
   switch (name) {
     case "sin":
       return Math.sin(toRadians(value, angleMode));
@@ -358,7 +382,10 @@ export function evaluateExpression(
     while (true) {
       const token = peek();
 
-      if (token?.type !== "operator" || (token.value !== "+" && token.value !== "-")) {
+      if (
+        token?.type !== "operator" ||
+        (token.value !== "+" && token.value !== "-")
+      ) {
         return value;
       }
 
@@ -383,7 +410,10 @@ export function evaluateExpression(
     while (true) {
       const token = peek();
 
-      if (token?.type === "operator" && (token.value === "*" || token.value === "/")) {
+      if (
+        token?.type === "operator" &&
+        (token.value === "*" || token.value === "/")
+      ) {
         consume();
         const right = parsePower();
 
@@ -446,7 +476,10 @@ export function evaluateExpression(
   function parseUnary(): number | null {
     const token = peek();
 
-    if (token?.type === "operator" && (token.value === "+" || token.value === "-")) {
+    if (
+      token?.type === "operator" &&
+      (token.value === "+" || token.value === "-")
+    ) {
       consume();
       const value = parseUnary();
       return value === null ? null : token.value === "-" ? -value : value;
@@ -509,7 +542,9 @@ export function evaluateExpression(
         value = parseUnary();
       }
 
-      return value === null ? null : evaluateFunction(token.name, value, angleMode);
+      return value === null
+        ? null
+        : evaluateFunction(token.name, value, angleMode);
     }
 
     return parsePostfix();
@@ -592,7 +627,9 @@ export function evaluateExpression(
   }
 
   if (!Number.isFinite(value)) {
-    return createError(encounteredDivideByZero ? "Cannot divide by zero." : "Invalid expression.");
+    return createError(
+      encounteredDivideByZero ? "Cannot divide by zero." : "Invalid expression."
+    );
   }
 
   return {

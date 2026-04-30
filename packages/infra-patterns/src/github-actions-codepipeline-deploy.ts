@@ -202,7 +202,8 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
     role: iam.IRole
   ): codebuild.Project {
     const resolvedBuildEnvironment =
-      buildEnvironment ?? ({} satisfies CodePipelineDeployBuildEnvironmentProps);
+      buildEnvironment ??
+      ({} satisfies CodePipelineDeployBuildEnvironmentProps);
     const computeMode = resolvedBuildEnvironment.computeMode ?? "ec2";
     const buildImage =
       computeMode === "lambda"

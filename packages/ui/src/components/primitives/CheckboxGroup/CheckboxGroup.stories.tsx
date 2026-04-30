@@ -88,7 +88,9 @@ export const Toggle: Story = {
     const operatorsCheckbox = checkboxes[1];
 
     if (!(operatorsCheckbox instanceof HTMLInputElement)) {
-      throw new Error("Expected CheckboxGroup story to render checkbox inputs.");
+      throw new Error(
+        "Expected CheckboxGroup story to render checkbox inputs."
+      );
     }
 
     operatorsCheckbox.click();

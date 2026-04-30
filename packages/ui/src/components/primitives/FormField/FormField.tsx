@@ -40,7 +40,11 @@ export function FormField({
 
   return (
     <div className={styles.root} data-invalid={!!error || undefined}>
-      {label ? <label className={styles.label} htmlFor={id}>{label}</label> : null}
+      {label ? (
+        <label className={styles.label} htmlFor={id}>
+          {label}
+        </label>
+      ) : null}
 
       {children}
 

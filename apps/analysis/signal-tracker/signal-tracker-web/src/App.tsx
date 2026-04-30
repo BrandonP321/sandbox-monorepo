@@ -7,7 +7,13 @@ import {
   type Topic
 } from "@repo/signal-tracker-shared";
 
-import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent
+} from "react";
 
 import { SignalTrackerApiError } from "./api/client";
 import { createTopic, getTopic } from "./api/topics";
@@ -159,7 +165,9 @@ export default function App() {
         ) : null}
 
         {route.name === "notFound" ? (
-          <RouteNotFound onNavigateHome={() => navigateTo({ name: "createTopic" })} />
+          <RouteNotFound
+            onNavigateHome={() => navigateTo({ name: "createTopic" })}
+          />
         ) : null}
       </section>
     </main>
@@ -282,7 +290,9 @@ function TopicCreationScreen({
             name="title"
             type="text"
             value={topicForm.title}
-            aria-describedby={fieldErrors.title ? "topic-title-error" : undefined}
+            aria-describedby={
+              fieldErrors.title ? "topic-title-error" : undefined
+            }
             aria-invalid={fieldErrors.title ? true : undefined}
             onChange={(event) => updateField("title", event.target.value)}
           />
@@ -346,7 +356,11 @@ function TopicCreationScreen({
           </select>
         </label>
 
-        <button className="primary-action" type="submit" disabled={isSubmitting}>
+        <button
+          className="primary-action"
+          type="submit"
+          disabled={isSubmitting}
+        >
           {isSubmitting ? "Creating topic..." : "Create topic"}
         </button>
 
@@ -434,9 +448,7 @@ function TopicDetailScreen({
         <DbWakeUpStatus state={topicState} onRetry={() => void loadTopic()} />
       )}
 
-      {isNotFound ? (
-        <TopicNotFound topicId={topicId} />
-      ) : null}
+      {isNotFound ? <TopicNotFound topicId={topicId} /> : null}
 
       {topicState.status === "success" ? (
         <TopicDossierShell topic={topicState.data.topic} />
@@ -462,14 +474,23 @@ function TopicDossierShell({ topic }: { topic: Topic }) {
           label="Review cadence"
           value={formatReviewCadence(topic.reviewCadence)}
         />
-        <MetadataItem label="Created" value={formatTopicDate(topic.createdAt)} />
-        <MetadataItem label="Updated" value={formatTopicDate(topic.updatedAt)} />
+        <MetadataItem
+          label="Created"
+          value={formatTopicDate(topic.createdAt)}
+        />
+        <MetadataItem
+          label="Updated"
+          value={formatTopicDate(topic.updatedAt)}
+        />
         {topic.scopeNote ? (
           <MetadataItem label="Scope note" value={topic.scopeNote} />
         ) : null}
       </dl>
 
-      <section className="dossier-empty-sections" aria-label="Future R1 sections">
+      <section
+        className="dossier-empty-sections"
+        aria-label="Future R1 sections"
+      >
         {dossierSections.map((section) => (
           <article className="dossier-empty-section" key={section.title}>
             <p className="eyebrow">Future R1 area</p>

@@ -1,4 +1,11 @@
-import { Fragment, useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
+import {
+  Fragment,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState
+} from "react";
 import type {
   ChangeEvent,
   ClipboardEvent,
@@ -36,7 +43,10 @@ type ExpressionEdit = {
 
 type SelectionContext = ExpressionEdit;
 
-function getButtonClassName(variant: ButtonVariant, isActive = false): string[] {
+function getButtonClassName(
+  variant: ButtonVariant,
+  isActive = false
+): string[] {
   const classNames = [styles.key];
 
   if (variant === "operator") {
@@ -54,7 +64,10 @@ function getButtonClassName(variant: ButtonVariant, isActive = false): string[] 
   return classNames;
 }
 
-function getDisplayValue(errorMessage: string | null, result: number | null): string {
+function getDisplayValue(
+  errorMessage: string | null,
+  result: number | null
+): string {
   if (errorMessage) {
     return errorMessage;
   }
@@ -73,14 +86,22 @@ function needsGrouping(expression: string): boolean {
     return false;
   }
 
-  if ((trimmed.startsWith("(") && trimmed.endsWith(")")) || (trimmed.startsWith("|") && trimmed.endsWith("|"))) {
+  if (
+    (trimmed.startsWith("(") && trimmed.endsWith(")")) ||
+    (trimmed.startsWith("|") && trimmed.endsWith("|"))
+  ) {
     return false;
   }
 
   return /[+\-−×÷^,\s]/.test(trimmed);
 }
 
-function readBalancedSegment(expression: string, start: number, openCharacter: string, closeCharacter: string): number {
+function readBalancedSegment(
+  expression: string,
+  start: number,
+  openCharacter: string,
+  closeCharacter: string
+): number {
   let depth = 0;
 
   for (let index = start; index < expression.length; index += 1) {
@@ -148,12 +169,18 @@ function renderExpressionMarkup(expression: string) {
     const exponentIndex = expression.indexOf("^", cursor);
 
     if (exponentIndex === -1) {
-      nodes.push(<Fragment key={`text-${key}`}>{expression.slice(cursor)}</Fragment>);
+      nodes.push(
+        <Fragment key={`text-${key}`}>{expression.slice(cursor)}</Fragment>
+      );
       break;
     }
 
     if (exponentIndex > cursor) {
-      nodes.push(<Fragment key={`text-${key}`}>{expression.slice(cursor, exponentIndex)}</Fragment>);
+      nodes.push(
+        <Fragment key={`text-${key}`}>
+          {expression.slice(cursor, exponentIndex)}
+        </Fragment>
+      );
       key += 1;
     }
 
@@ -190,7 +217,11 @@ async function writeClipboardText(value: string): Promise<void> {
 }
 
 export default function App() {
-  const [state, dispatch] = useReducer(reduceCalculator, undefined, getInitialCalculatorState);
+  const [state, dispatch] = useReducer(
+    reduceCalculator,
+    undefined,
+    getInitialCalculatorState
+  );
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isScientificVisible, setIsScientificVisible] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -198,7 +229,10 @@ export default function App() {
   const copyValue = getCopyValue(state);
   const hasDisplayResult = state.result !== null || state.errorMessage !== null;
   const inputValue = hasDisplayResult ? "" : state.expression;
-  const memoryBadge = state.memoryValue !== null ? `M ${formatNumber(state.memoryValue)}` : "M off";
+  const memoryBadge =
+    state.memoryValue !== null
+      ? `M ${formatNumber(state.memoryValue)}`
+      : "M off";
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -233,12 +267,20 @@ export default function App() {
     const targetSelectionStart = hasDisplayResult ? 0 : state.selectionStart;
     const targetSelectionEnd = hasDisplayResult ? 0 : state.selectionEnd;
 
-    if (input.selectionStart === targetSelectionStart && input.selectionEnd === targetSelectionEnd) {
+    if (
+      input.selectionStart === targetSelectionStart &&
+      input.selectionEnd === targetSelectionEnd
+    ) {
       return;
     }
 
     input.setSelectionRange(targetSelectionStart, targetSelectionEnd);
-  }, [hasDisplayResult, state.expression, state.selectionStart, state.selectionEnd]);
+  }, [
+    hasDisplayResult,
+    state.expression,
+    state.selectionStart,
+    state.selectionEnd
+  ]);
 
   function refocusInput() {
     inputRef.current?.focus();
@@ -254,7 +296,9 @@ export default function App() {
 
   function getSelectionContext(mode: "selection" | "cursor"): SelectionContext {
     if (hasDisplayResult && state.lastResult !== null) {
-      const expression = formatExpressionDisplay(formatNumber(state.lastResult));
+      const expression = formatExpressionDisplay(
+        formatNumber(state.lastResult)
+      );
 
       return mode === "selection"
         ? {
@@ -291,9 +335,16 @@ export default function App() {
     refocusInput();
   }
 
-  function insertSnippet(text: string, cursorOffset = text.length, mode: "selection" | "cursor" = "cursor") {
+  function insertSnippet(
+    text: string,
+    cursorOffset = text.length,
+    mode: "selection" | "cursor" = "cursor"
+  ) {
     const context = getSelectionContext(mode);
-    const selectionStart = Math.min(context.selectionStart, context.selectionEnd);
+    const selectionStart = Math.min(
+      context.selectionStart,
+      context.selectionEnd
+    );
     const selectionEnd = Math.max(context.selectionStart, context.selectionEnd);
     const expression = `${context.expression.slice(0, selectionStart)}${text}${context.expression.slice(selectionEnd)}`;
     const cursor = selectionStart + cursorOffset;
@@ -307,12 +358,17 @@ export default function App() {
 
   function wrapSelection(prefix: string, suffix: string, placeholder = "") {
     const context = getSelectionContext("selection");
-    const selectionStart = Math.min(context.selectionStart, context.selectionEnd);
+    const selectionStart = Math.min(
+      context.selectionStart,
+      context.selectionEnd
+    );
     const selectionEnd = Math.max(context.selectionStart, context.selectionEnd);
     const selectedText = context.expression.slice(selectionStart, selectionEnd);
     const content = selectedText || placeholder;
     const expression = `${context.expression.slice(0, selectionStart)}${prefix}${content}${suffix}${context.expression.slice(selectionEnd)}`;
-    const cursor = selectedText ? selectionStart + prefix.length + content.length + suffix.length : selectionStart + prefix.length;
+    const cursor = selectedText
+      ? selectionStart + prefix.length + content.length + suffix.length
+      : selectionStart + prefix.length;
 
     commitExpressionEdit({
       expression,
@@ -323,12 +379,17 @@ export default function App() {
 
   function applyPostfix(postfix: string) {
     const context = getSelectionContext("selection");
-    const selectionStart = Math.min(context.selectionStart, context.selectionEnd);
+    const selectionStart = Math.min(
+      context.selectionStart,
+      context.selectionEnd
+    );
     const selectionEnd = Math.max(context.selectionStart, context.selectionEnd);
     const selectedText = context.expression.slice(selectionStart, selectionEnd);
 
     if (selectedText) {
-      const groupedSelection = needsGrouping(selectedText) ? `(${selectedText})` : selectedText;
+      const groupedSelection = needsGrouping(selectedText)
+        ? `(${selectedText})`
+        : selectedText;
       const expression = `${context.expression.slice(0, selectionStart)}${groupedSelection}${postfix}${context.expression.slice(selectionEnd)}`;
       const cursor = selectionStart + groupedSelection.length + postfix.length;
 
@@ -345,7 +406,10 @@ export default function App() {
 
   function insertNthRoot() {
     const context = getSelectionContext("selection");
-    const selectionStart = Math.min(context.selectionStart, context.selectionEnd);
+    const selectionStart = Math.min(
+      context.selectionStart,
+      context.selectionEnd
+    );
     const selectionEnd = Math.max(context.selectionStart, context.selectionEnd);
     const selectedText = context.expression.slice(selectionStart, selectionEnd);
     const radicand = selectedText ? `,${selectedText}` : ",";
@@ -362,7 +426,9 @@ export default function App() {
 
   function applyEditAction(action: CalculatorAction) {
     if (hasDisplayResult && state.lastResult !== null) {
-      const expression = formatExpressionDisplay(formatNumber(state.lastResult));
+      const expression = formatExpressionDisplay(
+        formatNumber(state.lastResult)
+      );
 
       dispatch({
         type: "SET_EXPRESSION",
@@ -386,7 +452,11 @@ export default function App() {
       return;
     }
 
-    if (action.type === "TOGGLE_SIGN" || action.type === "APPLY_PERCENT" || action.type === "DELETE_CHAR") {
+    if (
+      action.type === "TOGGLE_SIGN" ||
+      action.type === "APPLY_PERCENT" ||
+      action.type === "DELETE_CHAR"
+    ) {
       applyEditAction(action);
       return;
     }
@@ -403,7 +473,10 @@ export default function App() {
     const { key, ctrlKey, metaKey, altKey, currentTarget } = event;
 
     if ((metaKey || ctrlKey) && key.toLowerCase() === "c") {
-      if (currentTarget.selectionStart !== currentTarget.selectionEnd || !copyValue) {
+      if (
+        currentTarget.selectionStart !== currentTarget.selectionEnd ||
+        !copyValue
+      ) {
         return;
       }
 
@@ -445,8 +518,10 @@ export default function App() {
     dispatch({
       type: "SET_EXPRESSION",
       expression: event.currentTarget.value,
-      selectionStart: event.currentTarget.selectionStart ?? event.currentTarget.value.length,
-      selectionEnd: event.currentTarget.selectionEnd ?? event.currentTarget.value.length
+      selectionStart:
+        event.currentTarget.selectionStart ?? event.currentTarget.value.length,
+      selectionEnd:
+        event.currentTarget.selectionEnd ?? event.currentTarget.value.length
     });
   }
 
@@ -464,7 +539,8 @@ export default function App() {
   }
 
   function handleCopy(event: ClipboardEvent<HTMLInputElement>) {
-    const hasSelection = event.currentTarget.selectionStart !== event.currentTarget.selectionEnd;
+    const hasSelection =
+      event.currentTarget.selectionStart !== event.currentTarget.selectionEnd;
 
     if (hasSelection || !copyValue) {
       return;
@@ -490,33 +566,168 @@ export default function App() {
   }
 
   const scientificButtons: ButtonConfig[] = [
-    { label: "sin", ariaLabel: "insert sine", variant: "utility", onClick: () => wrapSelection("sin(", ")") },
-    { label: "cos", ariaLabel: "insert cosine", variant: "utility", onClick: () => wrapSelection("cos(", ")") },
-    { label: "tan", ariaLabel: "insert tangent", variant: "utility", onClick: () => wrapSelection("tan(", ")") },
-    { label: "sin⁻¹", ariaLabel: "insert inverse sine", variant: "utility", onClick: () => wrapSelection("sin⁻¹(", ")") },
-    { label: "cos⁻¹", ariaLabel: "insert inverse cosine", variant: "utility", onClick: () => wrapSelection("cos⁻¹(", ")") },
-    { label: "tan⁻¹", ariaLabel: "insert inverse tangent", variant: "utility", onClick: () => wrapSelection("tan⁻¹(", ")") },
-    { label: "sinh", ariaLabel: "insert hyperbolic sine", variant: "utility", onClick: () => wrapSelection("sinh(", ")") },
-    { label: "cosh", ariaLabel: "insert hyperbolic cosine", variant: "utility", onClick: () => wrapSelection("cosh(", ")") },
-    { label: "tanh", ariaLabel: "insert hyperbolic tangent", variant: "utility", onClick: () => wrapSelection("tanh(", ")") },
-    { label: "ln", ariaLabel: "insert natural logarithm", variant: "utility", onClick: () => wrapSelection("ln(", ")") },
-    { label: "log", ariaLabel: "insert base 10 logarithm", variant: "utility", onClick: () => wrapSelection("log(", ")") },
-    { label: "EE", ariaLabel: "insert exponent notation", variant: "utility", onClick: () => handleInsertAction("EE") },
-    { label: "e^x", ariaLabel: "raise e to a power", variant: "utility", onClick: () => wrapSelection("e^(", ")") },
-    { label: "10^x", ariaLabel: "raise ten to a power", variant: "utility", onClick: () => wrapSelection("10^(", ")") },
-    { label: "x^y", ariaLabel: "insert exponent operator", variant: "utility", onClick: () => insertSnippet("^") },
-    { label: "x²", ariaLabel: "square selection", variant: "utility", onClick: () => applyPostfix("^2") },
-    { label: "x³", ariaLabel: "cube selection", variant: "utility", onClick: () => applyPostfix("^3") },
-    { label: "x!", ariaLabel: "apply factorial", variant: "utility", onClick: () => applyPostfix("!") },
-    { label: "√", ariaLabel: "insert square root", variant: "utility", onClick: () => wrapSelection("√(", ")") },
-    { label: "∛", ariaLabel: "insert cube root", variant: "utility", onClick: () => wrapSelection("∛(", ")") },
-    { label: "ⁿ√x", ariaLabel: "insert nth root", variant: "utility", onClick: () => insertNthRoot() },
-    { label: "1/x", ariaLabel: "insert reciprocal", variant: "utility", onClick: () => wrapSelection("1÷(", ")") },
-    { label: "|x|", ariaLabel: "insert absolute value", variant: "utility", onClick: () => wrapSelection("|", "|") },
-    { label: "π", ariaLabel: "insert pi", variant: "utility", onClick: () => handleInsertAction("π") },
-    { label: "e", ariaLabel: "insert e", variant: "utility", onClick: () => handleInsertAction("e") },
-    { label: "(", ariaLabel: "insert open parenthesis", variant: "utility", onClick: () => handleInsertAction("(") },
-    { label: ")", ariaLabel: "insert close parenthesis", variant: "utility", onClick: () => handleInsertAction(")") },
+    {
+      label: "sin",
+      ariaLabel: "insert sine",
+      variant: "utility",
+      onClick: () => wrapSelection("sin(", ")")
+    },
+    {
+      label: "cos",
+      ariaLabel: "insert cosine",
+      variant: "utility",
+      onClick: () => wrapSelection("cos(", ")")
+    },
+    {
+      label: "tan",
+      ariaLabel: "insert tangent",
+      variant: "utility",
+      onClick: () => wrapSelection("tan(", ")")
+    },
+    {
+      label: "sin⁻¹",
+      ariaLabel: "insert inverse sine",
+      variant: "utility",
+      onClick: () => wrapSelection("sin⁻¹(", ")")
+    },
+    {
+      label: "cos⁻¹",
+      ariaLabel: "insert inverse cosine",
+      variant: "utility",
+      onClick: () => wrapSelection("cos⁻¹(", ")")
+    },
+    {
+      label: "tan⁻¹",
+      ariaLabel: "insert inverse tangent",
+      variant: "utility",
+      onClick: () => wrapSelection("tan⁻¹(", ")")
+    },
+    {
+      label: "sinh",
+      ariaLabel: "insert hyperbolic sine",
+      variant: "utility",
+      onClick: () => wrapSelection("sinh(", ")")
+    },
+    {
+      label: "cosh",
+      ariaLabel: "insert hyperbolic cosine",
+      variant: "utility",
+      onClick: () => wrapSelection("cosh(", ")")
+    },
+    {
+      label: "tanh",
+      ariaLabel: "insert hyperbolic tangent",
+      variant: "utility",
+      onClick: () => wrapSelection("tanh(", ")")
+    },
+    {
+      label: "ln",
+      ariaLabel: "insert natural logarithm",
+      variant: "utility",
+      onClick: () => wrapSelection("ln(", ")")
+    },
+    {
+      label: "log",
+      ariaLabel: "insert base 10 logarithm",
+      variant: "utility",
+      onClick: () => wrapSelection("log(", ")")
+    },
+    {
+      label: "EE",
+      ariaLabel: "insert exponent notation",
+      variant: "utility",
+      onClick: () => handleInsertAction("EE")
+    },
+    {
+      label: "e^x",
+      ariaLabel: "raise e to a power",
+      variant: "utility",
+      onClick: () => wrapSelection("e^(", ")")
+    },
+    {
+      label: "10^x",
+      ariaLabel: "raise ten to a power",
+      variant: "utility",
+      onClick: () => wrapSelection("10^(", ")")
+    },
+    {
+      label: "x^y",
+      ariaLabel: "insert exponent operator",
+      variant: "utility",
+      onClick: () => insertSnippet("^")
+    },
+    {
+      label: "x²",
+      ariaLabel: "square selection",
+      variant: "utility",
+      onClick: () => applyPostfix("^2")
+    },
+    {
+      label: "x³",
+      ariaLabel: "cube selection",
+      variant: "utility",
+      onClick: () => applyPostfix("^3")
+    },
+    {
+      label: "x!",
+      ariaLabel: "apply factorial",
+      variant: "utility",
+      onClick: () => applyPostfix("!")
+    },
+    {
+      label: "√",
+      ariaLabel: "insert square root",
+      variant: "utility",
+      onClick: () => wrapSelection("√(", ")")
+    },
+    {
+      label: "∛",
+      ariaLabel: "insert cube root",
+      variant: "utility",
+      onClick: () => wrapSelection("∛(", ")")
+    },
+    {
+      label: "ⁿ√x",
+      ariaLabel: "insert nth root",
+      variant: "utility",
+      onClick: () => insertNthRoot()
+    },
+    {
+      label: "1/x",
+      ariaLabel: "insert reciprocal",
+      variant: "utility",
+      onClick: () => wrapSelection("1÷(", ")")
+    },
+    {
+      label: "|x|",
+      ariaLabel: "insert absolute value",
+      variant: "utility",
+      onClick: () => wrapSelection("|", "|")
+    },
+    {
+      label: "π",
+      ariaLabel: "insert pi",
+      variant: "utility",
+      onClick: () => handleInsertAction("π")
+    },
+    {
+      label: "e",
+      ariaLabel: "insert e",
+      variant: "utility",
+      onClick: () => handleInsertAction("e")
+    },
+    {
+      label: "(",
+      ariaLabel: "insert open parenthesis",
+      variant: "utility",
+      onClick: () => handleInsertAction("(")
+    },
+    {
+      label: ")",
+      ariaLabel: "insert close parenthesis",
+      variant: "utility",
+      onClick: () => handleInsertAction(")")
+    },
     {
       label: "DEG",
       ariaLabel: "set angle mode to degrees",
@@ -531,37 +742,178 @@ export default function App() {
       isActive: state.angleMode === "RAD",
       onClick: () => handleAction({ type: "SET_ANGLE_MODE", value: "RAD" })
     },
-    { label: "MC", ariaLabel: "clear memory", variant: "mode", onClick: () => handleAction({ type: "MEMORY_CLEAR" }) },
-    { label: "MR", ariaLabel: "recall memory", variant: "mode", onClick: () => handleAction({ type: "MEMORY_RECALL" }) },
-    { label: "M+", ariaLabel: "add displayed value to memory", variant: "mode", onClick: () => handleAction({ type: "MEMORY_ADD" }) },
-    { label: "M-", ariaLabel: "subtract displayed value from memory", variant: "mode", onClick: () => handleAction({ type: "MEMORY_SUBTRACT" }) }
+    {
+      label: "MC",
+      ariaLabel: "clear memory",
+      variant: "mode",
+      onClick: () => handleAction({ type: "MEMORY_CLEAR" })
+    },
+    {
+      label: "MR",
+      ariaLabel: "recall memory",
+      variant: "mode",
+      onClick: () => handleAction({ type: "MEMORY_RECALL" })
+    },
+    {
+      label: "M+",
+      ariaLabel: "add displayed value to memory",
+      variant: "mode",
+      onClick: () => handleAction({ type: "MEMORY_ADD" })
+    },
+    {
+      label: "M-",
+      ariaLabel: "subtract displayed value from memory",
+      variant: "mode",
+      onClick: () => handleAction({ type: "MEMORY_SUBTRACT" })
+    }
   ];
 
   const basicButtons: ButtonConfig[] = [
-    { label: "AC", ariaLabel: "all clear", variant: "utility", onClick: () => handleAction({ type: "ALL_CLEAR" }) },
-    { label: "CE", ariaLabel: "clear expression", variant: "utility", onClick: () => handleAction({ type: "CLEAR" }) },
-    { label: "%", ariaLabel: "apply percent", variant: "utility", onClick: () => handleAction({ type: "APPLY_PERCENT" }) },
-    { label: "⌫", ariaLabel: "backspace", variant: "utility", onClick: () => handleAction({ type: "DELETE_CHAR", direction: "backward" }) },
-    { label: "ANS", ariaLabel: "insert ANS", variant: "utility", onClick: () => handleAction({ type: "INSERT_CHAR", value: "ANS" }) },
-    { label: "(", ariaLabel: "insert open parenthesis", variant: "utility", onClick: () => handleAction({ type: "INSERT_CHAR", value: "(" }) },
-    { label: ")", ariaLabel: "insert close parenthesis", variant: "utility", onClick: () => handleAction({ type: "INSERT_CHAR", value: ")" }) },
-    { label: "÷", ariaLabel: "insert ÷", variant: "operator", onClick: () => handleAction({ type: "INSERT_CHAR", value: "÷" }) },
-    { label: "7", ariaLabel: "insert 7", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "7" }) },
-    { label: "8", ariaLabel: "insert 8", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "8" }) },
-    { label: "9", ariaLabel: "insert 9", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "9" }) },
-    { label: "×", ariaLabel: "insert ×", variant: "operator", onClick: () => handleAction({ type: "INSERT_CHAR", value: "×" }) },
-    { label: "4", ariaLabel: "insert 4", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "4" }) },
-    { label: "5", ariaLabel: "insert 5", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "5" }) },
-    { label: "6", ariaLabel: "insert 6", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "6" }) },
-    { label: "−", ariaLabel: "insert −", variant: "operator", onClick: () => handleAction({ type: "INSERT_CHAR", value: "−" }) },
-    { label: "1", ariaLabel: "insert 1", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "1" }) },
-    { label: "2", ariaLabel: "insert 2", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "2" }) },
-    { label: "3", ariaLabel: "insert 3", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "3" }) },
-    { label: "+", ariaLabel: "insert +", variant: "operator", onClick: () => handleAction({ type: "INSERT_CHAR", value: "+" }) },
-    { label: "+/-", ariaLabel: "toggle sign", variant: "utility", onClick: () => handleAction({ type: "TOGGLE_SIGN" }) },
-    { label: "0", ariaLabel: "insert 0", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "0" }) },
-    { label: ".", ariaLabel: "insert decimal point", variant: "default", onClick: () => handleAction({ type: "INSERT_CHAR", value: "." }) },
-    { label: "=", ariaLabel: "evaluate expression", variant: "operator", onClick: () => handleAction({ type: "EVALUATE" }) }
+    {
+      label: "AC",
+      ariaLabel: "all clear",
+      variant: "utility",
+      onClick: () => handleAction({ type: "ALL_CLEAR" })
+    },
+    {
+      label: "CE",
+      ariaLabel: "clear expression",
+      variant: "utility",
+      onClick: () => handleAction({ type: "CLEAR" })
+    },
+    {
+      label: "%",
+      ariaLabel: "apply percent",
+      variant: "utility",
+      onClick: () => handleAction({ type: "APPLY_PERCENT" })
+    },
+    {
+      label: "⌫",
+      ariaLabel: "backspace",
+      variant: "utility",
+      onClick: () =>
+        handleAction({ type: "DELETE_CHAR", direction: "backward" })
+    },
+    {
+      label: "ANS",
+      ariaLabel: "insert ANS",
+      variant: "utility",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "ANS" })
+    },
+    {
+      label: "(",
+      ariaLabel: "insert open parenthesis",
+      variant: "utility",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "(" })
+    },
+    {
+      label: ")",
+      ariaLabel: "insert close parenthesis",
+      variant: "utility",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: ")" })
+    },
+    {
+      label: "÷",
+      ariaLabel: "insert ÷",
+      variant: "operator",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "÷" })
+    },
+    {
+      label: "7",
+      ariaLabel: "insert 7",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "7" })
+    },
+    {
+      label: "8",
+      ariaLabel: "insert 8",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "8" })
+    },
+    {
+      label: "9",
+      ariaLabel: "insert 9",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "9" })
+    },
+    {
+      label: "×",
+      ariaLabel: "insert ×",
+      variant: "operator",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "×" })
+    },
+    {
+      label: "4",
+      ariaLabel: "insert 4",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "4" })
+    },
+    {
+      label: "5",
+      ariaLabel: "insert 5",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "5" })
+    },
+    {
+      label: "6",
+      ariaLabel: "insert 6",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "6" })
+    },
+    {
+      label: "−",
+      ariaLabel: "insert −",
+      variant: "operator",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "−" })
+    },
+    {
+      label: "1",
+      ariaLabel: "insert 1",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "1" })
+    },
+    {
+      label: "2",
+      ariaLabel: "insert 2",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "2" })
+    },
+    {
+      label: "3",
+      ariaLabel: "insert 3",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "3" })
+    },
+    {
+      label: "+",
+      ariaLabel: "insert +",
+      variant: "operator",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "+" })
+    },
+    {
+      label: "+/-",
+      ariaLabel: "toggle sign",
+      variant: "utility",
+      onClick: () => handleAction({ type: "TOGGLE_SIGN" })
+    },
+    {
+      label: "0",
+      ariaLabel: "insert 0",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "0" })
+    },
+    {
+      label: ".",
+      ariaLabel: "insert decimal point",
+      variant: "default",
+      onClick: () => handleAction({ type: "INSERT_CHAR", value: "." })
+    },
+    {
+      label: "=",
+      ariaLabel: "evaluate expression",
+      variant: "operator",
+      onClick: () => handleAction({ type: "EVALUATE" })
+    }
   ];
 
   return (
@@ -604,7 +956,11 @@ export default function App() {
               className={styles.scienceSwitch}
               role="switch"
               aria-checked={isScientificVisible}
-              aria-label={isScientificVisible ? "hide scientific buttons" : "show scientific buttons"}
+              aria-label={
+                isScientificVisible
+                  ? "hide scientific buttons"
+                  : "show scientific buttons"
+              }
               onMouseDown={handleMouseDown}
               onClick={() => {
                 setIsScientificVisible((currentValue) => !currentValue);
@@ -645,11 +1001,20 @@ export default function App() {
 
             {hasDisplayResult ? (
               <div className={styles.displayOverlay} aria-live="polite">
-                <span className={styles.calculationPreview} data-testid="calculation-preview">
-                  {state.expression ? renderExpressionMarkup(state.expression) : "0"}
+                <span
+                  className={styles.calculationPreview}
+                  data-testid="calculation-preview"
+                >
+                  {state.expression
+                    ? renderExpressionMarkup(state.expression)
+                    : "0"}
                 </span>
                 <output
-                  className={state.errorMessage ? styles.displayError : styles.displayResult}
+                  className={
+                    state.errorMessage
+                      ? styles.displayError
+                      : styles.displayResult
+                  }
                   data-testid="result-value"
                 >
                   {displayValue}
@@ -658,10 +1023,16 @@ export default function App() {
             ) : (
               <div className={styles.editingOverlay} aria-hidden="true">
                 <span
-                  className={state.expression ? styles.expressionValue : styles.expressionPlaceholder}
+                  className={
+                    state.expression
+                      ? styles.expressionValue
+                      : styles.expressionPlaceholder
+                  }
                   data-testid="expression-overlay"
                 >
-                  {state.expression ? renderExpressionMarkup(state.expression) : "0"}
+                  {state.expression
+                    ? renderExpressionMarkup(state.expression)
+                    : "0"}
                 </span>
               </div>
             )}
@@ -669,13 +1040,19 @@ export default function App() {
         </header>
 
         {isScientificVisible ? (
-          <section className={styles.scientificSection} aria-label="Scientific buttons">
+          <section
+            className={styles.scientificSection}
+            aria-label="Scientific buttons"
+          >
             <div className={styles.scientificKeypad}>
               {scientificButtons.map((button) => (
                 <button
                   type="button"
                   key={button.ariaLabel}
-                  className={getButtonClassName(button.variant, button.isActive).join(" ")}
+                  className={getButtonClassName(
+                    button.variant,
+                    button.isActive
+                  ).join(" ")}
                   aria-label={button.ariaLabel}
                   aria-pressed={button.isActive}
                   onMouseDown={handleMouseDown}
@@ -705,7 +1082,11 @@ export default function App() {
       </section>
 
       {isHistoryOpen ? (
-        <div className={styles.historyOverlay} role="presentation" onClick={() => setIsHistoryOpen(false)}>
+        <div
+          className={styles.historyOverlay}
+          role="presentation"
+          onClick={() => setIsHistoryOpen(false)}
+        >
           <section
             className={styles.historyDialog}
             role="dialog"
@@ -752,8 +1133,12 @@ export default function App() {
                     onMouseDown={handleMouseDown}
                     onClick={() => handleHistoryClick(entry)}
                   >
-                    <span className={styles.historyExpression}>{renderExpressionMarkup(entry.expression)}</span>
-                    <span className={styles.historyResult}>{formatNumber(entry.result)}</span>
+                    <span className={styles.historyExpression}>
+                      {renderExpressionMarkup(entry.expression)}
+                    </span>
+                    <span className={styles.historyResult}>
+                      {formatNumber(entry.result)}
+                    </span>
                   </button>
                 ))
               )}

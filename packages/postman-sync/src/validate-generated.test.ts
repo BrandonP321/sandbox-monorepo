@@ -7,10 +7,7 @@ import { z } from "zod";
 
 import { generateArtifacts, writeGeneratedArtifacts } from "./generate.js";
 import { validateGeneratedArtifacts } from "./validate-generated.js";
-import type {
-  LoadedPostmanProject,
-  LoadedPostmanRequest
-} from "./types.js";
+import type { LoadedPostmanProject, LoadedPostmanRequest } from "./types.js";
 
 function createProject(projectRoot: string): LoadedPostmanProject {
   return {

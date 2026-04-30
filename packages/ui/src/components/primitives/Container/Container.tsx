@@ -17,7 +17,10 @@ export type ContainerMedia = {
   height?: string | number;
 };
 
-export type ContainerProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
+export type ContainerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "children"
+> & {
   children?: ReactNode;
   disableContentPaddings?: boolean;
   disableHeaderPaddings?: boolean;
@@ -49,8 +52,10 @@ export function Container({
   const mediaPosition = media?.position ?? "top";
   const mediaStyle: CSSProperties | undefined = media
     ? {
-        inlineSize: mediaPosition === "side" ? toCssSize(media.width) : undefined,
-        minBlockSize: mediaPosition === "top" ? toCssSize(media.height) : undefined
+        inlineSize:
+          mediaPosition === "side" ? toCssSize(media.width) : undefined,
+        minBlockSize:
+          mediaPosition === "top" ? toCssSize(media.height) : undefined
       }
     : undefined;
 
@@ -60,10 +65,7 @@ export function Container({
       }
     : undefined;
 
-  const {
-    style,
-    ...restProps
-  } = props;
+  const { style, ...restProps } = props;
   const rootStyle: CSSProperties = {
     ...style
   };

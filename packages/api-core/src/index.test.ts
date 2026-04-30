@@ -50,16 +50,17 @@ describe("createRouter", () => {
   });
 
   it("maps route path from filename", () => {
-    const route = createPostRoute("get-health.ts", () => responses.ok({ ok: true }));
+    const route = createPostRoute("get-health.ts", () =>
+      responses.ok({ ok: true })
+    );
 
     expect(route.path).toBe("/get-health");
     expect(route.method).toBe("POST");
   });
 
   it("creates a route from a shared route spec", () => {
-    const route = createRoute(
-      { method: "POST", path: "/get-health" },
-      () => responses.ok({ ok: true })
+    const route = createRoute({ method: "POST", path: "/get-health" }, () =>
+      responses.ok({ ok: true })
     );
 
     expect(route.path).toBe("/get-health");
@@ -115,34 +116,36 @@ function closeServer(server: ReturnType<typeof startLocalDevServer>) {
 }
 
 function post(options: { body: string; path: string; port: number }) {
-  return new Promise<{ body: string; statusCode: number }>((resolve, reject) => {
-    const request = httpRequest(
-      {
-        headers: {
-          "content-type": "application/json",
-          "content-length": Buffer.byteLength(options.body)
+  return new Promise<{ body: string; statusCode: number }>(
+    (resolve, reject) => {
+      const request = httpRequest(
+        {
+          headers: {
+            "content-type": "application/json",
+            "content-length": Buffer.byteLength(options.body)
+          },
+          hostname: "127.0.0.1",
+          method: "POST",
+          path: options.path,
+          port: options.port
         },
-        hostname: "127.0.0.1",
-        method: "POST",
-        path: options.path,
-        port: options.port
-      },
-      (response) => {
-        const chunks: Buffer[] = [];
+        (response) => {
+          const chunks: Buffer[] = [];
 
-        response.on("data", (chunk: Buffer | string) => {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-        });
-        response.on("end", () => {
-          resolve({
-            body: Buffer.concat(chunks).toString("utf8"),
-            statusCode: response.statusCode ?? 0
+          response.on("data", (chunk: Buffer | string) => {
+            chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
           });
-        });
-      }
-    );
+          response.on("end", () => {
+            resolve({
+              body: Buffer.concat(chunks).toString("utf8"),
+              statusCode: response.statusCode ?? 0
+            });
+          });
+        }
+      );
 
-    request.on("error", reject);
-    request.end(options.body);
-  });
+      request.on("error", reject);
+      request.end(options.body);
+    }
+  );
 }

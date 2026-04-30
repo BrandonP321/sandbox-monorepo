@@ -94,13 +94,7 @@ describe("deployed DB runner helpers", () => {
 
   it("uses the documented Aurora wake retry schedule", () => {
     expect(AURORA_WAKE_RETRY_DELAYS_MS).toEqual([
-      2_000,
-      5_000,
-      10_000,
-      15_000,
-      20_000,
-      30_000,
-      30_000
+      2_000, 5_000, 10_000, 15_000, 20_000, 30_000, 30_000
     ]);
   });
 

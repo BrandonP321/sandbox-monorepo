@@ -9,8 +9,8 @@ import { type FormFieldName, useFormField } from "../../form/useFormField";
 
 export type FormDropdownControlRenderProps<TValue = string> =
   FormControlRenderPropsBase<HTMLSelectElement> & {
-  onValueChange: (value: TValue | undefined) => void;
-  value: TValue | undefined;
+    onValueChange: (value: TValue | undefined) => void;
+    value: TValue | undefined;
   };
 
 export type FormDropdownControlProps<

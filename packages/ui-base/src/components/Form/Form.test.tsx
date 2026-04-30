@@ -13,11 +13,11 @@ type ExampleFormValues = z.infer<typeof exampleSchema>;
 
 function TestHarness({ noValidate }: { noValidate?: boolean }) {
   return (
-    <FormProvider
-      defaultValues={{ company: "OpenAI" }}
-      schema={exampleSchema}
-    >
-      <Form<ExampleFormValues> noValidate={noValidate} onSubmit={async () => undefined}>
+    <FormProvider defaultValues={{ company: "OpenAI" }} schema={exampleSchema}>
+      <Form<ExampleFormValues>
+        noValidate={noValidate}
+        onSubmit={async () => undefined}
+      >
         <input name="company" />
       </Form>
     </FormProvider>

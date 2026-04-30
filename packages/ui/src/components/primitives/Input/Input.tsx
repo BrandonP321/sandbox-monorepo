@@ -1,18 +1,10 @@
 import { forwardRef, type ReactNode, useId } from "react";
-import type {
-  ChangeEventHandler,
-  FocusEventHandler
-} from "react";
+import type { ChangeEventHandler, FocusEventHandler } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { InputView } from "./InputView";
 
-export type InputType =
-  | "email"
-  | "password"
-  | "search"
-  | "text"
-  | "url";
+export type InputType = "email" | "password" | "search" | "text" | "url";
 
 export type InputViewProps = {
   ariaLabel?: string;

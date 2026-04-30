@@ -1,4 +1,7 @@
-import { RDSDataClient, ExecuteStatementCommand } from "@aws-sdk/client-rds-data";
+import {
+  RDSDataClient,
+  ExecuteStatementCommand
+} from "@aws-sdk/client-rds-data";
 
 import { getDeployedDataApiDatabaseConfig } from "../src/db/config";
 

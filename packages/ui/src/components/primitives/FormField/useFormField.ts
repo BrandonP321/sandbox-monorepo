@@ -10,10 +10,7 @@ type FormFieldValue<TValue> = TValue | null | undefined;
 export type FormFieldName<
   TFieldValues extends FieldValues,
   TValue = string
-> = FieldPathByValue<
-  TFieldValues,
-  FormFieldValue<TValue>
->;
+> = FieldPathByValue<TFieldValues, FormFieldValue<TValue>>;
 
 export type UseFormFieldResult<
   TElement extends HTMLElement = HTMLElement,

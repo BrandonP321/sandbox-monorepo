@@ -14,12 +14,8 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/create-topic",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "create-topic"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["create-topic"]
             },
             "description": "Creates a new tracked topic dossier container.",
             "header": [
@@ -46,12 +42,8 @@
             "method": "POST",
             "url": {
               "raw": "{{baseUrl}}/get-topic",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "get-topic"
-              ]
+              "host": ["{{baseUrl}}"],
+              "path": ["get-topic"]
             },
             "description": "Reads one tracked topic dossier container by ID.",
             "header": [

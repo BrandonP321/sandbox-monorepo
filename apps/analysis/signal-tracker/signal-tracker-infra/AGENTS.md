@@ -3,6 +3,7 @@
 Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source-of-truth docs, and R1 MVP boundaries.
 
 ## Commands
+
 - Synth: `pnpm --filter signal-tracker-infra synth`
 - Diff: `pnpm --filter signal-tracker-infra diff`
 - Deploy: `pnpm --filter signal-tracker-infra deploy`
@@ -14,6 +15,7 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Build: `pnpm --filter signal-tracker-infra build`
 
 ## Notes
+
 - Build the frontend before `cdk deploy` so the `dist/` assets are available.
 - Standard AWS CLI profile: `sandbox-admin`
 - Standard region: `us-east-1`

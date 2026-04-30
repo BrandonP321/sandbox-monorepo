@@ -43,7 +43,9 @@ function TestForm({
   return <FormProvider {...form}>{children}</FormProvider>;
 }
 
-function TestField(props: Omit<FormInputControlProps<ExampleFormValues>, "children">) {
+function TestField(
+  props: Omit<FormInputControlProps<ExampleFormValues>, "children">
+) {
   return (
     <FormInputControl<ExampleFormValues> {...props}>
       {({ ref, ...inputProps }: FormInputControlRenderProps) => (

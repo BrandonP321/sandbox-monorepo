@@ -9,8 +9,8 @@ import { type FormFieldName, useFormField } from "../../form/useFormField";
 
 export type FormRadioGroupControlRenderProps<TValue = string> =
   FormControlRenderPropsBase<HTMLInputElement> & {
-  onValueChange: (value: TValue) => void;
-  value: TValue | undefined;
+    onValueChange: (value: TValue) => void;
+    value: TValue | undefined;
   };
 
 export type FormRadioGroupControlProps<

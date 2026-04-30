@@ -1,10 +1,7 @@
 import { RDSDataClient } from "@aws-sdk/client-rds-data";
 
 import { getDeployedDataApiDatabaseConfig } from "../src/db/config";
-import {
-  formatDeployedDbError,
-  runDeployedMigrations
-} from "./deployed-db";
+import { formatDeployedDbError, runDeployedMigrations } from "./deployed-db";
 
 async function main() {
   try {

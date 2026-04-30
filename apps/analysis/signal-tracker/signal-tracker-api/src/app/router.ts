@@ -1,8 +1,4 @@
-import {
-  createRoute,
-  createRouter,
-  type RouteHandler
-} from "@repo/api-core";
+import { createRoute, createRouter, type RouteHandler } from "@repo/api-core";
 import {
   signalTrackerRouteEntries,
   type SignalTrackerRouteName

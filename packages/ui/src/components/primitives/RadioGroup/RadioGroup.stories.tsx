@@ -54,7 +54,8 @@ const meta = {
   title: "Primitives/RadioGroup",
   component: RadioGroupStoryHarness,
   args: {
-    description: "Choose the single audience segment that should lead this report.",
+    description:
+      "Choose the single audience segment that should lead this report.",
     label: "Audience",
     options
   }
@@ -67,7 +68,9 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {};
 
 export const WithPrefill: Story = {
-  render: (args) => <RadioGroupStoryHarness {...args} defaultValue="operators" />
+  render: (args) => (
+    <RadioGroupStoryHarness {...args} defaultValue="operators" />
+  )
 };
 
 export const Disabled: Story = {

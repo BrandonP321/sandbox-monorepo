@@ -5,7 +5,10 @@ function trimTrailingZeros(value: string): string {
     return value;
   }
 
-  return value.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+  return value
+    .replace(/\.0+$/, "")
+    .replace(/(\.\d*?)0+$/, "$1")
+    .replace(/\.$/, "");
 }
 
 export function formatNumber(raw: number): string {

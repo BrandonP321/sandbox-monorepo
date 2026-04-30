@@ -13,12 +13,7 @@ export type FormCheckboxGroupProps<
   TValue = string
 > = Omit<
   CheckboxGroupProps<TValue>,
-  | "defaultValue"
-  | "error"
-  | "name"
-  | "onBlur"
-  | "onValueChange"
-  | "value"
+  "defaultValue" | "error" | "name" | "onBlur" | "onValueChange" | "value"
 > & {
   disabled?: boolean;
   name: FormFieldName<TFieldValues, TValue[]>;

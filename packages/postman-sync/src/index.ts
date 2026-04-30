@@ -1,9 +1,6 @@
 import type { z } from "zod";
 
-import type {
-  PostmanProjectConfig,
-  PostmanRequestConfig
-} from "./types.js";
+import type { PostmanProjectConfig, PostmanRequestConfig } from "./types.js";
 
 export type {
   GeneratedPostmanArtifacts,

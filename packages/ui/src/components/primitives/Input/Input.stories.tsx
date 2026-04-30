@@ -110,7 +110,9 @@ export const Typing: Story = {
     const storyText = canvasElement.textContent;
 
     if (!storyText?.includes("Current value: OpenAI")) {
-      throw new Error("Expected the input story preview to update after typing.");
+      throw new Error(
+        "Expected the input story preview to update after typing."
+      );
     }
   }
 };

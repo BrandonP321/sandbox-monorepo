@@ -36,7 +36,8 @@ export function getDeployedDataApiDatabaseConfig(
     databaseName: requireEnv(env, "SIGNAL_TRACKER_DB_NAME"),
     resourceArn: requireEnv(env, "SIGNAL_TRACKER_DB_RESOURCE_ARN"),
     secretArn: requireEnv(env, "SIGNAL_TRACKER_DB_SECRET_ARN"),
-    region: firstPresent(env.AWS_REGION, env.AWS_DEFAULT_REGION) ?? DEFAULT_AWS_REGION
+    region:
+      firstPresent(env.AWS_REGION, env.AWS_DEFAULT_REGION) ?? DEFAULT_AWS_REGION
   };
 }
 
@@ -50,7 +51,9 @@ function requireEnv(env: Env, key: string): string {
   return value;
 }
 
-function firstPresent(...values: Array<string | undefined>): string | undefined {
+function firstPresent(
+  ...values: Array<string | undefined>
+): string | undefined {
   for (const value of values) {
     const trimmed = value?.trim();
     if (trimmed) {

@@ -66,11 +66,16 @@ export type Logger = (entry: Record<string, unknown>) => void;
 
 export function createLogger(): Logger {
   return (entry) => {
-    console.log(JSON.stringify({ timestamp: new Date().toISOString(), ...entry }));
+    console.log(
+      JSON.stringify({ timestamp: new Date().toISOString(), ...entry })
+    );
   };
 }
 
-export function createPostRoute(fileName: string, handler: RouteHandler): RouteDefinition {
+export function createPostRoute(
+  fileName: string,
+  handler: RouteHandler
+): RouteDefinition {
   return {
     method: "POST",
     path: `/${fileName.replace(/\.[^.]+$/, "")}`,
@@ -78,7 +83,10 @@ export function createPostRoute(fileName: string, handler: RouteHandler): RouteD
   };
 }
 
-export function createRoute(route: RouteSpec, handler: RouteHandler): RouteDefinition {
+export function createRoute(
+  route: RouteSpec,
+  handler: RouteHandler
+): RouteDefinition {
   return {
     ...route,
     handler
@@ -101,7 +109,12 @@ export function createRouter(
 
     const key = `${request.method.toUpperCase()} ${request.path}`;
     const handler = routeMap.get(key);
-    logger({ level: "info", event: "request", requestId: request.requestId, route: key });
+    logger({
+      level: "info",
+      event: "request",
+      requestId: request.requestId,
+      route: key
+    });
 
     if (!handler) {
       return responses.error(404, "NOT_FOUND", "Not Found");

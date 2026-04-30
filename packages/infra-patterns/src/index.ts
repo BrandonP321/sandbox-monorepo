@@ -18,7 +18,14 @@ export {
 export class HttpLambdaApi extends Construct {
   public readonly httpApi: apigwv2.HttpApi;
 
-  constructor(scope: Construct, id: string, props: { handler: lambdaNodejs.NodejsFunction; routes: { path: string; method: apigwv2.HttpMethod }[] }) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: {
+      handler: lambdaNodejs.NodejsFunction;
+      routes: { path: string; method: apigwv2.HttpMethod }[];
+    }
+  ) {
     super(scope, id);
 
     this.httpApi = new apigwv2.HttpApi(this, "HttpApi", {
@@ -29,9 +36,16 @@ export class HttpLambdaApi extends Construct {
       }
     });
 
-    const integration = new integrations.HttpLambdaIntegration("LambdaIntegration", props.handler);
+    const integration = new integrations.HttpLambdaIntegration(
+      "LambdaIntegration",
+      props.handler
+    );
     for (const route of props.routes) {
-      this.httpApi.addRoutes({ path: route.path, methods: [route.method], integration });
+      this.httpApi.addRoutes({
+        path: route.path,
+        methods: [route.method],
+        integration
+      });
     }
   }
 }
@@ -40,7 +54,11 @@ export class SpaSite extends Construct {
   public readonly distribution: cloudfront.Distribution;
   public readonly bucket: s3.Bucket;
 
-  constructor(scope: Construct, id: string, props: { distPath: string; runtimeConfig: Record<string, unknown> }) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props: { distPath: string; runtimeConfig: Record<string, unknown> }
+  ) {
     super(scope, id);
 
     this.bucket = new s3.Bucket(this, "SiteBucket", {
@@ -54,8 +72,16 @@ export class SpaSite extends Construct {
       defaultBehavior: { origin: new origins.S3Origin(this.bucket) },
       defaultRootObject: "index.html",
       errorResponses: [
-        { httpStatus: 403, responseHttpStatus: 200, responsePagePath: "/index.html" },
-        { httpStatus: 404, responseHttpStatus: 200, responsePagePath: "/index.html" }
+        {
+          httpStatus: 403,
+          responseHttpStatus: 200,
+          responsePagePath: "/index.html"
+        },
+        {
+          httpStatus: 404,
+          responseHttpStatus: 200,
+          responsePagePath: "/index.html"
+        }
       ]
     });
 
@@ -68,17 +94,23 @@ export class SpaSite extends Construct {
         prune: false
       });
     } else {
-      cdk.Annotations.of(this).addWarning(`Static site assets missing at ${props.distPath}. Build web app before deploy.`);
+      cdk.Annotations.of(this).addWarning(
+        `Static site assets missing at ${props.distPath}. Build web app before deploy.`
+      );
     }
 
     new s3deploy.BucketDeployment(this, "ConfigDeployment", {
-      sources: [s3deploy.Source.data("config.json", JSON.stringify(props.runtimeConfig))],
+      sources: [
+        s3deploy.Source.data("config.json", JSON.stringify(props.runtimeConfig))
+      ],
       destinationBucket: this.bucket,
       distribution: this.distribution,
       distributionPaths: ["/config.json"],
       prune: false,
       contentType: "application/json",
-      cacheControl: [s3deploy.CacheControl.fromString("no-cache, no-store, must-revalidate")]
+      cacheControl: [
+        s3deploy.CacheControl.fromString("no-cache, no-store, must-revalidate")
+      ]
     });
   }
 }

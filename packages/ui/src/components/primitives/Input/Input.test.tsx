@@ -44,12 +44,7 @@ describe("Input", () => {
 
   it("respects the disabled prop on the native input", () => {
     const markup = renderToStaticMarkup(
-      <Input
-        defaultValue="OpenAI"
-        disabled
-        label="Company name"
-        readOnly
-      />
+      <Input defaultValue="OpenAI" disabled label="Company name" readOnly />
     );
 
     expect(markup).toContain("disabled");

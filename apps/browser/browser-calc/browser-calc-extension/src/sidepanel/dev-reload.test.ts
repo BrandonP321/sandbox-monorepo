@@ -13,8 +13,11 @@ describe("dev reload helpers", () => {
   });
 
   it("adds a cache-busting query parameter to the marker url", () => {
-    expect(createReloadMarkerUrl("chrome-extension://example/__dev_reload__.json", 456)).toBe(
-      "chrome-extension://example/__dev_reload__.json?t=456"
-    );
+    expect(
+      createReloadMarkerUrl(
+        "chrome-extension://example/__dev_reload__.json",
+        456
+      )
+    ).toBe("chrome-extension://example/__dev_reload__.json?t=456");
   });
 });

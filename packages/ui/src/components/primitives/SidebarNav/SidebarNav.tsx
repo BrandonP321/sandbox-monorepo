@@ -44,9 +44,7 @@ type SidebarNavLinkItem = BaseItem & {
   type?: never;
 };
 
-export type SidebarNavChildItem =
-  | SidebarNavActionItem
-  | SidebarNavLinkItem;
+export type SidebarNavChildItem = SidebarNavActionItem | SidebarNavLinkItem;
 
 export type SidebarNavItem =
   | (SidebarNavActionItem & {
@@ -61,10 +59,7 @@ export type SidebarNavSection = {
   label?: ReactNode;
 };
 
-export type SidebarNavProps = Omit<
-  HTMLAttributes<HTMLElement>,
-  "children"
-> & {
+export type SidebarNavProps = Omit<HTMLAttributes<HTMLElement>, "children"> & {
   footer?: ReactNode;
   mode?: SidebarNavMode;
   open?: boolean;
@@ -148,7 +143,11 @@ function renderLeafItem(
   );
 }
 
-function renderTopLevelItem(item: SidebarNavItem, mode: SidebarNavMode, key: string) {
+function renderTopLevelItem(
+  item: SidebarNavItem,
+  mode: SidebarNavMode,
+  key: string
+) {
   const activeTrail = itemHasActiveChild(item);
 
   return (
@@ -191,7 +190,9 @@ export function SidebarNav({
 
   return (
     <nav
-      aria-hidden={resolvedMode === "overlay" && !resolvedOpen ? true : undefined}
+      aria-hidden={
+        resolvedMode === "overlay" && !resolvedOpen ? true : undefined
+      }
       className={cn(
         styles.root,
         modeClasses[resolvedMode],

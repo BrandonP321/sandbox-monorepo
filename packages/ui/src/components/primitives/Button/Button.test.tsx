@@ -40,6 +40,8 @@ describe("Button", () => {
     expect(markup).toContain("_label_");
     expect(markup).toContain("Add item");
     expect(markup.indexOf("Add item")).toBeGreaterThan(markup.indexOf("<svg"));
-    expect(markup.lastIndexOf("<svg")).toBeGreaterThan(markup.indexOf("Add item"));
+    expect(markup.lastIndexOf("<svg")).toBeGreaterThan(
+      markup.indexOf("Add item")
+    );
   });
 });

@@ -1,4 +1,8 @@
-import { getCollectionPath, getEnvironmentPath, getStatePath } from "./paths.js";
+import {
+  getCollectionPath,
+  getEnvironmentPath,
+  getStatePath
+} from "./paths.js";
 import { createEmptyPostmanState } from "./state.js";
 import { writeJsonFile } from "./fs-utils.js";
 import { generateCollection } from "./generate-collection.js";

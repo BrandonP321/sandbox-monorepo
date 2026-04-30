@@ -10,10 +10,7 @@ import {
 
 import { normalizeComparableValue } from "../../../lib/normalizeComparableValue";
 import { useControllableValue } from "../../../lib/useControllableValue";
-import {
-  FormField,
-  type FormFieldContentProps
-} from "../FormField/FormField";
+import { FormField, type FormFieldContentProps } from "../FormField/FormField";
 import styles from "./CheckboxGroup.module.scss";
 
 export type CheckboxOption<TValue = string> = {
@@ -54,7 +51,10 @@ function CheckboxGroupInner<TValue = string>(
   props: CheckboxGroupProps<TValue>,
   ref: ForwardedRef<HTMLInputElement>
 ) {
-  const isValueControlled = Object.prototype.hasOwnProperty.call(props, "value");
+  const isValueControlled = Object.prototype.hasOwnProperty.call(
+    props,
+    "value"
+  );
   const {
     defaultValue,
     description,

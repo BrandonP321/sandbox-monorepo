@@ -73,6 +73,7 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 ## CI/CD
 
 `hello-world` uses a hybrid pipeline:
+
 - GitHub Actions handles monorepo-aware change detection and starts the AWS pipeline for qualifying pushes to `main`.
 - AWS CodePipeline owns the detailed validation and Prod deployment flow.
 
@@ -83,12 +84,14 @@ If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
 - Repo-local change detector: `scripts/project-changed.mjs`
 
 The workflow runs only when:
+
 - a file under `apps/portfolio/hello-world/` changes, or
 - any file outside `apps/` changes
 
 That means changes limited to another app under `apps/` do not trigger the `hello-world` pipeline.
 
 For pushes to `main`, GitHub Actions:
+
 - checks whether the change should affect `hello-world`
 - starts the `hello-world-prod` pipeline with the exact Git commit SHA
 - exits immediately after the pipeline execution has been created
@@ -116,6 +119,7 @@ GitHub Actions then assumes the stack-created role named `hello-world-prod-start
 ### Pipeline flow
 
 The `hello-world-prod` pipeline has:
+
 - a `Source` stage that reads this repo through CodeConnections
 - a `Validate` stage with one CodeBuild action that runs lint, typecheck, tests, and builds
 - a `Prod` stage with one CodeBuild action that builds deployable assets, deploys, and exports deployment URLs

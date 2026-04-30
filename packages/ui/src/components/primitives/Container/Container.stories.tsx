@@ -35,7 +35,8 @@ const meta = {
           Group related dashboard content inside one bordered surface.
         </p>
         <p style={{ margin: 0, color: "var(--color-text-secondary)" }}>
-          Keep the API small: header, footer, optional media, and padding control.
+          Keep the API small: header, footer, optional media, and padding
+          control.
         </p>
       </div>
     )
@@ -108,7 +109,8 @@ export const SideMediaFitHeight: Story = {
       >
         <div style={contentStyle}>
           <p style={{ margin: 0, color: "var(--color-text-secondary)" }}>
-            Use fit-height when adjacent containers should align to the tallest panel.
+            Use fit-height when adjacent containers should align to the tallest
+            panel.
           </p>
           <p style={{ margin: 0, color: "var(--color-text-secondary)" }}>
             The content area owns overflow while the outer frame stays stable.

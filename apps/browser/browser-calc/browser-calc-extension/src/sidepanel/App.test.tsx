@@ -31,7 +31,9 @@ describe("Sidepanel App", () => {
   it("keeps typing at the live cursor, converts operators to symbols, and shows the result as the primary display", () => {
     render(<App />);
 
-    const input = screen.getByRole("textbox", { name: "Expression input" }) as HTMLInputElement;
+    const input = screen.getByRole("textbox", {
+      name: "Expression input"
+    }) as HTMLInputElement;
 
     expect(input.value).toBe("");
     expect(screen.getByTestId("expression-overlay")).toHaveTextContent("0");
@@ -62,7 +64,9 @@ describe("Sidepanel App", () => {
 
     clickButton("evaluate expression");
 
-    expect(screen.getByTestId("calculation-preview")).toHaveTextContent("12×3+4");
+    expect(screen.getByTestId("calculation-preview")).toHaveTextContent(
+      "12×3+4"
+    );
     expect(screen.getByTestId("result-value")).toHaveTextContent("40");
     expect(input.value).toBe("");
 
@@ -81,9 +85,13 @@ describe("Sidepanel App", () => {
   it("reveals scientific buttons without changing modes and still accepts hidden keyboard syntax", () => {
     render(<App />);
 
-    const input = screen.getByRole("textbox", { name: "Expression input" }) as HTMLInputElement;
+    const input = screen.getByRole("textbox", {
+      name: "Expression input"
+    }) as HTMLInputElement;
 
-    expect(screen.queryByRole("button", { name: "insert square root" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "insert square root" })
+    ).not.toBeInTheDocument();
     expect(screen.getByText("DEG")).toBeInTheDocument();
 
     fireEvent.change(input, {
@@ -95,15 +103,21 @@ describe("Sidepanel App", () => {
     });
 
     expect(input.value).toBe("√(9)+sin⁻¹(.5)+2^3");
-    expect(screen.getByTestId("expression-overlay")).toHaveTextContent("√(9)+sin⁻¹(.5)+2");
+    expect(screen.getByTestId("expression-overlay")).toHaveTextContent(
+      "√(9)+sin⁻¹(.5)+2"
+    );
 
     clickButton("evaluate expression");
     expect(screen.getByTestId("result-value")).toHaveTextContent("41");
 
     clickButton("show scientific buttons");
 
-    expect(screen.getByRole("button", { name: "insert square root" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "set angle mode to radians" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "insert square root" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "set angle mode to radians" })
+    ).toBeInTheDocument();
   });
 
   it("lets operators continue after an exponent when entered with scientific buttons", () => {
@@ -116,7 +130,9 @@ describe("Sidepanel App", () => {
     clickButton("insert +");
     clickButton("insert 5");
 
-    const input = screen.getByRole("textbox", { name: "Expression input" }) as HTMLInputElement;
+    const input = screen.getByRole("textbox", {
+      name: "Expression input"
+    }) as HTMLInputElement;
 
     expect(input.value).toBe("2^3+5");
     expect(screen.getByTestId("expression-overlay")).toHaveTextContent("2");
@@ -128,7 +144,9 @@ describe("Sidepanel App", () => {
   it("opens history, copies the latest result, and supports memory buttons from the scientific panel", () => {
     render(<App />);
 
-    const input = screen.getByRole("textbox", { name: "Expression input" }) as HTMLInputElement;
+    const input = screen.getByRole("textbox", {
+      name: "Expression input"
+    }) as HTMLInputElement;
 
     clickButton("insert 7");
     clickButton("insert +");
@@ -143,7 +161,9 @@ describe("Sidepanel App", () => {
     expect(input.value).toBe("15");
 
     clickButton("open history");
-    expect(screen.getByRole("dialog", { name: "Calculation history" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("dialog", { name: "Calculation history" })
+    ).toBeInTheDocument();
     clickButton("Use history result 15 from 7+8");
 
     fireEvent.change(input, {

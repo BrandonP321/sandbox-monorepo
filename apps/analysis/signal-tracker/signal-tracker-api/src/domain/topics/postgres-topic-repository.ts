@@ -18,7 +18,10 @@ export class DrizzleTopicRowStore implements TopicRowStore {
   constructor(private readonly getDatabase: () => SignalTrackerDb) {}
 
   async insertTopic(topic: NewTopicRow): Promise<TopicRow> {
-    const [row] = await this.getDatabase().insert(topics).values(topic).returning();
+    const [row] = await this.getDatabase()
+      .insert(topics)
+      .values(topic)
+      .returning();
 
     if (!row) {
       throw new Error("Topic insert did not return a row");

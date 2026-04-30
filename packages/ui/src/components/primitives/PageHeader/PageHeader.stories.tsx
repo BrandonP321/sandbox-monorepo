@@ -82,7 +82,8 @@ export const IdentityOnly: Story = {
   args: {
     actions: undefined,
     breadcrumbs: undefined,
-    description: "A page header can be very small when a view only needs identity.",
+    description:
+      "A page header can be very small when a view only needs identity.",
     eyebrow: undefined,
     tools: undefined
   }

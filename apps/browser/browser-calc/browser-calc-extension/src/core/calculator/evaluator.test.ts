@@ -16,7 +16,10 @@ describe("evaluateExpression", () => {
   });
 
   it("supports roots, factorial, percent, absolute value, and exponent notation", () => {
-    const result = evaluateExpression("√(81) + ∛(27) + 5! + |−4| + 1EE3%", null);
+    const result = evaluateExpression(
+      "√(81) + ∛(27) + 5! + |−4| + 1EE3%",
+      null
+    );
 
     expect(result).toEqual({
       ok: true,
@@ -26,7 +29,11 @@ describe("evaluateExpression", () => {
   });
 
   it("supports trig functions in degrees and radians", () => {
-    const degrees = evaluateExpression("sin(30) + cos(60) + tan⁻¹(1)", null, "DEG");
+    const degrees = evaluateExpression(
+      "sin(30) + cos(60) + tan⁻¹(1)",
+      null,
+      "DEG"
+    );
     const radians = evaluateExpression("sin(π÷2)", null, "RAD");
 
     expect(degrees.ok).toBe(true);

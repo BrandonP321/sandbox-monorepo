@@ -24,7 +24,11 @@ export function DbWakeUpStatus<TResponse>({
         <p className="status-text status-text--error">
           The database-backed request could not be completed.
         </p>
-        <button className="db-wake-up-status__retry" type="button" onClick={onRetry}>
+        <button
+          className="db-wake-up-status__retry"
+          type="button"
+          onClick={onRetry}
+        >
           Try again
         </button>
       </div>

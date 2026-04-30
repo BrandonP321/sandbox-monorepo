@@ -3,10 +3,7 @@ import { z } from "zod";
 
 import { generateCollection } from "./generate-collection.js";
 import { generateEnvironments } from "./generate-environments.js";
-import type {
-  LoadedPostmanProject,
-  LoadedPostmanRequest
-} from "./types.js";
+import type { LoadedPostmanProject, LoadedPostmanRequest } from "./types.js";
 
 const project: LoadedPostmanProject = {
   configPath: "apps/example/postman.config.ts",
@@ -58,7 +55,8 @@ describe("generateCollection", () => {
 
     expect(collection.info).toMatchObject({
       name: "Example API",
-      schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+      schema:
+        "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     });
     expect(collection.item[0]).toMatchObject({
       name: "Things",

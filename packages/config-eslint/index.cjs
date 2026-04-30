@@ -55,7 +55,10 @@ const reactConfig = [
       ...reactHooks.configs.recommended.rules,
       "react/react-in-jsx-scope": "off",
       "react/jsx-uses-react": "off",
-      "react-refresh/only-export-components": ["warn", { "allowConstantExport": true }]
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true }
+      ]
     },
     settings: {
       react: { version: "detect" }

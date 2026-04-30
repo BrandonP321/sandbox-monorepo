@@ -40,10 +40,7 @@ export {
   Masthead,
   type MastheadProps
 } from "./components/primitives/Masthead/Masthead";
-export {
-  Input,
-  type InputProps
-} from "./components/primitives/Input/Input";
+export { Input, type InputProps } from "./components/primitives/Input/Input";
 export {
   FormInput,
   type FormInputProps

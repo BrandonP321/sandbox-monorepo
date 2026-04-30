@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { appendHistoryEntry, clearHistory, MAX_HISTORY_ENTRIES } from "./history";
+import {
+  appendHistoryEntry,
+  clearHistory,
+  MAX_HISTORY_ENTRIES
+} from "./history";
 
 describe("history helpers", () => {
   it("prepends new history entries and preserves existing order", () => {

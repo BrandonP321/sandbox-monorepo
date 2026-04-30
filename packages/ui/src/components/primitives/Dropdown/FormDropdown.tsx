@@ -13,12 +13,7 @@ export type FormDropdownProps<
   TValue = string
 > = Omit<
   DropdownProps<TValue>,
-  | "defaultValue"
-  | "error"
-  | "name"
-  | "onBlur"
-  | "onValueChange"
-  | "value"
+  "defaultValue" | "error" | "name" | "onBlur" | "onValueChange" | "value"
 > & {
   disabled?: boolean;
   name: FormFieldName<TFieldValues, TValue>;
@@ -35,10 +30,7 @@ export function FormDropdown<
 }: FormDropdownProps<TFieldValues, TValue>) {
   return (
     <FormDropdownControl disabled={disabled} id={id} name={name}>
-      {({
-        ref,
-        ...dropdownProps
-      }: FormDropdownControlRenderProps<TValue>) => (
+      {({ ref, ...dropdownProps }: FormDropdownControlRenderProps<TValue>) => (
         <Dropdown {...props} {...dropdownProps} ref={ref} />
       )}
     </FormDropdownControl>

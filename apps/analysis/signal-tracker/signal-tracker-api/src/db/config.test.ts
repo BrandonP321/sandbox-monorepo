@@ -9,7 +9,8 @@ describe("database config", () => {
   it("reads local PostgreSQL configuration from DATABASE_URL", () => {
     expect(
       getLocalDatabaseConfig({
-        DATABASE_URL: "postgres://signal_tracker:signal_tracker@localhost:5432/signal_tracker"
+        DATABASE_URL:
+          "postgres://signal_tracker:signal_tracker@localhost:5432/signal_tracker"
       })
     ).toEqual({
       mode: "local",
@@ -37,8 +38,7 @@ describe("database config", () => {
     ).toEqual({
       mode: "deployed-data-api",
       databaseName: "signal_tracker",
-      resourceArn:
-        "arn:aws:rds:us-east-1:498283327683:cluster:signal-tracker",
+      resourceArn: "arn:aws:rds:us-east-1:498283327683:cluster:signal-tracker",
       secretArn:
         "arn:aws:secretsmanager:us-east-1:498283327683:secret:signal-tracker",
       region: "us-east-1"
@@ -64,6 +64,8 @@ describe("database config", () => {
         SIGNAL_TRACKER_DB_RESOURCE_ARN:
           "arn:aws:rds:us-east-1:498283327683:cluster:signal-tracker"
       })
-    ).toThrow("Missing required environment variable: SIGNAL_TRACKER_DB_SECRET_ARN");
+    ).toThrow(
+      "Missing required environment variable: SIGNAL_TRACKER_DB_SECRET_ARN"
+    );
   });
 });

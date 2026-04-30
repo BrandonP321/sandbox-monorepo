@@ -24,7 +24,10 @@ function ContextReader() {
 describe("FormProvider", () => {
   it("provides react-hook-form context configured from the required schema", () => {
     const markup = renderToStaticMarkup(
-      <FormProvider defaultValues={{ company: "OpenAI" }} schema={exampleSchema}>
+      <FormProvider
+        defaultValues={{ company: "OpenAI" }}
+        schema={exampleSchema}
+      >
         <ContextReader />
       </FormProvider>
     );

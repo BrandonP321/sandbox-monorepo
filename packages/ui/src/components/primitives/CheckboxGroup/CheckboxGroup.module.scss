@@ -28,7 +28,8 @@
     content: "";
     position: absolute;
     inset: 0.2rem 0.18rem 0.32rem 0.36rem;
-    border-bottom: var(--border-width-strong) solid var(--control-indicator-color);
+    border-bottom: var(--border-width-strong) solid
+      var(--control-indicator-color);
     border-left: var(--border-width-strong) solid var(--control-indicator-color);
     opacity: 0;
     transform: rotate(-45deg) scale(0.8);

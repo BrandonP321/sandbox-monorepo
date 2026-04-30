@@ -86,11 +86,15 @@ function validateRequests(
       (expectedRoute.method !== config.route.method ||
         expectedRoute.path !== config.route.path)
     ) {
-      failures.push(`Route '${config.routeName}' does not match project routes.`);
+      failures.push(
+        `Route '${config.routeName}' does not match project routes.`
+      );
     }
 
     if (config.requestSchema && config.exampleBody === undefined) {
-      failures.push(`Route '${config.routeName}' has a request schema but no exampleBody.`);
+      failures.push(
+        `Route '${config.routeName}' has a request schema but no exampleBody.`
+      );
     }
 
     const result = config.requestSchema?.safeParse(config.exampleBody);
@@ -128,7 +132,9 @@ function validateEnvironments(
     const baseUrl = environment.values.find((value) => value.key === "baseUrl");
 
     if (!baseUrl || !baseUrl.enabled || baseUrl.value.trim() === "") {
-      failures.push(`Environment '${environmentKey}' is missing enabled baseUrl.`);
+      failures.push(
+        `Environment '${environmentKey}' is missing enabled baseUrl.`
+      );
     }
   }
 
@@ -173,6 +179,12 @@ function validateStaleFiles(
   return failures;
 }
 
-function matchesGeneratedFile(filePath: string, generatedValue: unknown): boolean {
-  return existsSync(filePath) && readFileSync(filePath, "utf8") === stableJson(generatedValue);
+function matchesGeneratedFile(
+  filePath: string,
+  generatedValue: unknown
+): boolean {
+  return (
+    existsSync(filePath) &&
+    readFileSync(filePath, "utf8") === stableJson(generatedValue)
+  );
 }

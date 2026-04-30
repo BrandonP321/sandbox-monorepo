@@ -57,30 +57,16 @@ export function Masthead({
     typeof sidebarToggle === "object" ? sidebarToggle : undefined;
   const showSidebarToggle = !!sidebarToggle && !!appShell;
   const toggleLabel = appShell?.isSidebarOpen
-    ? sidebarToggleOptions?.openLabel ?? "Collapse navigation"
-    : sidebarToggleOptions?.closedLabel ?? "Open navigation";
+    ? (sidebarToggleOptions?.openLabel ?? "Collapse navigation")
+    : (sidebarToggleOptions?.closedLabel ?? "Open navigation");
   const hasLeft = !!(showSidebarToggle || start || title || label);
   const hasCenter = !!center;
-  const {
-    className: startClassName,
-    ...restStartProps
-  } = startProps ?? {};
-  const {
-    className: titleClassName,
-    ...restTitleProps
-  } = titleProps ?? {};
-  const {
-    className: labelClassName,
-    ...restLabelProps
-  } = labelProps ?? {};
-  const {
-    className: centerClassName,
-    ...restCenterProps
-  } = centerProps ?? {};
-  const {
-    className: actionsClassName,
-    ...restActionsProps
-  } = actionsProps ?? {};
+  const { className: startClassName, ...restStartProps } = startProps ?? {};
+  const { className: titleClassName, ...restTitleProps } = titleProps ?? {};
+  const { className: labelClassName, ...restLabelProps } = labelProps ?? {};
+  const { className: centerClassName, ...restCenterProps } = centerProps ?? {};
+  const { className: actionsClassName, ...restActionsProps } =
+    actionsProps ?? {};
 
   return (
     <div
@@ -103,19 +89,28 @@ export function Masthead({
             </button>
           ) : null}
           {start ? (
-            <div className={cn(styles.start, startClassName)} {...restStartProps}>
+            <div
+              className={cn(styles.start, startClassName)}
+              {...restStartProps}
+            >
               {start}
             </div>
           ) : null}
           {title || label ? (
             <div className={styles.titleBlock}>
               {label ? (
-                <div className={cn(styles.label, labelClassName)} {...restLabelProps}>
+                <div
+                  className={cn(styles.label, labelClassName)}
+                  {...restLabelProps}
+                >
                   {label}
                 </div>
               ) : null}
               {title ? (
-                <div className={cn(styles.title, titleClassName)} {...restTitleProps}>
+                <div
+                  className={cn(styles.title, titleClassName)}
+                  {...restTitleProps}
+                >
                   {title}
                 </div>
               ) : null}
@@ -124,12 +119,18 @@ export function Masthead({
         </div>
       ) : null}
       {center ? (
-        <div className={cn(styles.center, centerClassName)} {...restCenterProps}>
+        <div
+          className={cn(styles.center, centerClassName)}
+          {...restCenterProps}
+        >
           {center}
         </div>
       ) : null}
       {actions ? (
-        <div className={cn(styles.actions, actionsClassName)} {...restActionsProps}>
+        <div
+          className={cn(styles.actions, actionsClassName)}
+          {...restActionsProps}
+        >
           {actions}
         </div>
       ) : null}

@@ -31,7 +31,9 @@ describe("helloWorldRoutes", () => {
   });
 
   it("validates the hello response payload", () => {
-    const payload = helloWorldGetHelloResponseSchema.parse({ message: "hello" });
+    const payload = helloWorldGetHelloResponseSchema.parse({
+      message: "hello"
+    });
 
     expect(payload.message).toBe("hello");
   });

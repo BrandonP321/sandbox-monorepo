@@ -13,12 +13,7 @@ export type FormRadioGroupProps<
   TValue = string
 > = Omit<
   RadioGroupProps<TValue>,
-  | "defaultValue"
-  | "error"
-  | "name"
-  | "onBlur"
-  | "onValueChange"
-  | "value"
+  "defaultValue" | "error" | "name" | "onBlur" | "onValueChange" | "value"
 > & {
   disabled?: boolean;
   name: FormFieldName<TFieldValues, TValue>;

@@ -203,7 +203,9 @@ export const ObjectValue: Story = {
     const storyText = canvasElement.textContent;
 
     if (!storyText?.includes('"code":"apac"')) {
-      throw new Error("Expected the object value preview to update after selection.");
+      throw new Error(
+        "Expected the object value preview to update after selection."
+      );
     }
   }
 };

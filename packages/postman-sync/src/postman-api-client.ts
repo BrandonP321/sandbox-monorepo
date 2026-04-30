@@ -1,7 +1,4 @@
-import type {
-  PostmanCollection,
-  PostmanEnvironmentFile
-} from "./types.js";
+import type { PostmanCollection, PostmanEnvironmentFile } from "./types.js";
 
 const POSTMAN_API_BASE_URL = "https://api.getpostman.com";
 
@@ -126,7 +123,9 @@ export async function resolveWorkspaceId(
   }
 
   if (matches.length > 1) {
-    throw new Error(`Multiple Postman workspaces found named '${workspaceName}'.`);
+    throw new Error(
+      `Multiple Postman workspaces found named '${workspaceName}'.`
+    );
   }
 
   return matches[0].id;

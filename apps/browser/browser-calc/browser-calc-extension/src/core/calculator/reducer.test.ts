@@ -25,7 +25,12 @@ describe("reduceCalculator", () => {
     const now = vi.spyOn(Date, "now").mockReturnValue(123);
 
     const successful = runActions([
-      { type: "SET_EXPRESSION", expression: "10^2 + 5!", selectionStart: 9, selectionEnd: 9 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "10^2 + 5!",
+        selectionStart: 9,
+        selectionEnd: 9
+      },
       { type: "EVALUATE" }
     ]);
 
@@ -59,13 +64,28 @@ describe("reduceCalculator", () => {
 
   it("supports explicit ANS, implicit chaining, and recalling history as a completed result", () => {
     const result = runActions([
-      { type: "SET_EXPRESSION", expression: "5 + 5", selectionStart: 5, selectionEnd: 5 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "5 + 5",
+        selectionStart: 5,
+        selectionEnd: 5
+      },
       { type: "EVALUATE" },
       { type: "CLEAR" },
-      { type: "SET_EXPRESSION", expression: "^2", selectionStart: 2, selectionEnd: 2 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "^2",
+        selectionStart: 2,
+        selectionEnd: 2
+      },
       { type: "EVALUATE" },
       { type: "CLEAR" },
-      { type: "SET_EXPRESSION", expression: "ANS + 2", selectionStart: 7, selectionEnd: 7 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "ANS + 2",
+        selectionStart: 7,
+        selectionEnd: 7
+      },
       { type: "EVALUATE" },
       { type: "CLEAR" },
       {
@@ -86,7 +106,12 @@ describe("reduceCalculator", () => {
 
   it("preserves last result on CE and resets it on AC", () => {
     const clearedEntry = runActions([
-      { type: "SET_EXPRESSION", expression: "2 + 2", selectionStart: 5, selectionEnd: 5 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "2 + 2",
+        selectionStart: 5,
+        selectionEnd: 5
+      },
       { type: "EVALUATE" },
       { type: "CLEAR" }
     ]);
@@ -103,7 +128,12 @@ describe("reduceCalculator", () => {
 
   it("stores, recalls, and subtracts memory using the current display value", () => {
     const result = runActions([
-      { type: "SET_EXPRESSION", expression: "5 × 5", selectionStart: 5, selectionEnd: 5 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "5 × 5",
+        selectionStart: 5,
+        selectionEnd: 5
+      },
       { type: "EVALUATE" },
       { type: "MEMORY_ADD" },
       { type: "CLEAR" },
@@ -121,7 +151,12 @@ describe("reduceCalculator", () => {
 
   it("changes angle mode without disturbing the current draft", () => {
     const result = runActions([
-      { type: "SET_EXPRESSION", expression: "sin(30)", selectionStart: 7, selectionEnd: 7 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "sin(30)",
+        selectionStart: 7,
+        selectionEnd: 7
+      },
       { type: "SET_ANGLE_MODE", value: "RAD" }
     ]);
 
@@ -131,9 +166,19 @@ describe("reduceCalculator", () => {
 
   it("expands operator-led drafts with the previous result after evaluation", () => {
     const result = runActions([
-      { type: "SET_EXPRESSION", expression: "25×2", selectionStart: 4, selectionEnd: 4 },
+      {
+        type: "SET_EXPRESSION",
+        expression: "25×2",
+        selectionStart: 4,
+        selectionEnd: 4
+      },
       { type: "EVALUATE" },
-      { type: "SET_EXPRESSION", expression: "×3", selectionStart: 2, selectionEnd: 2 }
+      {
+        type: "SET_EXPRESSION",
+        expression: "×3",
+        selectionStart: 2,
+        selectionEnd: 2
+      }
     ]);
 
     expect(result.expression).toBe("50×3");

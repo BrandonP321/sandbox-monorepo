@@ -5,13 +5,19 @@ export function parseReloadMarker(raw: string): number | null {
   try {
     const parsed = JSON.parse(raw) as { updatedAt?: unknown };
 
-    return typeof parsed.updatedAt === "number" && Number.isFinite(parsed.updatedAt) ? parsed.updatedAt : null;
+    return typeof parsed.updatedAt === "number" &&
+      Number.isFinite(parsed.updatedAt)
+      ? parsed.updatedAt
+      : null;
   } catch {
     return null;
   }
 }
 
-export function createReloadMarkerUrl(baseUrl: string, cacheBust: number): string {
+export function createReloadMarkerUrl(
+  baseUrl: string,
+  cacheBust: number
+): string {
   const url = new URL(baseUrl);
   url.searchParams.set("t", String(cacheBust));
   return url.toString();
@@ -26,9 +32,12 @@ if (import.meta.env.MODE === "development") {
 
   const pollReloadMarker = async () => {
     try {
-      const response = await fetch(createReloadMarkerUrl(markerUrl, Date.now()), {
-        cache: "no-store"
-      });
+      const response = await fetch(
+        createReloadMarkerUrl(markerUrl, Date.now()),
+        {
+          cache: "no-store"
+        }
+      );
 
       if (!response.ok) {
         return;

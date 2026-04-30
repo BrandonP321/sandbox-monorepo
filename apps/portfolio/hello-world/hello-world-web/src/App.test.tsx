@@ -5,10 +5,9 @@ import App from "./App";
 import { useGetHelloQuery } from "./services/helloApi";
 
 vi.mock("./services/helloApi", async () => {
-  const actual =
-    await vi.importActual<typeof import("./services/helloApi")>(
-      "./services/helloApi"
-    );
+  const actual = await vi.importActual<typeof import("./services/helloApi")>(
+    "./services/helloApi"
+  );
 
   return {
     ...actual,

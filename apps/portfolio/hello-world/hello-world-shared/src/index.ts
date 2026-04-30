@@ -23,7 +23,9 @@ export const helloWorldRouteEntries = Object.entries(helloWorldRoutes) as Array<
   [HelloWorldRouteName, HelloWorldRoute]
 >;
 
-export const helloWorldRouteList = helloWorldRouteEntries.map(([, route]) => route);
+export const helloWorldRouteList = helloWorldRouteEntries.map(
+  ([, route]) => route
+);
 
 export const helloWorldGetHelloResponseSchema = z.object({
   message: z.string().min(1)
