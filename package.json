@@ -12,7 +12,11 @@
     "predev": "node scripts/check-node-version.mjs",
     "dev": "turbo run dev",
     "predev:hello": "node scripts/check-node-version.mjs",
-    "dev:hello": "pnpm --filter hello-world-web --filter hello-world-api dev",
+    "dev:hello": "pnpm dev:hello-world",
+    "predev:hello-world": "node scripts/check-node-version.mjs",
+    "dev:hello-world": "concurrently --kill-others-on-fail -n \"API,WEB\" -c \"magenta,cyan\" \"pnpm --filter hello-world-api dev\" \"pnpm --filter hello-world-web dev\"",
+    "predev:signal-tracker": "node scripts/check-node-version.mjs",
+    "dev:signal-tracker": "concurrently --kill-others-on-fail -n \"API,WEB\" -c \"magenta,cyan\" \"pnpm --filter signal-tracker-api dev\" \"pnpm --filter signal-tracker-web dev\"",
     "prebuild": "node scripts/check-node-version.mjs",
     "build": "turbo run build",
     "prelint": "node scripts/check-node-version.mjs",
@@ -47,6 +51,7 @@
     "*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "eslint": "^9.39.2",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.6",
