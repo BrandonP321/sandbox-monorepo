@@ -1,10 +1,10 @@
-import { eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 
 import { topicSchema, type Topic } from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { topics } from "../../db/schema";
-import type { TopicRepository } from "./topic-repository";
+import type { ListTopicsOptions, TopicRepository } from "./topic-repository";
 
 export type TopicRow = typeof topics.$inferSelect;
 export type NewTopicRow = typeof topics.$inferInsert;
@@ -12,6 +12,7 @@ export type NewTopicRow = typeof topics.$inferInsert;
 export type TopicRowStore = {
   insertTopic(topic: NewTopicRow): Promise<TopicRow>;
   selectTopicById(id: string): Promise<TopicRow | undefined>;
+  selectTopics(options?: ListTopicsOptions): Promise<TopicRow[]>;
 };
 
 export class DrizzleTopicRowStore implements TopicRowStore {
@@ -38,6 +39,25 @@ export class DrizzleTopicRowStore implements TopicRowStore {
       .limit(1);
 
     return row;
+  }
+
+  async selectTopics(options: ListTopicsOptions = {}): Promise<TopicRow[]> {
+    const queryPattern = options.query
+      ? `%${escapeIlikePattern(options.query)}%`
+      : undefined;
+    const queryFilter = queryPattern
+      ? or(
+          ilike(topics.title, queryPattern),
+          ilike(topics.framingQuestion, queryPattern),
+          ilike(topics.scopeNote, queryPattern)
+        )
+      : undefined;
+
+    return await this.getDatabase()
+      .select()
+      .from(topics)
+      .where(and(eq(topics.status, "active"), queryFilter))
+      .orderBy(desc(topics.updatedAt), desc(topics.createdAt), asc(topics.id));
   }
 }
 
@@ -68,6 +88,12 @@ export class PostgresTopicRepository implements TopicRepository {
 
     return row ? mapTopicRow(row) : undefined;
   }
+
+  async list(options: ListTopicsOptions = {}): Promise<Topic[]> {
+    const rows = await this.store.selectTopics(options);
+
+    return rows.map(mapTopicRow);
+  }
 }
 
 export function mapTopicRow(row: TopicRow): Topic {
@@ -89,4 +115,11 @@ function toIsoTimestamp(value: Date | string): string {
   }
 
   return new Date(value).toISOString();
+}
+
+export function escapeIlikePattern(query: string): string {
+  return query
+    .replaceAll("\\", "\\\\")
+    .replaceAll("%", "\\%")
+    .replaceAll("_", "\\_");
 }

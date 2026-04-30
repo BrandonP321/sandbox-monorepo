@@ -6,6 +6,8 @@ import {
   getTopicRequestSchema,
   getTopicResponseSchema,
   isSignalTrackerRetryableDbErrorCode,
+  listTopicsRequestSchema,
+  listTopicsResponseSchema,
   signalTrackerApiErrorCodes,
   signalTrackerHealthResponseSchema,
   signalTrackerRetryableDbErrorCodes,
@@ -25,6 +27,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/get-topic"
     });
+    expect(signalTrackerRoutes.listTopics).toEqual({
+      method: "POST",
+      path: "/list-topics"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -36,10 +42,11 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRouteEntries.map(
         ([name]: (typeof signalTrackerRouteEntries)[number]) => name
       )
-    ).toEqual(["createTopic", "getTopic", "getHealth"]);
+    ).toEqual(["createTopic", "getTopic", "listTopics", "getHealth"]);
     expect(signalTrackerRouteList).toEqual([
       signalTrackerRoutes.createTopic,
       signalTrackerRoutes.getTopic,
+      signalTrackerRoutes.listTopics,
       signalTrackerRoutes.getHealth
     ]);
   });
@@ -159,5 +166,35 @@ describe("topic contracts", () => {
     });
 
     expect(getTopicResponseSchema.parse({ topic })).toEqual({ topic });
+  });
+
+  it("validates a topic list request and trims the query", () => {
+    expect(listTopicsRequestSchema.parse({ query: " strike risk " })).toEqual({
+      query: "strike risk"
+    });
+  });
+
+  it("omits a blank topic list query", () => {
+    expect(listTopicsRequestSchema.parse({ query: " " })).toEqual({});
+    expect(listTopicsRequestSchema.parse({})).toEqual({});
+  });
+
+  it("validates the list-topics response shape", () => {
+    const topic = topicSchema.parse({
+      id: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      status: "active",
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-25T00:00:00.000Z",
+      reviewCadence: "weekly"
+    });
+
+    expect(listTopicsResponseSchema.parse({ topics: [] })).toEqual({
+      topics: []
+    });
+    expect(listTopicsResponseSchema.parse({ topics: [topic] })).toEqual({
+      topics: [topic]
+    });
   });
 });

@@ -7,7 +7,8 @@ import { createCreateTopicHandler } from "./create-topic";
 describe("createTopic route", () => {
   const repository = {
     create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-    findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
+    findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
+    list: vi.fn(async (): Promise<Topic[]> => [])
   };
 
   it("creates a topic from a valid request", async () => {
@@ -156,7 +157,8 @@ describe("createTopic route", () => {
         create: vi.fn(async () => {
           throw new Error("database unavailable");
         }),
-        findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        list: vi.fn(async (): Promise<Topic[]> => [])
       },
       createId: () => "topic-3",
       now: () => new Date("2026-04-25T00:00:00.000Z")

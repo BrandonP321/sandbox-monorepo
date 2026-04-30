@@ -61,6 +61,24 @@ describe("lambda handler", () => {
     expect(result.body).toContain("VALIDATION_ERROR");
   });
 
+  it("routes list-topics requests through the standard app router", async () => {
+    const event = {
+      rawPath: signalTrackerRoutes.listTopics.path,
+      body: JSON.stringify({ query: 42 }),
+      requestContext: {
+        http: {
+          method: signalTrackerRoutes.listTopics.method,
+          path: signalTrackerRoutes.listTopics.path
+        }
+      }
+    } as APIGatewayProxyEventV2;
+
+    const result = await handler(event);
+
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toContain("VALIDATION_ERROR");
+  });
+
   it("returns the standard not found error payload", async () => {
     const event = {
       rawPath: "/get-missing",

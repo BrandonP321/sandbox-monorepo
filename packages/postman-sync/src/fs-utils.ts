@@ -70,7 +70,11 @@ export function writeJsonFile(filePath: string, value: unknown): void {
 }
 
 export function stableJson(value: unknown): string {
-  return `${JSON.stringify(value, null, 2)}\n`;
+  return `${compactSingleStringArrays(JSON.stringify(value, null, 2))}\n`;
+}
+
+function compactSingleStringArrays(json: string): string {
+  return json.replace(/\[\n\s+"((?:[^"\\]|\\.)*)"\n\s+\]/g, '["$1"]');
 }
 
 export function toPosixRelative(from: string, to: string): string {

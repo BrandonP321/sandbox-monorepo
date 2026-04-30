@@ -91,6 +91,7 @@ deploy pipeline, and there is no migration Lambda.
 - `POST /get-health` -> `{ "ok": true }`
 - `POST /create-topic` -> creates a durable topic row and returns `{ "topic": ... }`
 - `POST /get-topic` -> reads a durable topic row by ID and returns `{ "topic": ... }`
+- `POST /list-topics` -> lists active topic rows and returns `{ "topics": [...] }`
 
 ### Postman
 

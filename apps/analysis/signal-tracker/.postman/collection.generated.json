@@ -63,6 +63,34 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "List Topics",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-topics",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-topics"]
+            },
+            "description": "Lists active tracked topic dossier containers.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"risk\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
       ]
     }

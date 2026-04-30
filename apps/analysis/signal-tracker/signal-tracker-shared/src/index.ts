@@ -14,6 +14,10 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/get-topic"
   },
+  listTopics: {
+    method: "POST",
+    path: "/list-topics"
+  },
   getHealth: {
     method: "POST",
     path: "/get-health"
@@ -125,3 +129,15 @@ export const getTopicResponseSchema = z.object({
 });
 
 export type GetTopicResponse = z.infer<typeof getTopicResponseSchema>;
+
+export const listTopicsRequestSchema = z.object({
+  query: optionalTrimmedString
+});
+
+export type ListTopicsRequest = z.infer<typeof listTopicsRequestSchema>;
+
+export const listTopicsResponseSchema = z.object({
+  topics: z.array(topicSchema)
+});
+
+export type ListTopicsResponse = z.infer<typeof listTopicsResponseSchema>;

@@ -9,7 +9,8 @@ describe("getTopic route", () => {
     const handler = createGetTopicHandler({
       repository: {
         create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture)
+        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture),
+        list: vi.fn(async (): Promise<Topic[]> => [])
       }
     });
 
@@ -97,7 +98,8 @@ describe("getTopic route", () => {
         create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
         findById: vi.fn(async () => {
           throw new Error("database unavailable");
-        })
+        }),
+        list: vi.fn(async (): Promise<Topic[]> => [])
       }
     });
 
@@ -127,5 +129,6 @@ const topicFixture: Topic = {
 
 const emptyRepository = {
   create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-  findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
+  findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
+  list: vi.fn(async (): Promise<Topic[]> => [])
 };
