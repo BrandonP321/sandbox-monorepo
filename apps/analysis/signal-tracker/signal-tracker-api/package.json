@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "tsx watch src/local-dev.ts",
+    "dev": "pnpm --workspace-root aws:ensure:sandbox && tsx watch src/local-dev.ts",
     "db:generate": "drizzle-kit generate --config=drizzle.local.config.ts",
     "db:migrate:local": "drizzle-kit migrate --config=drizzle.local.config.ts",
     "db:migrate:deployed": "tsx scripts/db-migrate-deployed.ts",

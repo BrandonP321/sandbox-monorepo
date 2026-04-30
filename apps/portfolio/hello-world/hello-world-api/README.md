@@ -9,6 +9,9 @@ pnpm --filter hello-world-api dev
 ```
 
 The server listens on `http://localhost:3001` by default.
+Startup checks the `sandbox-admin` AWS CLI profile first and runs
+`pnpm aws:login:sandbox` before the API server starts if the profile is not
+currently logged in.
 
 ### Endpoints
 
