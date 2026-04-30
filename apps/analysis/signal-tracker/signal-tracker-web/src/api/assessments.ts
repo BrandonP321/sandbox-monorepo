@@ -1,6 +1,4 @@
 import {
-  createAssessmentUpdateResponseSchema,
-  signalTrackerRoutes,
   type CreateAssessmentUpdateRequest,
   type CreateAssessmentUpdateResponse
 } from "@repo/signal-tracker-shared";
@@ -15,11 +13,8 @@ export function createAssessmentUpdate(
   options?: DbBackedRequestOptions
 ): Promise<CreateAssessmentUpdateResponse> {
   return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.createAssessmentUpdate,
-      body: request,
-      responseSchema: createAssessmentUpdateResponseSchema
-    },
+    "createAssessmentUpdate",
+    request,
     options
   );
 }

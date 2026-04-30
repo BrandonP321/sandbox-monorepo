@@ -1,17 +1,10 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  archiveTopicRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "archiveTopic",
-  route: signalTrackerRoutes.archiveTopic,
+export default defineSignalTrackerPostmanRequest("archiveTopic", {
   folder: "Topics",
   name: "Archive Topic",
   description:
     "Non-destructively archives a topic without deleting analytical history.",
-  requestSchema: archiveTopicRequestSchema,
   exampleBody: {
     topicId: "topic-1"
   }

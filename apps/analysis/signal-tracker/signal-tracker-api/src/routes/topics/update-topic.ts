@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  updateTopicRequestSchema,
-  updateTopicResponseSchema,
+  signalTrackerRouteContracts,
   type Topic
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -20,17 +19,15 @@ type UpdateTopicHandlerDependencies = {
 export function createUpdateTopicHandler(
   dependencies: UpdateTopicHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      updateTopicRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.updateTopic,
+    handle: async (request) => {
+      const { topicId, ...updates } = request;
+      const topic = await updateTopicRecord(topicId, updates, dependencies);
 
-    const { topicId, ...updates } = parsedRequest;
-    const topic = await updateTopicRecord(topicId, updates, dependencies);
-
-    return okResponse(updateTopicResponseSchema, { topic });
-  };
+      return { topic };
+    }
+  });
 }
 
 async function updateTopicRecord(
@@ -47,7 +44,7 @@ async function updateTopicRecord(
   );
 
   if (!topic) {
-    throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+    throw createTopicNotFoundError();
   }
 
   return topic;

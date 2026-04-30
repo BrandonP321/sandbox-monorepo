@@ -1,17 +1,10 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  createAssessmentUpdateRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "createAssessmentUpdate",
-  route: signalTrackerRoutes.createAssessmentUpdate,
+export default defineSignalTrackerPostmanRequest("createAssessmentUpdate", {
   folder: "Assessments",
   name: "Create Assessment Update",
   description:
     "Creates a dated assessment update with structured judgment fields.",
-  requestSchema: createAssessmentUpdateRequestSchema,
   exampleBody: {
     topicId: "topic-1",
     judgment: "Escalation risk remains limited.",

@@ -15,6 +15,10 @@ describe("signalTracker API error conventions", () => {
       "REQUEST_TIMEOUT"
     ]);
 
+    expect(signalTrackerApiErrorCodes.topicNotFound).toBe("TOPIC_NOT_FOUND");
+    expect(signalTrackerApiErrorCodes.eventEntryNotFound).toBe(
+      "EVENT_ENTRY_NOT_FOUND"
+    );
     expect(
       isSignalTrackerRetryableDbErrorCode(
         signalTrackerApiErrorCodes.persistenceUnavailable

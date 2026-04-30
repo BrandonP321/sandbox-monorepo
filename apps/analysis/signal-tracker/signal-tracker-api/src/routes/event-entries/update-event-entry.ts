@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  updateEventEntryRequestSchema,
-  updateEventEntryResponseSchema,
+  signalTrackerRouteContracts,
   type Entry
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createEventEntryNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type {
@@ -23,17 +22,19 @@ type UpdateEventEntryHandlerDependencies = {
 export function createUpdateEventEntryHandler(
   dependencies: UpdateEventEntryHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      updateEventEntryRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.updateEventEntry,
+    handle: async (request) => {
+      const { entryId, ...updates } = request;
+      const entry = await updateEventEntryRecord(
+        entryId,
+        updates,
+        dependencies
+      );
 
-    const { entryId, ...updates } = parsedRequest;
-    const entry = await updateEventEntryRecord(entryId, updates, dependencies);
-
-    return okResponse(updateEventEntryResponseSchema, { entry });
-  };
+      return { entry };
+    }
+  });
 }
 
 async function updateEventEntryRecord(
@@ -44,7 +45,7 @@ async function updateEventEntryRecord(
   const existingEntry = await findEntryById(entryId, dependencies);
 
   if (!existingEntry || existingEntry.kind !== "event") {
-    throw new AppError("EVENT_ENTRY_NOT_FOUND", "Event entry not found", 404);
+    throw createEventEntryNotFoundError();
   }
 
   const updatedAt = (dependencies.now ?? (() => new Date()))().toISOString();
@@ -56,7 +57,7 @@ async function updateEventEntryRecord(
   );
 
   if (!updatedEntry || updatedEntry.kind !== "event") {
-    throw new AppError("EVENT_ENTRY_NOT_FOUND", "Event entry not found", 404);
+    throw createEventEntryNotFoundError();
   }
 
   return updatedEntry;

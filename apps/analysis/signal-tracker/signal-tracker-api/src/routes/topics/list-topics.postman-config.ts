@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  listTopicsRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "listTopics",
-  route: signalTrackerRoutes.listTopics,
+export default defineSignalTrackerPostmanRequest("listTopics", {
   folder: "Topics",
   name: "List Topics",
   description: "Lists active tracked topic dossier containers.",
-  requestSchema: listTopicsRequestSchema,
   exampleBody: {
     query: "risk"
   }

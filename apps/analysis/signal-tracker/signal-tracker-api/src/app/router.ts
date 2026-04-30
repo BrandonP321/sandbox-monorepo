@@ -1,6 +1,6 @@
 import { createRoute, createRouter, type RouteHandler } from "@repo/api-core";
 import {
-  signalTrackerRouteEntries,
+  signalTrackerRouteContractEntries,
   type SignalTrackerRouteName
 } from "@repo/signal-tracker-shared";
 
@@ -80,8 +80,8 @@ export function createAppRouter(
   const routeHandlers = createRouteHandlers(dependencies);
 
   return createRouter(
-    signalTrackerRouteEntries.map(([routeName, route]) =>
-      createRoute(route, routeHandlers[routeName])
+    signalTrackerRouteContractEntries.map(([routeName, contract]) =>
+      createRoute(contract.route, routeHandlers[routeName])
     )
   );
 }

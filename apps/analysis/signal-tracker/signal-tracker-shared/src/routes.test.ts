@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  signalTrackerRouteContractEntries,
+  signalTrackerRouteContracts,
   signalTrackerHealthResponseSchema,
   signalTrackerRouteEntries,
   signalTrackerRouteList,
@@ -92,6 +94,31 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.updateEventEntry,
       signalTrackerRoutes.getHealth
     ]);
+  });
+
+  it("binds every route to request and response schemas", () => {
+    expect(signalTrackerRouteContractEntries.map(([name]) => name)).toEqual(
+      signalTrackerRouteEntries.map(([name]) => name)
+    );
+    expect(signalTrackerRouteContracts.createTopic.route).toBe(
+      signalTrackerRoutes.createTopic
+    );
+    expect(
+      signalTrackerRouteContracts.createTopic.requestSchema.parse({
+        title: " Iran strike risk ",
+        framingQuestion: " Will tensions escalate? "
+      })
+    ).toEqual({
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      reviewCadence: "ad_hoc"
+    });
+    expect(
+      signalTrackerRouteContracts.getHealth.requestSchema.parse({})
+    ).toEqual({});
+    expect(
+      signalTrackerRouteContracts.getHealth.responseSchema.parse({ ok: true })
+    ).toEqual({ ok: true });
   });
 
   it("validates the health response payload", () => {

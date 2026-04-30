@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  deleteTopicRequestSchema,
-  deleteTopicResponseSchema,
+  signalTrackerRouteContracts,
   type Topic
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -19,16 +18,14 @@ type DeleteTopicHandlerDependencies = {
 export function createDeleteTopicHandler(
   dependencies: DeleteTopicHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      deleteTopicRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.deleteTopic,
+    handle: async (request) => {
+      const topic = await deleteTopicRecord(request.topicId, dependencies);
 
-    const topic = await deleteTopicRecord(parsedRequest.topicId, dependencies);
-
-    return okResponse(deleteTopicResponseSchema, { topic });
-  };
+      return { topic };
+    }
+  });
 }
 
 async function deleteTopicRecord(
@@ -38,7 +35,7 @@ async function deleteTopicRecord(
   const topic = await persistTopicDelete(topicId, dependencies);
 
   if (!topic) {
-    throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+    throw createTopicNotFoundError();
   }
 
   return topic;

@@ -1,13 +1,11 @@
-import { type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  listEventEntriesRequestSchema,
-  listEventEntriesResponseSchema,
+  signalTrackerRouteContracts,
   type Entry
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
@@ -19,19 +17,17 @@ type ListEventEntriesHandlerDependencies = {
 export function createListEventEntriesHandler(
   dependencies: ListEventEntriesHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      listEventEntriesRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.listEventEntries,
+    handle: async (request) => {
+      const entries = await listActiveEventEntries(
+        request.topicId,
+        dependencies
+      );
 
-    const entries = await listActiveEventEntries(
-      parsedRequest.topicId,
-      dependencies
-    );
-
-    return okResponse(listEventEntriesResponseSchema, { entries });
-  };
+      return { entries };
+    }
+  });
 }
 
 async function listActiveEventEntries(

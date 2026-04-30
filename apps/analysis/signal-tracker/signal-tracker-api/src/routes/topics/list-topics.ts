@@ -1,12 +1,8 @@
-import { type ApiRequest, type RouteHandler } from "@repo/api-core";
-import {
-  listTopicsRequestSchema,
-  listTopicsResponseSchema
-} from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
+import { signalTrackerRouteContracts } from "@repo/signal-tracker-shared";
 
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -18,16 +14,14 @@ type ListTopicsHandlerDependencies = {
 export function createListTopicsHandler(
   dependencies: ListTopicsHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      listTopicsRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.listTopics,
+    handle: async (request) => {
+      const topics = await readTopics(request, dependencies);
 
-    const topics = await readTopics(parsedRequest, dependencies);
-
-    return okResponse(listTopicsResponseSchema, { topics });
-  };
+      return { topics };
+    }
+  });
 }
 
 async function readTopics(

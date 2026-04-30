@@ -1,18 +1,19 @@
 import { apiErrorSchema } from "@repo/api-contracts";
-import type { SignalTrackerRoute } from "@repo/signal-tracker-shared";
+import {
+  signalTrackerRouteContracts,
+  type SignalTrackerRouteName,
+  type SignalTrackerRouteRequest,
+  type SignalTrackerRouteResponse
+} from "@repo/signal-tracker-shared";
 
 import { loadRuntimeConfig } from "../config";
 
-type ResponseSchema<TResponse> = {
-  parse(value: unknown): TResponse;
-};
-
-export type SignalTrackerApiPostOptions<TResponse> = {
-  route: SignalTrackerRoute;
-  body: unknown;
-  responseSchema: ResponseSchema<TResponse>;
-  signal?: AbortSignal;
-};
+export type SignalTrackerApiPostOptions<TName extends SignalTrackerRouteName> =
+  {
+    routeName: TName;
+    body: SignalTrackerRouteRequest<TName>;
+    signal?: AbortSignal;
+  };
 
 export class SignalTrackerApiError extends Error {
   constructor(
@@ -25,12 +26,15 @@ export class SignalTrackerApiError extends Error {
   }
 }
 
-export async function postSignalTrackerApi<TResponse>(
-  options: SignalTrackerApiPostOptions<TResponse>
-): Promise<TResponse> {
+export async function postSignalTrackerApi<
+  TName extends SignalTrackerRouteName
+>(
+  options: SignalTrackerApiPostOptions<TName>
+): Promise<SignalTrackerRouteResponse<TName>> {
   const config = await loadRuntimeConfig();
-  const response = await fetch(`${config.apiBaseUrl}${options.route.path}`, {
-    method: options.route.method,
+  const contract = signalTrackerRouteContracts[options.routeName];
+  const response = await fetch(`${config.apiBaseUrl}${contract.route.path}`, {
+    method: contract.route.method,
     headers: {
       "content-type": "application/json"
     },
@@ -42,7 +46,9 @@ export async function postSignalTrackerApi<TResponse>(
     throw await createApiError(response);
   }
 
-  return options.responseSchema.parse(await response.json());
+  return contract.responseSchema.parse(
+    await response.json()
+  ) as SignalTrackerRouteResponse<TName>;
 }
 
 async function createApiError(

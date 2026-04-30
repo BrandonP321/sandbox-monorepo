@@ -8,3 +8,19 @@ export function createPersistenceUnavailableError(): AppError {
     503
   );
 }
+
+export function createTopicNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.topicNotFound,
+    "Topic not found",
+    404
+  );
+}
+
+export function createEventEntryNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.eventEntryNotFound,
+    "Event entry not found",
+    404
+  );
+}

@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  createAssessmentUpdateRequestSchema,
-  createAssessmentUpdateResponseSchema,
+  signalTrackerRouteContracts,
   type CreateAssessmentUpdateRequest
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import { EntryTopicNotFoundError } from "../../domain/entries/create-entry";
@@ -22,21 +21,17 @@ type CreateAssessmentUpdateHandlerDependencies =
 export function createCreateAssessmentUpdateHandler(
   dependencies: CreateAssessmentUpdateHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      createAssessmentUpdateRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.createAssessmentUpdate,
+    handle: async (request) => {
+      const assessmentUpdate = await persistAssessmentUpdate(
+        request,
+        dependencies
+      );
 
-    const assessmentUpdate = await persistAssessmentUpdate(
-      parsedRequest,
-      dependencies
-    );
-
-    return okResponse(createAssessmentUpdateResponseSchema, {
-      assessmentUpdate
-    });
-  };
+      return { assessmentUpdate };
+    }
+  });
 }
 
 async function persistAssessmentUpdate(
@@ -48,7 +43,7 @@ async function persistAssessmentUpdate(
     {
       mapDomainError: (error) =>
         error instanceof EntryTopicNotFoundError
-          ? new AppError("TOPIC_NOT_FOUND", "Topic not found", 404)
+          ? createTopicNotFoundError()
           : undefined
     }
   );

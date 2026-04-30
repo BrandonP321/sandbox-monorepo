@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  createEventEntryRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "createEventEntry",
-  route: signalTrackerRoutes.createEventEntry,
+export default defineSignalTrackerPostmanRequest("createEventEntry", {
   folder: "Event Entries",
   name: "Create Event Entry",
   description: "Creates a manual dated event entry inside a tracked topic.",
-  requestSchema: createEventEntryRequestSchema,
   exampleBody: {
     topicId: "topic-1",
     title: "Court grants injunction",

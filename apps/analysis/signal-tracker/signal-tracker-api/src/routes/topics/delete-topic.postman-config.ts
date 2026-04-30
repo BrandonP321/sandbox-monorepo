@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  deleteTopicRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "deleteTopic",
-  route: signalTrackerRoutes.deleteTopic,
+export default defineSignalTrackerPostmanRequest("deleteTopic", {
   folder: "Topics",
   name: "Delete Topic",
   description: "Permanently hard deletes a topic row.",
-  requestSchema: deleteTopicRequestSchema,
   exampleBody: {
     topicId: "topic-1"
   }

@@ -2,7 +2,9 @@ export const signalTrackerApiErrorCodes = {
   persistenceUnavailable: "PERSISTENCE_UNAVAILABLE",
   databaseUnavailable: "DATABASE_UNAVAILABLE",
   databaseWaking: "DATABASE_WAKING",
-  requestTimeout: "REQUEST_TIMEOUT"
+  requestTimeout: "REQUEST_TIMEOUT",
+  topicNotFound: "TOPIC_NOT_FOUND",
+  eventEntryNotFound: "EVENT_ENTRY_NOT_FOUND"
 } as const;
 
 export type SignalTrackerApiErrorCode =

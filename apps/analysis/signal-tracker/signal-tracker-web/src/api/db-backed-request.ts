@@ -1,10 +1,11 @@
-import { isSignalTrackerRetryableDbErrorCode } from "@repo/signal-tracker-shared";
-
 import {
-  postSignalTrackerApi,
-  SignalTrackerApiError,
-  type SignalTrackerApiPostOptions
-} from "./client";
+  isSignalTrackerRetryableDbErrorCode,
+  type SignalTrackerRouteName,
+  type SignalTrackerRouteRequest,
+  type SignalTrackerRouteResponse
+} from "@repo/signal-tracker-shared";
+
+import { postSignalTrackerApi, SignalTrackerApiError } from "./client";
 
 export const DB_BACKED_API_DEFAULTS = {
   wakeUpDelayMs: 4_000,
@@ -40,14 +41,18 @@ type AttemptSignal = {
   cleanup(): void;
 };
 
-export async function postSignalTrackerDbBackedApi<TResponse>(
-  options: SignalTrackerApiPostOptions<TResponse>,
+export async function postSignalTrackerDbBackedApi<
+  TName extends SignalTrackerRouteName
+>(
+  routeName: TName,
+  body: SignalTrackerRouteRequest<TName>,
   requestOptions?: DbBackedRequestOptions
-): Promise<TResponse> {
+): Promise<SignalTrackerRouteResponse<TName>> {
   return runDbBackedRequest(
     ({ signal }) =>
       postSignalTrackerApi({
-        ...options,
+        routeName,
+        body,
         signal
       }),
     requestOptions

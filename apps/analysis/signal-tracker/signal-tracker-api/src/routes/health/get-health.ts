@@ -1,7 +1,8 @@
-import { signalTrackerHealthResponseSchema } from "@repo/signal-tracker-shared";
+import { signalTrackerRouteContracts } from "@repo/signal-tracker-shared";
 
-import { okResponse } from "../../app/route-helpers";
+import { createJsonRouteHandler } from "../../app/route-helpers";
 
-export function getHealth() {
-  return okResponse(signalTrackerHealthResponseSchema, { ok: true });
-}
+export const getHealth = createJsonRouteHandler({
+  contract: signalTrackerRouteContracts.getHealth,
+  handle: () => ({ ok: true })
+});

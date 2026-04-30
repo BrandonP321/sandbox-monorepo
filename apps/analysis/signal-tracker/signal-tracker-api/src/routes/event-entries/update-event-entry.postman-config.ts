@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  signalTrackerRoutes,
-  updateEventEntryRequestSchema
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "updateEventEntry",
-  route: signalTrackerRoutes.updateEventEntry,
+export default defineSignalTrackerPostmanRequest("updateEventEntry", {
   folder: "Event Entries",
   name: "Update Event Entry",
   description: "Updates editable manual event entry fields.",
-  requestSchema: updateEventEntryRequestSchema,
   exampleBody: {
     entryId: "entry-1",
     title: "Updated court injunction",

@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  archiveTopicRequestSchema,
-  archiveTopicResponseSchema,
+  signalTrackerRouteContracts,
   type Topic
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -20,16 +19,14 @@ type ArchiveTopicHandlerDependencies = {
 export function createArchiveTopicHandler(
   dependencies: ArchiveTopicHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      archiveTopicRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.archiveTopic,
+    handle: async (request) => {
+      const topic = await archiveTopicRecord(request.topicId, dependencies);
 
-    const topic = await archiveTopicRecord(parsedRequest.topicId, dependencies);
-
-    return okResponse(archiveTopicResponseSchema, { topic });
-  };
+      return { topic };
+    }
+  });
 }
 
 async function archiveTopicRecord(
@@ -40,7 +37,7 @@ async function archiveTopicRecord(
   const topic = await persistTopicArchive(topicId, archivedAt, dependencies);
 
   if (!topic) {
-    throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+    throw createTopicNotFoundError();
   }
 
   return topic;

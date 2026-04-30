@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  createEventEntryRequestSchema,
-  createEventEntryResponseSchema,
+  signalTrackerRouteContracts,
   type CreateEventEntryRequest
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import {
@@ -27,16 +26,14 @@ type CreateEventEntryHandlerDependencies = {
 export function createCreateEventEntryHandler(
   dependencies: CreateEventEntryHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      createEventEntryRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.createEventEntry,
+    handle: async (request) => {
+      const entry = await persistEventEntry(request, dependencies);
 
-    const entry = await persistEventEntry(parsedRequest, dependencies);
-
-    return okResponse(createEventEntryResponseSchema, { entry });
-  };
+      return { entry };
+    }
+  });
 }
 
 async function persistEventEntry(
@@ -57,7 +54,7 @@ async function persistEventEntry(
     {
       mapDomainError: (error) =>
         error instanceof EntryTopicNotFoundError
-          ? new AppError("TOPIC_NOT_FOUND", "Topic not found", 404)
+          ? createTopicNotFoundError()
           : undefined
     }
   );

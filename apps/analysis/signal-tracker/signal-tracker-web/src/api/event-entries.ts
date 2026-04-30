@@ -1,7 +1,4 @@
 import {
-  createEventEntryResponseSchema,
-  listEventEntriesResponseSchema,
-  signalTrackerRoutes,
   type CreateEventEntryRequest,
   type CreateEventEntryResponse,
   type ListEventEntriesRequest,
@@ -17,26 +14,12 @@ export function createEventEntry(
   request: CreateEventEntryRequest,
   options?: DbBackedRequestOptions
 ): Promise<CreateEventEntryResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.createEventEntry,
-      body: request,
-      responseSchema: createEventEntryResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("createEventEntry", request, options);
 }
 
 export function listEventEntries(
   request: ListEventEntriesRequest,
   options?: DbBackedRequestOptions
 ): Promise<ListEventEntriesResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.listEventEntries,
-      body: request,
-      responseSchema: listEventEntriesResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("listEventEntries", request, options);
 }

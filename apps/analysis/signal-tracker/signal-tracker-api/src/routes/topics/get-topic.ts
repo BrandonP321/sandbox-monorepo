@@ -1,14 +1,13 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  getTopicRequestSchema,
-  getTopicResponseSchema,
+  signalTrackerRouteContracts,
   type AssessmentUpdate,
   type Topic
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createTopicNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
@@ -22,20 +21,21 @@ type GetTopicHandlerDependencies = {
 export function createGetTopicHandler(
   dependencies: GetTopicHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(getTopicRequestSchema, request.body);
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.getTopic,
+    handle: async (request) => {
+      const topic = await findTopic(request.topicId, dependencies);
+      const currentAssessment = await findCurrentAssessment(
+        topic.id,
+        dependencies
+      );
 
-    const topic = await findTopic(parsedRequest.topicId, dependencies);
-    const currentAssessment = await findCurrentAssessment(
-      topic.id,
-      dependencies
-    );
-
-    return okResponse(getTopicResponseSchema, {
-      topic,
-      currentAssessment
-    });
-  };
+      return {
+        topic,
+        currentAssessment
+      };
+    }
+  });
 }
 
 async function findCurrentAssessment(
@@ -56,7 +56,7 @@ async function findTopic(
   const topic = await findTopicById(topicId, dependencies);
 
   if (!topic) {
-    throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+    throw createTopicNotFoundError();
   }
 
   return topic;

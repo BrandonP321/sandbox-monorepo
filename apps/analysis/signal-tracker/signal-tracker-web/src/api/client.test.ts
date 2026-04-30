@@ -1,7 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { signalTrackerRoutes } from "@repo/signal-tracker-shared";
-
 import { postSignalTrackerApi } from "./client";
 
 afterEach(() => {
@@ -24,11 +22,8 @@ describe("postSignalTrackerApi", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const result = await postSignalTrackerApi({
-      route: signalTrackerRoutes.getHealth,
-      body: {},
-      responseSchema: {
-        parse: (value) => value as { ok: boolean }
-      }
+      routeName: "getHealth",
+      body: {}
     });
 
     expect(result).toEqual({ ok: true });
@@ -64,11 +59,8 @@ describe("postSignalTrackerApi", () => {
 
     await expect(
       postSignalTrackerApi({
-        route: signalTrackerRoutes.createTopic,
-        body: {},
-        responseSchema: {
-          parse: (value) => value as unknown
-        }
+        routeName: "getHealth",
+        body: {}
       })
     ).rejects.toMatchObject({
       statusCode: 503,

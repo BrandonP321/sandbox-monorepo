@@ -1,13 +1,12 @@
-import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  getEventEntryRequestSchema,
-  getEventEntryResponseSchema,
+  signalTrackerRouteContracts,
   type Entry
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
+import { createEventEntryNotFoundError } from "../../app/errors";
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
@@ -19,16 +18,14 @@ type GetEventEntryHandlerDependencies = {
 export function createGetEventEntryHandler(
   dependencies: GetEventEntryHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      getEventEntryRequestSchema,
-      request.body
-    );
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.getEventEntry,
+    handle: async (request) => {
+      const entry = await findEventEntry(request.entryId, dependencies);
 
-    const entry = await findEventEntry(parsedRequest.entryId, dependencies);
-
-    return okResponse(getEventEntryResponseSchema, { entry });
-  };
+      return { entry };
+    }
+  });
 }
 
 async function findEventEntry(
@@ -38,7 +35,7 @@ async function findEventEntry(
   const entry = await findEntryById(entryId, dependencies);
 
   if (!entry || entry.kind !== "event") {
-    throw new AppError("EVENT_ENTRY_NOT_FOUND", "Event entry not found", 404);
+    throw createEventEntryNotFoundError();
   }
 
   return entry;

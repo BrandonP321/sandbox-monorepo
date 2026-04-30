@@ -1,11 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  createEventEntryResponseSchema,
-  listEventEntriesResponseSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
-
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
 import { createEventEntry, listEventEntries } from "./event-entries";
 
@@ -38,11 +32,8 @@ describe("event entry API wrappers", () => {
     await createEventEntry(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.createEventEntry,
-        body: request,
-        responseSchema: createEventEntryResponseSchema
-      },
+      "createEventEntry",
+      request,
       options
     );
   });
@@ -54,11 +45,8 @@ describe("event entry API wrappers", () => {
     await listEventEntries(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.listEventEntries,
-        body: request,
-        responseSchema: listEventEntriesResponseSchema
-      },
+      "listEventEntries",
+      request,
       options
     );
   });

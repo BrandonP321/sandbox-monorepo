@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  signalTrackerRoutes,
-  updateTopicRequestSchema
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "updateTopic",
-  route: signalTrackerRoutes.updateTopic,
+export default defineSignalTrackerPostmanRequest("updateTopic", {
   folder: "Topics",
   name: "Update Topic",
   description: "Updates editable topic dossier metadata.",
-  requestSchema: updateTopicRequestSchema,
   exampleBody: {
     topicId: "topic-1",
     title: "Iran strike risk",

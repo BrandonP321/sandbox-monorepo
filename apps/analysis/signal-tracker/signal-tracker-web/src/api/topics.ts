@@ -1,11 +1,4 @@
 import {
-  archiveTopicResponseSchema,
-  createTopicResponseSchema,
-  deleteTopicResponseSchema,
-  getTopicResponseSchema,
-  listTopicsResponseSchema,
-  signalTrackerRoutes,
-  updateTopicResponseSchema,
   type ArchiveTopicRequest,
   type ArchiveTopicResponse,
   type CreateTopicRequest,
@@ -29,82 +22,40 @@ export function createTopic(
   request: CreateTopicRequest,
   options?: DbBackedRequestOptions
 ): Promise<CreateTopicResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.createTopic,
-      body: request,
-      responseSchema: createTopicResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("createTopic", request, options);
 }
 
 export function getTopic(
   request: GetTopicRequest,
   options?: DbBackedRequestOptions
 ): Promise<GetTopicResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.getTopic,
-      body: request,
-      responseSchema: getTopicResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("getTopic", request, options);
 }
 
 export function listTopics(
   request: ListTopicsRequest = { query: undefined },
   options?: DbBackedRequestOptions
 ): Promise<ListTopicsResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.listTopics,
-      body: request,
-      responseSchema: listTopicsResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("listTopics", request, options);
 }
 
 export function updateTopic(
   request: UpdateTopicRequest,
   options?: DbBackedRequestOptions
 ): Promise<UpdateTopicResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.updateTopic,
-      body: request,
-      responseSchema: updateTopicResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("updateTopic", request, options);
 }
 
 export function archiveTopic(
   request: ArchiveTopicRequest,
   options?: DbBackedRequestOptions
 ): Promise<ArchiveTopicResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.archiveTopic,
-      body: request,
-      responseSchema: archiveTopicResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("archiveTopic", request, options);
 }
 
 export function deleteTopic(
   request: DeleteTopicRequest,
   options?: DbBackedRequestOptions
 ): Promise<DeleteTopicResponse> {
-  return postSignalTrackerDbBackedApi(
-    {
-      route: signalTrackerRoutes.deleteTopic,
-      body: request,
-      responseSchema: deleteTopicResponseSchema
-    },
-    options
-  );
+  return postSignalTrackerDbBackedApi("deleteTopic", request, options);
 }

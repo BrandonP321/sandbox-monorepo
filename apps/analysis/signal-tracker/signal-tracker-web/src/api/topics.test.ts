@@ -1,15 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  archiveTopicResponseSchema,
-  createTopicResponseSchema,
-  deleteTopicResponseSchema,
-  getTopicResponseSchema,
-  listTopicsResponseSchema,
-  signalTrackerRoutes,
-  updateTopicResponseSchema
-} from "@repo/signal-tracker-shared";
-
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
 import {
   archiveTopic,
@@ -48,11 +38,8 @@ describe("topic API wrappers", () => {
     await createTopic(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.createTopic,
-        body: request,
-        responseSchema: createTopicResponseSchema
-      },
+      "createTopic",
+      request,
       options
     );
   });
@@ -63,11 +50,8 @@ describe("topic API wrappers", () => {
     await getTopic(request);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.getTopic,
-        body: request,
-        responseSchema: getTopicResponseSchema
-      },
+      "getTopic",
+      request,
       undefined
     );
   });
@@ -79,11 +63,8 @@ describe("topic API wrappers", () => {
     await listTopics(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.listTopics,
-        body: request,
-        responseSchema: listTopicsResponseSchema
-      },
+      "listTopics",
+      request,
       options
     );
   });
@@ -101,11 +82,8 @@ describe("topic API wrappers", () => {
     await updateTopic(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.updateTopic,
-        body: request,
-        responseSchema: updateTopicResponseSchema
-      },
+      "updateTopic",
+      request,
       options
     );
   });
@@ -117,11 +95,8 @@ describe("topic API wrappers", () => {
     await archiveTopic(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.archiveTopic,
-        body: request,
-        responseSchema: archiveTopicResponseSchema
-      },
+      "archiveTopic",
+      request,
       options
     );
   });
@@ -132,11 +107,8 @@ describe("topic API wrappers", () => {
     await deleteTopic(request);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.deleteTopic,
-        body: request,
-        responseSchema: deleteTopicResponseSchema
-      },
+      "deleteTopic",
+      request,
       undefined
     );
   });

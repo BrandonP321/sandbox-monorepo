@@ -1,4 +1,10 @@
-import { AppError, responses, type ApiResponse } from "@repo/api-core";
+import {
+  AppError,
+  responses,
+  type ApiRequest,
+  type ApiResponse,
+  type RouteHandler
+} from "@repo/api-core";
 
 import { createPersistenceUnavailableError } from "./errors";
 
@@ -37,6 +43,20 @@ type ParseRequestBodyOptions = {
 
 type PersistenceErrorMappingOptions = {
   mapDomainError?: (error: unknown) => AppError | undefined;
+};
+
+type JsonRouteContract<TRequest, TResponse> = {
+  requestSchema: RequestSchema<TRequest>;
+  responseSchema: ResponseSchema<TResponse>;
+};
+
+type JsonRouteHandlerOptions<TRequest, TResponse> = {
+  contract: JsonRouteContract<TRequest, TResponse>;
+  invalidMessage?: string;
+  handle: (
+    request: TRequest,
+    apiRequest: ApiRequest
+  ) => Promise<TResponse> | TResponse;
 };
 
 export function parseJsonBody(body: string | null | undefined): unknown {
@@ -107,6 +127,23 @@ export function okResponse<T>(
   payload: unknown
 ): ApiResponse {
   return responses.ok(schema.parse(payload));
+}
+
+export function createJsonRouteHandler<TRequest, TResponse>(
+  options: JsonRouteHandlerOptions<TRequest, TResponse>
+): RouteHandler {
+  return async (apiRequest) => {
+    const request = parseRequestBody(
+      options.contract.requestSchema,
+      apiRequest.body,
+      {
+        invalidMessage: options.invalidMessage
+      }
+    );
+    const payload = await options.handle(request, apiRequest);
+
+    return okResponse(options.contract.responseSchema, payload);
+  };
 }
 
 export async function withPersistenceErrorMapping<T>(

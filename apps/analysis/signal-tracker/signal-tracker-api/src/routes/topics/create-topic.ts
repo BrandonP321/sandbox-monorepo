@@ -1,12 +1,11 @@
-import { type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
-  createTopicRequestSchema,
-  createTopicResponseSchema
+  signalTrackerRouteContracts,
+  type CreateTopicRequest
 } from "@repo/signal-tracker-shared";
+import type { RouteHandler } from "@repo/api-core";
 
 import {
-  okResponse,
-  parseRequestBody,
+  createJsonRouteHandler,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import { createTopicRecord } from "../../domain/topics/create-topic";
@@ -21,19 +20,18 @@ type CreateTopicHandlerDependencies = {
 export function createCreateTopicHandler(
   dependencies: CreateTopicHandlerDependencies
 ): RouteHandler {
-  return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      createTopicRequestSchema,
-      request.body
-    );
-    const topic = await persistTopic(parsedRequest, dependencies);
+  return createJsonRouteHandler({
+    contract: signalTrackerRouteContracts.createTopic,
+    handle: async (request) => {
+      const topic = await persistTopic(request, dependencies);
 
-    return okResponse(createTopicResponseSchema, { topic });
-  };
+      return { topic };
+    }
+  });
 }
 
 async function persistTopic(
-  input: Parameters<typeof createTopicRecord>[0],
+  input: CreateTopicRequest,
   dependencies: CreateTopicHandlerDependencies
 ) {
   return withPersistenceErrorMapping(() =>

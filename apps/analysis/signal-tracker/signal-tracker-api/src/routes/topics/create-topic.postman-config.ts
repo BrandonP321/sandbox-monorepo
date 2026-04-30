@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  createTopicRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "createTopic",
-  route: signalTrackerRoutes.createTopic,
+export default defineSignalTrackerPostmanRequest("createTopic", {
   folder: "Topics",
   name: "Create Topic",
   description: "Creates a new tracked topic dossier container.",
-  requestSchema: createTopicRequestSchema,
   exampleBody: {
     title: "Iran strike risk",
     framingQuestion: "Will U.S.-Iran tensions escalate within the next month?",

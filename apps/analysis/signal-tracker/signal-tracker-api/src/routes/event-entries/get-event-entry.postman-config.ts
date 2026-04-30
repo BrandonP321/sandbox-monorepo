@@ -1,16 +1,9 @@
-import { definePostmanRequest } from "@repo/postman-sync";
-import {
-  getEventEntryRequestSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
+import { defineSignalTrackerPostmanRequest } from "../postman-request";
 
-export default definePostmanRequest({
-  routeName: "getEventEntry",
-  route: signalTrackerRoutes.getEventEntry,
+export default defineSignalTrackerPostmanRequest("getEventEntry", {
   folder: "Event Entries",
   name: "Get Event Entry",
   description: "Reads one event entry by ID.",
-  requestSchema: getEventEntryRequestSchema,
   exampleBody: {
     entryId: "entry-1"
   }

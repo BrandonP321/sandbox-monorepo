@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { AppError } from "@repo/api-core";
 
 import {
+  createJsonRouteHandler,
   okResponse,
   parseJsonBody,
   parseRequestBody,
@@ -77,6 +78,25 @@ describe("route helpers", () => {
 
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body)).toEqual({ name: "Risk" });
+  });
+
+  it("creates JSON route handlers from request and response schemas", async () => {
+    const handler = createJsonRouteHandler({
+      contract: {
+        requestSchema: requiredNameSchema,
+        responseSchema: requiredNameResponseSchema
+      },
+      handle: (request) => ({ name: request.name.toUpperCase() })
+    });
+
+    const response = await handler({
+      method: "POST",
+      path: "/test",
+      body: JSON.stringify({ name: "Risk" })
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(JSON.parse(response.body)).toEqual({ name: "RISK" });
   });
 
   it("maps unknown persistence failures", async () => {

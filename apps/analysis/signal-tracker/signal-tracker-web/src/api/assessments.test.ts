@@ -1,10 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 
-import {
-  createAssessmentUpdateResponseSchema,
-  signalTrackerRoutes
-} from "@repo/signal-tracker-shared";
-
 import { createAssessmentUpdate } from "./assessments";
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
 
@@ -42,11 +37,8 @@ describe("assessment API wrappers", () => {
     await createAssessmentUpdate(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      {
-        route: signalTrackerRoutes.createAssessmentUpdate,
-        body: request,
-        responseSchema: createAssessmentUpdateResponseSchema
-      },
+      "createAssessmentUpdate",
+      request,
       options
     );
   });
