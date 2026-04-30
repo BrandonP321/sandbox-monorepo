@@ -504,6 +504,7 @@ select {
   margin-top: 1.25rem;
 }
 
+.current-assessment,
 .event-entries {
   margin-top: 1.25rem;
   padding: 1.25rem;
@@ -512,6 +513,8 @@ select {
   background: #fff;
 }
 
+.current-assessment__header,
+.assessment-form__header,
 .event-entries__header,
 .event-entry-form__header {
   display: flex;
@@ -521,13 +524,19 @@ select {
   justify-content: space-between;
 }
 
-.event-entries__header h3,
+.current-assessment__header h3,
+.assessment-form h4,
+.current-assessment-card h4,
+.current-assessment-empty h4,
 .event-entry-form h4,
 .event-entry-card h4 {
   margin: 0;
   font-size: 1.08rem;
 }
 
+.current-assessment__header p,
+.current-assessment-empty p,
+.current-assessment-card p,
 .event-entries__header p,
 .event-entries__empty,
 .event-entry-card p {
@@ -537,6 +546,7 @@ select {
   line-height: 1.55;
 }
 
+.assessment-form,
 .event-entry-form {
   margin-top: 1.25rem;
   padding: 1rem;
@@ -545,9 +555,88 @@ select {
   background: #f8fbf4;
 }
 
+.assessment-form__success,
 .event-entry-form__success,
 .event-entries__status {
   margin-top: 0.75rem;
+}
+
+.current-assessment-card,
+.current-assessment-empty {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fbfcf8;
+}
+
+.current-assessment-card__metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.current-assessment-card__metadata time,
+.current-assessment-card__metadata span {
+  padding: 0.2rem 0.5rem;
+  border: 1px solid #d5ded9;
+  border-radius: 999px;
+  background: #fff;
+  color: #4b5a50;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.current-assessment-card__list {
+  margin-top: 1rem;
+}
+
+.current-assessment-card__list h5 {
+  margin: 0 0 0.4rem;
+  color: #637064;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+.current-assessment-card__list ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #314034;
+  line-height: 1.55;
+}
+
+.current-assessment-card__resolution {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+}
+
+.current-assessment-card__resolution dt {
+  color: #637064;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.current-assessment-card__resolution dd {
+  margin: 0.35rem 0 0;
+  color: #314034;
+  line-height: 1.55;
+}
+
+.assessment-form__advanced {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.assessment-form__advanced summary {
+  cursor: pointer;
+  color: #314034;
+  font-weight: 800;
 }
 
 .event-entry-list {

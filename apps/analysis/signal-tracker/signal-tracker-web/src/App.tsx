@@ -1,7 +1,13 @@
 import {
+  assessmentConfidenceLabelSchema,
+  createAssessmentUpdateRequestSchema,
   createEventEntryRequestSchema,
   updateTopicRequestSchema,
+  type AssessmentConfidenceLabel,
+  type AssessmentUpdate,
   type ArchiveTopicResponse,
+  type CreateAssessmentUpdateRequest,
+  type CreateAssessmentUpdateResponse,
   type CreateEventEntryRequest,
   type CreateEventEntryResponse,
   createTopicRequestSchema,
@@ -29,6 +35,7 @@ import {
 } from "react";
 
 import { SignalTrackerApiError } from "./api/client";
+import { createAssessmentUpdate } from "./api/assessments";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import {
   archiveTopic,
@@ -73,6 +80,21 @@ type EventEntryFieldErrors = Partial<
   Record<keyof EventEntryFormValues, string>
 >;
 
+type AssessmentFormValues = {
+  judgment: string;
+  confidenceLabel: AssessmentConfidenceLabel | "";
+  assessmentDate: string;
+  assumptions: string;
+  indicators: string;
+  probabilityPct: string;
+  resolutionCriteria: string;
+  targetResolutionDate: string;
+};
+
+type AssessmentFieldErrors = Partial<
+  Record<keyof AssessmentFormValues, string>
+>;
+
 const defaultTopicFormValues: TopicFormValues = {
   title: "",
   framingQuestion: "",
@@ -101,11 +123,25 @@ const defaultEventEntryFormValues: EventEntryFormValues = {
   epistemicStatus: "reported"
 };
 
+const defaultAssessmentFormValues: AssessmentFormValues = {
+  judgment: "",
+  confidenceLabel: "",
+  assessmentDate: "",
+  assumptions: "",
+  indicators: "",
+  probabilityPct: "",
+  resolutionCriteria: "",
+  targetResolutionDate: ""
+};
+
+const assessmentConfidenceOptions = assessmentConfidenceLabelSchema.options.map(
+  (value) => ({
+    value,
+    label: value.charAt(0).toUpperCase() + value.slice(1)
+  })
+) satisfies Array<{ value: AssessmentConfidenceLabel; label: string }>;
+
 const dossierSections = [
-  {
-    title: "Assessment updates",
-    body: "Future assessment updates will preserve what you thought, why, and how your judgment changed."
-  },
   {
     title: "Review notes",
     body: "Future review notes will record what you concluded when revisiting this dossier."
@@ -764,7 +800,16 @@ function TopicDetailScreen({
   }, [loadTopic]);
 
   const updateLoadedTopic = useCallback((topic: Topic) => {
-    setTopicState({ status: "success", data: { topic } });
+    setTopicState((currentState) => ({
+      status: "success",
+      data: {
+        topic,
+        currentAssessment:
+          currentState.status === "success"
+            ? currentState.data.currentAssessment
+            : null
+      }
+    }));
   }, []);
 
   const isNotFound =
@@ -800,6 +845,7 @@ function TopicDetailScreen({
       {topicState.status === "success" ? (
         <TopicDossierShell
           topic={topicState.data.topic}
+          initialCurrentAssessment={topicState.data.currentAssessment}
           onTopicChanged={updateLoadedTopic}
           onTopicDeleted={onNavigateTopics}
         />
@@ -810,10 +856,12 @@ function TopicDetailScreen({
 
 function TopicDossierShell({
   topic,
+  initialCurrentAssessment,
   onTopicChanged,
   onTopicDeleted
 }: {
   topic: Topic;
+  initialCurrentAssessment: AssessmentUpdate | null;
   onTopicChanged: (topic: Topic) => void;
   onTopicDeleted: () => void;
 }) {
@@ -849,6 +897,20 @@ function TopicDossierShell({
     DbBackedRequestState<CreateEventEntryResponse>
   >({ status: "idle" });
   const lastSubmittedEvent = useRef<CreateEventEntryRequest | null>(null);
+  const [currentAssessment, setCurrentAssessment] =
+    useState<AssessmentUpdate | null>(initialCurrentAssessment);
+  const [isAssessmentFormOpen, setIsAssessmentFormOpen] = useState(false);
+  const [assessmentForm, setAssessmentForm] = useState<AssessmentFormValues>(
+    defaultAssessmentFormValues
+  );
+  const [assessmentFieldErrors, setAssessmentFieldErrors] =
+    useState<AssessmentFieldErrors>({});
+  const [createAssessmentState, setCreateAssessmentState] = useState<
+    DbBackedRequestState<CreateAssessmentUpdateResponse>
+  >({ status: "idle" });
+  const lastSubmittedAssessment = useRef<CreateAssessmentUpdateRequest | null>(
+    null
+  );
 
   const isUpdating =
     updateState.status === "loading" || updateState.status === "waking";
@@ -859,6 +921,9 @@ function TopicDossierShell({
   const isCreatingEvent =
     createEventState.status === "loading" ||
     createEventState.status === "waking";
+  const isCreatingAssessment =
+    createAssessmentState.status === "loading" ||
+    createAssessmentState.status === "waking";
   const canDelete = deleteConfirmationTitle === topic.title && !isDeleting;
 
   const loadEventEntries = useCallback(async () => {
@@ -907,6 +972,10 @@ function TopicDossierShell({
     };
   }, [loadEventEntries]);
 
+  useEffect(() => {
+    setCurrentAssessment(initialCurrentAssessment);
+  }, [initialCurrentAssessment, topic.id]);
+
   function updateField<FieldName extends keyof TopicFormValues>(
     fieldName: FieldName,
     value: TopicFormValues[FieldName]
@@ -935,6 +1004,20 @@ function TopicDossierShell({
     }));
   }
 
+  function updateAssessmentField<FieldName extends keyof AssessmentFormValues>(
+    fieldName: FieldName,
+    value: AssessmentFormValues[FieldName]
+  ) {
+    setAssessmentForm((currentValues) => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+    setAssessmentFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [fieldName]: undefined
+    }));
+  }
+
   function openEventForm() {
     setIsEventFormOpen(true);
     setCreateEventState({ status: "idle" });
@@ -947,6 +1030,20 @@ function TopicDossierShell({
     setEventFieldErrors({});
     setCreateEventState({ status: "idle" });
     lastSubmittedEvent.current = null;
+  }
+
+  function openAssessmentForm() {
+    setIsAssessmentFormOpen(true);
+    setCreateAssessmentState({ status: "idle" });
+    setAssessmentFieldErrors({});
+  }
+
+  function cancelAssessmentForm() {
+    setIsAssessmentFormOpen(false);
+    setAssessmentForm(defaultAssessmentFormValues);
+    setAssessmentFieldErrors({});
+    setCreateAssessmentState({ status: "idle" });
+    lastSubmittedAssessment.current = null;
   }
 
   function startEditing() {
@@ -1120,6 +1217,64 @@ function TopicDossierShell({
     }
   }
 
+  async function handleCreateAssessmentSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const parsedRequest = createAssessmentUpdateRequestSchema.safeParse({
+      topicId: topic.id,
+      judgment: assessmentForm.judgment,
+      confidenceLabel: assessmentForm.confidenceLabel,
+      probabilityPct: parseOptionalInteger(assessmentForm.probabilityPct),
+      assumptions: parseTextareaLines(assessmentForm.assumptions),
+      indicators: parseTextareaLines(assessmentForm.indicators),
+      resolutionCriteria: assessmentForm.resolutionCriteria,
+      targetResolvesAt: toOptionalDateTime(assessmentForm.targetResolutionDate),
+      sortAt: toEventSortAt(assessmentForm.assessmentDate)
+    });
+
+    if (!parsedRequest.success) {
+      setAssessmentFieldErrors(
+        createAssessmentFieldErrors(parsedRequest.error.issues)
+      );
+      setCreateAssessmentState({ status: "idle" });
+      return;
+    }
+
+    lastSubmittedAssessment.current = parsedRequest.data;
+    await submitAssessmentUpdate(parsedRequest.data);
+  }
+
+  async function retryCreateAssessment() {
+    if (!lastSubmittedAssessment.current) {
+      return;
+    }
+
+    await submitAssessmentUpdate(lastSubmittedAssessment.current);
+  }
+
+  async function submitAssessmentUpdate(
+    request: CreateAssessmentUpdateRequest
+  ) {
+    setAssessmentFieldErrors({});
+    setCreateAssessmentState({ status: "loading" });
+
+    try {
+      const response = await createAssessmentUpdate(request, {
+        onProgress: (progress) => {
+          setCreateAssessmentState({ status: progress.phase });
+        }
+      });
+
+      setCreateAssessmentState({ status: "success", data: response });
+      setCurrentAssessment(response.assessmentUpdate);
+      setAssessmentForm(defaultAssessmentFormValues);
+    } catch (error) {
+      setCreateAssessmentState({ status: "error", error });
+    }
+  }
+
   if (isEditing) {
     return (
       <form
@@ -1198,6 +1353,20 @@ function TopicDossierShell({
           <MetadataItem label="Scope note" value={topic.scopeNote} />
         ) : null}
       </dl>
+
+      <CurrentAssessmentSection
+        currentAssessment={currentAssessment}
+        isFormOpen={isAssessmentFormOpen}
+        formValues={assessmentForm}
+        fieldErrors={assessmentFieldErrors}
+        createState={createAssessmentState}
+        isCreating={isCreatingAssessment}
+        onOpenForm={openAssessmentForm}
+        onCancelForm={cancelAssessmentForm}
+        onUpdateField={updateAssessmentField}
+        onSubmit={(event) => void handleCreateAssessmentSubmit(event)}
+        onRetryCreate={() => void retryCreateAssessment()}
+      />
 
       <EventEntriesSection
         entries={
@@ -1471,6 +1640,348 @@ function EventEntriesSection({
   );
 }
 
+function CurrentAssessmentSection({
+  currentAssessment,
+  isFormOpen,
+  formValues,
+  fieldErrors,
+  createState,
+  isCreating,
+  onOpenForm,
+  onCancelForm,
+  onUpdateField,
+  onSubmit,
+  onRetryCreate
+}: {
+  currentAssessment: AssessmentUpdate | null;
+  isFormOpen: boolean;
+  formValues: AssessmentFormValues;
+  fieldErrors: AssessmentFieldErrors;
+  createState: DbBackedRequestState<CreateAssessmentUpdateResponse>;
+  isCreating: boolean;
+  onOpenForm: () => void;
+  onCancelForm: () => void;
+  onUpdateField: <FieldName extends keyof AssessmentFormValues>(
+    fieldName: FieldName,
+    value: AssessmentFormValues[FieldName]
+  ) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onRetryCreate: () => void;
+}) {
+  return (
+    <section
+      className="current-assessment"
+      aria-labelledby="current-assessment-title"
+    >
+      <div className="current-assessment__header">
+        <div>
+          <p className="eyebrow">Assessment</p>
+          <h3 id="current-assessment-title">Current assessment</h3>
+          <p>
+            This is derived from the latest active assessment update in the
+            topic history.
+          </p>
+        </div>
+        {isFormOpen ? null : (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={onOpenForm}
+          >
+            {currentAssessment ? "Update assessment" : "Add assessment"}
+          </button>
+        )}
+      </div>
+
+      {currentAssessment ? (
+        <article
+          className="current-assessment-card"
+          aria-label="Current assessment"
+        >
+          <div className="current-assessment-card__metadata">
+            <time dateTime={currentAssessment.entry.sortAt}>
+              {formatTopicDate(currentAssessment.entry.sortAt)}
+            </time>
+            <span>
+              {formatAssessmentConfidence(currentAssessment.confidenceLabel)}
+            </span>
+            {currentAssessment.probabilityPct !== undefined ? (
+              <span>{currentAssessment.probabilityPct}% probability</span>
+            ) : null}
+          </div>
+          <h4>{currentAssessment.entry.title}</h4>
+          <p>{currentAssessment.judgment}</p>
+          <AssessmentList
+            title="Assumptions"
+            items={currentAssessment.assumptions}
+          />
+          <AssessmentList
+            title="Indicators"
+            items={currentAssessment.indicators}
+          />
+          {currentAssessment.resolutionCriteria ||
+          currentAssessment.targetResolvesAt ? (
+            <dl className="current-assessment-card__resolution">
+              {currentAssessment.resolutionCriteria ? (
+                <div>
+                  <dt>Resolution criteria</dt>
+                  <dd>{currentAssessment.resolutionCriteria}</dd>
+                </div>
+              ) : null}
+              {currentAssessment.targetResolvesAt ? (
+                <div>
+                  <dt>Target resolution date</dt>
+                  <dd>{formatTopicDate(currentAssessment.targetResolvesAt)}</dd>
+                </div>
+              ) : null}
+            </dl>
+          ) : null}
+        </article>
+      ) : (
+        <div className="current-assessment-empty">
+          <h4>No assessment yet</h4>
+          <p>
+            Add an assessment update to record your current judgment,
+            confidence, assumptions, and indicators for this dossier.
+          </p>
+        </div>
+      )}
+
+      {isFormOpen ? (
+        <form
+          className="assessment-form"
+          aria-label="Add assessment update"
+          onSubmit={onSubmit}
+        >
+          <div className="assessment-form__header">
+            <h4>Add assessment update</h4>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isCreating}
+              onClick={onCancelForm}
+            >
+              Cancel
+            </button>
+          </div>
+          <AssessmentFields
+            values={formValues}
+            fieldErrors={fieldErrors}
+            onUpdateField={onUpdateField}
+          />
+          <button
+            className="primary-action"
+            type="submit"
+            disabled={isCreating}
+          >
+            {isCreating ? "Saving assessment..." : "Save assessment"}
+          </button>
+          {createState.status === "success" ? (
+            <p className="status-text assessment-form__success" role="status">
+              Assessment saved.
+            </p>
+          ) : null}
+          <DbWakeUpStatus state={createState} onRetry={onRetryCreate} />
+        </form>
+      ) : null}
+    </section>
+  );
+}
+
+function AssessmentList({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="current-assessment-card__list">
+      <h5>{title}</h5>
+      <ul>
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function AssessmentFields({
+  values,
+  fieldErrors,
+  onUpdateField
+}: {
+  values: AssessmentFormValues;
+  fieldErrors: AssessmentFieldErrors;
+  onUpdateField: <FieldName extends keyof AssessmentFormValues>(
+    fieldName: FieldName,
+    value: AssessmentFormValues[FieldName]
+  ) => void;
+}) {
+  const judgmentErrorId = "assessment-judgment-error";
+  const confidenceErrorId = "assessment-confidence-error";
+  const dateErrorId = "assessment-date-error";
+  const assumptionsErrorId = "assessment-assumptions-error";
+  const indicatorsErrorId = "assessment-indicators-error";
+  const probabilityErrorId = "assessment-probability-error";
+
+  return (
+    <>
+      <label className="form-field" htmlFor="assessment-judgment">
+        <span>Judgment</span>
+        <textarea
+          id="assessment-judgment"
+          rows={4}
+          value={values.judgment}
+          aria-invalid={fieldErrors.judgment ? "true" : undefined}
+          aria-describedby={fieldErrors.judgment ? judgmentErrorId : undefined}
+          onChange={(event) => onUpdateField("judgment", event.target.value)}
+        />
+        {fieldErrors.judgment ? (
+          <span className="field-error" id={judgmentErrorId}>
+            {fieldErrors.judgment}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="assessment-confidence">
+        <span>Confidence</span>
+        <select
+          id="assessment-confidence"
+          value={values.confidenceLabel}
+          aria-invalid={fieldErrors.confidenceLabel ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.confidenceLabel ? confidenceErrorId : undefined
+          }
+          onChange={(event) =>
+            onUpdateField(
+              "confidenceLabel",
+              event.target.value as AssessmentConfidenceLabel | ""
+            )
+          }
+        >
+          <option value="">Choose confidence</option>
+          {assessmentConfidenceOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        {fieldErrors.confidenceLabel ? (
+          <span className="field-error" id={confidenceErrorId}>
+            {fieldErrors.confidenceLabel}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="assessment-date">
+        <span>Assessment date</span>
+        <input
+          id="assessment-date"
+          type="date"
+          value={values.assessmentDate}
+          aria-invalid={fieldErrors.assessmentDate ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.assessmentDate ? dateErrorId : undefined
+          }
+          onChange={(event) =>
+            onUpdateField("assessmentDate", event.target.value)
+          }
+        />
+        {fieldErrors.assessmentDate ? (
+          <span className="field-error" id={dateErrorId}>
+            {fieldErrors.assessmentDate}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="assessment-assumptions">
+        <span>Assumptions</span>
+        <textarea
+          id="assessment-assumptions"
+          rows={4}
+          value={values.assumptions}
+          aria-invalid={fieldErrors.assumptions ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.assumptions ? assumptionsErrorId : undefined
+          }
+          onChange={(event) => onUpdateField("assumptions", event.target.value)}
+        />
+        {fieldErrors.assumptions ? (
+          <span className="field-error" id={assumptionsErrorId}>
+            {fieldErrors.assumptions}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="assessment-indicators">
+        <span>Indicators</span>
+        <textarea
+          id="assessment-indicators"
+          rows={4}
+          value={values.indicators}
+          aria-invalid={fieldErrors.indicators ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.indicators ? indicatorsErrorId : undefined
+          }
+          onChange={(event) => onUpdateField("indicators", event.target.value)}
+        />
+        {fieldErrors.indicators ? (
+          <span className="field-error" id={indicatorsErrorId}>
+            {fieldErrors.indicators}
+          </span>
+        ) : null}
+      </label>
+
+      <details className="assessment-form__advanced">
+        <summary>Advanced fields</summary>
+        <label className="form-field" htmlFor="assessment-probability">
+          <span>Probability</span>
+          <input
+            id="assessment-probability"
+            type="number"
+            min="0"
+            max="100"
+            step="any"
+            value={values.probabilityPct}
+            aria-invalid={fieldErrors.probabilityPct ? "true" : undefined}
+            aria-describedby={
+              fieldErrors.probabilityPct ? probabilityErrorId : undefined
+            }
+            onChange={(event) =>
+              onUpdateField("probabilityPct", event.target.value)
+            }
+          />
+          {fieldErrors.probabilityPct ? (
+            <span className="field-error" id={probabilityErrorId}>
+              {fieldErrors.probabilityPct}
+            </span>
+          ) : null}
+        </label>
+
+        <label className="form-field" htmlFor="assessment-resolution-criteria">
+          <span>Resolution criteria</span>
+          <textarea
+            id="assessment-resolution-criteria"
+            rows={3}
+            value={values.resolutionCriteria}
+            onChange={(event) =>
+              onUpdateField("resolutionCriteria", event.target.value)
+            }
+          />
+        </label>
+
+        <label className="form-field" htmlFor="assessment-target-resolution">
+          <span>Target resolution date</span>
+          <input
+            id="assessment-target-resolution"
+            type="date"
+            value={values.targetResolutionDate}
+            onChange={(event) =>
+              onUpdateField("targetResolutionDate", event.target.value)
+            }
+          />
+        </label>
+      </details>
+    </>
+  );
+}
+
 function EventEntryFields({
   values,
   fieldErrors,
@@ -1660,6 +2171,42 @@ function createEventFieldErrors(
   return errors;
 }
 
+function createAssessmentFieldErrors(
+  issues: Array<{ path: PropertyKey[] }>
+): AssessmentFieldErrors {
+  const errors: AssessmentFieldErrors = {};
+
+  for (const issue of issues) {
+    const fieldName = issue.path[0];
+
+    if (fieldName === "judgment") {
+      errors.judgment = "Enter an assessment judgment.";
+    }
+
+    if (fieldName === "confidenceLabel") {
+      errors.confidenceLabel = "Choose a valid confidence label.";
+    }
+
+    if (fieldName === "sortAt") {
+      errors.assessmentDate = "Choose an assessment date.";
+    }
+
+    if (fieldName === "assumptions") {
+      errors.assumptions = "Enter at least one assumption.";
+    }
+
+    if (fieldName === "indicators") {
+      errors.indicators = "Enter at least one indicator.";
+    }
+
+    if (fieldName === "probabilityPct") {
+      errors.probabilityPct = "Enter a whole-number probability from 0 to 100.";
+    }
+  }
+
+  return errors;
+}
+
 function topicToFormValues(topic: Topic): TopicFormValues {
   return {
     title: topic.title,
@@ -1721,6 +2268,16 @@ function formatEpistemicStatus(status: EntryEpistemicStatus): string {
   );
 }
 
+function formatAssessmentConfidence(
+  confidenceLabel: AssessmentConfidenceLabel
+): string {
+  return (
+    assessmentConfidenceOptions.find(
+      (option) => option.value === confidenceLabel
+    )?.label ?? confidenceLabel
+  );
+}
+
 function formatTopicStatus(status: Topic["status"]): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -1741,6 +2298,29 @@ function toEventSortAt(sortDate: string): string {
   }
 
   return `${sortDate}T00:00:00.000Z`;
+}
+
+function toOptionalDateTime(dateValue: string): string | undefined {
+  if (!dateValue) {
+    return undefined;
+  }
+
+  return toEventSortAt(dateValue);
+}
+
+function parseOptionalInteger(value: string): number | undefined {
+  if (!value.trim()) {
+    return undefined;
+  }
+
+  return Number(value);
+}
+
+function parseTextareaLines(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
 }
 
 function sortEventEntries(entries: Entry[]): Entry[] {

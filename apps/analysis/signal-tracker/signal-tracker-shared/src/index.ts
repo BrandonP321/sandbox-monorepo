@@ -240,7 +240,8 @@ export const getTopicRequestSchema = z.object({
 export type GetTopicRequest = z.infer<typeof getTopicRequestSchema>;
 
 export const getTopicResponseSchema = z.object({
-  topic: topicSchema
+  topic: topicSchema,
+  currentAssessment: assessmentUpdateSchema.nullable()
 });
 
 export type GetTopicResponse = z.infer<typeof getTopicResponseSchema>;

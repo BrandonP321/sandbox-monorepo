@@ -7,22 +7,28 @@ import {
 import {
   getTopicRequestSchema,
   getTopicResponseSchema,
+  type AssessmentUpdate,
   type Topic
 } from "@repo/signal-tracker-shared";
 
 import { createPersistenceUnavailableError } from "../../app/errors";
+import { PostgresAssessmentRepository } from "../../domain/assessments/postgres-assessment-repository";
+import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type GetTopicHandlerDependencies = {
   repository: TopicRepository;
+  assessmentRepository: AssessmentRepository;
 };
 
 const defaultTopicRepository = new PostgresTopicRepository();
+const defaultAssessmentRepository = new PostgresAssessmentRepository();
 
 export function createGetTopicHandler(
   dependencies: GetTopicHandlerDependencies = {
-    repository: defaultTopicRepository
+    repository: defaultTopicRepository,
+    assessmentRepository: defaultAssessmentRepository
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
@@ -38,10 +44,32 @@ export function createGetTopicHandler(
     }
 
     const topic = await findTopic(parsedRequest.data.topicId, dependencies);
-    const response = getTopicResponseSchema.parse({ topic });
+    const currentAssessment = await findCurrentAssessment(
+      topic.id,
+      dependencies
+    );
+    const response = getTopicResponseSchema.parse({
+      topic,
+      currentAssessment
+    });
 
     return responses.ok(response);
   };
+}
+
+async function findCurrentAssessment(
+  topicId: string,
+  dependencies: GetTopicHandlerDependencies
+): Promise<AssessmentUpdate | null> {
+  try {
+    return (
+      (await dependencies.assessmentRepository.findLatestActiveByTopic(
+        topicId
+      )) ?? null
+    );
+  } catch {
+    throw createPersistenceUnavailableError();
+  }
 }
 
 export const getTopic = createGetTopicHandler();

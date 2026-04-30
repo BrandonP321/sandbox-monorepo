@@ -590,7 +590,7 @@ describe("topic contracts", () => {
     expect(() => getTopicRequestSchema.parse({ topicId: " " })).toThrow();
   });
 
-  it("validates the get-topic response shape", () => {
+  it("validates the get-topic response shape without a current assessment", () => {
     const topic = topicSchema.parse({
       id: "topic-1",
       title: "Iran strike risk",
@@ -601,7 +601,50 @@ describe("topic contracts", () => {
       reviewCadence: "weekly"
     });
 
-    expect(getTopicResponseSchema.parse({ topic })).toEqual({ topic });
+    expect(
+      getTopicResponseSchema.parse({ topic, currentAssessment: null })
+    ).toEqual({
+      topic,
+      currentAssessment: null
+    });
+  });
+
+  it("validates the get-topic response shape with a current assessment", () => {
+    const topic = topicSchema.parse({
+      id: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      status: "active",
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-25T00:00:00.000Z",
+      reviewCadence: "weekly"
+    });
+    const currentAssessment = assessmentUpdateSchema.parse({
+      entry: {
+        id: "assessment-1",
+        topicId: "topic-1",
+        kind: "assessment",
+        epistemicStatus: "forecast",
+        title: "Assessment update - 2026-04-25",
+        bodyMd: "Escalation risk remains limited.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        isApproximateDate: false,
+        originType: "manual",
+        status: "active",
+        createdAt: "2026-04-25T01:00:00.000Z",
+        updatedAt: "2026-04-25T01:00:00.000Z"
+      },
+      judgment: "Escalation risk remains limited.",
+      confidenceLabel: "medium",
+      probabilityPct: 35,
+      assumptions: ["Diplomatic channels remain open"],
+      indicators: ["Watch for evacuation orders"]
+    });
+
+    expect(getTopicResponseSchema.parse({ topic, currentAssessment })).toEqual({
+      topic,
+      currentAssessment
+    });
   });
 
   it("validates a topic list request and trims the query", () => {

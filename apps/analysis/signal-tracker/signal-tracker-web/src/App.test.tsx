@@ -1,5 +1,7 @@
 import type {
+  AssessmentUpdate,
   ArchiveTopicResponse,
+  CreateAssessmentUpdateResponse,
   CreateEventEntryResponse,
   CreateTopicResponse,
   DeleteTopicResponse,
@@ -20,6 +22,7 @@ import {
 } from "@testing-library/react";
 
 import App from "./App";
+import { createAssessmentUpdate } from "./api/assessments";
 import { SignalTrackerApiError } from "./api/client";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import {
@@ -68,6 +71,18 @@ vi.mock("./api/event-entries", async () => {
   };
 });
 
+vi.mock("./api/assessments", async () => {
+  const actual =
+    await vi.importActual<typeof import("./api/assessments")>(
+      "./api/assessments"
+    );
+
+  return {
+    ...actual,
+    createAssessmentUpdate: vi.fn()
+  };
+});
+
 const topicFixture = {
   id: "topic-1",
   title: "Iran strike risk",
@@ -84,7 +99,8 @@ const createdTopicResponse: CreateTopicResponse = {
 };
 
 const getTopicResponse: GetTopicResponse = {
-  topic: topicFixture
+  topic: topicFixture,
+  currentAssessment: null
 };
 
 const updatedTopicFixture = {
@@ -153,6 +169,35 @@ const listEventEntriesResponse: ListEventEntriesResponse = {
   entries: []
 };
 
+const assessmentUpdateFixture: AssessmentUpdate = {
+  entry: {
+    id: "assessment-1",
+    topicId: "topic-1",
+    kind: "assessment",
+    epistemicStatus: "forecast",
+    title: "Assessment update - 2026-04-25",
+    bodyMd: "Escalation risk remains limited.",
+    sortAt: "2026-04-25T00:00:00.000Z",
+    isApproximateDate: false,
+    originType: "manual",
+    status: "active",
+    createdAt: "2026-04-25T01:00:00.000Z",
+    updatedAt: "2026-04-25T01:00:00.000Z"
+  },
+  judgment: "Escalation risk remains limited.",
+  confidenceLabel: "medium",
+  probabilityPct: 35,
+  assumptions: ["Diplomatic channels remain open"],
+  indicators: ["Watch for evacuation orders"],
+  resolutionCriteria: "Direct military action occurs.",
+  targetResolvesAt: "2026-05-25T00:00:00.000Z",
+  previousAssessmentEntryId: undefined
+};
+
+const assessmentUpdateResponse: CreateAssessmentUpdateResponse = {
+  assessmentUpdate: assessmentUpdateFixture
+};
+
 afterEach(() => {
   vi.clearAllMocks();
 });
@@ -166,6 +211,7 @@ const archiveTopicMock = vi.mocked(archiveTopic);
 const deleteTopicMock = vi.mocked(deleteTopic);
 const createEventEntryMock = vi.mocked(createEventEntry);
 const listEventEntriesMock = vi.mocked(listEventEntries);
+const createAssessmentUpdateMock = vi.mocked(createAssessmentUpdate);
 
 describe("App", () => {
   beforeEach(() => {
@@ -179,6 +225,7 @@ describe("App", () => {
     deleteTopicMock.mockResolvedValue(deletedTopicResponse);
     createEventEntryMock.mockResolvedValue(eventEntryResponse);
     listEventEntriesMock.mockResolvedValue(listEventEntriesResponse);
+    createAssessmentUpdateMock.mockResolvedValue(assessmentUpdateResponse);
   });
 
   it("renders the loading state while the health check is in flight", () => {
@@ -437,7 +484,8 @@ describe("App", () => {
       topic: {
         ...topicFixture,
         scopeNote: undefined
-      }
+      },
+      currentAssessment: null
     });
 
     render(<App />);
@@ -938,14 +986,313 @@ describe("App", () => {
     ).toBeDisabled();
   });
 
+  it("renders the no-assessment empty state on the topic detail route", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("No assessment yet")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "This is derived from the latest active assessment update in the topic history."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add assessment" })
+    ).toBeInTheDocument();
+  });
+
+  it("renders an existing current assessment on the topic detail route", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    getTopicMock.mockResolvedValue({
+      topic: topicFixture,
+      currentAssessment: assessmentUpdateFixture
+    });
+
+    render(<App />);
+
+    const currentAssessmentSection = (
+      await screen.findByRole("heading", {
+        name: "Current assessment"
+      })
+    ).closest("section");
+
+    expect(currentAssessmentSection).not.toBeNull();
+    expect(
+      within(currentAssessmentSection!).getByText(
+        "Escalation risk remains limited."
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentSection!).getByText("Medium")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentSection!).getByText("35% probability")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentSection!).getByText(
+        "Diplomatic channels remain open"
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentSection!).getByText("Watch for evacuation orders")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentSection!).getByText(
+        "Direct military action occurs."
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Update assessment" })
+    ).toBeInTheDocument();
+  });
+
+  it("opens and cancels the inline assessment form", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+
+    expect(
+      screen.getByRole("form", { name: "Add assessment update" })
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Judgment"), {
+      target: { value: "Draft assessment" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(
+      screen.queryByRole("form", { name: "Add assessment update" })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    expect(screen.getByLabelText("Judgment")).toHaveValue("");
+  });
+
+  it("shows assessment form validation errors before calling the create API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
+
+    expect(
+      await screen.findByText("Enter an assessment judgment.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Choose a valid confidence label.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Choose an assessment date.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Enter at least one assumption.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Enter at least one indicator.")
+    ).toBeInTheDocument();
+    expect(createAssessmentUpdateMock).not.toHaveBeenCalled();
+  });
+
+  it("validates optional assessment probability before calling the create API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.change(screen.getByLabelText("Judgment"), {
+      target: { value: "Escalation risk remains limited." }
+    });
+    fireEvent.change(screen.getByLabelText("Confidence"), {
+      target: { value: "medium" }
+    });
+    fireEvent.change(screen.getByLabelText("Assessment date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.change(screen.getByLabelText("Assumptions"), {
+      target: { value: "Diplomatic channels remain open" }
+    });
+    fireEvent.change(screen.getByLabelText("Indicators"), {
+      target: { value: "Watch for evacuation orders" }
+    });
+    fireEvent.change(screen.getByLabelText("Probability"), {
+      target: { value: "35.5" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
+
+    expect(
+      await screen.findByText("Enter a whole-number probability from 0 to 100.")
+    ).toBeInTheDocument();
+    expect(createAssessmentUpdateMock).not.toHaveBeenCalled();
+  });
+
+  it("creates an assessment update and renders it as the current assessment", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.change(screen.getByLabelText("Judgment"), {
+      target: { value: " Escalation risk remains limited. " }
+    });
+    fireEvent.change(screen.getByLabelText("Confidence"), {
+      target: { value: "medium" }
+    });
+    fireEvent.change(screen.getByLabelText("Assessment date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.change(screen.getByLabelText("Assumptions"), {
+      target: {
+        value: " Diplomatic channels remain open \n No direct strike "
+      }
+    });
+    fireEvent.change(screen.getByLabelText("Indicators"), {
+      target: { value: " Watch for evacuation orders " }
+    });
+    fireEvent.change(screen.getByLabelText("Probability"), {
+      target: { value: "35" }
+    });
+    fireEvent.change(screen.getByLabelText("Resolution criteria"), {
+      target: { value: " Direct military action occurs. " }
+    });
+    fireEvent.change(screen.getByLabelText("Target resolution date"), {
+      target: { value: "2026-05-25" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
+
+    await waitFor(() => {
+      expect(createAssessmentUpdateMock).toHaveBeenCalledWith(
+        {
+          topicId: "topic-1",
+          judgment: "Escalation risk remains limited.",
+          confidenceLabel: "medium",
+          probabilityPct: 35,
+          assumptions: ["Diplomatic channels remain open", "No direct strike"],
+          indicators: ["Watch for evacuation orders"],
+          resolutionCriteria: "Direct military action occurs.",
+          targetResolvesAt: "2026-05-25T00:00:00.000Z",
+          sortAt: "2026-04-25T00:00:00.000Z"
+        },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(await screen.findByText("Assessment saved.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Escalation risk remains limited.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Diplomatic channels remain open")
+    ).toBeInTheDocument();
+    expect(screen.getByText("35% probability")).toBeInTheDocument();
+  });
+
+  it("shows an assessment create request error without clearing entered text", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createAssessmentUpdateMock.mockRejectedValueOnce(
+      new Error("database unavailable")
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.change(screen.getByLabelText("Judgment"), {
+      target: { value: "Escalation risk remains limited." }
+    });
+    fireEvent.change(screen.getByLabelText("Confidence"), {
+      target: { value: "medium" }
+    });
+    fireEvent.change(screen.getByLabelText("Assessment date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.change(screen.getByLabelText("Assumptions"), {
+      target: { value: "Diplomatic channels remain open" }
+    });
+    fireEvent.change(screen.getByLabelText("Indicators"), {
+      target: { value: "Watch for evacuation orders" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
+
+    expect(
+      await screen.findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Judgment")).toHaveValue(
+      "Escalation risk remains limited."
+    );
+    expect(screen.getByLabelText("Assessment date")).toHaveValue("2026-04-25");
+  });
+
+  it("shows wake-up progress while creating an assessment update", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createAssessmentUpdateMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<CreateAssessmentUpdateResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.change(screen.getByLabelText("Judgment"), {
+      target: { value: "Escalation risk remains limited." }
+    });
+    fireEvent.change(screen.getByLabelText("Confidence"), {
+      target: { value: "medium" }
+    });
+    fireEvent.change(screen.getByLabelText("Assessment date"), {
+      target: { value: "2026-04-25" }
+    });
+    fireEvent.change(screen.getByLabelText("Assumptions"), {
+      target: { value: "Diplomatic channels remain open" }
+    });
+    fireEvent.change(screen.getByLabelText("Indicators"), {
+      target: { value: "Watch for evacuation orders" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save assessment" }));
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Saving assessment..." })
+    ).toBeDisabled();
+  });
+
   it("renders non-interactive empty states for future R1 dossier sections", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
 
     render(<App />);
 
-    expect(await screen.findByText("Assessment updates")).toBeInTheDocument();
+    expect(
+      await screen.findByRole("heading", { name: "Current assessment" })
+    ).toBeInTheDocument();
     for (const sectionName of [
-      "Assessment updates",
       "Review notes",
       "Evidence and citations",
       "Review workflow",

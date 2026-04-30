@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { Topic } from "@repo/signal-tracker-shared";
 
+import { InMemoryAssessmentRepository } from "../../domain/assessments/assessment-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { createArchiveTopicHandler } from "./archive-topic";
 import { createDeleteTopicHandler } from "./delete-topic";
@@ -102,12 +103,18 @@ describe("topic lifecycle routes", () => {
     });
     expect(JSON.parse(listResult.body)).toEqual({ topics: [] });
 
-    const getResult = await createGetTopicHandler({ repository })({
+    const getResult = await createGetTopicHandler({
+      repository,
+      assessmentRepository: new InMemoryAssessmentRepository()
+    })({
       method: "POST",
       path: "/get-topic",
       body: JSON.stringify({ topicId: "topic-1" })
     });
-    expect(JSON.parse(getResult.body)).toEqual({ topic: archivedTopic });
+    expect(JSON.parse(getResult.body)).toEqual({
+      topic: archivedTopic,
+      currentAssessment: null
+    });
   });
 
   it("hard deletes a topic and removes it from list and direct reads", async () => {
@@ -134,7 +141,10 @@ describe("topic lifecycle routes", () => {
     expect(JSON.parse(listResult.body)).toEqual({ topics: [] });
 
     await expect(
-      createGetTopicHandler({ repository })({
+      createGetTopicHandler({
+        repository,
+        assessmentRepository: new InMemoryAssessmentRepository()
+      })({
         method: "POST",
         path: "/get-topic",
         body: JSON.stringify({ topicId: "topic-1" })
