@@ -6,6 +6,39 @@
   },
   "item": [
     {
+      "name": "Assessments",
+      "item": [
+        {
+          "name": "Create Assessment Update",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-assessment-update",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-assessment-update"]
+            },
+            "description": "Creates a dated assessment update with structured judgment fields.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"judgment\": \"Escalation risk remains limited.\",\n  \"confidenceLabel\": \"medium\",\n  \"probabilityPct\": 35,\n  \"assumptions\": [\n    \"Diplomatic channels remain open\"\n  ],\n  \"indicators\": [\n    \"Watch for evacuation orders\"\n  ],\n  \"resolutionCriteria\": \"Direct military action occurs.\",\n  \"targetResolvesAt\": \"2026-05-25T00:00:00.000Z\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Event Entries",
       "item": [
         {

@@ -34,6 +34,10 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/create-event-entry"
   },
+  createAssessmentUpdate: {
+    method: "POST",
+    path: "/create-assessment-update"
+  },
   getEventEntry: {
     method: "POST",
     path: "/get-event-entry"
@@ -145,6 +149,15 @@ export type EntryOriginType = z.infer<typeof entryOriginTypeSchema>;
 export const entryStatusSchema = z.enum(["active", "archived", "deleted"]);
 export type EntryStatus = z.infer<typeof entryStatusSchema>;
 
+export const assessmentConfidenceLabelSchema = z.enum([
+  "low",
+  "medium",
+  "high"
+]);
+export type AssessmentConfidenceLabel = z.infer<
+  typeof assessmentConfidenceLabelSchema
+>;
+
 export const reviewCadenceSchema = z.enum([
   "weekly",
   "biweekly",
@@ -185,6 +198,25 @@ export const entrySchema = z.object({
 });
 
 export type Entry = z.infer<typeof entrySchema>;
+
+const trimmedRequiredStringArray = z
+  .array(trimmedRequiredString)
+  .min(1)
+  .transform((values) => values.map((value) => value.trim()));
+
+export const assessmentUpdateSchema = z.object({
+  entry: entrySchema,
+  judgment: trimmedRequiredString,
+  confidenceLabel: assessmentConfidenceLabelSchema,
+  probabilityPct: z.number().int().min(0).max(100).optional(),
+  assumptions: trimmedRequiredStringArray,
+  indicators: trimmedRequiredStringArray,
+  resolutionCriteria: optionalTrimmedString,
+  targetResolvesAt: optionalTrimmedString,
+  previousAssessmentEntryId: optionalTrimmedString
+});
+
+export type AssessmentUpdate = z.infer<typeof assessmentUpdateSchema>;
 
 export const createTopicRequestSchema = z.object({
   title: trimmedRequiredString,
@@ -292,6 +324,31 @@ export const createEventEntryResponseSchema = z.object({
 
 export type CreateEventEntryResponse = z.infer<
   typeof createEventEntryResponseSchema
+>;
+
+export const createAssessmentUpdateRequestSchema = z.object({
+  topicId: trimmedRequiredString,
+  title: optionalTrimmedString,
+  judgment: trimmedRequiredString,
+  confidenceLabel: assessmentConfidenceLabelSchema,
+  probabilityPct: z.number().int().min(0).max(100).optional(),
+  assumptions: trimmedRequiredStringArray,
+  indicators: trimmedRequiredStringArray,
+  resolutionCriteria: optionalTrimmedString,
+  targetResolvesAt: optionalTrimmedString,
+  sortAt: trimmedRequiredString
+});
+
+export type CreateAssessmentUpdateRequest = z.infer<
+  typeof createAssessmentUpdateRequestSchema
+>;
+
+export const createAssessmentUpdateResponseSchema = z.object({
+  assessmentUpdate: assessmentUpdateSchema
+});
+
+export type CreateAssessmentUpdateResponse = z.infer<
+  typeof createAssessmentUpdateResponseSchema
 >;
 
 export const getEventEntryRequestSchema = z.object({

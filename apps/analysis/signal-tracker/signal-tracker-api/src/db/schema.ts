@@ -3,6 +3,8 @@ import {
   boolean,
   check,
   index,
+  integer,
+  jsonb,
   pgTable,
   text,
   timestamp
@@ -81,4 +83,38 @@ export const entries = pgTable(
   ]
 );
 
-export const signalTrackerSchema = { topics, entries };
+export const entryAssessments = pgTable(
+  "entry_assessments",
+  {
+    entryId: text("entry_id")
+      .primaryKey()
+      .references(() => entries.id),
+    judgment: text("judgment").notNull(),
+    confidenceLabel: text("confidence_label").notNull(),
+    probabilityPct: integer("probability_pct"),
+    assumptionsJson: jsonb("assumptions_json").notNull(),
+    indicatorsJson: jsonb("indicators_json").notNull(),
+    resolutionCriteria: text("resolution_criteria"),
+    targetResolvesAt: timestamp("target_resolves_at", { withTimezone: true }),
+    previousAssessmentEntryId: text("previous_assessment_entry_id").references(
+      () => entries.id
+    )
+  },
+  (table) => [
+    index("entry_assessments_previous_idx").on(table.previousAssessmentEntryId),
+    check(
+      "entry_assessments_judgment_not_blank",
+      sql`length(trim(${table.judgment})) > 0`
+    ),
+    check(
+      "entry_assessments_confidence_label_valid",
+      sql`${table.confidenceLabel} in ('low', 'medium', 'high')`
+    ),
+    check(
+      "entry_assessments_probability_pct_valid",
+      sql`${table.probabilityPct} is null or (${table.probabilityPct} >= 0 and ${table.probabilityPct} <= 100)`
+    )
+  ]
+);
+
+export const signalTrackerSchema = { topics, entries, entryAssessments };

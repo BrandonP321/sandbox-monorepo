@@ -63,6 +63,11 @@ pnpm --filter signal-tracker-api run db:smoke:deployed
 pnpm --filter signal-tracker-api run db:verify:deployed
 ```
 
+Keep `AWS_PROFILE=sandbox-admin` pinned when running deployed DB commands. The
+AWS SDK uses the default credential chain, so omitting the profile can silently
+pick credentials for another account even when `aws sts get-caller-identity
+--profile sandbox-admin` succeeds in a separate shell command.
+
 The stage can be omitted while `prod` is the only configured database. The
 legacy `SIGNAL_TRACKER_DB_NAME`, `SIGNAL_TRACKER_DB_RESOURCE_ARN`, and
 `SIGNAL_TRACKER_DB_SECRET_ARN` variables are still supported as a one-off

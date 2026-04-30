@@ -4,6 +4,7 @@ import {
   type SignalTrackerRouteName
 } from "@repo/signal-tracker-shared";
 
+import { createAssessmentUpdate } from "../routes/assessments/create-assessment-update";
 import { createEventEntry } from "../routes/event-entries/create-event-entry";
 import { getEventEntry } from "../routes/event-entries/get-event-entry";
 import { listEventEntries } from "../routes/event-entries/list-event-entries";
@@ -24,6 +25,7 @@ const routeHandlers = {
   archiveTopic,
   deleteTopic,
   createEventEntry,
+  createAssessmentUpdate,
   getEventEntry,
   listEventEntries,
   updateEventEntry,

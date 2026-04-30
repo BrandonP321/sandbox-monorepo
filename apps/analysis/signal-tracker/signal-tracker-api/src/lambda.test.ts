@@ -120,6 +120,30 @@ describe("lambda handler", () => {
     expect(result.body).toContain("VALIDATION_ERROR");
   });
 
+  it("routes assessment update requests through the standard app router", async () => {
+    const event = {
+      rawPath: signalTrackerRoutes.createAssessmentUpdate.path,
+      body: JSON.stringify({
+        topicId: "topic-1",
+        confidenceLabel: "medium",
+        assumptions: ["Diplomatic channels remain open"],
+        indicators: ["Watch for evacuation orders"],
+        sortAt: "2026-04-25T00:00:00.000Z"
+      }),
+      requestContext: {
+        http: {
+          method: signalTrackerRoutes.createAssessmentUpdate.method,
+          path: signalTrackerRoutes.createAssessmentUpdate.path
+        }
+      }
+    } as APIGatewayProxyEventV2;
+
+    const result = await handler(event);
+
+    expect(result.statusCode).toBe(400);
+    expect(result.body).toContain("VALIDATION_ERROR");
+  });
+
   it("routes event entry list requests through the standard app router", async () => {
     const event = {
       rawPath: signalTrackerRoutes.listEventEntries.path,
