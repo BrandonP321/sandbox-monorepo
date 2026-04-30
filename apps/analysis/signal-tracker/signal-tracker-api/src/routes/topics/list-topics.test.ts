@@ -45,7 +45,10 @@ describe("listTopics route", () => {
     const repository = {
       create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
       findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-      list: vi.fn(async (): Promise<Topic[]> => [newerTopic])
+      list: vi.fn(async (): Promise<Topic[]> => [newerTopic]),
+      update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+      archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+      delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
     };
     const handler = createListTopicsHandler({ repository });
 
@@ -117,7 +120,10 @@ describe("listTopics route", () => {
         findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
         list: vi.fn(async () => {
           throw new Error("database unavailable");
-        })
+        }),
+        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
       }
     });
 

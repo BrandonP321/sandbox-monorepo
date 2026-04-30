@@ -18,6 +18,18 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/list-topics"
   },
+  updateTopic: {
+    method: "POST",
+    path: "/update-topic"
+  },
+  archiveTopic: {
+    method: "POST",
+    path: "/archive-topic"
+  },
+  deleteTopic: {
+    method: "POST",
+    path: "/delete-topic"
+  },
   getHealth: {
     method: "POST",
     path: "/get-health"
@@ -78,8 +90,22 @@ const optionalTrimmedString = z
   .trim()
   .optional()
   .transform((value) => (value === "" ? undefined : value));
+const optionalClearableTrimmedString = z
+  .union([z.string().trim(), z.null()])
+  .optional()
+  .transform((value) => {
+    if (value === undefined) {
+      return undefined;
+    }
 
-export const topicStatusSchema = z.enum(["active"]);
+    if (value === null || value === "") {
+      return null;
+    }
+
+    return value;
+  });
+
+export const topicStatusSchema = z.enum(["active", "paused", "archived"]);
 export type TopicStatus = z.infer<typeof topicStatusSchema>;
 
 export const reviewCadenceSchema = z.enum([
@@ -98,7 +124,8 @@ export const topicSchema = z.object({
   createdAt: trimmedRequiredString,
   updatedAt: trimmedRequiredString,
   scopeNote: optionalTrimmedString,
-  reviewCadence: reviewCadenceSchema
+  reviewCadence: reviewCadenceSchema,
+  archivedAt: trimmedRequiredString.optional()
 });
 
 export type Topic = z.infer<typeof topicSchema>;
@@ -141,3 +168,52 @@ export const listTopicsResponseSchema = z.object({
 });
 
 export type ListTopicsResponse = z.infer<typeof listTopicsResponseSchema>;
+
+export const updateTopicRequestSchema = z
+  .object({
+    topicId: trimmedRequiredString,
+    title: trimmedRequiredString.optional(),
+    framingQuestion: trimmedRequiredString.optional(),
+    scopeNote: optionalClearableTrimmedString,
+    reviewCadence: reviewCadenceSchema.optional()
+  })
+  .refine(
+    ({ title, framingQuestion, scopeNote, reviewCadence }) =>
+      title !== undefined ||
+      framingQuestion !== undefined ||
+      scopeNote !== undefined ||
+      reviewCadence !== undefined,
+    "At least one editable topic field is required"
+  );
+
+export type UpdateTopicRequest = z.infer<typeof updateTopicRequestSchema>;
+
+export const updateTopicResponseSchema = z.object({
+  topic: topicSchema
+});
+
+export type UpdateTopicResponse = z.infer<typeof updateTopicResponseSchema>;
+
+export const archiveTopicRequestSchema = z.object({
+  topicId: trimmedRequiredString
+});
+
+export type ArchiveTopicRequest = z.infer<typeof archiveTopicRequestSchema>;
+
+export const archiveTopicResponseSchema = z.object({
+  topic: topicSchema
+});
+
+export type ArchiveTopicResponse = z.infer<typeof archiveTopicResponseSchema>;
+
+export const deleteTopicRequestSchema = z.object({
+  topicId: trimmedRequiredString
+});
+
+export type DeleteTopicRequest = z.infer<typeof deleteTopicRequestSchema>;
+
+export const deleteTopicResponseSchema = z.object({
+  topic: topicSchema
+});
+
+export type DeleteTopicResponse = z.infer<typeof deleteTopicResponseSchema>;

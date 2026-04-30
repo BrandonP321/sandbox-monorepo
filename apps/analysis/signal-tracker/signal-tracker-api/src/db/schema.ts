@@ -11,7 +11,8 @@ export const topics = pgTable(
     reviewCadence: text("review_cadence").notNull(),
     status: text("status").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull(),
+    archivedAt: timestamp("archived_at", { withTimezone: true })
   },
   (table) => [
     check("topics_title_not_blank", sql`length(trim(${table.title})) > 0`),
@@ -23,7 +24,10 @@ export const topics = pgTable(
       "topics_review_cadence_valid",
       sql`${table.reviewCadence} in ('weekly', 'biweekly', 'monthly', 'ad_hoc')`
     ),
-    check("topics_status_active", sql`${table.status} = 'active'`)
+    check(
+      "topics_status_valid",
+      sql`${table.status} in ('active', 'paused', 'archived')`
+    )
   ]
 );
 

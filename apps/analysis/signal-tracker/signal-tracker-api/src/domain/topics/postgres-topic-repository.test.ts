@@ -22,7 +22,8 @@ describe("PostgresTopicRepository", () => {
         reviewCadence: "weekly",
         status: "active",
         createdAt: new Date("2026-04-25T00:00:00.000Z"),
-        updatedAt: new Date("2026-04-25T00:00:00.000Z")
+        updatedAt: new Date("2026-04-25T00:00:00.000Z"),
+        archivedAt: null
       })
     ).toEqual({
       id: "topic-1",
@@ -32,6 +33,31 @@ describe("PostgresTopicRepository", () => {
       status: "active",
       createdAt: "2026-04-25T00:00:00.000Z",
       updatedAt: "2026-04-25T00:00:00.000Z"
+    });
+  });
+
+  it("maps archived timestamps to the shared API topic shape", () => {
+    expect(
+      mapTopicRow({
+        id: "topic-1",
+        title: "Iran strike risk",
+        framingQuestion: "Will tensions escalate?",
+        scopeNote: null,
+        reviewCadence: "weekly",
+        status: "archived",
+        createdAt: new Date("2026-04-25T00:00:00.000Z"),
+        updatedAt: new Date("2026-04-27T00:00:00.000Z"),
+        archivedAt: new Date("2026-04-26T00:00:00.000Z")
+      })
+    ).toEqual({
+      id: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      reviewCadence: "weekly",
+      status: "archived",
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-27T00:00:00.000Z",
+      archivedAt: "2026-04-26T00:00:00.000Z"
     });
   });
 
@@ -128,6 +154,60 @@ describe("PostgresTopicRepository", () => {
     ]);
   });
 
+  it("updates editable topic metadata and clears scope notes", async () => {
+    const store = new FakeTopicRowStore();
+    const repository = new PostgresTopicRepository(store);
+    store.seed(topicFixture);
+
+    await expect(
+      repository.update(
+        topicFixture.id,
+        {
+          title: "Updated Iran strike risk",
+          scopeNote: null
+        },
+        "2026-04-27T00:00:00.000Z"
+      )
+    ).resolves.toEqual({
+      ...topicFixture,
+      title: "Updated Iran strike risk",
+      scopeNote: undefined,
+      updatedAt: "2026-04-27T00:00:00.000Z"
+    });
+  });
+
+  it("archives topics and keeps them directly readable", async () => {
+    const store = new FakeTopicRowStore();
+    const repository = new PostgresTopicRepository(store);
+    store.seed(topicFixture);
+
+    await expect(
+      repository.archive(topicFixture.id, "2026-04-27T00:00:00.000Z")
+    ).resolves.toEqual({
+      ...topicFixture,
+      status: "archived",
+      updatedAt: "2026-04-27T00:00:00.000Z",
+      archivedAt: "2026-04-27T00:00:00.000Z"
+    });
+    await expect(repository.list()).resolves.toEqual([]);
+    await expect(repository.findById(topicFixture.id)).resolves.toMatchObject({
+      id: topicFixture.id,
+      status: "archived"
+    });
+  });
+
+  it("hard deletes topics and removes them from normal reads", async () => {
+    const store = new FakeTopicRowStore();
+    const repository = new PostgresTopicRepository(store);
+    store.seed(topicFixture);
+
+    await expect(repository.delete(topicFixture.id)).resolves.toEqual(
+      topicFixture
+    );
+    await expect(repository.list()).resolves.toEqual([]);
+    await expect(repository.findById(topicFixture.id)).resolves.toBeUndefined();
+  });
+
   it("escapes wildcard characters before building an ILIKE pattern", () => {
     expect(escapeIlikePattern(String.raw`50%_risk\test`)).toBe(
       String.raw`50\%\_risk\\test`
@@ -154,7 +234,8 @@ const archivedTopicRow: TopicRow = {
   reviewCadence: "monthly",
   status: "archived",
   createdAt: new Date("2026-04-25T00:00:00.000Z"),
-  updatedAt: new Date("2026-04-28T00:00:00.000Z")
+  updatedAt: new Date("2026-04-28T00:00:00.000Z"),
+  archivedAt: new Date("2026-04-28T00:00:00.000Z")
 };
 
 class FakeTopicRowStore implements TopicRowStore {
@@ -169,7 +250,8 @@ class FakeTopicRowStore implements TopicRowStore {
       reviewCadence: topic.reviewCadence,
       status: topic.status,
       createdAt: topic.createdAt,
-      updatedAt: topic.updatedAt
+      updatedAt: topic.updatedAt,
+      archivedAt: topic.archivedAt ? new Date(topic.archivedAt) : null
     };
 
     this.topics.set(row.id, row);
@@ -198,6 +280,38 @@ class FakeTopicRowStore implements TopicRowStore {
       .sort(compareTopicRowsForList);
   }
 
+  async updateTopic(
+    id: string,
+    updates: Partial<NewTopicRow>
+  ): Promise<TopicRow | undefined> {
+    const existingRow = await this.selectTopicById(id);
+
+    if (!existingRow) {
+      return undefined;
+    }
+
+    const updatedRow: TopicRow = {
+      ...existingRow,
+      ...updates
+    };
+
+    this.topics.set(id, updatedRow);
+
+    return updatedRow;
+  }
+
+  async deleteTopic(id: string): Promise<TopicRow | undefined> {
+    const existingRow = await this.selectTopicById(id);
+
+    if (!existingRow) {
+      return undefined;
+    }
+
+    this.topics.delete(id);
+
+    return existingRow;
+  }
+
   seed(topic: Topic): void;
   seed(row: TopicRow): void;
   seed(topicOrRow: Topic | TopicRow): void {
@@ -211,7 +325,10 @@ class FakeTopicRowStore implements TopicRowStore {
           reviewCadence: topicOrRow.reviewCadence,
           status: topicOrRow.status,
           createdAt: new Date(topicOrRow.createdAt),
-          updatedAt: new Date(topicOrRow.updatedAt)
+          updatedAt: new Date(topicOrRow.updatedAt),
+          archivedAt: topicOrRow.archivedAt
+            ? new Date(topicOrRow.archivedAt)
+            : null
         };
 
     this.topics.set(row.id, row);

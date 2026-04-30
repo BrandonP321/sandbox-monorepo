@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  archiveTopicRequestSchema,
+  archiveTopicResponseSchema,
   createTopicRequestSchema,
   createTopicResponseSchema,
+  deleteTopicRequestSchema,
+  deleteTopicResponseSchema,
   getTopicRequestSchema,
   getTopicResponseSchema,
   isSignalTrackerRetryableDbErrorCode,
@@ -14,6 +18,9 @@ import {
   signalTrackerRouteEntries,
   signalTrackerRouteList,
   signalTrackerRoutes,
+  topicStatusSchema,
+  updateTopicRequestSchema,
+  updateTopicResponseSchema,
   topicSchema
 } from "./index.js";
 
@@ -31,6 +38,18 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/list-topics"
     });
+    expect(signalTrackerRoutes.updateTopic).toEqual({
+      method: "POST",
+      path: "/update-topic"
+    });
+    expect(signalTrackerRoutes.archiveTopic).toEqual({
+      method: "POST",
+      path: "/archive-topic"
+    });
+    expect(signalTrackerRoutes.deleteTopic).toEqual({
+      method: "POST",
+      path: "/delete-topic"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -42,11 +61,22 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRouteEntries.map(
         ([name]: (typeof signalTrackerRouteEntries)[number]) => name
       )
-    ).toEqual(["createTopic", "getTopic", "listTopics", "getHealth"]);
+    ).toEqual([
+      "createTopic",
+      "getTopic",
+      "listTopics",
+      "updateTopic",
+      "archiveTopic",
+      "deleteTopic",
+      "getHealth"
+    ]);
     expect(signalTrackerRouteList).toEqual([
       signalTrackerRoutes.createTopic,
       signalTrackerRoutes.getTopic,
       signalTrackerRoutes.listTopics,
+      signalTrackerRoutes.updateTopic,
+      signalTrackerRoutes.archiveTopic,
+      signalTrackerRoutes.deleteTopic,
       signalTrackerRoutes.getHealth
     ]);
   });
@@ -77,6 +107,10 @@ describe("signalTracker API error conventions", () => {
 });
 
 describe("topic contracts", () => {
+  it("validates topic lifecycle status values", () => {
+    expect(topicStatusSchema.options).toEqual(["active", "paused", "archived"]);
+  });
+
   it("validates a topic creation request and defaults review cadence", () => {
     const payload = createTopicRequestSchema.parse({
       title: "  Iran strike risk  ",
@@ -138,6 +172,7 @@ describe("topic contracts", () => {
       status: "active",
       createdAt: "2026-04-25T00:00:00.000Z",
       updatedAt: "2026-04-25T00:00:00.000Z",
+      archivedAt: "2026-04-26T00:00:00.000Z",
       reviewCadence: "weekly"
     });
 
@@ -196,5 +231,94 @@ describe("topic contracts", () => {
     expect(listTopicsResponseSchema.parse({ topics: [topic] })).toEqual({
       topics: [topic]
     });
+  });
+
+  it("validates topic metadata update requests", () => {
+    expect(
+      updateTopicRequestSchema.parse({
+        topicId: " topic-1 ",
+        title: " Iran strike risk ",
+        framingQuestion: " Will tensions escalate? ",
+        scopeNote: " Track military and diplomatic signals. ",
+        reviewCadence: "weekly"
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      scopeNote: "Track military and diplomatic signals.",
+      reviewCadence: "weekly"
+    });
+  });
+
+  it("treats null or blank update scope notes as a clear request", () => {
+    expect(
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1",
+        scopeNote: null
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      scopeNote: null
+    });
+
+    expect(
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1",
+        scopeNote: " "
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      scopeNote: null
+    });
+  });
+
+  it("rejects invalid topic metadata update requests", () => {
+    expect(() =>
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1"
+      })
+    ).toThrow();
+    expect(() =>
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1",
+        title: " "
+      })
+    ).toThrow();
+    expect(() =>
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1",
+        framingQuestion: " "
+      })
+    ).toThrow();
+    expect(() =>
+      updateTopicRequestSchema.parse({
+        topicId: "topic-1",
+        reviewCadence: "daily"
+      })
+    ).toThrow();
+  });
+
+  it("validates topic lifecycle request and response shapes", () => {
+    const topic = topicSchema.parse({
+      id: "topic-1",
+      title: "Iran strike risk",
+      framingQuestion: "Will tensions escalate?",
+      status: "archived",
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-26T00:00:00.000Z",
+      archivedAt: "2026-04-26T00:00:00.000Z",
+      reviewCadence: "weekly"
+    });
+
+    expect(archiveTopicRequestSchema.parse({ topicId: " topic-1 " })).toEqual({
+      topicId: "topic-1"
+    });
+    expect(deleteTopicRequestSchema.parse({ topicId: " topic-1 " })).toEqual({
+      topicId: "topic-1"
+    });
+    expect(updateTopicResponseSchema.parse({ topic })).toEqual({ topic });
+    expect(archiveTopicResponseSchema.parse({ topic })).toEqual({ topic });
+    expect(deleteTopicResponseSchema.parse({ topic })).toEqual({ topic });
   });
 });

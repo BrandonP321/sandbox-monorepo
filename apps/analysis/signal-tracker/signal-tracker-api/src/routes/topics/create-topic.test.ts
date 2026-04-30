@@ -8,7 +8,10 @@ describe("createTopic route", () => {
   const repository = {
     create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
     findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-    list: vi.fn(async (): Promise<Topic[]> => [])
+    list: vi.fn(async (): Promise<Topic[]> => []),
+    update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+    archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+    delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
   };
 
   it("creates a topic from a valid request", async () => {
@@ -158,7 +161,10 @@ describe("createTopic route", () => {
           throw new Error("database unavailable");
         }),
         findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        list: vi.fn(async (): Promise<Topic[]> => [])
+        list: vi.fn(async (): Promise<Topic[]> => []),
+        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
       },
       createId: () => "topic-3",
       now: () => new Date("2026-04-25T00:00:00.000Z")

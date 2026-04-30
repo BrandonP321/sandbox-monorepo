@@ -4,15 +4,36 @@ import { topicSchema, type Topic } from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { topics } from "../../db/schema";
-import type { ListTopicsOptions, TopicRepository } from "./topic-repository";
+import type {
+  ListTopicsOptions,
+  TopicRepository,
+  UpdateTopicFields
+} from "./topic-repository";
 
 export type TopicRow = typeof topics.$inferSelect;
 export type NewTopicRow = typeof topics.$inferInsert;
+type TopicRowUpdate = Partial<
+  Pick<
+    NewTopicRow,
+    | "title"
+    | "framingQuestion"
+    | "scopeNote"
+    | "reviewCadence"
+    | "status"
+    | "updatedAt"
+    | "archivedAt"
+  >
+>;
 
 export type TopicRowStore = {
   insertTopic(topic: NewTopicRow): Promise<TopicRow>;
   selectTopicById(id: string): Promise<TopicRow | undefined>;
   selectTopics(options?: ListTopicsOptions): Promise<TopicRow[]>;
+  updateTopic(
+    id: string,
+    updates: TopicRowUpdate
+  ): Promise<TopicRow | undefined>;
+  deleteTopic(id: string): Promise<TopicRow | undefined>;
 };
 
 export class DrizzleTopicRowStore implements TopicRowStore {
@@ -59,6 +80,28 @@ export class DrizzleTopicRowStore implements TopicRowStore {
       .where(and(eq(topics.status, "active"), queryFilter))
       .orderBy(desc(topics.updatedAt), desc(topics.createdAt), asc(topics.id));
   }
+
+  async updateTopic(
+    id: string,
+    updates: TopicRowUpdate
+  ): Promise<TopicRow | undefined> {
+    const [row] = await this.getDatabase()
+      .update(topics)
+      .set(updates)
+      .where(eq(topics.id, id))
+      .returning();
+
+    return row;
+  }
+
+  async deleteTopic(id: string): Promise<TopicRow | undefined> {
+    const [row] = await this.getDatabase()
+      .delete(topics)
+      .where(eq(topics.id, id))
+      .returning();
+
+    return row;
+  }
 }
 
 export class PostgresTopicRepository implements TopicRepository {
@@ -94,6 +137,36 @@ export class PostgresTopicRepository implements TopicRepository {
 
     return rows.map(mapTopicRow);
   }
+
+  async update(
+    id: string,
+    updates: UpdateTopicFields,
+    updatedAt: string
+  ): Promise<Topic | undefined> {
+    const row = await this.store.updateTopic(id, {
+      ...mapTopicUpdatesToRow(updates),
+      updatedAt: new Date(updatedAt)
+    });
+
+    return row ? mapTopicRow(row) : undefined;
+  }
+
+  async archive(id: string, archivedAt: string): Promise<Topic | undefined> {
+    const archivedAtDate = new Date(archivedAt);
+    const row = await this.store.updateTopic(id, {
+      status: "archived",
+      archivedAt: archivedAtDate,
+      updatedAt: archivedAtDate
+    });
+
+    return row ? mapTopicRow(row) : undefined;
+  }
+
+  async delete(id: string): Promise<Topic | undefined> {
+    const row = await this.store.deleteTopic(id);
+
+    return row ? mapTopicRow(row) : undefined;
+  }
 }
 
 export function mapTopicRow(row: TopicRow): Topic {
@@ -105,8 +178,31 @@ export function mapTopicRow(row: TopicRow): Topic {
     createdAt: toIsoTimestamp(row.createdAt),
     updatedAt: toIsoTimestamp(row.updatedAt),
     scopeNote: row.scopeNote ?? undefined,
-    reviewCadence: row.reviewCadence
+    reviewCadence: row.reviewCadence,
+    archivedAt: row.archivedAt ? toIsoTimestamp(row.archivedAt) : undefined
   });
+}
+
+function mapTopicUpdatesToRow(updates: UpdateTopicFields): TopicRowUpdate {
+  const rowUpdates: TopicRowUpdate = {};
+
+  if (updates.title !== undefined) {
+    rowUpdates.title = updates.title;
+  }
+
+  if (updates.framingQuestion !== undefined) {
+    rowUpdates.framingQuestion = updates.framingQuestion;
+  }
+
+  if (updates.scopeNote !== undefined) {
+    rowUpdates.scopeNote = updates.scopeNote ?? null;
+  }
+
+  if (updates.reviewCadence !== undefined) {
+    rowUpdates.reviewCadence = updates.reviewCadence;
+  }
+
+  return rowUpdates;
 }
 
 function toIsoTimestamp(value: Date | string): string {

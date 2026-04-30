@@ -1,0 +1,103 @@
+{
+  "id": "65aea9e9-0a9d-4d0a-9844-4ba88a3301f1",
+  "prevId": "e71f2e54-e34c-4ad7-94f8-d5e25e97adeb",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.topics": {
+      "name": "topics",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "title": {
+          "name": "title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "framing_question": {
+          "name": "framing_question",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope_note": {
+          "name": "scope_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "review_cadence": {
+          "name": "review_cadence",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "archived_at": {
+          "name": "archived_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "topics_title_not_blank": {
+          "name": "topics_title_not_blank",
+          "value": "length(trim(\"topics\".\"title\")) > 0"
+        },
+        "topics_framing_question_not_blank": {
+          "name": "topics_framing_question_not_blank",
+          "value": "length(trim(\"topics\".\"framing_question\")) > 0"
+        },
+        "topics_review_cadence_valid": {
+          "name": "topics_review_cadence_valid",
+          "value": "\"topics\".\"review_cadence\" in ('weekly', 'biweekly', 'monthly', 'ad_hoc')"
+        },
+        "topics_status_valid": {
+          "name": "topics_status_valid",
+          "value": "\"topics\".\"status\" in ('active', 'paused', 'archived')"
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

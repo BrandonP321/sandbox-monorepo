@@ -18,8 +18,8 @@ currently logged in.
 
 ## Database workflow
 
-`POST /create-topic` uses PostgreSQL-backed durable persistence after the
-database migrations have been applied.
+Topic create/read/list/lifecycle routes use PostgreSQL-backed durable
+persistence after the database migrations have been applied.
 
 `POST /get-health` intentionally remains DB-free so health checks still work
 while Aurora is paused or resuming.
@@ -92,6 +92,12 @@ deploy pipeline, and there is no migration Lambda.
 - `POST /create-topic` -> creates a durable topic row and returns `{ "topic": ... }`
 - `POST /get-topic` -> reads a durable topic row by ID and returns `{ "topic": ... }`
 - `POST /list-topics` -> lists active topic rows and returns `{ "topics": [...] }`
+- `POST /update-topic` -> updates editable topic metadata and returns `{ "topic": ... }`
+- `POST /archive-topic` -> archives a topic without hard deletion and returns `{ "topic": ... }`
+- `POST /delete-topic` -> permanently deletes a topic row and returns `{ "topic": ... }`
+
+Archived topics are hidden from `POST /list-topics` by default but remain
+directly readable by ID. Deleted topics are removed from persistence.
 
 ### Postman
 

@@ -10,7 +10,10 @@ describe("getTopic route", () => {
       repository: {
         create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
         findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture),
-        list: vi.fn(async (): Promise<Topic[]> => [])
+        list: vi.fn(async (): Promise<Topic[]> => []),
+        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
       }
     });
 
@@ -99,7 +102,10 @@ describe("getTopic route", () => {
         findById: vi.fn(async () => {
           throw new Error("database unavailable");
         }),
-        list: vi.fn(async (): Promise<Topic[]> => [])
+        list: vi.fn(async (): Promise<Topic[]> => []),
+        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
       }
     });
 
@@ -130,5 +136,8 @@ const topicFixture: Topic = {
 const emptyRepository = {
   create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
   findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-  list: vi.fn(async (): Promise<Topic[]> => [])
+  list: vi.fn(async (): Promise<Topic[]> => []),
+  update: vi.fn(async (): Promise<Topic | undefined> => undefined),
+  archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
+  delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
 };

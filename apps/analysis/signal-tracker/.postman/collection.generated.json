@@ -9,6 +9,34 @@
       "name": "Topics",
       "item": [
         {
+          "name": "Archive Topic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/archive-topic",
+              "host": ["{{baseUrl}}"],
+              "path": ["archive-topic"]
+            },
+            "description": "Archives a topic without deleting analytical history.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Topic",
           "request": {
             "method": "POST",
@@ -27,6 +55,34 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Iran strike risk\",\n  \"framingQuestion\": \"Will U.S.-Iran tensions escalate within the next month?\",\n  \"scopeNote\": \"Track military posture, official statements, diplomacy, and credible reporting.\",\n  \"reviewCadence\": \"weekly\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Topic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/delete-topic",
+              "host": ["{{baseUrl}}"],
+              "path": ["delete-topic"]
+            },
+            "description": "Permanently deletes a topic row.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -83,6 +139,34 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"query\": \"risk\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Topic",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/update-topic",
+              "host": ["{{baseUrl}}"],
+              "path": ["update-topic"]
+            },
+            "description": "Updates editable topic dossier metadata.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"title\": \"Iran strike risk\",\n  \"framingQuestion\": \"Will U.S.-Iran tensions escalate within the next month?\",\n  \"scopeNote\": \"Track military posture, official statements, diplomacy, and credible reporting.\",\n  \"reviewCadence\": \"weekly\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
