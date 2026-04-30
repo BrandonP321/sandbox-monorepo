@@ -4,8 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "pnpm --workspace-root aws:ensure:sandbox && tsx watch src/local-dev.ts",
-    "db:generate": "drizzle-kit generate --config=drizzle.local.config.ts",
-    "db:migrate:local": "drizzle-kit migrate --config=drizzle.local.config.ts",
+    "db:generate": "drizzle-kit generate --config=drizzle.deployed.config.ts",
     "db:migrate:deployed": "tsx scripts/db-migrate-deployed.ts",
     "db:smoke:deployed": "tsx scripts/db-smoke-deployed.ts",
     "db:verify:deployed": "tsx scripts/db-verify-deployed.ts",
@@ -19,9 +18,7 @@
     "@repo/api-core": "workspace:*",
     "@repo/postman-sync": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*",
-    "drizzle-orm": "^0.45.2",
-    "pg": "^8.20.0",
-    "postgres": "^3.4.9"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
     "@repo/config-eslint": "workspace:*",
@@ -29,7 +26,6 @@
     "@repo/config-ts": "workspace:*",
     "@types/aws-lambda": "^8.10.152",
     "@types/node": "^24.1.0",
-    "@types/pg": "^8.20.0",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.39.2",
     "tsx": "^4.20.5",

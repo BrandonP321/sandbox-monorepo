@@ -1,31 +1,44 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getDatabaseConfigForStage,
   getDeployedDataApiDatabaseConfig,
-  getLocalDatabaseConfig
+  readDatabaseStage
 } from "./config";
 
 describe("database config", () => {
-  it("reads local PostgreSQL configuration from DATABASE_URL", () => {
-    expect(
-      getLocalDatabaseConfig({
-        DATABASE_URL:
-          "postgres://signal_tracker:signal_tracker@localhost:5432/signal_tracker"
-      })
-    ).toEqual({
-      mode: "local",
-      databaseUrl:
-        "postgres://signal_tracker:signal_tracker@localhost:5432/signal_tracker"
-    });
-  });
-
-  it("requires DATABASE_URL for local PostgreSQL configuration", () => {
-    expect(() => getLocalDatabaseConfig({})).toThrow(
-      "Missing required environment variable: DATABASE_URL"
+  it("defaults to the prod database stage", () => {
+    expect(readDatabaseStage({})).toBe("prod");
+    expect(getDeployedDataApiDatabaseConfig({})).toEqual(
+      getDatabaseConfigForStage("prod")
     );
   });
 
-  it("reads deployed Data API configuration from Signal Tracker env vars", () => {
+  it("reads a supported database stage from SIGNAL_TRACKER_DB_STAGE", () => {
+    expect(
+      readDatabaseStage({
+        SIGNAL_TRACKER_DB_STAGE: " prod "
+      })
+    ).toBe("prod");
+    expect(
+      getDeployedDataApiDatabaseConfig({
+        SIGNAL_TRACKER_DB_STAGE: "prod"
+      })
+    ).toEqual({
+      ...getDatabaseConfigForStage("prod"),
+      stage: "prod"
+    });
+  });
+
+  it("rejects unsupported database stages", () => {
+    expect(() =>
+      readDatabaseStage({
+        SIGNAL_TRACKER_DB_STAGE: "dev"
+      })
+    ).toThrow("Unsupported SIGNAL_TRACKER_DB_STAGE: dev");
+  });
+
+  it("keeps explicit deployed Data API env vars as an override", () => {
     expect(
       getDeployedDataApiDatabaseConfig({
         SIGNAL_TRACKER_DB_NAME: "signal_tracker",
@@ -37,6 +50,7 @@ describe("database config", () => {
       })
     ).toEqual({
       mode: "deployed-data-api",
+      stage: "custom",
       databaseName: "signal_tracker",
       resourceArn: "arn:aws:rds:us-east-1:498283327683:cluster:signal-tracker",
       secretArn:
@@ -45,7 +59,7 @@ describe("database config", () => {
     });
   });
 
-  it("uses us-east-1 as the deployed Data API default region", () => {
+  it("uses us-east-1 as the explicit Data API default region", () => {
     expect(
       getDeployedDataApiDatabaseConfig({
         SIGNAL_TRACKER_DB_NAME: "signal_tracker",
@@ -57,7 +71,7 @@ describe("database config", () => {
     ).toBe("us-east-1");
   });
 
-  it("requires deployed Data API identifiers", () => {
+  it("requires a complete explicit deployed Data API override", () => {
     expect(() =>
       getDeployedDataApiDatabaseConfig({
         SIGNAL_TRACKER_DB_NAME: "signal_tracker",

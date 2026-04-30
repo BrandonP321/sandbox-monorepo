@@ -84,9 +84,8 @@ export class SignalTrackerStack extends cdk.Stack {
         handler: "handler",
         runtime: lambda.Runtime.NODEJS_22_X,
         environment: {
-          SIGNAL_TRACKER_DB_NAME: database.databaseName,
-          SIGNAL_TRACKER_DB_RESOURCE_ARN: database.cluster.clusterArn,
-          SIGNAL_TRACKER_DB_SECRET_ARN: database.cluster.secret!.secretArn
+          // TODO: Set this from deployment environment once a separate dev DB exists.
+          SIGNAL_TRACKER_DB_STAGE: "prod"
         },
         bundling: { target: "node22" }
       }

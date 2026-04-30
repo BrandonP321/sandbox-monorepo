@@ -9,5 +9,6 @@ Generate migrations from `src/db/schema.ts` with:
 pnpm --filter signal-tracker-api run db:generate
 ```
 
-Apply them locally with `db:migrate:local`, and apply deployed migrations
-explicitly with `db:migrate:deployed` after reviewing the generated SQL.
+Apply migrations explicitly with `db:migrate:deployed` after reviewing the
+generated SQL. The command uses `SIGNAL_TRACKER_DB_STAGE` when set and defaults
+to `prod`.

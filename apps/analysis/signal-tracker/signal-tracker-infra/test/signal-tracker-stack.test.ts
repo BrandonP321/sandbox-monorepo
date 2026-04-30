@@ -130,13 +130,7 @@ describe("SignalTrackerStack", () => {
     template.hasResourceProperties("AWS::Lambda::Function", {
       Environment: {
         Variables: Match.objectLike({
-          SIGNAL_TRACKER_DB_NAME: "signal_tracker",
-          SIGNAL_TRACKER_DB_RESOURCE_ARN: {
-            "Fn::Join": Match.anyValue()
-          },
-          SIGNAL_TRACKER_DB_SECRET_ARN: {
-            Ref: Match.anyValue()
-          }
+          SIGNAL_TRACKER_DB_STAGE: "prod"
         })
       }
     });

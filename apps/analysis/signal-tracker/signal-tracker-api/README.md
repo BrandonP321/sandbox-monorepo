@@ -16,7 +16,7 @@ Startup checks the `sandbox-admin` AWS CLI profile first and runs
 `pnpm aws:login:sandbox` before the API server starts if the profile is not
 currently logged in.
 
-## Database workflow
+## Database Workflow
 
 Topic create/read/list/lifecycle routes use PostgreSQL-backed durable
 persistence after the database migrations have been applied.
@@ -24,25 +24,24 @@ persistence after the database migrations have been applied.
 `POST /get-health` intentionally remains DB-free so health checks still work
 while Aurora is paused or resuming.
 
-### Local database target
+### Database Target
 
-The baseline local database target is local PostgreSQL:
+Signal Tracker API processes always use Aurora PostgreSQL through the AWS Data
+API. The runtime reads `SIGNAL_TRACKER_DB_STAGE` and defaults to `prod` when the
+stage is omitted.
 
 ```bash
-docker compose -f apps/analysis/signal-tracker/docker-compose.yml up -d postgres
 cp apps/analysis/signal-tracker/.env.example apps/analysis/signal-tracker/.env.local
-# Set DATABASE_URL=postgres://signal_tracker:signal_tracker@localhost:5432/signal_tracker
-pnpm --filter signal-tracker-api run db:migrate:local
+# Optional today because prod is the default:
+# Set SIGNAL_TRACKER_DB_STAGE=prod
 ```
 
-The compose file lives at `apps/analysis/signal-tracker/docker-compose.yml`.
-Run the local migration before using `POST /create-topic`; otherwise topic
-creation will return `PERSISTENCE_UNAVAILABLE`.
+TODO: When the separate dev Aurora database exists, set local development to
+`SIGNAL_TRACKER_DB_STAGE=dev` and keep deployed production Lambda on `prod`.
 
-Temporary early-development exception: local API development may point at the
-Prod Aurora PostgreSQL database through `apps/analysis/signal-tracker/.env.local`
-while the app is pre-release and low-traffic. Treat this as Prod data: avoid
-destructive/manual data changes and do not add seed/reset scripts against Prod.
+Until then, local API development defaults to the Prod Aurora database. Treat
+this as Prod data: avoid destructive/manual data changes and do not add
+seed/reset scripts.
 
 ### Drizzle migrations
 
@@ -52,26 +51,22 @@ Migrations are generated from `src/db/schema.ts` into `drizzle/`:
 pnpm --filter signal-tracker-api run db:generate
 ```
 
-Apply local migrations with:
-
-```bash
-pnpm --filter signal-tracker-api run db:migrate:local
-```
-
-Apply deployed migrations explicitly through Aurora Data API after exporting the
-stack output values:
+Apply migrations explicitly through Aurora Data API:
 
 ```bash
 export AWS_PROFILE=sandbox-admin
 export AWS_REGION=us-east-1
 export AWS_DEFAULT_REGION=us-east-1
-export SIGNAL_TRACKER_DB_NAME=signal_tracker
-export SIGNAL_TRACKER_DB_RESOURCE_ARN=<SignalTrackerDatabaseResourceArn>
-export SIGNAL_TRACKER_DB_SECRET_ARN=<SignalTrackerDatabaseSecretArn>
+export SIGNAL_TRACKER_DB_STAGE=prod
 pnpm --filter signal-tracker-api run db:migrate:deployed
 pnpm --filter signal-tracker-api run db:smoke:deployed
 pnpm --filter signal-tracker-api run db:verify:deployed
 ```
+
+The stage can be omitted while `prod` is the only configured database. The
+legacy `SIGNAL_TRACKER_DB_NAME`, `SIGNAL_TRACKER_DB_RESOURCE_ARN`, and
+`SIGNAL_TRACKER_DB_SECRET_ARN` variables are still supported as a one-off
+override for debugging a specific Aurora target.
 
 `db:migrate:deployed` uses the app-owned AWS Data API runner in `scripts/`
 rather than the Drizzle Kit CLI. It performs a Data API preflight, retries known

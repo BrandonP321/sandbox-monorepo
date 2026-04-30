@@ -3,21 +3,14 @@ import {
   drizzle as drizzleAwsDataApi,
   type AwsDataApiPgDatabase
 } from "drizzle-orm/aws-data-api/pg";
-import {
-  drizzle as drizzleNodePostgres,
-  type NodePgDatabase
-} from "drizzle-orm/node-postgres";
 
 import {
   getDeployedDataApiDatabaseConfig,
-  getLocalDatabaseConfig,
   type SignalTrackerDatabaseConfig
 } from "./config";
 import { signalTrackerSchema } from "./schema";
 
-export type SignalTrackerDb =
-  | AwsDataApiPgDatabase<typeof signalTrackerSchema>
-  | NodePgDatabase<typeof signalTrackerSchema>;
+export type SignalTrackerDb = AwsDataApiPgDatabase<typeof signalTrackerSchema>;
 
 type Env = Record<string, string | undefined>;
 
@@ -34,12 +27,6 @@ export function getRuntimeDatabase(env: Env = process.env): SignalTrackerDb {
 export function createSignalTrackerDatabase(
   config: SignalTrackerDatabaseConfig
 ): SignalTrackerDb {
-  if (config.mode === "local") {
-    return drizzleNodePostgres(config.databaseUrl, {
-      schema: signalTrackerSchema
-    });
-  }
-
   const client = new RDSDataClient({ region: config.region });
 
   return drizzleAwsDataApi(client, {
@@ -53,17 +40,5 @@ export function createSignalTrackerDatabase(
 export function getRuntimeDatabaseConfig(
   env: Env = process.env
 ): SignalTrackerDatabaseConfig {
-  if (hasAnyDeployedDataApiConfig(env)) {
-    return getDeployedDataApiDatabaseConfig(env);
-  }
-
-  return getLocalDatabaseConfig(env);
-}
-
-function hasAnyDeployedDataApiConfig(env: Env): boolean {
-  return [
-    env.SIGNAL_TRACKER_DB_NAME,
-    env.SIGNAL_TRACKER_DB_RESOURCE_ARN,
-    env.SIGNAL_TRACKER_DB_SECRET_ARN
-  ].some((value) => Boolean(value?.trim()));
+  return getDeployedDataApiDatabaseConfig(env);
 }

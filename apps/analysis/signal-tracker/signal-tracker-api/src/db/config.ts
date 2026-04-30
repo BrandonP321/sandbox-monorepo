@@ -1,43 +1,77 @@
-export type LocalDatabaseConfig = {
-  readonly mode: "local";
-  readonly databaseUrl: string;
-};
-
 export type DeployedDataApiDatabaseConfig = {
   readonly mode: "deployed-data-api";
+  readonly stage: SignalTrackerDatabaseStage | "custom";
   readonly databaseName: string;
   readonly resourceArn: string;
   readonly secretArn: string;
   readonly region: string;
 };
 
-export type SignalTrackerDatabaseConfig =
-  | LocalDatabaseConfig
-  | DeployedDataApiDatabaseConfig;
+export type SignalTrackerDatabaseConfig = DeployedDataApiDatabaseConfig;
+export type SignalTrackerDatabaseStage = keyof typeof DATABASE_CONFIG_BY_STAGE;
 
 type Env = Record<string, string | undefined>;
 
 const DEFAULT_AWS_REGION = "us-east-1";
+const DEFAULT_DATABASE_STAGE = "prod";
 
-export function getLocalDatabaseConfig(
-  env: Env = process.env
-): LocalDatabaseConfig {
-  return {
-    mode: "local",
-    databaseUrl: requireEnv(env, "DATABASE_URL")
-  };
-}
+const DATABASE_CONFIG_BY_STAGE = {
+  // TODO: Add a dev stage here when the separate dev Aurora database exists.
+  prod: {
+    databaseName: "signal_tracker",
+    resourceArn:
+      "arn:aws:rds:us-east-1:498283327683:cluster:signaltrackerstack-signaltrackerdatabaseclusteraae-tjougyjlsobx",
+    secretArn:
+      "arn:aws:secretsmanager:us-east-1:498283327683:secret:SignalTrackerStackSignalTra-Nci0sG1DMu6e-aILyNc",
+    region: "us-east-1"
+  }
+} as const;
 
 export function getDeployedDataApiDatabaseConfig(
   env: Env = process.env
 ): DeployedDataApiDatabaseConfig {
+  if (hasAnyExplicitDeployedDataApiConfig(env)) {
+    return {
+      mode: "deployed-data-api",
+      stage: "custom",
+      databaseName: requireEnv(env, "SIGNAL_TRACKER_DB_NAME"),
+      resourceArn: requireEnv(env, "SIGNAL_TRACKER_DB_RESOURCE_ARN"),
+      secretArn: requireEnv(env, "SIGNAL_TRACKER_DB_SECRET_ARN"),
+      region:
+        firstPresent(env.AWS_REGION, env.AWS_DEFAULT_REGION) ??
+        DEFAULT_AWS_REGION
+    };
+  }
+
+  return getDatabaseConfigForStage(readDatabaseStage(env));
+}
+
+export function readDatabaseStage(
+  env: Env = process.env
+): SignalTrackerDatabaseStage {
+  const stage =
+    firstPresent(env.SIGNAL_TRACKER_DB_STAGE) ?? DEFAULT_DATABASE_STAGE;
+
+  if (isSignalTrackerDatabaseStage(stage)) {
+    return stage;
+  }
+
+  throw new Error(
+    `Unsupported SIGNAL_TRACKER_DB_STAGE: ${stage}. Supported stages: ${Object.keys(
+      DATABASE_CONFIG_BY_STAGE
+    ).join(", ")}`
+  );
+}
+
+export function getDatabaseConfigForStage(
+  stage: SignalTrackerDatabaseStage
+): DeployedDataApiDatabaseConfig {
+  const stageConfig = DATABASE_CONFIG_BY_STAGE[stage];
+
   return {
     mode: "deployed-data-api",
-    databaseName: requireEnv(env, "SIGNAL_TRACKER_DB_NAME"),
-    resourceArn: requireEnv(env, "SIGNAL_TRACKER_DB_RESOURCE_ARN"),
-    secretArn: requireEnv(env, "SIGNAL_TRACKER_DB_SECRET_ARN"),
-    region:
-      firstPresent(env.AWS_REGION, env.AWS_DEFAULT_REGION) ?? DEFAULT_AWS_REGION
+    stage,
+    ...stageConfig
   };
 }
 
@@ -49,6 +83,20 @@ function requireEnv(env: Env, key: string): string {
   }
 
   return value;
+}
+
+function hasAnyExplicitDeployedDataApiConfig(env: Env): boolean {
+  return [
+    env.SIGNAL_TRACKER_DB_NAME,
+    env.SIGNAL_TRACKER_DB_RESOURCE_ARN,
+    env.SIGNAL_TRACKER_DB_SECRET_ARN
+  ].some((value) => Boolean(value?.trim()));
+}
+
+function isSignalTrackerDatabaseStage(
+  stage: string
+): stage is SignalTrackerDatabaseStage {
+  return stage in DATABASE_CONFIG_BY_STAGE;
 }
 
 function firstPresent(

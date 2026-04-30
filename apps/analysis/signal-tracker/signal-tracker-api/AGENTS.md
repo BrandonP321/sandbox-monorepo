@@ -13,4 +13,6 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 ## Notes
 
 - Shared router logic lives in `src/app/router.ts` and is used by both Lambda and local dev adapters.
-- Temporary early-development database convention: local API development may point at the Prod Aurora PostgreSQL database through `../.env.local` to reduce local setup friction and Aurora wake-up slowdowns. Treat this as a short-term convenience while the app is low-traffic and pre-release: avoid destructive/manual data changes, do not add seed/reset scripts against Prod, and revisit this before broader testing, demos, or real user data.
+- Database targeting is intentionally stage-based and AWS-only. `SIGNAL_TRACKER_DB_STAGE` defaults to `prod`; use that default until a separate dev Aurora database exists.
+- TODO: When the dev DB exists, update local API guidance to use `SIGNAL_TRACKER_DB_STAGE=dev` by default while deployed production stays on `prod`.
+- Treat any local API session connected to `prod` as Prod data: avoid destructive/manual data changes and do not add seed/reset scripts against Prod.
