@@ -2,17 +2,23 @@ import { and, asc, desc, eq } from "drizzle-orm";
 
 import {
   assessmentUpdateSchema,
-  type AssessmentUpdate,
-  type Entry
+  type AssessmentUpdate
 } from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { entries, entryAssessments } from "../../db/schema";
 import {
   mapEntryRow,
+  mapEntryToNewEntryRow
+} from "../entries/entry-row-mapping";
+import {
   type EntryRow,
   type NewEntryRow
 } from "../entries/postgres-entry-repository";
+import {
+  nullableDateToIso,
+  nullableTimestampToDate
+} from "../persistence/timestamps";
 import type { AssessmentRepository } from "./assessment-repository";
 
 export type EntryAssessmentRow = typeof entryAssessments.$inferSelect;
@@ -92,7 +98,7 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
 
   async create(assessmentUpdate: AssessmentUpdate): Promise<AssessmentUpdate> {
     const rows = await this.store.insertAssessmentUpdate(
-      mapEntryToRow(assessmentUpdate.entry),
+      mapEntryToNewEntryRow(assessmentUpdate.entry),
       mapAssessmentToRow(assessmentUpdate)
     );
 
@@ -119,31 +125,10 @@ export function mapAssessmentUpdateRows(
     assumptions: rows.assessment.assumptionsJson,
     indicators: rows.assessment.indicatorsJson,
     resolutionCriteria: rows.assessment.resolutionCriteria ?? undefined,
-    targetResolvesAt: rows.assessment.targetResolvesAt
-      ? toIsoTimestamp(rows.assessment.targetResolvesAt)
-      : undefined,
+    targetResolvesAt: nullableDateToIso(rows.assessment.targetResolvesAt),
     previousAssessmentEntryId:
       rows.assessment.previousAssessmentEntryId ?? undefined
   });
-}
-
-function mapEntryToRow(entry: Entry): NewEntryRow {
-  return {
-    id: entry.id,
-    topicId: entry.topicId,
-    kind: entry.kind,
-    epistemicStatus: entry.epistemicStatus,
-    title: entry.title,
-    bodyMd: entry.bodyMd,
-    sortAt: new Date(entry.sortAt),
-    isApproximateDate: entry.isApproximateDate,
-    originType: entry.originType,
-    status: entry.status,
-    createdAt: new Date(entry.createdAt),
-    updatedAt: new Date(entry.updatedAt),
-    archivedAt: entry.archivedAt ? new Date(entry.archivedAt) : null,
-    deletedAt: entry.deletedAt ? new Date(entry.deletedAt) : null
-  };
 }
 
 function mapAssessmentToRow(
@@ -157,18 +142,10 @@ function mapAssessmentToRow(
     assumptionsJson: assessmentUpdate.assumptions,
     indicatorsJson: assessmentUpdate.indicators,
     resolutionCriteria: assessmentUpdate.resolutionCriteria ?? null,
-    targetResolvesAt: assessmentUpdate.targetResolvesAt
-      ? new Date(assessmentUpdate.targetResolvesAt)
-      : null,
+    targetResolvesAt: nullableTimestampToDate(
+      assessmentUpdate.targetResolvesAt
+    ),
     previousAssessmentEntryId:
       assessmentUpdate.previousAssessmentEntryId ?? null
   };
-}
-
-function toIsoTimestamp(value: Date | string): string {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  return new Date(value).toISOString();
 }

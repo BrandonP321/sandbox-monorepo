@@ -1,47 +1,27 @@
 import { describe, expect, it } from "vitest";
 
-import type { Entry } from "@repo/signal-tracker-shared";
-
-import type { ListEntriesByTopicOptions } from "./entry-repository";
+import { FakeEntryRowStore } from "../repository-test-stores";
+import { buildEntryFixture, buildEntryRowFixture } from "../test-fixtures";
 import {
   mapEntryRow,
-  PostgresEntryRepository,
-  type EntryRow,
-  type EntryRowStore,
-  type NewEntryRow
+  PostgresEntryRepository
 } from "./postgres-entry-repository";
 
 describe("PostgresEntryRepository", () => {
   it("maps entry rows to the shared entry shape", () => {
-    expect(
-      mapEntryRow({
-        id: "entry-1",
-        topicId: "topic-1",
-        kind: "event",
-        epistemicStatus: "reported",
-        title: "Court grants injunction",
-        bodyMd: "A federal court granted an injunction.",
-        sortAt: new Date("2026-04-25T00:00:00.000Z"),
-        isApproximateDate: false,
-        originType: "manual",
-        status: "active",
-        createdAt: new Date("2026-04-25T01:00:00.000Z"),
-        updatedAt: new Date("2026-04-25T01:00:00.000Z"),
-        archivedAt: null,
-        deletedAt: null
-      })
-    ).toEqual(entryFixture);
+    expect(mapEntryRow(buildEntryRowFixture())).toEqual(entryFixture);
   });
 
   it("maps archive and delete lifecycle timestamps", () => {
     expect(
-      mapEntryRow({
-        ...entryRowFixture,
-        status: "deleted",
-        updatedAt: new Date("2026-04-27T01:00:00.000Z"),
-        archivedAt: new Date("2026-04-26T01:00:00.000Z"),
-        deletedAt: new Date("2026-04-27T01:00:00.000Z")
-      })
+      mapEntryRow(
+        buildEntryRowFixture({
+          status: "deleted",
+          updatedAt: new Date("2026-04-27T01:00:00.000Z"),
+          archivedAt: new Date("2026-04-26T01:00:00.000Z"),
+          deletedAt: new Date("2026-04-27T01:00:00.000Z")
+        })
+      )
     ).toEqual({
       ...entryFixture,
       status: "deleted",
@@ -78,29 +58,30 @@ describe("PostgresEntryRepository", () => {
     store.seed(archivedEntryFixture);
     store.seed(deletedEntryFixture);
     store.seed(entryFixture);
-    store.seed({
-      ...entryFixture,
-      id: "entry-2",
-      title: "Agency releases proposed rule",
-      sortAt: "2026-04-26T00:00:00.000Z",
-      createdAt: "2026-04-26T01:00:00.000Z",
-      updatedAt: "2026-04-26T01:00:00.000Z"
-    });
-    store.seed({
-      ...entryFixture,
-      id: "other-topic-entry",
-      topicId: "topic-2"
-    });
-
-    await expect(repository.listByTopic("topic-1")).resolves.toEqual([
-      {
-        ...entryFixture,
+    store.seed(
+      buildEntryFixture({
         id: "entry-2",
         title: "Agency releases proposed rule",
         sortAt: "2026-04-26T00:00:00.000Z",
         createdAt: "2026-04-26T01:00:00.000Z",
         updatedAt: "2026-04-26T01:00:00.000Z"
-      },
+      })
+    );
+    store.seed(
+      buildEntryFixture({
+        id: "other-topic-entry",
+        topicId: "topic-2"
+      })
+    );
+
+    await expect(repository.listByTopic("topic-1")).resolves.toEqual([
+      buildEntryFixture({
+        id: "entry-2",
+        title: "Agency releases proposed rule",
+        sortAt: "2026-04-26T00:00:00.000Z",
+        createdAt: "2026-04-26T01:00:00.000Z",
+        updatedAt: "2026-04-26T01:00:00.000Z"
+      }),
       entryFixture
     ]);
   });
@@ -164,23 +145,9 @@ describe("PostgresEntryRepository", () => {
   });
 });
 
-const entryFixture: Entry = {
-  id: "entry-1",
-  topicId: "topic-1",
-  kind: "event",
-  epistemicStatus: "reported",
-  title: "Court grants injunction",
-  bodyMd: "A federal court granted an injunction.",
-  sortAt: "2026-04-25T00:00:00.000Z",
-  isApproximateDate: false,
-  originType: "manual",
-  status: "active",
-  createdAt: "2026-04-25T01:00:00.000Z",
-  updatedAt: "2026-04-25T01:00:00.000Z"
-};
+const entryFixture = buildEntryFixture();
 
-const archivedEntryFixture: Entry = {
-  ...entryFixture,
+const archivedEntryFixture = buildEntryFixture({
   id: "entry-archived",
   title: "Archived review note",
   kind: "review",
@@ -190,10 +157,9 @@ const archivedEntryFixture: Entry = {
   createdAt: "2026-04-26T01:00:00.000Z",
   updatedAt: "2026-04-27T01:00:00.000Z",
   archivedAt: "2026-04-27T01:00:00.000Z"
-};
+});
 
-const deletedEntryFixture: Entry = {
-  ...entryFixture,
+const deletedEntryFixture = buildEntryFixture({
   id: "entry-deleted",
   title: "Deleted assessment",
   kind: "assessment",
@@ -203,131 +169,4 @@ const deletedEntryFixture: Entry = {
   createdAt: "2026-04-27T01:00:00.000Z",
   updatedAt: "2026-04-28T01:00:00.000Z",
   deletedAt: "2026-04-28T01:00:00.000Z"
-};
-
-const entryRowFixture: EntryRow = {
-  id: "entry-1",
-  topicId: "topic-1",
-  kind: "event",
-  epistemicStatus: "reported",
-  title: "Court grants injunction",
-  bodyMd: "A federal court granted an injunction.",
-  sortAt: new Date("2026-04-25T00:00:00.000Z"),
-  isApproximateDate: false,
-  originType: "manual",
-  status: "active",
-  createdAt: new Date("2026-04-25T01:00:00.000Z"),
-  updatedAt: new Date("2026-04-25T01:00:00.000Z"),
-  archivedAt: null,
-  deletedAt: null
-};
-
-class FakeEntryRowStore implements EntryRowStore {
-  private readonly entries = new Map<string, EntryRow>();
-
-  async insertEntry(entry: NewEntryRow): Promise<EntryRow> {
-    const row: EntryRow = {
-      id: entry.id,
-      topicId: entry.topicId,
-      kind: entry.kind,
-      epistemicStatus: entry.epistemicStatus,
-      title: entry.title,
-      bodyMd: entry.bodyMd,
-      sortAt: entry.sortAt,
-      isApproximateDate: entry.isApproximateDate ?? false,
-      originType: entry.originType ?? "manual",
-      status: entry.status ?? "active",
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
-      archivedAt: entry.archivedAt ? new Date(entry.archivedAt) : null,
-      deletedAt: entry.deletedAt ? new Date(entry.deletedAt) : null
-    };
-
-    this.entries.set(row.id, row);
-
-    return row;
-  }
-
-  async selectEntryById(id: string): Promise<EntryRow | undefined> {
-    return this.entries.get(id);
-  }
-
-  async selectEntriesByTopic(
-    topicId: string,
-    options: ListEntriesByTopicOptions = {}
-  ): Promise<EntryRow[]> {
-    return Array.from(this.entries.values())
-      .filter((row) => row.topicId === topicId)
-      .filter((row) => {
-        if (row.status === "archived") {
-          return options.includeArchived === true;
-        }
-
-        if (row.status === "deleted") {
-          return options.includeDeleted === true;
-        }
-
-        return row.status === "active";
-      })
-      .sort(compareEntryRowsForList);
-  }
-
-  async updateEntry(
-    id: string,
-    updates: Partial<NewEntryRow>
-  ): Promise<EntryRow | undefined> {
-    const existingRow = this.entries.get(id);
-
-    if (!existingRow) {
-      return undefined;
-    }
-
-    const updatedRow: EntryRow = {
-      ...existingRow,
-      ...updates
-    };
-    this.entries.set(id, updatedRow);
-
-    return updatedRow;
-  }
-
-  seed(entry: Entry): void {
-    this.entries.set(entry.id, {
-      id: entry.id,
-      topicId: entry.topicId,
-      kind: entry.kind,
-      epistemicStatus: entry.epistemicStatus,
-      title: entry.title,
-      bodyMd: entry.bodyMd,
-      sortAt: new Date(entry.sortAt),
-      isApproximateDate: entry.isApproximateDate,
-      originType: entry.originType,
-      status: entry.status,
-      createdAt: new Date(entry.createdAt),
-      updatedAt: new Date(entry.updatedAt),
-      archivedAt: entry.archivedAt ? new Date(entry.archivedAt) : null,
-      deletedAt: entry.deletedAt ? new Date(entry.deletedAt) : null
-    });
-  }
-}
-
-function compareEntryRowsForList(left: EntryRow, right: EntryRow): number {
-  const sortAtComparison = getTime(right.sortAt) - getTime(left.sortAt);
-
-  if (sortAtComparison !== 0) {
-    return sortAtComparison;
-  }
-
-  const createdAtComparison =
-    getTime(right.createdAt) - getTime(left.createdAt);
-
-  if (createdAtComparison !== 0) {
-    return createdAtComparison;
-  }
-
-  return left.id.localeCompare(right.id);
-}
-
-function getTime(value: Date | string): number {
-  return new Date(value).getTime();
-}
+});

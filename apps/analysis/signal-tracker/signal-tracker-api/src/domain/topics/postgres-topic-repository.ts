@@ -4,6 +4,11 @@ import { topicSchema, type Topic } from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { topics } from "../../db/schema";
+import {
+  nullableDateToIso,
+  toDate,
+  toIsoTimestamp
+} from "../persistence/timestamps";
 import type {
   ListTopicsOptions,
   TopicRepository,
@@ -119,8 +124,8 @@ export class PostgresTopicRepository implements TopicRepository {
       scopeNote: topic.scopeNote,
       reviewCadence: topic.reviewCadence,
       status: topic.status,
-      createdAt: new Date(topic.createdAt),
-      updatedAt: new Date(topic.updatedAt)
+      createdAt: toDate(topic.createdAt),
+      updatedAt: toDate(topic.updatedAt)
     });
 
     return mapTopicRow(row);
@@ -145,14 +150,14 @@ export class PostgresTopicRepository implements TopicRepository {
   ): Promise<Topic | undefined> {
     const row = await this.store.updateTopic(id, {
       ...mapTopicUpdatesToRow(updates),
-      updatedAt: new Date(updatedAt)
+      updatedAt: toDate(updatedAt)
     });
 
     return row ? mapTopicRow(row) : undefined;
   }
 
   async archive(id: string, archivedAt: string): Promise<Topic | undefined> {
-    const archivedAtDate = new Date(archivedAt);
+    const archivedAtDate = toDate(archivedAt);
     const row = await this.store.updateTopic(id, {
       status: "archived",
       archivedAt: archivedAtDate,
@@ -179,7 +184,7 @@ export function mapTopicRow(row: TopicRow): Topic {
     updatedAt: toIsoTimestamp(row.updatedAt),
     scopeNote: row.scopeNote ?? undefined,
     reviewCadence: row.reviewCadence,
-    archivedAt: row.archivedAt ? toIsoTimestamp(row.archivedAt) : undefined
+    archivedAt: nullableDateToIso(row.archivedAt)
   });
 }
 
@@ -203,14 +208,6 @@ function mapTopicUpdatesToRow(updates: UpdateTopicFields): TopicRowUpdate {
   }
 
   return rowUpdates;
-}
-
-function toIsoTimestamp(value: Date | string): string {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  return new Date(value).toISOString();
 }
 
 export function escapeIlikePattern(query: string): string {

@@ -1,64 +1,46 @@
 import { describe, expect, it } from "vitest";
 
-import type { Topic } from "@repo/signal-tracker-shared";
-
+import { FakeTopicRowStore } from "../repository-test-stores";
+import { buildTopicFixture, buildTopicRowFixture } from "../test-fixtures";
 import {
   escapeIlikePattern,
   mapTopicRow,
-  PostgresTopicRepository,
-  type NewTopicRow,
-  type TopicRow,
-  type TopicRowStore
+  PostgresTopicRepository
 } from "./postgres-topic-repository";
 
 describe("PostgresTopicRepository", () => {
   it("maps topic rows to the shared API topic shape", () => {
     expect(
-      mapTopicRow({
-        id: "topic-1",
-        title: "Iran strike risk",
-        framingQuestion: "Will tensions escalate?",
-        scopeNote: null,
-        reviewCadence: "weekly",
-        status: "active",
-        createdAt: new Date("2026-04-25T00:00:00.000Z"),
-        updatedAt: new Date("2026-04-25T00:00:00.000Z"),
-        archivedAt: null
+      mapTopicRow(
+        buildTopicRowFixture({
+          scopeNote: null
+        })
+      )
+    ).toEqual(
+      buildTopicFixture({
+        scopeNote: undefined
       })
-    ).toEqual({
-      id: "topic-1",
-      title: "Iran strike risk",
-      framingQuestion: "Will tensions escalate?",
-      reviewCadence: "weekly",
-      status: "active",
-      createdAt: "2026-04-25T00:00:00.000Z",
-      updatedAt: "2026-04-25T00:00:00.000Z"
-    });
+    );
   });
 
   it("maps archived timestamps to the shared API topic shape", () => {
     expect(
-      mapTopicRow({
-        id: "topic-1",
-        title: "Iran strike risk",
-        framingQuestion: "Will tensions escalate?",
-        scopeNote: null,
-        reviewCadence: "weekly",
+      mapTopicRow(
+        buildTopicRowFixture({
+          scopeNote: null,
+          status: "archived",
+          updatedAt: new Date("2026-04-27T00:00:00.000Z"),
+          archivedAt: new Date("2026-04-26T00:00:00.000Z")
+        })
+      )
+    ).toEqual(
+      buildTopicFixture({
+        scopeNote: undefined,
         status: "archived",
-        createdAt: new Date("2026-04-25T00:00:00.000Z"),
-        updatedAt: new Date("2026-04-27T00:00:00.000Z"),
-        archivedAt: new Date("2026-04-26T00:00:00.000Z")
+        updatedAt: "2026-04-27T00:00:00.000Z",
+        archivedAt: "2026-04-26T00:00:00.000Z"
       })
-    ).toEqual({
-      id: "topic-1",
-      title: "Iran strike risk",
-      framingQuestion: "Will tensions escalate?",
-      reviewCadence: "weekly",
-      status: "archived",
-      createdAt: "2026-04-25T00:00:00.000Z",
-      updatedAt: "2026-04-27T00:00:00.000Z",
-      archivedAt: "2026-04-26T00:00:00.000Z"
-    });
+    );
   });
 
   it("persists a valid topic through the topic row store", async () => {
@@ -86,27 +68,27 @@ describe("PostgresTopicRepository", () => {
     const store = new FakeTopicRowStore();
     const repository = new PostgresTopicRepository(store);
     store.seed(archivedTopicRow);
-    store.seed({
-      ...topicFixture,
-      id: "topic-2",
-      title: "AI copyright litigation",
-      framingQuestion: "What legal risk is emerging?",
-      scopeNote: undefined,
-      createdAt: "2026-04-26T00:00:00.000Z",
-      updatedAt: "2026-04-27T00:00:00.000Z"
-    });
-    store.seed(topicFixture);
-
-    await expect(repository.list()).resolves.toEqual([
-      {
+    store.seed(
+      buildTopicFixture({
         id: "topic-2",
         title: "AI copyright litigation",
         framingQuestion: "What legal risk is emerging?",
-        reviewCadence: "weekly",
-        status: "active",
+        scopeNote: undefined,
         createdAt: "2026-04-26T00:00:00.000Z",
         updatedAt: "2026-04-27T00:00:00.000Z"
-      },
+      })
+    );
+    store.seed(topicFixture);
+
+    await expect(repository.list()).resolves.toEqual([
+      buildTopicFixture({
+        id: "topic-2",
+        title: "AI copyright litigation",
+        framingQuestion: "What legal risk is emerging?",
+        scopeNote: undefined,
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-27T00:00:00.000Z"
+      }),
       topicFixture
     ]);
   });
@@ -114,21 +96,24 @@ describe("PostgresTopicRepository", () => {
   it("uses created time and ID as stable tie-breakers", async () => {
     const store = new FakeTopicRowStore();
     const repository = new PostgresTopicRepository(store);
-    store.seed({
-      ...topicFixture,
-      id: "topic-b",
-      createdAt: "2026-04-26T00:00:00.000Z"
-    });
-    store.seed({
-      ...topicFixture,
-      id: "topic-a",
-      createdAt: "2026-04-26T00:00:00.000Z"
-    });
-    store.seed({
-      ...topicFixture,
-      id: "topic-c",
-      createdAt: "2026-04-27T00:00:00.000Z"
-    });
+    store.seed(
+      buildTopicFixture({
+        id: "topic-b",
+        createdAt: "2026-04-26T00:00:00.000Z"
+      })
+    );
+    store.seed(
+      buildTopicFixture({
+        id: "topic-a",
+        createdAt: "2026-04-26T00:00:00.000Z"
+      })
+    );
+    store.seed(
+      buildTopicFixture({
+        id: "topic-c",
+        createdAt: "2026-04-27T00:00:00.000Z"
+      })
+    );
 
     await expect(repository.list()).resolves.toMatchObject([
       { id: "topic-c" },
@@ -141,13 +126,14 @@ describe("PostgresTopicRepository", () => {
     const store = new FakeTopicRowStore();
     const repository = new PostgresTopicRepository(store);
     store.seed(topicFixture);
-    store.seed({
-      ...topicFixture,
-      id: "topic-2",
-      title: "AI copyright litigation",
-      framingQuestion: "What legal risk is emerging?",
-      scopeNote: undefined
-    });
+    store.seed(
+      buildTopicFixture({
+        id: "topic-2",
+        title: "AI copyright litigation",
+        framingQuestion: "What legal risk is emerging?",
+        scopeNote: undefined
+      })
+    );
 
     await expect(repository.list({ query: "diplomatic" })).resolves.toEqual([
       topicFixture
@@ -215,18 +201,9 @@ describe("PostgresTopicRepository", () => {
   });
 });
 
-const topicFixture: Topic = {
-  id: "topic-1",
-  title: "Iran strike risk",
-  framingQuestion: "Will tensions escalate?",
-  scopeNote: "Track military and diplomatic signals.",
-  reviewCadence: "weekly",
-  status: "active",
-  createdAt: "2026-04-25T00:00:00.000Z",
-  updatedAt: "2026-04-25T00:00:00.000Z"
-};
+const topicFixture = buildTopicFixture();
 
-const archivedTopicRow: TopicRow = {
+const archivedTopicRow = buildTopicRowFixture({
   id: "topic-archived",
   title: "Archived topic",
   framingQuestion: "What no longer needs review?",
@@ -236,127 +213,4 @@ const archivedTopicRow: TopicRow = {
   createdAt: new Date("2026-04-25T00:00:00.000Z"),
   updatedAt: new Date("2026-04-28T00:00:00.000Z"),
   archivedAt: new Date("2026-04-28T00:00:00.000Z")
-};
-
-class FakeTopicRowStore implements TopicRowStore {
-  private readonly topics = new Map<string, TopicRow>();
-
-  async insertTopic(topic: NewTopicRow): Promise<TopicRow> {
-    const row: TopicRow = {
-      id: topic.id,
-      title: topic.title,
-      framingQuestion: topic.framingQuestion,
-      scopeNote: topic.scopeNote ?? null,
-      reviewCadence: topic.reviewCadence,
-      status: topic.status,
-      createdAt: topic.createdAt,
-      updatedAt: topic.updatedAt,
-      archivedAt: topic.archivedAt ? new Date(topic.archivedAt) : null
-    };
-
-    this.topics.set(row.id, row);
-
-    return row;
-  }
-
-  async selectTopicById(id: string): Promise<TopicRow | undefined> {
-    return this.topics.get(id);
-  }
-
-  async selectTopics(options: { query?: string } = {}): Promise<TopicRow[]> {
-    const query = options.query?.toLocaleLowerCase();
-
-    return Array.from(this.topics.values())
-      .filter((row) => row.status === "active")
-      .filter((row) => {
-        if (!query) {
-          return true;
-        }
-
-        return [row.title, row.framingQuestion, row.scopeNote ?? ""].some(
-          (value) => value.toLocaleLowerCase().includes(query)
-        );
-      })
-      .sort(compareTopicRowsForList);
-  }
-
-  async updateTopic(
-    id: string,
-    updates: Partial<NewTopicRow>
-  ): Promise<TopicRow | undefined> {
-    const existingRow = await this.selectTopicById(id);
-
-    if (!existingRow) {
-      return undefined;
-    }
-
-    const updatedRow: TopicRow = {
-      ...existingRow,
-      ...updates
-    };
-
-    this.topics.set(id, updatedRow);
-
-    return updatedRow;
-  }
-
-  async deleteTopic(id: string): Promise<TopicRow | undefined> {
-    const existingRow = await this.selectTopicById(id);
-
-    if (!existingRow) {
-      return undefined;
-    }
-
-    this.topics.delete(id);
-
-    return existingRow;
-  }
-
-  seed(topic: Topic): void;
-  seed(row: TopicRow): void;
-  seed(topicOrRow: Topic | TopicRow): void {
-    const row: TopicRow = isTopicRow(topicOrRow)
-      ? topicOrRow
-      : {
-          id: topicOrRow.id,
-          title: topicOrRow.title,
-          framingQuestion: topicOrRow.framingQuestion,
-          scopeNote: topicOrRow.scopeNote ?? null,
-          reviewCadence: topicOrRow.reviewCadence,
-          status: topicOrRow.status,
-          createdAt: new Date(topicOrRow.createdAt),
-          updatedAt: new Date(topicOrRow.updatedAt),
-          archivedAt: topicOrRow.archivedAt
-            ? new Date(topicOrRow.archivedAt)
-            : null
-        };
-
-    this.topics.set(row.id, row);
-  }
-}
-
-function isTopicRow(topicOrRow: Topic | TopicRow): topicOrRow is TopicRow {
-  return topicOrRow.createdAt instanceof Date;
-}
-
-function compareTopicRowsForList(left: TopicRow, right: TopicRow): number {
-  const updatedAtComparison =
-    getTime(right.updatedAt) - getTime(left.updatedAt);
-
-  if (updatedAtComparison !== 0) {
-    return updatedAtComparison;
-  }
-
-  const createdAtComparison =
-    getTime(right.createdAt) - getTime(left.createdAt);
-
-  if (createdAtComparison !== 0) {
-    return createdAtComparison;
-  }
-
-  return left.id.localeCompare(right.id);
-}
-
-function getTime(value: Date | string): number {
-  return new Date(value).getTime();
-}
+});

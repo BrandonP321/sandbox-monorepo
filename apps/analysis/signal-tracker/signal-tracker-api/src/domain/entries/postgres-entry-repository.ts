@@ -1,13 +1,17 @@
 import { and, asc, desc, eq, inArray } from "drizzle-orm";
 
-import { entrySchema, type Entry } from "@repo/signal-tracker-shared";
+import type { Entry } from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { entries } from "../../db/schema";
+import { toDate } from "../persistence/timestamps";
+import { mapEntryRow, mapEntryToNewEntryRow } from "./entry-row-mapping";
 import type {
   EntryRepository,
   ListEntriesByTopicOptions
 } from "./entry-repository";
+
+export { mapEntryRow } from "./entry-row-mapping";
 
 export type EntryRow = typeof entries.$inferSelect;
 export type NewEntryRow = typeof entries.$inferInsert;
@@ -94,22 +98,7 @@ export class PostgresEntryRepository implements EntryRepository {
   ) {}
 
   async create(entry: Entry): Promise<Entry> {
-    const row = await this.store.insertEntry({
-      id: entry.id,
-      topicId: entry.topicId,
-      kind: entry.kind,
-      epistemicStatus: entry.epistemicStatus,
-      title: entry.title,
-      bodyMd: entry.bodyMd,
-      sortAt: new Date(entry.sortAt),
-      isApproximateDate: entry.isApproximateDate,
-      originType: entry.originType,
-      status: entry.status,
-      createdAt: new Date(entry.createdAt),
-      updatedAt: new Date(entry.updatedAt),
-      archivedAt: entry.archivedAt ? new Date(entry.archivedAt) : null,
-      deletedAt: entry.deletedAt ? new Date(entry.deletedAt) : null
-    });
+    const row = await this.store.insertEntry(mapEntryToNewEntryRow(entry));
 
     return mapEntryRow(row);
   }
@@ -136,30 +125,11 @@ export class PostgresEntryRepository implements EntryRepository {
   ): Promise<Entry | undefined> {
     const row = await this.store.updateEntry(id, {
       ...mapEntryUpdatesToRow(updates),
-      updatedAt: new Date(updatedAt)
+      updatedAt: toDate(updatedAt)
     });
 
     return row ? mapEntryRow(row) : undefined;
   }
-}
-
-export function mapEntryRow(row: EntryRow): Entry {
-  return entrySchema.parse({
-    id: row.id,
-    topicId: row.topicId,
-    kind: row.kind,
-    epistemicStatus: row.epistemicStatus,
-    title: row.title,
-    bodyMd: row.bodyMd,
-    sortAt: toIsoTimestamp(row.sortAt),
-    isApproximateDate: row.isApproximateDate,
-    originType: row.originType,
-    status: row.status,
-    createdAt: toIsoTimestamp(row.createdAt),
-    updatedAt: toIsoTimestamp(row.updatedAt),
-    archivedAt: row.archivedAt ? toIsoTimestamp(row.archivedAt) : undefined,
-    deletedAt: row.deletedAt ? toIsoTimestamp(row.deletedAt) : undefined
-  });
 }
 
 function getIncludedStatuses(
@@ -192,7 +162,7 @@ function mapEntryUpdatesToRow(
   }
 
   if (updates.sortAt !== undefined) {
-    rowUpdates.sortAt = new Date(updates.sortAt);
+    rowUpdates.sortAt = toDate(updates.sortAt);
   }
 
   if (updates.epistemicStatus !== undefined) {
@@ -200,12 +170,4 @@ function mapEntryUpdatesToRow(
   }
 
   return rowUpdates;
-}
-
-function toIsoTimestamp(value: Date | string): string {
-  if (value instanceof Date) {
-    return value.toISOString();
-  }
-
-  return new Date(value).toISOString();
 }
