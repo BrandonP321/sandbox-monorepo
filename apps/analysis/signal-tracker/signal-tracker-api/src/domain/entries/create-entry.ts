@@ -22,7 +22,7 @@ export type CreateEntryInput = {
   originType?: EntryOriginType;
 };
 
-export type CreateEntryDependencies = {
+type CreateEntryDependencies = {
   entryRepository: EntryRepository;
   topicRepository: Pick<TopicRepository, "findById">;
   generateId?: () => string;

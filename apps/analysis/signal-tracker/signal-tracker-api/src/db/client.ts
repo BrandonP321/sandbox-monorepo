@@ -24,7 +24,7 @@ export function getRuntimeDatabase(env: Env = process.env): SignalTrackerDb {
   return runtimeDatabase;
 }
 
-export function createSignalTrackerDatabase(
+function createSignalTrackerDatabase(
   config: SignalTrackerDatabaseConfig
 ): SignalTrackerDb {
   const client = new RDSDataClient({ region: config.region });
@@ -37,7 +37,7 @@ export function createSignalTrackerDatabase(
   });
 }
 
-export function getRuntimeDatabaseConfig(
+function getRuntimeDatabaseConfig(
   env: Env = process.env
 ): SignalTrackerDatabaseConfig {
   return getDeployedDataApiDatabaseConfig(env);

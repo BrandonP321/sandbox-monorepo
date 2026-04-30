@@ -11,8 +11,6 @@ import type {
   ListEntriesByTopicOptions
 } from "./entry-repository";
 
-export { mapEntryRow } from "./entry-row-mapping";
-
 export type EntryRow = typeof entries.$inferSelect;
 export type NewEntryRow = typeof entries.$inferInsert;
 type EntryRowUpdate = Partial<

@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { loadEnvFile } from "node:process";
 
-export type LoadedLocalEnvFile = {
+type LoadedLocalEnvFile = {
   path: string;
 };
 

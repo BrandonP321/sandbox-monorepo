@@ -2,10 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import { FakeEntryRowStore } from "../repository-test-stores";
 import { buildEntryFixture, buildEntryRowFixture } from "../test-fixtures";
-import {
-  mapEntryRow,
-  PostgresEntryRepository
-} from "./postgres-entry-repository";
+import { mapEntryRow } from "./entry-row-mapping";
+import { PostgresEntryRepository } from "./postgres-entry-repository";
 
 describe("PostgresEntryRepository", () => {
   it("maps entry rows to the shared entry shape", () => {

@@ -6,7 +6,6 @@ import type {
 
 import type {
   AssessmentUpdateRows,
-  EntryAssessmentRow,
   NewEntryAssessmentRow
 } from "./assessments/postgres-assessment-repository";
 import type {
@@ -182,23 +181,6 @@ export function buildAssessmentUpdateFixture(
     targetResolvesAt: "2026-05-25T00:00:00.000Z",
     previousAssessmentEntryId: "assessment-previous",
     ...assessmentOverrides
-  };
-}
-
-export function buildEntryAssessmentRowFixture(
-  overrides: Partial<EntryAssessmentRow> = {}
-): EntryAssessmentRow {
-  return {
-    entryId: "assessment-1",
-    judgment: "Escalation risk remains limited.",
-    confidenceLabel: "medium",
-    probabilityPct: 35,
-    assumptionsJson: ["Diplomatic channels remain open"],
-    indicatorsJson: ["Watch for evacuation orders"],
-    resolutionCriteria: "Direct military action occurs.",
-    targetResolvesAt: toDate("2026-05-25T00:00:00.000Z"),
-    previousAssessmentEntryId: "assessment-previous",
-    ...overrides
   };
 }
 
