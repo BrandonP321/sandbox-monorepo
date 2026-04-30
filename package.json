@@ -23,6 +23,8 @@
     "typecheck": "turbo run typecheck",
     "preformat": "node scripts/check-node-version.mjs",
     "format": "prettier -w .",
+    "format:check": "prettier --check .",
+    "prepare": "simple-git-hooks",
     "precheck": "node scripts/check-node-version.mjs",
     "check": "pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "predev:project": "node scripts/check-node-version.mjs",
@@ -37,11 +39,19 @@
     "postman:sync": "pnpm --filter @repo/postman-sync postman-sync sync",
     "postman:validate": "pnpm --filter @repo/postman-sync postman-sync validate"
   },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*": "prettier --write --ignore-unknown"
+  },
   "devDependencies": {
     "eslint": "^9.39.2",
+    "lint-staged": "^16.4.0",
     "postcss": "^8.5.6",
     "prettier": "^3.8.1",
     "sass": "^1.94.0",
+    "simple-git-hooks": "^2.13.1",
     "turbo": "^2.8.3",
     "typescript": "^5.9.3"
   }

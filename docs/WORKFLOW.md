@@ -1,25 +1,30 @@
 # WORKFLOW.md — Standard Development Loop
 
 ## Quality bar
+
 - Every behavioral change gets at least one test.
 - Prioritize tests in shared packages (`api-core`, `api-contracts`, `infra-patterns`) and one smoke test per API/web app package.
 
 ## Daily loop
+
 1. Implement the smallest shippable change.
 2. Consolidate reusable code into `packages/*` before copying. If reuse is limited to a single project, prefer `apps/<domain>/<project>/<project>-shared`.
 3. Confirm the active shell is on the repo Node version:
    - `pnpm check:node`
-4. Run standard commands from repo root:
+4. Confirm formatting before committing. The local pre-commit hook runs Prettier on staged files automatically, but run this before declaring work done:
+   - `pnpm format:check`
+5. Run standard commands from repo root:
    - `pnpm lint`
    - `pnpm typecheck`
    - `pnpm test`
    - `pnpm build`
-5. For project-scoped workflows:
+6. For project-scoped workflows:
    - `pnpm dev:project <project>`
    - `pnpm build:project <project>`
    - `pnpm deploy:project <project>`
 
 ## Backend defaults
+
 - One API Lambda per project by default.
 - API folders live at `apps/<domain>/<project>/<project>-api`.
 - Route handlers in separate modules.

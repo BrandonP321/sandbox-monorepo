@@ -1,65 +1,80 @@
 # AGENTS.md — Sandbox Monorepo (Codex/Agent Instructions)
 
 ## Purpose
+
 This repo is a personal "app factory": many small tools (econ/analytics/policy support) built quickly with:
+
 - Multiple deployable apps in /apps
 - Reusable libraries/config in /packages
 - Minimal ceremony, high clarity, low regression risk
 
 ## Prime Directive
+
 Assume a human will read, maintain, and debug this code. Optimize for clarity and reviewability over cleverness.
 
 ## Repo Layout (high level)
-- apps/*: deployable applications (web, api, jobs)
-- packages/*: shared libraries and shared configs (lint/ts/test)
+
+- `apps/*`: deployable applications (web, api, jobs)
+- `packages/*`: shared libraries and shared configs (lint/ts/test)
 
 Authoritative map: see REPO_MAP.md.
 
 ## Standard Commands (run before declaring "done")
+
 - Install: pnpm install
-- Lint:    pnpm lint
-- Types:   pnpm typecheck
-- Test:    pnpm test
-- Build:   pnpm build
+- Format: pnpm format:check
+- Lint: pnpm lint
+- Types: pnpm typecheck
+- Test: pnpm test
+- Build: pnpm build
 
 ## Local Tooling Baseline
+
 - Use the Node version from `.nvmrc` at repo root. Current baseline: `24`.
 - Use the repo-pinned pnpm version from `packageManager` in `package.json`.
 - If `corepack` is unavailable or broken on a machine, install the pinned pnpm version directly rather than changing repo scripts.
 
 ## Workflow Contract (how work is done in this repo)
-1) Implement in small, reviewable commits.
-2) Always add at least one regression guard (unit/integration) for behavioral changes.
-3) Run the standard commands and report results (or failures + next steps).
+
+1. Implement in small, reviewable commits.
+2. Always add at least one regression guard (unit/integration) for behavioral changes.
+3. Keep formatting clean before commit. The repo pre-commit hook runs Prettier on staged files, and Codex should run `pnpm format:check` before declaring work done.
+4. Run the standard commands and report results (or failures + next steps).
 
 Details: see WORKFLOW.md.
 
 ## L7+ Execution Traits (how to behave)
+
 - Be explicit about assumptions; if ambiguous, propose the smallest shippable interpretation and proceed.
 - Prefer standard, boring solutions; avoid bespoke frameworks.
 - Keep diffs small; separate refactors from feature changes.
 - Minimize dependencies; justify new dependencies explicitly.
-- Prefer reuse via packages/*; avoid app-local utility sprawl.
+- Prefer reuse via `packages/*`; avoid app-local utility sprawl.
 
 ## Reuse / Consolidation Rule (critical)
+
 Before adding new code:
-1) Search for an existing implementation in packages/*.
-2) If the code is likely to be reused across 2+ apps OR will be copied, DO NOT duplicate it.
+
+1. Search for an existing implementation in `packages/*`.
+2. If the code is likely to be reused across 2+ apps OR will be copied, DO NOT duplicate it.
    - Create/extend a shared package instead and update the app to import it.
-3) If unsure, default to creating a small shared helper with a clean API and tests.
+3. If unsure, default to creating a small shared helper with a clean API and tests.
 
 Authoritative playbook: see SHARED_CODE_PLAYBOOK.md.
 
 ## Dependency Direction (do not violate)
-- apps/* MAY depend on packages/*
-- packages/* MUST NOT depend on apps/*
+
+- `apps/*` MAY depend on `packages/*`
+- `packages/*` MUST NOT depend on `apps/*`
 - shared packages should avoid depending on other shared packages unless justified (keep layering simple)
 
 ## Safety
+
 - Never commit secrets. Use environment variables; later integrate AWS-native secret storage.
 - Do not run destructive commands (rm -rf, delete resources, terraform destroy, etc.) without explicit user confirmation.
 
 ## AWS Deployment Conventions
+
 - Use AWS IAM Identity Center / SSO for human and Codex-driven access. Do not use root credentials for daily work.
 - Standard local AWS CLI profile: `sandbox-admin`
 - Standard AWS region for this repo today: `us-east-1`
@@ -68,7 +83,9 @@ Authoritative playbook: see SHARED_CODE_PLAYBOOK.md.
 - For non-interactive CDK deploys in Codex sessions, prefer `cdk deploy --require-approval never` so IAM-related prompts do not block the run.
 
 ## When you need more context
+
 Consult these files first:
+
 - docs/WORKFLOW.md (standard development loop)
 - docs/REPO_MAP.md (where to put things)
 - docs/SHARED_CODE_PLAYBOOK.md (how to factor shared code)
@@ -84,6 +101,7 @@ Consult these files first:
 - Signal Tracker work should keep a senior-SDE refactoring posture: look for duplication, weak boundaries, and reusable abstractions as implementation proceeds; make small sustainability refactors when they are needed for the task, and extend shared packages only when the abstraction is general enough and tested.
 
 ## UI package note
+
 - `packages/ui` is currently an incremental SCSS-based design-system foundation.
 - Prefer extending tokens, shared styles, and small owned primitives over introducing a large UI framework by default.
 - Do not assume dark mode support unless explicitly requested.
