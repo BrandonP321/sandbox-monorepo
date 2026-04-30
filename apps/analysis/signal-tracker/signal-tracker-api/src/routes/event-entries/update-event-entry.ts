@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   updateEventEntryRequestSchema,
   updateEventEntryResponseSchema,
   type Entry
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type {
   EntryRepository,
@@ -30,22 +29,18 @@ export function createUpdateEventEntryHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = updateEventEntryRequestSchema.safeParse(payload);
+    const parsedRequest = parseRequestBody(
+      updateEventEntryRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Event entry update request is invalid"
+      }
+    );
 
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Event entry update request is invalid",
-        400
-      );
-    }
-
-    const { entryId, ...updates } = parsedRequest.data;
+    const { entryId, ...updates } = parsedRequest;
     const entry = await updateEventEntryRecord(entryId, updates, dependencies);
-    const response = updateEventEntryResponseSchema.parse({ entry });
 
-    return responses.ok(response);
+    return okResponse(updateEventEntryResponseSchema, { entry });
   };
 }
 
@@ -81,11 +76,9 @@ async function findEntryById(
   entryId: string,
   dependencies: UpdateEventEntryHandlerDependencies
 ): Promise<Entry | undefined> {
-  try {
-    return await dependencies.entryRepository.findById(entryId);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
+  return withPersistenceErrorMapping(() =>
+    dependencies.entryRepository.findById(entryId)
+  );
 }
 
 async function persistEntryUpdate(
@@ -94,29 +87,7 @@ async function persistEntryUpdate(
   updatedAt: string,
   dependencies: UpdateEventEntryHandlerDependencies
 ): Promise<Entry | undefined> {
-  try {
-    return await dependencies.entryRepository.update(
-      entryId,
-      updates,
-      updatedAt
-    );
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() =>
+    dependencies.entryRepository.update(entryId, updates, updatedAt)
+  );
 }

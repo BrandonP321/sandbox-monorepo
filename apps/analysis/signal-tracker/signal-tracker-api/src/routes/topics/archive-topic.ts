@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   archiveTopicRequestSchema,
   archiveTopicResponseSchema,
   type Topic
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
@@ -27,24 +26,17 @@ export function createArchiveTopicHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = archiveTopicRequestSchema.safeParse(payload);
-
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Topic archive request is invalid",
-        400
-      );
-    }
-
-    const topic = await archiveTopicRecord(
-      parsedRequest.data.topicId,
-      dependencies
+    const parsedRequest = parseRequestBody(
+      archiveTopicRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Topic archive request is invalid"
+      }
     );
-    const response = archiveTopicResponseSchema.parse({ topic });
 
-    return responses.ok(response);
+    const topic = await archiveTopicRecord(parsedRequest.topicId, dependencies);
+
+    return okResponse(archiveTopicResponseSchema, { topic });
   };
 }
 
@@ -69,25 +61,7 @@ async function persistTopicArchive(
   archivedAt: string,
   dependencies: ArchiveTopicHandlerDependencies
 ): Promise<Topic | undefined> {
-  try {
-    return await dependencies.repository.archive(topicId, archivedAt);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() =>
+    dependencies.repository.archive(topicId, archivedAt)
+  );
 }

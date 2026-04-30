@@ -1,9 +1,4 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   getTopicRequestSchema,
   getTopicResponseSchema,
@@ -11,7 +6,11 @@ import {
   type Topic
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresAssessmentRepository } from "../../domain/assessments/postgres-assessment-repository";
 import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
@@ -32,28 +31,24 @@ export function createGetTopicHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = getTopicRequestSchema.safeParse(payload);
+    const parsedRequest = parseRequestBody(
+      getTopicRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Topic read request is invalid"
+      }
+    );
 
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Topic read request is invalid",
-        400
-      );
-    }
-
-    const topic = await findTopic(parsedRequest.data.topicId, dependencies);
+    const topic = await findTopic(parsedRequest.topicId, dependencies);
     const currentAssessment = await findCurrentAssessment(
       topic.id,
       dependencies
     );
-    const response = getTopicResponseSchema.parse({
+
+    return okResponse(getTopicResponseSchema, {
       topic,
       currentAssessment
     });
-
-    return responses.ok(response);
   };
 }
 
@@ -61,15 +56,11 @@ async function findCurrentAssessment(
   topicId: string,
   dependencies: GetTopicHandlerDependencies
 ): Promise<AssessmentUpdate | null> {
-  try {
-    return (
-      (await dependencies.assessmentRepository.findLatestActiveByTopic(
-        topicId
-      )) ?? null
-    );
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
+  return (
+    (await withPersistenceErrorMapping(() =>
+      dependencies.assessmentRepository.findLatestActiveByTopic(topicId)
+    )) ?? null
+  );
 }
 
 export const getTopic = createGetTopicHandler();
@@ -91,25 +82,7 @@ async function findTopicById(
   topicId: string,
   dependencies: GetTopicHandlerDependencies
 ): Promise<Topic | undefined> {
-  try {
-    return await dependencies.repository.findById(topicId);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() =>
+    dependencies.repository.findById(topicId)
+  );
 }

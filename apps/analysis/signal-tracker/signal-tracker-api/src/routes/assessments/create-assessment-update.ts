@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   createAssessmentUpdateRequestSchema,
   createAssessmentUpdateResponseSchema,
   type CreateAssessmentUpdateRequest
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { EntryTopicNotFoundError } from "../../domain/entries/create-entry";
 import {
   createAssessmentUpdateRecord,
@@ -32,27 +31,22 @@ export function createCreateAssessmentUpdateHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest =
-      createAssessmentUpdateRequestSchema.safeParse(payload);
-
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Assessment update creation request is invalid",
-        400
-      );
-    }
+    const parsedRequest = parseRequestBody(
+      createAssessmentUpdateRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Assessment update creation request is invalid"
+      }
+    );
 
     const assessmentUpdate = await persistAssessmentUpdate(
-      parsedRequest.data,
+      parsedRequest,
       dependencies
     );
-    const response = createAssessmentUpdateResponseSchema.parse({
+
+    return okResponse(createAssessmentUpdateResponseSchema, {
       assessmentUpdate
     });
-
-    return responses.ok(response);
   };
 }
 
@@ -62,29 +56,13 @@ async function persistAssessmentUpdate(
   input: CreateAssessmentUpdateRequest,
   dependencies: CreateAssessmentUpdateHandlerDependencies
 ) {
-  try {
-    return await createAssessmentUpdateRecord(input, dependencies);
-  } catch (error) {
-    if (error instanceof EntryTopicNotFoundError) {
-      throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+  return withPersistenceErrorMapping(
+    () => createAssessmentUpdateRecord(input, dependencies),
+    {
+      mapDomainError: (error) =>
+        error instanceof EntryTopicNotFoundError
+          ? new AppError("TOPIC_NOT_FOUND", "Topic not found", 404)
+          : undefined
     }
-
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  );
 }

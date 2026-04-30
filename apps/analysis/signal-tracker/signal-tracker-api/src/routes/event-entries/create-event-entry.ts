@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
   type CreateEventEntryRequest
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import {
   createEntryRecord,
   EntryTopicNotFoundError
@@ -37,21 +36,17 @@ export function createCreateEventEntryHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = createEventEntryRequestSchema.safeParse(payload);
+    const parsedRequest = parseRequestBody(
+      createEventEntryRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Event entry creation request is invalid"
+      }
+    );
 
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Event entry creation request is invalid",
-        400
-      );
-    }
+    const entry = await persistEventEntry(parsedRequest, dependencies);
 
-    const entry = await persistEventEntry(parsedRequest.data, dependencies);
-    const response = createEventEntryResponseSchema.parse({ entry });
-
-    return responses.ok(response);
+    return okResponse(createEventEntryResponseSchema, { entry });
   };
 }
 
@@ -61,37 +56,22 @@ async function persistEventEntry(
   input: CreateEventEntryRequest,
   dependencies: CreateEventEntryHandlerDependencies
 ) {
-  try {
-    return await createEntryRecord(
-      {
-        ...input,
-        kind: "event",
-        originType: "manual",
-        isApproximateDate: false
-      },
-      dependencies
-    );
-  } catch (error) {
-    if (error instanceof EntryTopicNotFoundError) {
-      throw new AppError("TOPIC_NOT_FOUND", "Topic not found", 404);
+  return withPersistenceErrorMapping(
+    () =>
+      createEntryRecord(
+        {
+          ...input,
+          kind: "event",
+          originType: "manual",
+          isApproximateDate: false
+        },
+        dependencies
+      ),
+    {
+      mapDomainError: (error) =>
+        error instanceof EntryTopicNotFoundError
+          ? new AppError("TOPIC_NOT_FOUND", "Topic not found", 404)
+          : undefined
     }
-
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  );
 }

@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { AppError, type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   deleteTopicRequestSchema,
   deleteTopicResponseSchema,
   type Topic
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
@@ -26,24 +25,17 @@ export function createDeleteTopicHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = deleteTopicRequestSchema.safeParse(payload);
-
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Topic delete request is invalid",
-        400
-      );
-    }
-
-    const topic = await deleteTopicRecord(
-      parsedRequest.data.topicId,
-      dependencies
+    const parsedRequest = parseRequestBody(
+      deleteTopicRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Topic delete request is invalid"
+      }
     );
-    const response = deleteTopicResponseSchema.parse({ topic });
 
-    return responses.ok(response);
+    const topic = await deleteTopicRecord(parsedRequest.topicId, dependencies);
+
+    return okResponse(deleteTopicResponseSchema, { topic });
   };
 }
 
@@ -66,25 +58,7 @@ async function persistTopicDelete(
   topicId: string,
   dependencies: DeleteTopicHandlerDependencies
 ): Promise<Topic | undefined> {
-  try {
-    return await dependencies.repository.delete(topicId);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() =>
+    dependencies.repository.delete(topicId)
+  );
 }

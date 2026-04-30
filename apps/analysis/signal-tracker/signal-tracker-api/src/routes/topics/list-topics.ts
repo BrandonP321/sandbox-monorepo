@@ -1,15 +1,14 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   listTopicsRequestSchema,
   listTopicsResponseSchema
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
@@ -25,21 +24,17 @@ export function createListTopicsHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = listTopicsRequestSchema.safeParse(payload);
+    const parsedRequest = parseRequestBody(
+      listTopicsRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Topic list request is invalid"
+      }
+    );
 
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Topic list request is invalid",
-        400
-      );
-    }
+    const topics = await readTopics(parsedRequest, dependencies);
 
-    const topics = await readTopics(parsedRequest.data, dependencies);
-    const response = listTopicsResponseSchema.parse({ topics });
-
-    return responses.ok(response);
+    return okResponse(listTopicsResponseSchema, { topics });
   };
 }
 
@@ -49,25 +44,5 @@ async function readTopics(
   input: Parameters<TopicRepository["list"]>[0],
   dependencies: ListTopicsHandlerDependencies
 ) {
-  try {
-    return await dependencies.repository.list(input);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() => dependencies.repository.list(input));
 }

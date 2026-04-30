@@ -1,15 +1,14 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   createTopicRequestSchema,
   createTopicResponseSchema
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { createTopicRecord } from "../../domain/topics/create-topic";
 import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
@@ -28,21 +27,16 @@ export function createCreateTopicHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = createTopicRequestSchema.safeParse(payload);
+    const parsedRequest = parseRequestBody(
+      createTopicRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Topic creation request is invalid"
+      }
+    );
+    const topic = await persistTopic(parsedRequest, dependencies);
 
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Topic creation request is invalid",
-        400
-      );
-    }
-
-    const topic = await persistTopic(parsedRequest.data, dependencies);
-    const response = createTopicResponseSchema.parse({ topic });
-
-    return responses.ok(response);
+    return okResponse(createTopicResponseSchema, { topic });
   };
 }
 
@@ -52,25 +46,7 @@ async function persistTopic(
   input: Parameters<typeof createTopicRecord>[0],
   dependencies: CreateTopicHandlerDependencies
 ) {
-  try {
-    return await createTopicRecord(input, dependencies);
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  return withPersistenceErrorMapping(() =>
+    createTopicRecord(input, dependencies)
+  );
 }

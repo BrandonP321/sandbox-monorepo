@@ -1,16 +1,15 @@
-import {
-  AppError,
-  responses,
-  type ApiRequest,
-  type RouteHandler
-} from "@repo/api-core";
+import { type ApiRequest, type RouteHandler } from "@repo/api-core";
 import {
   listEventEntriesRequestSchema,
   listEventEntriesResponseSchema,
   type Entry
 } from "@repo/signal-tracker-shared";
 
-import { createPersistenceUnavailableError } from "../../app/errors";
+import {
+  okResponse,
+  parseRequestBody,
+  withPersistenceErrorMapping
+} from "../../app/route-helpers";
 import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
 
@@ -26,24 +25,20 @@ export function createListEventEntriesHandler(
   }
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const payload = parseJsonBody(request.body);
-    const parsedRequest = listEventEntriesRequestSchema.safeParse(payload);
-
-    if (!parsedRequest.success) {
-      throw new AppError(
-        "VALIDATION_ERROR",
-        "Event entry list request is invalid",
-        400
-      );
-    }
+    const parsedRequest = parseRequestBody(
+      listEventEntriesRequestSchema,
+      request.body,
+      {
+        invalidMessage: "Event entry list request is invalid"
+      }
+    );
 
     const entries = await listActiveEventEntries(
-      parsedRequest.data.topicId,
+      parsedRequest.topicId,
       dependencies
     );
-    const response = listEventEntriesResponseSchema.parse({ entries });
 
-    return responses.ok(response);
+    return okResponse(listEventEntriesResponseSchema, { entries });
   };
 }
 
@@ -53,27 +48,9 @@ async function listActiveEventEntries(
   topicId: string,
   dependencies: ListEventEntriesHandlerDependencies
 ): Promise<Entry[]> {
-  try {
+  return withPersistenceErrorMapping(async () => {
     const entries = await dependencies.entryRepository.listByTopic(topicId);
 
     return entries.filter((entry) => entry.kind === "event");
-  } catch {
-    throw createPersistenceUnavailableError();
-  }
-}
-
-function parseJsonBody(body: string | null | undefined): unknown {
-  if (!body) {
-    return {};
-  }
-
-  try {
-    return JSON.parse(body) as unknown;
-  } catch {
-    throw new AppError(
-      "VALIDATION_ERROR",
-      "Request body must be valid JSON",
-      400
-    );
-  }
+  });
 }

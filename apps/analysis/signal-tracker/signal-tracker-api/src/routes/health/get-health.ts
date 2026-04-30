@@ -1,8 +1,7 @@
-import { responses } from "@repo/api-core";
 import { signalTrackerHealthResponseSchema } from "@repo/signal-tracker-shared";
 
-export function getHealth() {
-  const payload = signalTrackerHealthResponseSchema.parse({ ok: true });
+import { okResponse } from "../../app/route-helpers";
 
-  return responses.ok(payload);
+export function getHealth() {
+  return okResponse(signalTrackerHealthResponseSchema, { ok: true });
 }
