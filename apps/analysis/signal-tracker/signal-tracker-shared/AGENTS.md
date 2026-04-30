@@ -12,6 +12,8 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 ## Notes
 
 - Keep this package limited to Signal Tracker-scoped routes, schemas, contracts, and types used by 2+ Signal Tracker packages.
+- Topic lifecycle contracts must keep archive and delete distinct: topic archive is reversible/non-destructive, while topic delete is a permanent hard delete. Do not add topic-level `deleted` status or `deletedAt` fields unless a future product decision explicitly changes this.
+- Entry lifecycle contracts are separate and may include `deleted` status and `deletedAt` fields.
 - Do not put React components, DOM rendering, or visual styling in this package; Signal Tracker-specific UI belongs in `signal-tracker-web`.
 - Promote code to repo-wide `packages/*` only when it is useful outside the Signal Tracker app family.
 - When shared domain or contract logic would prevent duplication across Signal Tracker packages, extract it here with tests instead of leaving app-local copies.

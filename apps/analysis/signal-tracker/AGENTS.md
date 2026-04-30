@@ -73,7 +73,7 @@ Keep R1 work focused on manual, structured continuity:
 - reusable evidence, anchors, and citations
 - current assessment derived from assessment history
 - since-last-review workflow
-- revisions, soft delete/archive, and export
+- revisions, entry-level soft delete, topic archive, and export
 - hidden scaffolding for future suggestions only when specified
 
 Deferred from R1 unless the Product Decisions Log changes:
@@ -89,6 +89,13 @@ Deferred from R1 unless the Product Decisions Log changes:
 - Prefer `signal-tracker-shared` for project-scoped contracts, schemas, and types used by 2+ Signal Tracker packages.
 - Promote code to repo-wide `packages/*` only when it is useful across multiple app families or the issue explicitly requires a repo-wide package.
 - Keep dependency direction intact: Signal Tracker packages may depend on `packages/*`; `packages/*` must not depend on Signal Tracker packages.
+
+## Topic Lifecycle
+
+- Topic archive is the reversible/non-destructive topic lifecycle action. Archived topics are hidden from normal active lists but remain directly readable by ID.
+- Topic delete is a permanent hard delete of the topic row. Do not convert topic delete into soft delete unless a future product decision explicitly reverses this.
+- Entry lifecycle is separate: entry-level `deleted` status and `deletedAt` fields remain valid where entry provenance or recovery matters.
+- Do not add topic-level `deleted` status or `deletedAt` fields, change topic route names, create migrations, or remove dev-DB TODOs as part of lifecycle wording cleanup.
 
 ## Engineering Sustainability
 

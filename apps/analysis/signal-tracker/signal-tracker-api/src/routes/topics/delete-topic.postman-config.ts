@@ -9,7 +9,7 @@ export default definePostmanRequest({
   route: signalTrackerRoutes.deleteTopic,
   folder: "Topics",
   name: "Delete Topic",
-  description: "Permanently deletes a topic row.",
+  description: "Permanently hard deletes a topic row.",
   requestSchema: deleteTopicRequestSchema,
   exampleBody: {
     topicId: "topic-1"

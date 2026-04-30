@@ -16,6 +16,7 @@ export type TopicRepository = {
     updatedAt: string
   ): Promise<Topic | undefined>;
   archive(id: string, archivedAt: string): Promise<Topic | undefined>;
+  // Topic delete is intentionally a hard delete; archive is the reversible path.
   delete(id: string): Promise<Topic | undefined>;
 };
 

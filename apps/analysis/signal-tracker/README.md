@@ -50,6 +50,15 @@ Deferred from R1 unless the Product Decisions Log changes:
 - team collaboration, public publishing, permissions, or assignment workflow
 - source bias scoring, calibration, graph views, and first-class claims/assumptions
 
+## Topic Lifecycle
+
+Topic archive is the non-destructive lifecycle action for topics. Archived
+topics are hidden from normal active lists but remain directly readable by ID.
+
+Topic delete is a permanent hard delete of the topic row. Entry-level deleted
+status remains separate for entry lifecycle behavior and should not be treated
+as a topic soft-delete model.
+
 ## Local Development
 
 Run the API and web app in separate terminals:

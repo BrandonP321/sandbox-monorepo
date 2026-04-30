@@ -9,7 +9,8 @@ export default definePostmanRequest({
   route: signalTrackerRoutes.archiveTopic,
   folder: "Topics",
   name: "Archive Topic",
-  description: "Archives a topic without deleting analytical history.",
+  description:
+    "Non-destructively archives a topic without deleting analytical history.",
   requestSchema: archiveTopicRequestSchema,
   exampleBody: {
     topicId: "topic-1"

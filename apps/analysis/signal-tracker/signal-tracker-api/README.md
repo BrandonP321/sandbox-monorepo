@@ -93,15 +93,16 @@ deploy pipeline, and there is no migration Lambda.
 - `POST /get-topic` -> reads a durable topic row by ID and returns `{ "topic": ..., "currentAssessment": ... }`
 - `POST /list-topics` -> lists active topic rows and returns `{ "topics": [...] }`
 - `POST /update-topic` -> updates editable topic metadata and returns `{ "topic": ... }`
-- `POST /archive-topic` -> archives a topic without hard deletion and returns `{ "topic": ... }`
-- `POST /delete-topic` -> permanently deletes a topic row and returns `{ "topic": ... }`
+- `POST /archive-topic` -> non-destructively archives a topic and returns `{ "topic": ... }`
+- `POST /delete-topic` -> permanently hard deletes a topic row and returns `{ "topic": ... }`
 - `POST /create-event-entry` -> creates a manual event entry row and returns `{ "entry": ... }`
 - `POST /create-assessment-update` -> creates a dated assessment update and returns `{ "assessmentUpdate": ... }`
 - `POST /get-event-entry` -> reads an event entry row by ID and returns `{ "entry": ... }`
 - `POST /update-event-entry` -> updates editable event entry fields and returns `{ "entry": ... }`
 
 Archived topics are hidden from `POST /list-topics` by default but remain
-directly readable by ID. Deleted topics are removed from persistence.
+directly readable by ID. Deleted topics are removed from persistence; topic
+delete is not a soft-delete state.
 
 ### Postman
 

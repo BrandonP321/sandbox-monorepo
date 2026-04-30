@@ -193,7 +193,7 @@ describe("entry contracts", () => {
     });
   });
 
-  it("validates hidden approximate-date and lifecycle timestamp fields", () => {
+  it("validates hidden approximate-date and entry lifecycle timestamp fields", () => {
     const entry = entrySchema.parse({
       id: "entry-1",
       topicId: "topic-1",
@@ -743,7 +743,7 @@ describe("topic contracts", () => {
     ).toThrow();
   });
 
-  it("validates topic lifecycle request and response shapes", () => {
+  it("validates topic archive and hard-delete request and response shapes", () => {
     const topic = topicSchema.parse({
       id: "topic-1",
       title: "Iran strike risk",

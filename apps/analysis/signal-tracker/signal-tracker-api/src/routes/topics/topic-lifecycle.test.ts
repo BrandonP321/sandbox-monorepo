@@ -71,7 +71,7 @@ describe("topic lifecycle routes", () => {
     });
   });
 
-  it("archives a topic and excludes it from the active topic list", async () => {
+  it("archives a topic non-destructively and excludes it from the active topic list", async () => {
     const repository = new InMemoryTopicRepository();
     await repository.create(topicFixture);
     const archiveHandler = createArchiveTopicHandler({
@@ -117,7 +117,7 @@ describe("topic lifecycle routes", () => {
     });
   });
 
-  it("hard deletes a topic and removes it from list and direct reads", async () => {
+  it("hard deletes a topic row and removes it from list and direct reads", async () => {
     const repository = new InMemoryTopicRepository();
     await repository.create(topicFixture);
     const deleteHandler = createDeleteTopicHandler({ repository });

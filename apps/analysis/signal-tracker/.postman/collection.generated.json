@@ -167,7 +167,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["archive-topic"]
             },
-            "description": "Archives a topic without deleting analytical history.",
+            "description": "Non-destructively archives a topic without deleting analytical history.",
             "header": [
               {
                 "key": "Content-Type",
@@ -223,7 +223,7 @@
               "host": ["{{baseUrl}}"],
               "path": ["delete-topic"]
             },
-            "description": "Permanently deletes a topic row.",
+            "description": "Permanently hard deletes a topic row.",
             "header": [
               {
                 "key": "Content-Type",
