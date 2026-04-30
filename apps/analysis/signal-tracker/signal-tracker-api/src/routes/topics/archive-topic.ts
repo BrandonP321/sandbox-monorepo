@@ -10,28 +10,20 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type ArchiveTopicHandlerDependencies = {
-  repository: TopicRepository;
+  repository: Pick<TopicRepository, "archive">;
   now?: () => Date;
 };
 
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createArchiveTopicHandler(
-  dependencies: ArchiveTopicHandlerDependencies = {
-    repository: defaultTopicRepository
-  }
+  dependencies: ArchiveTopicHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       archiveTopicRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Topic archive request is invalid"
-      }
+      request.body
     );
 
     const topic = await archiveTopicRecord(parsedRequest.topicId, dependencies);
@@ -39,8 +31,6 @@ export function createArchiveTopicHandler(
     return okResponse(archiveTopicResponseSchema, { topic });
   };
 }
-
-export const archiveTopic = createArchiveTopicHandler();
 
 async function archiveTopicRecord(
   topicId: string,

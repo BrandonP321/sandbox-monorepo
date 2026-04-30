@@ -116,14 +116,9 @@ describe("listTopics route", () => {
   it("returns a persistence unavailable error when topic storage fails", async () => {
     const handler = createListTopicsHandler({
       repository: {
-        create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-        findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
         list: vi.fn(async () => {
           throw new Error("database unavailable");
-        }),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        })
       }
     });
 

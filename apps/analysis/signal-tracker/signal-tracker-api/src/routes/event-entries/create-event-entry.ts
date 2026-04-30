@@ -14,9 +14,7 @@ import {
   createEntryRecord,
   EntryTopicNotFoundError
 } from "../../domain/entries/create-entry";
-import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type CreateEventEntryHandlerDependencies = {
@@ -26,22 +24,13 @@ type CreateEventEntryHandlerDependencies = {
   now?: () => Date;
 };
 
-const defaultEntryRepository = new PostgresEntryRepository();
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createCreateEventEntryHandler(
-  dependencies: CreateEventEntryHandlerDependencies = {
-    entryRepository: defaultEntryRepository,
-    topicRepository: defaultTopicRepository
-  }
+  dependencies: CreateEventEntryHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       createEventEntryRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Event entry creation request is invalid"
-      }
+      request.body
     );
 
     const entry = await persistEventEntry(parsedRequest, dependencies);
@@ -49,8 +38,6 @@ export function createCreateEventEntryHandler(
     return okResponse(createEventEntryResponseSchema, { entry });
   };
 }
-
-export const createEventEntry = createCreateEventEntryHandler();
 
 async function persistEventEntry(
   input: CreateEventEntryRequest,

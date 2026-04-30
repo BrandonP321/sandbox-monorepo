@@ -9,27 +9,19 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type ListTopicsHandlerDependencies = {
-  repository: TopicRepository;
+  repository: Pick<TopicRepository, "list">;
 };
 
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createListTopicsHandler(
-  dependencies: ListTopicsHandlerDependencies = {
-    repository: defaultTopicRepository
-  }
+  dependencies: ListTopicsHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       listTopicsRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Topic list request is invalid"
-      }
+      request.body
     );
 
     const topics = await readTopics(parsedRequest, dependencies);
@@ -37,8 +29,6 @@ export function createListTopicsHandler(
     return okResponse(listTopicsResponseSchema, { topics });
   };
 }
-
-export const listTopics = createListTopicsHandler();
 
 async function readTopics(
   input: Parameters<TopicRepository["list"]>[0],

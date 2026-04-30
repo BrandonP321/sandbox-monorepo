@@ -10,27 +10,19 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
 
 type GetEventEntryHandlerDependencies = {
-  entryRepository: EntryRepository;
+  entryRepository: Pick<EntryRepository, "findById">;
 };
 
-const defaultEntryRepository = new PostgresEntryRepository();
-
 export function createGetEventEntryHandler(
-  dependencies: GetEventEntryHandlerDependencies = {
-    entryRepository: defaultEntryRepository
-  }
+  dependencies: GetEventEntryHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       getEventEntryRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Event entry read request is invalid"
-      }
+      request.body
     );
 
     const entry = await findEventEntry(parsedRequest.entryId, dependencies);
@@ -38,8 +30,6 @@ export function createGetEventEntryHandler(
     return okResponse(getEventEntryResponseSchema, { entry });
   };
 }
-
-export const getEventEntry = createGetEventEntryHandler();
 
 async function findEventEntry(
   entryId: string,

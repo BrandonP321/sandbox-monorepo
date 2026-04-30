@@ -10,27 +10,19 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type DeleteTopicHandlerDependencies = {
-  repository: TopicRepository;
+  repository: Pick<TopicRepository, "delete">;
 };
 
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createDeleteTopicHandler(
-  dependencies: DeleteTopicHandlerDependencies = {
-    repository: defaultTopicRepository
-  }
+  dependencies: DeleteTopicHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       deleteTopicRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Topic delete request is invalid"
-      }
+      request.body
     );
 
     const topic = await deleteTopicRecord(parsedRequest.topicId, dependencies);
@@ -38,8 +30,6 @@ export function createDeleteTopicHandler(
     return okResponse(deleteTopicResponseSchema, { topic });
   };
 }
-
-export const deleteTopic = createDeleteTopicHandler();
 
 async function deleteTopicRecord(
   topicId: string,

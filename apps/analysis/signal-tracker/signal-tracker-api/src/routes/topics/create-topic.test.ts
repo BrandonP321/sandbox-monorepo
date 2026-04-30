@@ -159,12 +159,7 @@ describe("createTopic route", () => {
       repository: {
         create: vi.fn(async () => {
           throw new Error("database unavailable");
-        }),
-        findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        list: vi.fn(async (): Promise<Topic[]> => []),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        })
       },
       createId: () => "topic-3",
       now: () => new Date("2026-04-25T00:00:00.000Z")

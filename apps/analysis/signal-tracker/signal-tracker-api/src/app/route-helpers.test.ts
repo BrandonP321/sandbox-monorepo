@@ -27,14 +27,22 @@ describe("route helpers", () => {
   });
 
   it("returns schema data for a valid request body", () => {
-    const request = parseRequestBody(requiredNameSchema, '{"name":"Risk"}', {
-      invalidMessage: "Request is invalid"
-    });
+    const request = parseRequestBody(requiredNameSchema, '{"name":"Risk"}');
 
     expect(request).toEqual({ name: "Risk" });
   });
 
-  it("throws a validation error for an invalid request body", () => {
+  it("throws a validation error with the schema message for an invalid request body", () => {
+    expect(() => parseRequestBody(requiredNameSchema, "{}")).toThrow(
+      expect.objectContaining({
+        code: "VALIDATION_ERROR",
+        statusCode: 400,
+        message: "name: Name is required"
+      })
+    );
+  });
+
+  it("supports an explicit validation error message override", () => {
     expect(() =>
       parseRequestBody(requiredNameSchema, "{}", {
         invalidMessage: "Request is invalid"
@@ -44,6 +52,22 @@ describe("route helpers", () => {
         code: "VALIDATION_ERROR",
         statusCode: 400,
         message: "Request is invalid"
+      })
+    );
+  });
+
+  it("falls back to a default validation message when the schema has no error details", () => {
+    const schema = {
+      safeParse() {
+        return { success: false as const };
+      }
+    };
+
+    expect(() => parseRequestBody(schema, "{}")).toThrow(
+      expect.objectContaining({
+        code: "VALIDATION_ERROR",
+        statusCode: 400,
+        message: "Request body is invalid"
       })
     );
   });
@@ -113,7 +137,12 @@ const requiredNameSchema = {
       };
     }
 
-    return { success: false as const };
+    return {
+      success: false as const,
+      error: {
+        issues: [{ path: ["name"], message: "Name is required" }]
+      }
+    };
   }
 };
 

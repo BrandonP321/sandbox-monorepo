@@ -10,31 +10,23 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type {
   EntryRepository,
   UpdateEntryFields
 } from "../../domain/entries/entry-repository";
 
 type UpdateEventEntryHandlerDependencies = {
-  entryRepository: EntryRepository;
+  entryRepository: Pick<EntryRepository, "findById" | "update">;
   now?: () => Date;
 };
 
-const defaultEntryRepository = new PostgresEntryRepository();
-
 export function createUpdateEventEntryHandler(
-  dependencies: UpdateEventEntryHandlerDependencies = {
-    entryRepository: defaultEntryRepository
-  }
+  dependencies: UpdateEventEntryHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       updateEventEntryRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Event entry update request is invalid"
-      }
+      request.body
     );
 
     const { entryId, ...updates } = parsedRequest;
@@ -43,8 +35,6 @@ export function createUpdateEventEntryHandler(
     return okResponse(updateEventEntryResponseSchema, { entry });
   };
 }
-
-export const updateEventEntry = createUpdateEventEntryHandler();
 
 async function updateEventEntryRecord(
   entryId: string,

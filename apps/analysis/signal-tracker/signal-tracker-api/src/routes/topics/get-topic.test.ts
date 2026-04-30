@@ -8,18 +8,9 @@ describe("getTopic route", () => {
   it("returns a topic from a valid request", async () => {
     const handler = createGetTopicHandler({
       repository: {
-        create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture),
-        list: vi.fn(async (): Promise<Topic[]> => []),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture)
       },
       assessmentRepository: {
-        create: vi.fn(
-          async (assessment: AssessmentUpdate): Promise<AssessmentUpdate> =>
-            assessment
-        ),
         findLatestActiveByTopic: vi.fn(
           async (): Promise<AssessmentUpdate | undefined> =>
             assessmentUpdateFixture
@@ -43,12 +34,7 @@ describe("getTopic route", () => {
   it("returns null current assessment when a topic has no assessment updates", async () => {
     const handler = createGetTopicHandler({
       repository: {
-        create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture),
-        list: vi.fn(async (): Promise<Topic[]> => []),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture)
       },
       assessmentRepository: emptyAssessmentRepository
     });
@@ -141,14 +127,9 @@ describe("getTopic route", () => {
   it("returns a persistence unavailable error when topic storage fails", async () => {
     const handler = createGetTopicHandler({
       repository: {
-        create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
         findById: vi.fn(async () => {
           throw new Error("database unavailable");
-        }),
-        list: vi.fn(async (): Promise<Topic[]> => []),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        })
       },
       assessmentRepository: emptyAssessmentRepository
     });
@@ -168,18 +149,9 @@ describe("getTopic route", () => {
   it("returns a persistence unavailable error when assessment storage fails", async () => {
     const handler = createGetTopicHandler({
       repository: {
-        create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture),
-        list: vi.fn(async (): Promise<Topic[]> => []),
-        update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-        delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+        findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture)
       },
       assessmentRepository: {
-        create: vi.fn(
-          async (assessment: AssessmentUpdate): Promise<AssessmentUpdate> =>
-            assessment
-        ),
         findLatestActiveByTopic: vi.fn(async () => {
           throw new Error("database unavailable");
         })
@@ -211,19 +183,10 @@ const topicFixture: Topic = {
 };
 
 const emptyRepository = {
-  create: vi.fn(async (topic: Topic): Promise<Topic> => topic),
-  findById: vi.fn(async (): Promise<Topic | undefined> => undefined),
-  list: vi.fn(async (): Promise<Topic[]> => []),
-  update: vi.fn(async (): Promise<Topic | undefined> => undefined),
-  archive: vi.fn(async (): Promise<Topic | undefined> => undefined),
-  delete: vi.fn(async (): Promise<Topic | undefined> => undefined)
+  findById: vi.fn(async (): Promise<Topic | undefined> => undefined)
 };
 
 const emptyAssessmentRepository = {
-  create: vi.fn(
-    async (assessment: AssessmentUpdate): Promise<AssessmentUpdate> =>
-      assessment
-  ),
   findLatestActiveByTopic: vi.fn(
     async (): Promise<AssessmentUpdate | undefined> => undefined
   )

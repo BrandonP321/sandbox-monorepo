@@ -10,27 +10,19 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresEntryRepository } from "../../domain/entries/postgres-entry-repository";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
 
 type ListEventEntriesHandlerDependencies = {
   entryRepository: Pick<EntryRepository, "listByTopic">;
 };
 
-const defaultEntryRepository = new PostgresEntryRepository();
-
 export function createListEventEntriesHandler(
-  dependencies: ListEventEntriesHandlerDependencies = {
-    entryRepository: defaultEntryRepository
-  }
+  dependencies: ListEventEntriesHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       listEventEntriesRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Event entry list request is invalid"
-      }
+      request.body
     );
 
     const entries = await listActiveEventEntries(
@@ -41,8 +33,6 @@ export function createListEventEntriesHandler(
     return okResponse(listEventEntriesResponseSchema, { entries });
   };
 }
-
-export const listEventEntries = createListEventEntriesHandler();
 
 async function listActiveEventEntries(
   topicId: string,

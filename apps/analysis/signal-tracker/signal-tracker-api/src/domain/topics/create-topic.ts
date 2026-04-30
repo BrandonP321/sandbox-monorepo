@@ -9,7 +9,7 @@ import {
 import type { TopicRepository } from "./topic-repository";
 
 type CreateTopicDependencies = {
-  repository: TopicRepository;
+  repository: Pick<TopicRepository, "create">;
   createId?: () => string;
   now?: () => Date;
 };

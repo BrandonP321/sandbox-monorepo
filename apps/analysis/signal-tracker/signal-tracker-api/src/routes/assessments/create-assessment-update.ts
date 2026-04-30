@@ -15,28 +15,17 @@ import {
   createAssessmentUpdateRecord,
   type CreateAssessmentUpdateDependencies
 } from "../../domain/assessments/create-assessment-update";
-import { PostgresAssessmentRepository } from "../../domain/assessments/postgres-assessment-repository";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 
 type CreateAssessmentUpdateHandlerDependencies =
   CreateAssessmentUpdateDependencies;
 
-const defaultAssessmentRepository = new PostgresAssessmentRepository();
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createCreateAssessmentUpdateHandler(
-  dependencies: CreateAssessmentUpdateHandlerDependencies = {
-    assessmentRepository: defaultAssessmentRepository,
-    topicRepository: defaultTopicRepository
-  }
+  dependencies: CreateAssessmentUpdateHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       createAssessmentUpdateRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Assessment update creation request is invalid"
-      }
+      request.body
     );
 
     const assessmentUpdate = await persistAssessmentUpdate(
@@ -49,8 +38,6 @@ export function createCreateAssessmentUpdateHandler(
     });
   };
 }
-
-export const createAssessmentUpdate = createCreateAssessmentUpdateHandler();
 
 async function persistAssessmentUpdate(
   input: CreateAssessmentUpdateRequest,

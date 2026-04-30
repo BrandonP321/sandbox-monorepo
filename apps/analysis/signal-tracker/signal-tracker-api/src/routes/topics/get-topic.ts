@@ -11,33 +11,19 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresAssessmentRepository } from "../../domain/assessments/postgres-assessment-repository";
 import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type GetTopicHandlerDependencies = {
-  repository: TopicRepository;
-  assessmentRepository: AssessmentRepository;
+  repository: Pick<TopicRepository, "findById">;
+  assessmentRepository: Pick<AssessmentRepository, "findLatestActiveByTopic">;
 };
 
-const defaultTopicRepository = new PostgresTopicRepository();
-const defaultAssessmentRepository = new PostgresAssessmentRepository();
-
 export function createGetTopicHandler(
-  dependencies: GetTopicHandlerDependencies = {
-    repository: defaultTopicRepository,
-    assessmentRepository: defaultAssessmentRepository
-  }
+  dependencies: GetTopicHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
-    const parsedRequest = parseRequestBody(
-      getTopicRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Topic read request is invalid"
-      }
-    );
+    const parsedRequest = parseRequestBody(getTopicRequestSchema, request.body);
 
     const topic = await findTopic(parsedRequest.topicId, dependencies);
     const currentAssessment = await findCurrentAssessment(
@@ -62,8 +48,6 @@ async function findCurrentAssessment(
     )) ?? null
   );
 }
-
-export const getTopic = createGetTopicHandler();
 
 async function findTopic(
   topicId: string,

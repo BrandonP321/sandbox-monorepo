@@ -10,28 +10,20 @@ import {
   parseRequestBody,
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
-import { PostgresTopicRepository } from "../../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type UpdateTopicHandlerDependencies = {
-  repository: TopicRepository;
+  repository: Pick<TopicRepository, "update">;
   now?: () => Date;
 };
 
-const defaultTopicRepository = new PostgresTopicRepository();
-
 export function createUpdateTopicHandler(
-  dependencies: UpdateTopicHandlerDependencies = {
-    repository: defaultTopicRepository
-  }
+  dependencies: UpdateTopicHandlerDependencies
 ): RouteHandler {
   return async (request: ApiRequest) => {
     const parsedRequest = parseRequestBody(
       updateTopicRequestSchema,
-      request.body,
-      {
-        invalidMessage: "Topic update request is invalid"
-      }
+      request.body
     );
 
     const { topicId, ...updates } = parsedRequest;
@@ -40,8 +32,6 @@ export function createUpdateTopicHandler(
     return okResponse(updateTopicResponseSchema, { topic });
   };
 }
-
-export const updateTopic = createUpdateTopicHandler();
 
 async function updateTopicRecord(
   topicId: string,
