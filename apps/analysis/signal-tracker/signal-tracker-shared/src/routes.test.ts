@@ -67,6 +67,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/list-review-notes"
     });
+    expect(signalTrackerRoutes.listTopicTimeline).toEqual({
+      method: "POST",
+      path: "/list-topic-timeline"
+    });
     expect(signalTrackerRoutes.createEvidenceItem).toEqual({
       method: "POST",
       path: "/create-evidence-item"
@@ -101,6 +105,7 @@ describe("signalTrackerRoutes", () => {
       "updateEventEntry",
       "getReviewNote",
       "listReviewNotes",
+      "listTopicTimeline",
       "createEvidenceItem",
       "getEvidenceItem",
       "getHealth"
@@ -120,6 +125,7 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.updateEventEntry,
       signalTrackerRoutes.getReviewNote,
       signalTrackerRoutes.listReviewNotes,
+      signalTrackerRoutes.listTopicTimeline,
       signalTrackerRoutes.createEvidenceItem,
       signalTrackerRoutes.getEvidenceItem,
       signalTrackerRoutes.getHealth
@@ -146,6 +152,15 @@ describe("signalTrackerRoutes", () => {
     expect(
       signalTrackerRouteContracts.getHealth.requestSchema.parse({})
     ).toEqual({});
+    expect(
+      signalTrackerRouteContracts.listTopicTimeline.requestSchema.parse({
+        topicId: " topic-1 ",
+        limit: 10
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      limit: 10
+    });
     expect(
       signalTrackerRouteContracts.getHealth.responseSchema.parse({ ok: true })
     ).toEqual({ ok: true });

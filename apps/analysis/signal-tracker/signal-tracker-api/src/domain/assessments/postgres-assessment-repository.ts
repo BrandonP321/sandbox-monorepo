@@ -36,6 +36,9 @@ export type AssessmentRowStore = {
   selectLatestActiveAssessmentByTopic(
     topicId: string
   ): Promise<AssessmentUpdateRows | undefined>;
+  selectActiveAssessmentsByTopic(
+    topicId: string
+  ): Promise<AssessmentUpdateRows[]>;
 };
 
 export class DrizzleAssessmentRowStore implements AssessmentRowStore {
@@ -87,6 +90,26 @@ export class DrizzleAssessmentRowStore implements AssessmentRowStore {
 
     return row;
   }
+
+  async selectActiveAssessmentsByTopic(
+    topicId: string
+  ): Promise<AssessmentUpdateRows[]> {
+    return await this.getDatabase()
+      .select({
+        entry: entries,
+        assessment: entryAssessments
+      })
+      .from(entryAssessments)
+      .innerJoin(entries, eq(entryAssessments.entryId, entries.id))
+      .where(
+        and(
+          eq(entries.topicId, topicId),
+          eq(entries.kind, "assessment"),
+          eq(entries.status, "active")
+        )
+      )
+      .orderBy(desc(entries.sortAt), desc(entries.createdAt), asc(entries.id));
+  }
 }
 
 export class PostgresAssessmentRepository implements AssessmentRepository {
@@ -111,6 +134,12 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
     const rows = await this.store.selectLatestActiveAssessmentByTopic(topicId);
 
     return rows ? mapAssessmentUpdateRows(rows) : undefined;
+  }
+
+  async listActiveByTopic(topicId: string): Promise<AssessmentUpdate[]> {
+    const rows = await this.store.selectActiveAssessmentsByTopic(topicId);
+
+    return rows.map(mapAssessmentUpdateRows);
   }
 }
 

@@ -306,6 +306,39 @@
       ]
     },
     {
+      "name": "Timeline",
+      "item": [
+        {
+          "name": "List Topic Timeline",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-topic-timeline",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-topic-timeline"]
+            },
+            "description": "Lists active event, assessment update, and review note timeline items for a tracked topic. Omit limit for full active history or provide limit for recent retrieval.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Topics",
       "item": [
         {

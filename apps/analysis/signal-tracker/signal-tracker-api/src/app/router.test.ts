@@ -148,4 +148,74 @@ describe("createAppRouter", () => {
     });
     expect(findLatestActiveByTopic).not.toHaveBeenCalled();
   });
+
+  it("shares injected dependencies with the topic timeline route", async () => {
+    const router = createAppRouter({
+      topicRepository: new InMemoryTopicRepository(),
+      entryRepository: new InMemoryEntryRepository(),
+      assessmentRepository: new InMemoryAssessmentRepository(),
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      createId: () => "topic-1",
+      generateId: vi
+        .fn(() => "event-1")
+        .mockReturnValueOnce("event-1")
+        .mockReturnValueOnce("assessment-1"),
+      now: () => new Date("2026-04-25T01:00:00.000Z")
+    });
+
+    await router({
+      method: signalTrackerRoutes.createTopic.method,
+      path: signalTrackerRoutes.createTopic.path,
+      body: JSON.stringify({
+        title: "Iran strike risk",
+        framingQuestion: "Will tensions escalate?"
+      })
+    });
+    const eventResult = await router({
+      method: signalTrackerRoutes.createEventEntry.method,
+      path: signalTrackerRoutes.createEventEntry.path,
+      body: JSON.stringify({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "A federal court granted an injunction.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "reported"
+      })
+    });
+    const assessmentResult = await router({
+      method: signalTrackerRoutes.createAssessmentUpdate.method,
+      path: signalTrackerRoutes.createAssessmentUpdate.path,
+      body: JSON.stringify({
+        topicId: "topic-1",
+        judgment: "Escalation risk remains limited.",
+        confidenceLabel: "medium",
+        assumptions: ["Diplomatic channels remain open"],
+        indicators: ["Watch for evacuation orders"],
+        sortAt: "2026-04-26T00:00:00.000Z"
+      })
+    });
+
+    const timelineResult = await router({
+      method: signalTrackerRoutes.listTopicTimeline.method,
+      path: signalTrackerRoutes.listTopicTimeline.path,
+      body: JSON.stringify({ topicId: "topic-1" })
+    });
+
+    expect(timelineResult.statusCode).toBe(200);
+    expect(JSON.parse(timelineResult.body)).toEqual({
+      items: [
+        {
+          kind: "assessment",
+          entry: JSON.parse(assessmentResult.body).assessmentUpdate.entry,
+          assessment: {
+            judgment: "Escalation risk remains limited.",
+            confidenceLabel: "medium",
+            assumptions: ["Diplomatic channels remain open"],
+            indicators: ["Watch for evacuation orders"]
+          }
+        },
+        { kind: "event", entry: JSON.parse(eventResult.body).entry }
+      ]
+    });
+  });
 });

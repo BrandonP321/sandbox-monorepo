@@ -5,6 +5,7 @@ import {
   createEventEntryRequestSchema,
   createEvidenceItemRequestSchema,
   createReviewNoteRequestSchema,
+  listTopicTimelineRequestSchema,
   createTopicRequestSchema,
   isSignalTrackerRetryableDbErrorCode,
   signalTrackerApiErrorCodes,
@@ -32,6 +33,9 @@ describe("signal-tracker-shared public barrel", () => {
     );
     expect(signalTrackerRoutes.createReviewNote.path).toBe(
       "/create-review-note"
+    );
+    expect(signalTrackerRoutes.listTopicTimeline.path).toBe(
+      "/list-topic-timeline"
     );
     expect(
       createTopicRequestSchema.parse({
@@ -67,6 +71,15 @@ describe("signal-tracker-shared public barrel", () => {
       topicId: "topic-1",
       title: "Review",
       bodyMd: "No major changes."
+    });
+    expect(
+      listTopicTimelineRequestSchema.parse({
+        topicId: " topic-1 ",
+        limit: 10
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      limit: 10
     });
     expect(
       createEvidenceItemRequestSchema.parse({

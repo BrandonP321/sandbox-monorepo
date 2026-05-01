@@ -192,6 +192,12 @@ export class FakeAssessmentRowStore implements AssessmentRowStore {
   async selectLatestActiveAssessmentByTopic(
     topicId: string
   ): Promise<AssessmentUpdateRows | undefined> {
+    return this.selectActiveAssessmentsByTopic(topicId).then((rows) => rows[0]);
+  }
+
+  async selectActiveAssessmentsByTopic(
+    topicId: string
+  ): Promise<AssessmentUpdateRows[]> {
     return Array.from(this.rows.values())
       .filter(
         (rows) =>
@@ -199,7 +205,7 @@ export class FakeAssessmentRowStore implements AssessmentRowStore {
           rows.entry.kind === "assessment" &&
           rows.entry.status === "active"
       )
-      .sort(compareAssessmentRowsForList)[0];
+      .sort(compareAssessmentRowsForList);
   }
 
   seed(assessmentUpdate: AssessmentUpdate): void;

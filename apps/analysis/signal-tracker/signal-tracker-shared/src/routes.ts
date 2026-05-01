@@ -27,6 +27,10 @@ import {
   getEvidenceItemResponseSchema
 } from "./evidence-contracts.js";
 import {
+  listTopicTimelineRequestSchema,
+  listTopicTimelineResponseSchema
+} from "./timeline-contracts.js";
+import {
   archiveTopicRequestSchema,
   archiveTopicResponseSchema,
   createTopicRequestSchema,
@@ -102,6 +106,10 @@ export const signalTrackerRoutes = {
   listReviewNotes: {
     method: "POST",
     path: "/list-review-notes"
+  },
+  listTopicTimeline: {
+    method: "POST",
+    path: "/list-topic-timeline"
   },
   createEvidenceItem: {
     method: "POST",
@@ -212,6 +220,11 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.listReviewNotes,
     requestSchema: listReviewNotesRequestSchema,
     responseSchema: listReviewNotesResponseSchema
+  },
+  listTopicTimeline: {
+    route: signalTrackerRoutes.listTopicTimeline,
+    requestSchema: listTopicTimelineRequestSchema,
+    responseSchema: listTopicTimelineResponseSchema
   },
   createEvidenceItem: {
     route: signalTrackerRoutes.createEvidenceItem,

@@ -168,7 +168,8 @@ describe("create assessment update route", () => {
         }),
         findLatestActiveByTopic: vi.fn(
           async (): Promise<AssessmentUpdate | undefined> => undefined
-        )
+        ),
+        listActiveByTopic: vi.fn(async (): Promise<AssessmentUpdate[]> => [])
       },
       topicRepository
     });

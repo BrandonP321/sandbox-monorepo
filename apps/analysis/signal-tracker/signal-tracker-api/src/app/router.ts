@@ -19,6 +19,7 @@ import { getHealth } from "../routes/health/get-health";
 import { createCreateReviewNoteHandler } from "../routes/review-notes/create-review-note";
 import { createGetReviewNoteHandler } from "../routes/review-notes/get-review-note";
 import { createListReviewNotesHandler } from "../routes/review-notes/list-review-notes";
+import { createListTopicTimelineHandler } from "../routes/timeline/list-topic-timeline";
 import { createArchiveTopicHandler } from "../routes/topics/archive-topic";
 import { createCreateTopicHandler } from "../routes/topics/create-topic";
 import { createDeleteTopicHandler } from "../routes/topics/delete-topic";
@@ -86,6 +87,10 @@ function createRouteHandlers(
     }),
     listReviewNotes: createListReviewNotesHandler({
       entryRepository: dependencies.entryRepository
+    }),
+    listTopicTimeline: createListTopicTimelineHandler({
+      entryRepository: dependencies.entryRepository,
+      assessmentRepository: dependencies.assessmentRepository
     }),
     createEvidenceItem: createCreateEvidenceItemHandler({
       evidenceRepository: dependencies.evidenceRepository,

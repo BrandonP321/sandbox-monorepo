@@ -5,6 +5,7 @@ export type AssessmentRepository = {
   findLatestActiveByTopic(
     topicId: string
   ): Promise<AssessmentUpdate | undefined>;
+  listActiveByTopic(topicId: string): Promise<AssessmentUpdate[]>;
 };
 
 export class InMemoryAssessmentRepository implements AssessmentRepository {
@@ -26,6 +27,17 @@ export class InMemoryAssessmentRepository implements AssessmentRepository {
           assessmentUpdate.entry.status === "active"
       )
       .sort(compareAssessmentUpdatesForList)[0];
+  }
+
+  async listActiveByTopic(topicId: string): Promise<AssessmentUpdate[]> {
+    return Array.from(this.assessmentUpdates.values())
+      .filter(
+        (assessmentUpdate) =>
+          assessmentUpdate.entry.topicId === topicId &&
+          assessmentUpdate.entry.kind === "assessment" &&
+          assessmentUpdate.entry.status === "active"
+      )
+      .sort(compareAssessmentUpdatesForList);
   }
 }
 
