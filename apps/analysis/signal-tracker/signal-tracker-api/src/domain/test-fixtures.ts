@@ -3,6 +3,7 @@ import type {
   EvidenceAnchor,
   EvidenceItem,
   EvidenceRecord,
+  EntryCitation,
   Entry,
   Source,
   Topic
@@ -12,6 +13,10 @@ import type {
   AssessmentUpdateRows,
   NewEntryAssessmentRow
 } from "./assessments/postgres-assessment-repository";
+import type {
+  EntryCitationRow,
+  NewEntryCitationRow
+} from "./citations/postgres-entry-citation-repository";
 import type {
   EntryRow,
   NewEntryRow
@@ -302,6 +307,20 @@ export function buildEvidenceAnchorFixture(
   };
 }
 
+export function buildEntryCitationFixture(
+  overrides: Partial<EntryCitation> = {}
+): EntryCitation {
+  return {
+    id: "citation-1",
+    entryId: "entry-1",
+    evidenceItemId: "evidence-1",
+    relationType: "supports",
+    note: "Supports the event wording.",
+    createdAt: "2026-04-25T00:00:00.000Z",
+    ...overrides
+  };
+}
+
 export function sourceToRow(source: Source): SourceRow {
   return {
     id: source.id,
@@ -406,5 +425,31 @@ export function newEvidenceAnchorRowToRow(
     locatorJsonb: anchor.locatorJsonb ?? {},
     createdAt: anchor.createdAt,
     updatedAt: anchor.updatedAt
+  };
+}
+
+export function entryCitationToRow(citation: EntryCitation): EntryCitationRow {
+  return {
+    id: citation.id,
+    entryId: citation.entryId,
+    evidenceItemId: citation.evidenceItemId,
+    evidenceAnchorId: citation.evidenceAnchorId ?? null,
+    relationType: citation.relationType,
+    note: citation.note ?? null,
+    createdAt: toDate(citation.createdAt)
+  };
+}
+
+export function newEntryCitationRowToRow(
+  citation: NewEntryCitationRow
+): EntryCitationRow {
+  return {
+    id: citation.id,
+    entryId: citation.entryId,
+    evidenceItemId: citation.evidenceItemId,
+    evidenceAnchorId: citation.evidenceAnchorId ?? null,
+    relationType: citation.relationType ?? "supports",
+    note: citation.note ?? null,
+    createdAt: citation.createdAt
   };
 }

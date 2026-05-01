@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assessmentConfidenceLabelSchema,
+  attachEntryCitationRequestSchema,
   captureEvidenceUrlRequestSchema,
   createEventEntryRequestSchema,
   createEvidenceAnchorRequestSchema,
@@ -44,6 +45,9 @@ describe("signal-tracker-shared public barrel", () => {
     );
     expect(signalTrackerRoutes.createEvidenceAnchor.path).toBe(
       "/create-evidence-anchor"
+    );
+    expect(signalTrackerRoutes.attachEntryCitation.path).toBe(
+      "/attach-entry-citation"
     );
     expect(
       createTopicRequestSchema.parse({
@@ -120,6 +124,16 @@ describe("signal-tracker-shared public barrel", () => {
       evidenceItemId: "evidence-1",
       quoteText: "Supporting passage",
       locator: {}
+    });
+    expect(
+      attachEntryCitationRequestSchema.parse({
+        entryId: " entry-1 ",
+        evidenceItemId: " evidence-1 "
+      })
+    ).toMatchObject({
+      entryId: "entry-1",
+      evidenceItemId: "evidence-1",
+      relationType: "supports"
     });
   });
 });

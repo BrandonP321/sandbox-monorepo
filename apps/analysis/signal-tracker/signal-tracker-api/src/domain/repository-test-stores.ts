@@ -2,6 +2,7 @@ import type {
   AssessmentUpdate,
   EvidenceAnchor,
   EvidenceRecord,
+  EntryCitation,
   Entry,
   Topic
 } from "@repo/signal-tracker-shared";
@@ -11,6 +12,11 @@ import type {
   AssessmentUpdateRows,
   NewEntryAssessmentRow
 } from "./assessments/postgres-assessment-repository";
+import type {
+  EntryCitationRow,
+  EntryCitationRowStore,
+  NewEntryCitationRow
+} from "./citations/postgres-entry-citation-repository";
 import type { ListEntriesByTopicOptions } from "./entries/entry-repository";
 import type {
   EntryRow,
@@ -32,10 +38,12 @@ import {
   assessmentUpdateToRows,
   evidenceAnchorToRow,
   evidenceRecordToRows,
+  entryCitationToRow,
   entryToRow,
   newEvidenceAnchorRowToRow,
   newEvidenceRowsToRows,
   newAssessmentRowsToRows,
+  newEntryCitationRowToRow,
   newEntryRowToRow,
   newTopicRowToRow,
   topicToRow
@@ -339,6 +347,81 @@ export class FakeEvidenceAnchorRowStore implements EvidenceAnchorRowStore {
   }
 }
 
+export class FakeEntryCitationRowStore implements EntryCitationRowStore {
+  private readonly rows = new Map<string, EntryCitationRow>();
+
+  async insertOrSelectEntryCitation(
+    citation: NewEntryCitationRow
+  ): Promise<EntryCitationRow> {
+    const existingCitation = this.findMatchingCitation(citation);
+
+    if (existingCitation) {
+      return existingCitation;
+    }
+
+    const row = newEntryCitationRowToRow(citation);
+
+    this.rows.set(row.id, row);
+
+    return row;
+  }
+
+  async selectEntryCitationById(
+    id: string
+  ): Promise<EntryCitationRow | undefined> {
+    return this.rows.get(id);
+  }
+
+  async selectEntryCitationsByEntry(
+    entryId: string
+  ): Promise<EntryCitationRow[]> {
+    return Array.from(this.rows.values())
+      .filter((row) => row.entryId === entryId)
+      .sort(compareEntryCitationRowsForList);
+  }
+
+  async deleteEntryCitationForEntry(
+    entryId: string,
+    citationId: string
+  ): Promise<EntryCitationRow | undefined> {
+    const row = this.rows.get(citationId);
+
+    if (!row || row.entryId !== entryId) {
+      return undefined;
+    }
+
+    this.rows.delete(citationId);
+
+    return row;
+  }
+
+  seed(citation: EntryCitation): void;
+  seed(row: EntryCitationRow): void;
+  seed(citationOrRow: EntryCitation | EntryCitationRow): void {
+    const row = isEntryCitationRow(citationOrRow)
+      ? citationOrRow
+      : entryCitationToRow(citationOrRow);
+
+    this.rows.set(row.id, row);
+  }
+
+  count(): number {
+    return this.rows.size;
+  }
+
+  private findMatchingCitation(
+    citation: NewEntryCitationRow
+  ): EntryCitationRow | undefined {
+    return Array.from(this.rows.values()).find(
+      (row) =>
+        row.entryId === citation.entryId &&
+        row.evidenceItemId === citation.evidenceItemId &&
+        row.evidenceAnchorId === (citation.evidenceAnchorId ?? null) &&
+        row.relationType === (citation.relationType ?? "supports")
+    );
+  }
+}
+
 function isTopicRow(topicOrRow: Topic | TopicRow): topicOrRow is TopicRow {
   return topicOrRow.createdAt instanceof Date;
 }
@@ -363,6 +446,12 @@ function isEvidenceAnchorRow(
   anchorOrRow: EvidenceAnchor | EvidenceAnchorRow
 ): anchorOrRow is EvidenceAnchorRow {
   return anchorOrRow.createdAt instanceof Date;
+}
+
+function isEntryCitationRow(
+  citationOrRow: EntryCitation | EntryCitationRow
+): citationOrRow is EntryCitationRow {
+  return citationOrRow.createdAt instanceof Date;
 }
 
 function compareTopicRowsForList(left: TopicRow, right: TopicRow): number {
@@ -424,6 +513,20 @@ function compareAssessmentRowsForList(
 function compareEvidenceAnchorRowsForList(
   left: EvidenceAnchorRow,
   right: EvidenceAnchorRow
+): number {
+  const createdAtComparison =
+    getTime(right.createdAt) - getTime(left.createdAt);
+
+  if (createdAtComparison !== 0) {
+    return createdAtComparison;
+  }
+
+  return left.id.localeCompare(right.id);
+}
+
+function compareEntryCitationRowsForList(
+  left: EntryCitationRow,
+  right: EntryCitationRow
 ): number {
   const createdAtComparison =
     getTime(right.createdAt) - getTime(left.createdAt);

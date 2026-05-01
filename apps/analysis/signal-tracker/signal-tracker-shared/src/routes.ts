@@ -5,6 +5,14 @@ import {
   createAssessmentUpdateResponseSchema
 } from "./assessment-contracts.js";
 import {
+  attachEntryCitationRequestSchema,
+  attachEntryCitationResponseSchema,
+  detachEntryCitationRequestSchema,
+  detachEntryCitationResponseSchema,
+  listEntryCitationsRequestSchema,
+  listEntryCitationsResponseSchema
+} from "./citation-contracts.js";
+import {
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
   createReviewNoteRequestSchema,
@@ -143,6 +151,18 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/list-evidence-anchors-for-item"
   },
+  attachEntryCitation: {
+    method: "POST",
+    path: "/attach-entry-citation"
+  },
+  detachEntryCitation: {
+    method: "POST",
+    path: "/detach-entry-citation"
+  },
+  listEntryCitations: {
+    method: "POST",
+    path: "/list-entry-citations"
+  },
   getHealth: {
     method: "POST",
     path: "/get-health"
@@ -279,6 +299,21 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.listEvidenceAnchorsForItem,
     requestSchema: listEvidenceAnchorsForItemRequestSchema,
     responseSchema: listEvidenceAnchorsForItemResponseSchema
+  },
+  attachEntryCitation: {
+    route: signalTrackerRoutes.attachEntryCitation,
+    requestSchema: attachEntryCitationRequestSchema,
+    responseSchema: attachEntryCitationResponseSchema
+  },
+  detachEntryCitation: {
+    route: signalTrackerRoutes.detachEntryCitation,
+    requestSchema: detachEntryCitationRequestSchema,
+    responseSchema: detachEntryCitationResponseSchema
+  },
+  listEntryCitations: {
+    route: signalTrackerRoutes.listEntryCitations,
+    requestSchema: listEntryCitationsRequestSchema,
+    responseSchema: listEntryCitationsResponseSchema
   },
   getHealth: {
     route: signalTrackerRoutes.getHealth,

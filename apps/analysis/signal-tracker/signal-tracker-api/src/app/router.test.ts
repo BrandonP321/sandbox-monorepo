@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { signalTrackerRoutes } from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../domain/assessments/assessment-repository";
+import { InMemoryEntryCitationRepository } from "../domain/citations/entry-citation-repository";
 import { InMemoryEntryRepository } from "../domain/entries/entry-repository";
 import { InMemoryEvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
 import { InMemoryEvidenceRepository } from "../domain/evidence/evidence-repository";
@@ -15,6 +16,7 @@ describe("createAppRouter", () => {
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
+      entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
       evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",
@@ -60,6 +62,7 @@ describe("createAppRouter", () => {
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
+      entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository,
       evidenceAnchorRepository,
       generateId: vi
@@ -123,6 +126,7 @@ describe("createAppRouter", () => {
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository,
+      entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
       evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",
@@ -180,6 +184,7 @@ describe("createAppRouter", () => {
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
+      entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
       evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",

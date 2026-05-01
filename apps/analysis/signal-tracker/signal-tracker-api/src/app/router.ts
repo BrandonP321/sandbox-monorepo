@@ -9,6 +9,9 @@ import {
   type SignalTrackerApiDependencies
 } from "./dependencies";
 import { createCreateAssessmentUpdateHandler } from "../routes/assessments/create-assessment-update";
+import { createAttachEntryCitationHandler } from "../routes/citations/attach-entry-citation";
+import { createDetachEntryCitationHandler } from "../routes/citations/detach-entry-citation";
+import { createListEntryCitationsHandler } from "../routes/citations/list-entry-citations";
 import { createCaptureEvidenceUrlHandler } from "../routes/evidence/capture-evidence-url";
 import { createCreateEvidenceAnchorHandler } from "../routes/evidence/create-evidence-anchor";
 import { createCreateEvidenceItemHandler } from "../routes/evidence/create-evidence-item";
@@ -121,6 +124,26 @@ function createRouteHandlers(
     listEvidenceAnchorsForItem: createListEvidenceAnchorsForItemHandler({
       evidenceAnchorRepository: dependencies.evidenceAnchorRepository,
       evidenceRepository: dependencies.evidenceRepository
+    }),
+    attachEntryCitation: createAttachEntryCitationHandler({
+      entryCitationRepository: dependencies.entryCitationRepository,
+      entryRepository: dependencies.entryRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now
+    }),
+    detachEntryCitation: createDetachEntryCitationHandler({
+      entryCitationRepository: dependencies.entryCitationRepository,
+      entryRepository: dependencies.entryRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository
+    }),
+    listEntryCitations: createListEntryCitationsHandler({
+      entryCitationRepository: dependencies.entryCitationRepository,
+      entryRepository: dependencies.entryRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository
     }),
     getHealth
   };

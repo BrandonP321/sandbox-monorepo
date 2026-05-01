@@ -16,6 +16,7 @@ describe("signalTracker API error conventions", () => {
     ]);
 
     expect(signalTrackerApiErrorCodes.topicNotFound).toBe("TOPIC_NOT_FOUND");
+    expect(signalTrackerApiErrorCodes.entryNotFound).toBe("ENTRY_NOT_FOUND");
     expect(signalTrackerApiErrorCodes.eventEntryNotFound).toBe(
       "EVENT_ENTRY_NOT_FOUND"
     );
@@ -27,6 +28,9 @@ describe("signalTracker API error conventions", () => {
     );
     expect(signalTrackerApiErrorCodes.evidenceAnchorNotFound).toBe(
       "EVIDENCE_ANCHOR_NOT_FOUND"
+    );
+    expect(signalTrackerApiErrorCodes.entryCitationNotFound).toBe(
+      "ENTRY_CITATION_NOT_FOUND"
     );
     expect(
       isSignalTrackerRetryableDbErrorCode(

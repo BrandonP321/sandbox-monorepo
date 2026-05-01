@@ -17,6 +17,14 @@ export function createTopicNotFoundError(): AppError {
   );
 }
 
+export function createEntryNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.entryNotFound,
+    "Entry not found",
+    404
+  );
+}
+
 export function createEventEntryNotFoundError(): AppError {
   return new AppError(
     signalTrackerApiErrorCodes.eventEntryNotFound,
@@ -45,6 +53,14 @@ export function createEvidenceAnchorNotFoundError(): AppError {
   return new AppError(
     signalTrackerApiErrorCodes.evidenceAnchorNotFound,
     "Evidence anchor not found",
+    404
+  );
+}
+
+export function createEntryCitationNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.entryCitationNotFound,
+    "Entry citation not found",
     404
   );
 }

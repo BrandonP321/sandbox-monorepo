@@ -95,6 +95,18 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/list-evidence-anchors-for-item"
     });
+    expect(signalTrackerRoutes.attachEntryCitation).toEqual({
+      method: "POST",
+      path: "/attach-entry-citation"
+    });
+    expect(signalTrackerRoutes.detachEntryCitation).toEqual({
+      method: "POST",
+      path: "/detach-entry-citation"
+    });
+    expect(signalTrackerRoutes.listEntryCitations).toEqual({
+      method: "POST",
+      path: "/list-entry-citations"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -128,6 +140,9 @@ describe("signalTrackerRoutes", () => {
       "createEvidenceAnchor",
       "getEvidenceAnchor",
       "listEvidenceAnchorsForItem",
+      "attachEntryCitation",
+      "detachEntryCitation",
+      "listEntryCitations",
       "getHealth"
     ]);
     expect(signalTrackerRouteList).toEqual([
@@ -152,6 +167,9 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.createEvidenceAnchor,
       signalTrackerRoutes.getEvidenceAnchor,
       signalTrackerRoutes.listEvidenceAnchorsForItem,
+      signalTrackerRoutes.attachEntryCitation,
+      signalTrackerRoutes.detachEntryCitation,
+      signalTrackerRoutes.listEntryCitations,
       signalTrackerRoutes.getHealth
     ]);
   });
@@ -201,6 +219,16 @@ describe("signalTrackerRoutes", () => {
       evidenceItemId: "evidence-1",
       pageLabel: "Page 3",
       locator: {}
+    });
+    expect(
+      signalTrackerRouteContracts.attachEntryCitation.requestSchema.parse({
+        entryId: " entry-1 ",
+        evidenceItemId: " evidence-1 "
+      })
+    ).toEqual({
+      entryId: "entry-1",
+      evidenceItemId: "evidence-1",
+      relationType: "supports"
     });
     expect(
       signalTrackerRouteContracts.getHealth.responseSchema.parse({ ok: true })

@@ -1,5 +1,7 @@
 import type { AssessmentRepository } from "../domain/assessments/assessment-repository";
 import { PostgresAssessmentRepository } from "../domain/assessments/postgres-assessment-repository";
+import type { EntryCitationRepository } from "../domain/citations/entry-citation-repository";
+import { PostgresEntryCitationRepository } from "../domain/citations/postgres-entry-citation-repository";
 import type { EntryRepository } from "../domain/entries/entry-repository";
 import { PostgresEntryRepository } from "../domain/entries/postgres-entry-repository";
 import type { EvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
@@ -13,6 +15,7 @@ export type SignalTrackerApiDependencies = {
   topicRepository: TopicRepository;
   entryRepository: EntryRepository;
   assessmentRepository: AssessmentRepository;
+  entryCitationRepository: EntryCitationRepository;
   evidenceRepository: EvidenceRepository;
   evidenceAnchorRepository: EvidenceAnchorRepository;
   createId?: () => string;
@@ -27,6 +30,7 @@ export function createSignalTrackerApiDependencies(): SignalTrackerApiDependenci
     topicRepository,
     entryRepository: new PostgresEntryRepository(),
     assessmentRepository: new PostgresAssessmentRepository(),
+    entryCitationRepository: new PostgresEntryCitationRepository(),
     evidenceRepository: new PostgresEvidenceRepository(),
     evidenceAnchorRepository: new PostgresEvidenceAnchorRepository()
   };

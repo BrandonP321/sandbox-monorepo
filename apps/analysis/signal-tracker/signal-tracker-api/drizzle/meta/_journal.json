@@ -43,6 +43,13 @@
       "when": 1777654000478,
       "tag": "0005_tired_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1777654928413,
+      "tag": "0006_tough_selene",
+      "breakpoints": true
     }
   ]
 }

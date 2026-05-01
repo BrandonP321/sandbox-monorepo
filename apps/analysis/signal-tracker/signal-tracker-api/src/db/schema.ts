@@ -217,11 +217,59 @@ export const evidenceAnchors = pgTable(
   ]
 );
 
+export const entryCitations = pgTable(
+  "entry_citations",
+  {
+    id: text("id").primaryKey(),
+    entryId: text("entry_id")
+      .notNull()
+      .references(() => entries.id, { onDelete: "cascade" }),
+    evidenceItemId: text("evidence_item_id")
+      .notNull()
+      .references(() => evidenceItems.id, { onDelete: "cascade" }),
+    evidenceAnchorId: text("evidence_anchor_id").references(
+      () => evidenceAnchors.id,
+      { onDelete: "cascade" }
+    ),
+    relationType: text("relation_type").notNull().default("supports"),
+    note: text("note"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull()
+  },
+  (table) => [
+    index("entry_citations_entry_created_idx").on(
+      table.entryId,
+      table.createdAt,
+      table.id
+    ),
+    index("entry_citations_evidence_item_idx").on(table.evidenceItemId),
+    uniqueIndex("entry_citations_item_unique")
+      .on(table.entryId, table.evidenceItemId, table.relationType)
+      .where(sql`${table.evidenceAnchorId} is null`),
+    uniqueIndex("entry_citations_anchor_unique")
+      .on(
+        table.entryId,
+        table.evidenceItemId,
+        table.evidenceAnchorId,
+        table.relationType
+      )
+      .where(sql`${table.evidenceAnchorId} is not null`),
+    check(
+      "entry_citations_relation_type_valid",
+      sql`${table.relationType} in ('supports', 'contradicts', 'contextualizes', 'source_for')`
+    ),
+    check(
+      "entry_citations_note_not_blank",
+      sql`${table.note} is null or length(trim(${table.note})) > 0`
+    )
+  ]
+);
+
 export const signalTrackerSchema = {
   topics,
   entries,
   entryAssessments,
   sources,
   evidenceItems,
-  evidenceAnchors
+  evidenceAnchors,
+  entryCitations
 };
