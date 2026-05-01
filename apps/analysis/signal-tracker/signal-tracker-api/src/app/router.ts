@@ -9,6 +9,8 @@ import {
   type SignalTrackerApiDependencies
 } from "./dependencies";
 import { createCreateAssessmentUpdateHandler } from "../routes/assessments/create-assessment-update";
+import { createCreateEvidenceItemHandler } from "../routes/evidence/create-evidence-item";
+import { createGetEvidenceItemHandler } from "../routes/evidence/get-evidence-item";
 import { createCreateEventEntryHandler } from "../routes/event-entries/create-event-entry";
 import { createGetEventEntryHandler } from "../routes/event-entries/get-event-entry";
 import { createListEventEntriesHandler } from "../routes/event-entries/list-event-entries";
@@ -69,6 +71,14 @@ function createRouteHandlers(
     updateEventEntry: createUpdateEventEntryHandler({
       entryRepository: dependencies.entryRepository,
       now: dependencies.now
+    }),
+    createEvidenceItem: createCreateEvidenceItemHandler({
+      evidenceRepository: dependencies.evidenceRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now
+    }),
+    getEvidenceItem: createGetEvidenceItemHandler({
+      evidenceRepository: dependencies.evidenceRepository
     }),
     getHealth
   };

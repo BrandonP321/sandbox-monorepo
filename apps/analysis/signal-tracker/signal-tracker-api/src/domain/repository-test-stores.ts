@@ -1,5 +1,6 @@
 import type {
   AssessmentUpdate,
+  EvidenceRecord,
   Entry,
   Topic
 } from "@repo/signal-tracker-shared";
@@ -15,9 +16,17 @@ import type {
   EntryRowStore,
   NewEntryRow
 } from "./entries/postgres-entry-repository";
+import type {
+  EvidenceRows,
+  EvidenceRowStore,
+  NewEvidenceItemRow,
+  NewSourceRow
+} from "./evidence/postgres-evidence-repository";
 import {
   assessmentUpdateToRows,
+  evidenceRecordToRows,
   entryToRow,
+  newEvidenceRowsToRows,
   newAssessmentRowsToRows,
   newEntryRowToRow,
   newTopicRowToRow,
@@ -204,6 +213,80 @@ export class FakeAssessmentRowStore implements AssessmentRowStore {
   }
 }
 
+export class FakeEvidenceRowStore implements EvidenceRowStore {
+  private readonly rows = new Map<string, EvidenceRows>();
+
+  async insertEvidenceRecord(
+    source: NewSourceRow,
+    evidenceItem: NewEvidenceItemRow
+  ): Promise<EvidenceRows> {
+    if (evidenceItem.canonicalUrl) {
+      const existingRows = Array.from(this.rows.values()).find(
+        (rows) => rows.evidenceItem.canonicalUrl === evidenceItem.canonicalUrl
+      );
+
+      if (existingRows) {
+        return existingRows;
+      }
+    }
+
+    const reusableSource = this.findReusableSource(source);
+    const rows = newEvidenceRowsToRows(
+      reusableSource ?? source,
+      reusableSource
+        ? {
+            ...evidenceItem,
+            sourceId: reusableSource.id
+          }
+        : evidenceItem
+    );
+
+    this.rows.set(rows.evidenceItem.id, rows);
+
+    return rows;
+  }
+
+  async selectEvidenceById(id: string): Promise<EvidenceRows | undefined> {
+    return this.rows.get(id);
+  }
+
+  seed(record: EvidenceRecord): void;
+  seed(rows: EvidenceRows): void;
+  seed(recordOrRows: EvidenceRecord | EvidenceRows): void {
+    const rows = isEvidenceRows(recordOrRows)
+      ? recordOrRows
+      : evidenceRecordToRows(recordOrRows);
+
+    this.rows.set(rows.evidenceItem.id, rows);
+  }
+
+  count(): number {
+    return this.rows.size;
+  }
+
+  private findReusableSource(source: NewSourceRow): NewSourceRow | undefined {
+    const existingSources = Array.from(this.rows.values()).map(
+      (rows) => rows.source
+    );
+
+    if (source.baseUrl) {
+      const existingSource = existingSources.find(
+        (row) => row.baseUrl === source.baseUrl
+      );
+
+      if (existingSource) {
+        return existingSource;
+      }
+    }
+
+    return existingSources.find(
+      (row) =>
+        row.canonicalName === source.canonicalName &&
+        row.sourceType === source.sourceType
+    );
+  }
+}
+
 function isTopicRow(topicOrRow: Topic | TopicRow): topicOrRow is TopicRow {
   return topicOrRow.createdAt instanceof Date;
 }
@@ -216,6 +299,12 @@ function isAssessmentUpdateRows(
   assessmentUpdateOrRows: AssessmentUpdate | AssessmentUpdateRows
 ): assessmentUpdateOrRows is AssessmentUpdateRows {
   return "assessment" in assessmentUpdateOrRows;
+}
+
+function isEvidenceRows(
+  recordOrRows: EvidenceRecord | EvidenceRows
+): recordOrRows is EvidenceRows {
+  return "evidenceItem" in recordOrRows && "createdAt" in recordOrRows.source;
 }
 
 function compareTopicRowsForList(left: TopicRow, right: TopicRow): number {

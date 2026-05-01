@@ -55,6 +55,14 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/update-event-entry"
     });
+    expect(signalTrackerRoutes.createEvidenceItem).toEqual({
+      method: "POST",
+      path: "/create-evidence-item"
+    });
+    expect(signalTrackerRoutes.getEvidenceItem).toEqual({
+      method: "POST",
+      path: "/get-evidence-item"
+    });
     expect(signalTrackerRoutes.getHealth).toEqual({
       method: "POST",
       path: "/get-health"
@@ -78,6 +86,8 @@ describe("signalTrackerRoutes", () => {
       "getEventEntry",
       "listEventEntries",
       "updateEventEntry",
+      "createEvidenceItem",
+      "getEvidenceItem",
       "getHealth"
     ]);
     expect(signalTrackerRouteList).toEqual([
@@ -92,6 +102,8 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.getEventEntry,
       signalTrackerRoutes.listEventEntries,
       signalTrackerRoutes.updateEventEntry,
+      signalTrackerRoutes.createEvidenceItem,
+      signalTrackerRoutes.getEvidenceItem,
       signalTrackerRoutes.getHealth
     ]);
   });

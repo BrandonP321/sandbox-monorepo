@@ -156,6 +156,67 @@
       ]
     },
     {
+      "name": "Evidence",
+      "item": [
+        {
+          "name": "Create Evidence Item",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-evidence-item",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-evidence-item"]
+            },
+            "description": "Creates a manual reusable evidence item and creates or reuses its normalized source.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": {\n    \"canonicalName\": \"Reuters\",\n    \"baseUrl\": \"https://www.reuters.com\",\n    \"sourceType\": \"news\"\n  },\n  \"canonicalUrl\": \"https://www.reuters.com/world/example\",\n  \"title\": \"Court grants injunction\",\n  \"author\": \"Jane Reporter\",\n  \"publishedAt\": \"2026-04-24T00:00:00.000Z\",\n  \"contentType\": \"text/html\",\n  \"language\": \"en\",\n  \"metadata\": {\n    \"capturedVia\": \"manual\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Evidence Item",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/get-evidence-item",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-evidence-item"]
+            },
+            "description": "Reads a reusable evidence item and its normalized source.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"evidenceItemId\": \"evidence-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Topics",
       "item": [
         {

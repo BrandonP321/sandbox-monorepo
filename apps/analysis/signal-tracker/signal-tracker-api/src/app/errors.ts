@@ -24,3 +24,11 @@ export function createEventEntryNotFoundError(): AppError {
     404
   );
 }
+
+export function createEvidenceItemNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.evidenceItemNotFound,
+    "Evidence item not found",
+    404
+  );
+}

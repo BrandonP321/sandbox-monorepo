@@ -15,6 +15,12 @@ import {
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
 import {
+  createEvidenceItemRequestSchema,
+  createEvidenceItemResponseSchema,
+  getEvidenceItemRequestSchema,
+  getEvidenceItemResponseSchema
+} from "./evidence-contracts.js";
+import {
   archiveTopicRequestSchema,
   archiveTopicResponseSchema,
   createTopicRequestSchema,
@@ -78,6 +84,14 @@ export const signalTrackerRoutes = {
   updateEventEntry: {
     method: "POST",
     path: "/update-event-entry"
+  },
+  createEvidenceItem: {
+    method: "POST",
+    path: "/create-evidence-item"
+  },
+  getEvidenceItem: {
+    method: "POST",
+    path: "/get-evidence-item"
   },
   getHealth: {
     method: "POST",
@@ -165,6 +179,16 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.updateEventEntry,
     requestSchema: updateEventEntryRequestSchema,
     responseSchema: updateEventEntryResponseSchema
+  },
+  createEvidenceItem: {
+    route: signalTrackerRoutes.createEvidenceItem,
+    requestSchema: createEvidenceItemRequestSchema,
+    responseSchema: createEvidenceItemResponseSchema
+  },
+  getEvidenceItem: {
+    route: signalTrackerRoutes.getEvidenceItem,
+    requestSchema: getEvidenceItemRequestSchema,
+    responseSchema: getEvidenceItemResponseSchema
   },
   getHealth: {
     route: signalTrackerRoutes.getHealth,

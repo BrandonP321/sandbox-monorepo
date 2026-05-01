@@ -7,7 +7,8 @@ import {
   jsonb,
   pgTable,
   text,
-  timestamp
+  timestamp,
+  uniqueIndex
 } from "drizzle-orm/pg-core";
 
 export const topics = pgTable(
@@ -117,4 +118,70 @@ export const entryAssessments = pgTable(
   ]
 );
 
-export const signalTrackerSchema = { topics, entries, entryAssessments };
+export const sources = pgTable(
+  "sources",
+  {
+    id: text("id").primaryKey(),
+    canonicalName: text("canonical_name").notNull(),
+    baseUrl: text("base_url"),
+    sourceType: text("source_type").notNull(),
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+  },
+  (table) => [
+    index("sources_base_url_idx").on(table.baseUrl),
+    index("sources_canonical_name_type_idx").on(
+      table.canonicalName,
+      table.sourceType
+    ),
+    check(
+      "sources_canonical_name_not_blank",
+      sql`length(trim(${table.canonicalName})) > 0`
+    ),
+    check(
+      "sources_source_type_valid",
+      sql`${table.sourceType} in ('news', 'government', 'court', 'academic', 'think_tank', 'organization', 'user_uploaded', 'other')`
+    )
+  ]
+);
+
+export const evidenceItems = pgTable(
+  "evidence_items",
+  {
+    id: text("id").primaryKey(),
+    sourceId: text("source_id")
+      .notNull()
+      .references(() => sources.id),
+    canonicalUrl: text("canonical_url"),
+    title: text("title").notNull(),
+    author: text("author"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    capturedAt: timestamp("captured_at", { withTimezone: true }).notNull(),
+    contentType: text("content_type"),
+    language: text("language"),
+    snapshotHash: text("snapshot_hash"),
+    storageKey: text("storage_key"),
+    metadataJsonb: jsonb("metadata_jsonb").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+  },
+  (table) => [
+    index("evidence_items_source_idx").on(table.sourceId),
+    uniqueIndex("evidence_items_canonical_url_unique")
+      .on(table.canonicalUrl)
+      .where(sql`${table.canonicalUrl} is not null`),
+    check(
+      "evidence_items_title_not_blank",
+      sql`length(trim(${table.title})) > 0`
+    )
+  ]
+);
+
+export const signalTrackerSchema = {
+  topics,
+  entries,
+  entryAssessments,
+  sources,
+  evidenceItems
+};

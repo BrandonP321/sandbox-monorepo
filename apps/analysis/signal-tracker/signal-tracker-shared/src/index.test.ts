@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   assessmentConfidenceLabelSchema,
   createEventEntryRequestSchema,
+  createEvidenceItemRequestSchema,
   createTopicRequestSchema,
   isSignalTrackerRetryableDbErrorCode,
   signalTrackerApiErrorCodes,
@@ -25,6 +26,9 @@ describe("signal-tracker-shared public barrel", () => {
       "medium",
       "high"
     ]);
+    expect(signalTrackerRoutes.createEvidenceItem.path).toBe(
+      "/create-evidence-item"
+    );
     expect(
       createTopicRequestSchema.parse({
         title: " Topic ",
@@ -46,6 +50,21 @@ describe("signal-tracker-shared public barrel", () => {
       topicId: "topic-1",
       title: "Event",
       bodyMd: "Body"
+    });
+    expect(
+      createEvidenceItemRequestSchema.parse({
+        source: {
+          canonicalName: " Reuters ",
+          sourceType: "news"
+        },
+        title: " Evidence "
+      })
+    ).toMatchObject({
+      source: {
+        canonicalName: "Reuters",
+        sourceType: "news"
+      },
+      title: "Evidence"
     });
   });
 });

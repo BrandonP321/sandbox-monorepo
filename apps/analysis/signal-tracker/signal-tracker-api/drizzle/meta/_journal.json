@@ -29,6 +29,13 @@
       "when": 1777531386360,
       "tag": "0003_smiling_big_bertha",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1777617827346,
+      "tag": "0004_cheerful_shockwave",
+      "breakpoints": true
     }
   ]
 }

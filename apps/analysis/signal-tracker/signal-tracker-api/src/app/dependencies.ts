@@ -2,6 +2,8 @@ import type { AssessmentRepository } from "../domain/assessments/assessment-repo
 import { PostgresAssessmentRepository } from "../domain/assessments/postgres-assessment-repository";
 import type { EntryRepository } from "../domain/entries/entry-repository";
 import { PostgresEntryRepository } from "../domain/entries/postgres-entry-repository";
+import type { EvidenceRepository } from "../domain/evidence/evidence-repository";
+import { PostgresEvidenceRepository } from "../domain/evidence/postgres-evidence-repository";
 import { PostgresTopicRepository } from "../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../domain/topics/topic-repository";
 
@@ -9,6 +11,7 @@ export type SignalTrackerApiDependencies = {
   topicRepository: TopicRepository;
   entryRepository: EntryRepository;
   assessmentRepository: AssessmentRepository;
+  evidenceRepository: EvidenceRepository;
   createId?: () => string;
   generateId?: () => string;
   now?: () => Date;
@@ -20,6 +23,7 @@ export function createSignalTrackerApiDependencies(): SignalTrackerApiDependenci
   return {
     topicRepository,
     entryRepository: new PostgresEntryRepository(),
-    assessmentRepository: new PostgresAssessmentRepository()
+    assessmentRepository: new PostgresAssessmentRepository(),
+    evidenceRepository: new PostgresEvidenceRepository()
   };
 }

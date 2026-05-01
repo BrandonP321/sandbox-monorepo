@@ -1,6 +1,9 @@
 import type {
   AssessmentUpdate,
+  EvidenceItem,
+  EvidenceRecord,
   Entry,
+  Source,
   Topic
 } from "@repo/signal-tracker-shared";
 
@@ -12,6 +15,13 @@ import type {
   EntryRow,
   NewEntryRow
 } from "./entries/postgres-entry-repository";
+import type {
+  EvidenceItemRow,
+  EvidenceRows,
+  NewEvidenceItemRow,
+  NewSourceRow,
+  SourceRow
+} from "./evidence/postgres-evidence-repository";
 import { nullableTimestampToDate, toDate } from "./persistence/timestamps";
 import type { NewTopicRow, TopicRow } from "./topics/postgres-topic-repository";
 
@@ -224,4 +234,122 @@ export function newAssessmentRowsToRows(
       previousAssessmentEntryId: assessment.previousAssessmentEntryId ?? null
     }
   };
+}
+
+export function buildSourceFixture(overrides: Partial<Source> = {}): Source {
+  return {
+    id: "source-1",
+    canonicalName: "Reuters",
+    baseUrl: "https://www.reuters.com",
+    sourceType: "news",
+    notes: "Wire service",
+    createdAt: "2026-04-25T00:00:00.000Z",
+    updatedAt: "2026-04-25T00:00:00.000Z",
+    ...overrides
+  };
+}
+
+export function buildEvidenceItemFixture(
+  overrides: Partial<EvidenceItem> = {}
+): EvidenceItem {
+  return {
+    id: "evidence-1",
+    sourceId: "source-1",
+    canonicalUrl: "https://www.reuters.com/world/example",
+    title: "Court grants injunction",
+    author: "Jane Reporter",
+    publishedAt: "2026-04-24T00:00:00.000Z",
+    capturedAt: "2026-04-25T00:00:00.000Z",
+    contentType: "text/html",
+    language: "en",
+    snapshotHash: "sha256:abc123",
+    storageKey: "evidence/evidence-1.html",
+    metadata: { section: "World" },
+    createdAt: "2026-04-25T00:00:00.000Z",
+    updatedAt: "2026-04-25T00:00:00.000Z",
+    ...overrides
+  };
+}
+
+export function buildEvidenceRecordFixture(
+  overrides: Partial<EvidenceRecord> = {}
+): EvidenceRecord {
+  const source = overrides.source ?? buildSourceFixture();
+  const evidenceItem =
+    overrides.evidenceItem ?? buildEvidenceItemFixture({ sourceId: source.id });
+
+  return { source, evidenceItem };
+}
+
+export function sourceToRow(source: Source): SourceRow {
+  return {
+    id: source.id,
+    canonicalName: source.canonicalName,
+    baseUrl: source.baseUrl ?? null,
+    sourceType: source.sourceType,
+    notes: source.notes ?? null,
+    createdAt: toDate(source.createdAt),
+    updatedAt: toDate(source.updatedAt)
+  };
+}
+
+export function evidenceItemToRow(evidenceItem: EvidenceItem): EvidenceItemRow {
+  return {
+    id: evidenceItem.id,
+    sourceId: evidenceItem.sourceId,
+    canonicalUrl: evidenceItem.canonicalUrl ?? null,
+    title: evidenceItem.title,
+    author: evidenceItem.author ?? null,
+    publishedAt: nullableTimestampToDate(evidenceItem.publishedAt),
+    capturedAt: toDate(evidenceItem.capturedAt),
+    contentType: evidenceItem.contentType ?? null,
+    language: evidenceItem.language ?? null,
+    snapshotHash: evidenceItem.snapshotHash ?? null,
+    storageKey: evidenceItem.storageKey ?? null,
+    metadataJsonb: evidenceItem.metadata,
+    createdAt: toDate(evidenceItem.createdAt),
+    updatedAt: toDate(evidenceItem.updatedAt)
+  };
+}
+
+export function evidenceRecordToRows(
+  evidenceRecord: EvidenceRecord
+): EvidenceRows {
+  return {
+    source: sourceToRow(evidenceRecord.source),
+    evidenceItem: evidenceItemToRow(evidenceRecord.evidenceItem)
+  };
+}
+
+export function newEvidenceRowsToRows(
+  source: NewSourceRow,
+  evidenceItem: NewEvidenceItemRow
+): EvidenceRows {
+  const sourceRow: SourceRow = {
+    id: source.id,
+    canonicalName: source.canonicalName,
+    baseUrl: source.baseUrl ?? null,
+    sourceType: source.sourceType,
+    notes: source.notes ?? null,
+    createdAt: source.createdAt,
+    updatedAt: source.updatedAt
+  };
+  const evidenceItemRow: EvidenceItemRow = {
+    id: evidenceItem.id,
+    sourceId: evidenceItem.sourceId,
+    canonicalUrl: evidenceItem.canonicalUrl ?? null,
+    title: evidenceItem.title,
+    author: evidenceItem.author ?? null,
+    publishedAt: nullableTimestampToDate(evidenceItem.publishedAt),
+    capturedAt: evidenceItem.capturedAt,
+    contentType: evidenceItem.contentType ?? null,
+    language: evidenceItem.language ?? null,
+    snapshotHash: evidenceItem.snapshotHash ?? null,
+    storageKey: evidenceItem.storageKey ?? null,
+    metadataJsonb: evidenceItem.metadataJsonb ?? {},
+    createdAt: evidenceItem.createdAt,
+    updatedAt: evidenceItem.updatedAt
+  };
+
+  return { source: sourceRow, evidenceItem: evidenceItemRow };
 }

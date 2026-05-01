@@ -4,7 +4,8 @@ export const signalTrackerApiErrorCodes = {
   databaseWaking: "DATABASE_WAKING",
   requestTimeout: "REQUEST_TIMEOUT",
   topicNotFound: "TOPIC_NOT_FOUND",
-  eventEntryNotFound: "EVENT_ENTRY_NOT_FOUND"
+  eventEntryNotFound: "EVENT_ENTRY_NOT_FOUND",
+  evidenceItemNotFound: "EVIDENCE_ITEM_NOT_FOUND"
 } as const;
 
 export type SignalTrackerApiErrorCode =

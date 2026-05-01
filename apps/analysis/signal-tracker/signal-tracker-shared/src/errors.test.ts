@@ -19,6 +19,9 @@ describe("signalTracker API error conventions", () => {
     expect(signalTrackerApiErrorCodes.eventEntryNotFound).toBe(
       "EVENT_ENTRY_NOT_FOUND"
     );
+    expect(signalTrackerApiErrorCodes.evidenceItemNotFound).toBe(
+      "EVIDENCE_ITEM_NOT_FOUND"
+    );
     expect(
       isSignalTrackerRetryableDbErrorCode(
         signalTrackerApiErrorCodes.persistenceUnavailable
