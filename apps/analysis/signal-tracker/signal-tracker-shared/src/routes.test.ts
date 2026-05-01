@@ -83,6 +83,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/get-evidence-item"
     });
+    expect(signalTrackerRoutes.listEvidenceItems).toEqual({
+      method: "POST",
+      path: "/list-evidence-items"
+    });
     expect(signalTrackerRoutes.createEvidenceAnchor).toEqual({
       method: "POST",
       path: "/create-evidence-anchor"
@@ -137,6 +141,7 @@ describe("signalTrackerRoutes", () => {
       "createEvidenceItem",
       "captureEvidenceUrl",
       "getEvidenceItem",
+      "listEvidenceItems",
       "createEvidenceAnchor",
       "getEvidenceAnchor",
       "listEvidenceAnchorsForItem",
@@ -164,6 +169,7 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.createEvidenceItem,
       signalTrackerRoutes.captureEvidenceUrl,
       signalTrackerRoutes.getEvidenceItem,
+      signalTrackerRoutes.listEvidenceItems,
       signalTrackerRoutes.createEvidenceAnchor,
       signalTrackerRoutes.getEvidenceAnchor,
       signalTrackerRoutes.listEvidenceAnchorsForItem,

@@ -1,15 +1,21 @@
 import type {
   AssessmentUpdate,
   ArchiveTopicResponse,
+  AttachEntryCitationResponse,
   CaptureEvidenceUrlResponse,
   CreateAssessmentUpdateResponse,
   CreateEventEntryResponse,
   CreateReviewNoteResponse,
   CreateTopicResponse,
   DeleteTopicResponse,
+  DetachEntryCitationResponse,
+  EntryCitationRecord,
   Entry,
   GetTopicResponse,
   ListEventEntriesResponse,
+  ListEntryCitationsResponse,
+  ListEvidenceAnchorsForItemResponse,
+  ListEvidenceItemsResponse,
   ListReviewNotesResponse,
   ListTopicTimelineResponse,
   ListTopicsResponse,
@@ -28,8 +34,17 @@ import {
 
 import App from "./App";
 import { createAssessmentUpdate } from "./api/assessments";
+import {
+  attachEntryCitation,
+  detachEntryCitation,
+  listEntryCitations
+} from "./api/citations";
 import { SignalTrackerApiError } from "./api/client";
-import { captureEvidenceUrl } from "./api/evidence";
+import {
+  captureEvidenceUrl,
+  listEvidenceAnchorsForItem,
+  listEvidenceItems
+} from "./api/evidence";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import { listTopicTimeline } from "./api/timeline";
@@ -110,7 +125,21 @@ vi.mock("./api/evidence", async () => {
 
   return {
     ...actual,
-    captureEvidenceUrl: vi.fn()
+    captureEvidenceUrl: vi.fn(),
+    listEvidenceAnchorsForItem: vi.fn(),
+    listEvidenceItems: vi.fn()
+  };
+});
+
+vi.mock("./api/citations", async () => {
+  const actual =
+    await vi.importActual<typeof import("./api/citations")>("./api/citations");
+
+  return {
+    ...actual,
+    attachEntryCitation: vi.fn(),
+    detachEntryCitation: vi.fn(),
+    listEntryCitations: vi.fn()
   };
 });
 
@@ -331,6 +360,62 @@ const capturedEvidenceResponse: CaptureEvidenceUrlResponse = {
   }
 };
 
+const evidenceListResponse: ListEvidenceItemsResponse = {
+  evidence: [capturedEvidenceResponse]
+};
+
+const evidenceAnchorFixture = {
+  id: "anchor-1",
+  evidenceItemId: "evidence-1",
+  quoteText: "A federal court granted an injunction.",
+  locator: {},
+  createdAt: "2026-04-25T02:00:00.000Z",
+  updatedAt: "2026-04-25T02:00:00.000Z"
+};
+
+const evidenceAnchorsResponse: ListEvidenceAnchorsForItemResponse = {
+  anchors: [evidenceAnchorFixture]
+};
+
+const citationRecordFixture: EntryCitationRecord = {
+  citation: {
+    id: "citation-1",
+    entryId: "entry-1",
+    evidenceItemId: "evidence-1",
+    relationType: "supports",
+    note: "Supports the event wording.",
+    createdAt: "2026-04-25T03:00:00.000Z"
+  },
+  evidence: capturedEvidenceResponse,
+  anchor: null
+};
+
+const citationWithAnchorFixture: EntryCitationRecord = {
+  citation: {
+    ...citationRecordFixture.citation,
+    id: "citation-2",
+    evidenceAnchorId: "anchor-1"
+  },
+  evidence: capturedEvidenceResponse,
+  anchor: evidenceAnchorFixture
+};
+
+const emptyCitationResponse: ListEntryCitationsResponse = {
+  citations: []
+};
+
+const listCitationResponse: ListEntryCitationsResponse = {
+  citations: [citationRecordFixture]
+};
+
+const attachCitationResponse: AttachEntryCitationResponse = {
+  citation: citationWithAnchorFixture
+};
+
+const detachCitationResponse: DetachEntryCitationResponse = {
+  citation: citationRecordFixture
+};
+
 afterEach(() => {
   vi.clearAllMocks();
 });
@@ -348,6 +433,11 @@ const createReviewNoteMock = vi.mocked(createReviewNote);
 const listReviewNotesMock = vi.mocked(listReviewNotes);
 const createAssessmentUpdateMock = vi.mocked(createAssessmentUpdate);
 const captureEvidenceUrlMock = vi.mocked(captureEvidenceUrl);
+const listEvidenceItemsMock = vi.mocked(listEvidenceItems);
+const listEvidenceAnchorsForItemMock = vi.mocked(listEvidenceAnchorsForItem);
+const attachEntryCitationMock = vi.mocked(attachEntryCitation);
+const detachEntryCitationMock = vi.mocked(detachEntryCitation);
+const listEntryCitationsMock = vi.mocked(listEntryCitations);
 const listTopicTimelineMock = vi.mocked(listTopicTimeline);
 
 describe("App", () => {
@@ -366,6 +456,11 @@ describe("App", () => {
     listReviewNotesMock.mockResolvedValue(listReviewNotesResponse);
     createAssessmentUpdateMock.mockResolvedValue(assessmentUpdateResponse);
     captureEvidenceUrlMock.mockResolvedValue(capturedEvidenceResponse);
+    listEvidenceItemsMock.mockResolvedValue(evidenceListResponse);
+    listEvidenceAnchorsForItemMock.mockResolvedValue(evidenceAnchorsResponse);
+    attachEntryCitationMock.mockResolvedValue(attachCitationResponse);
+    detachEntryCitationMock.mockResolvedValue(detachCitationResponse);
+    listEntryCitationsMock.mockResolvedValue(emptyCitationResponse);
     listTopicTimelineMock.mockResolvedValue(listTopicTimelineResponse);
   });
 
@@ -943,8 +1038,174 @@ describe("App", () => {
       })
     ).toBeInTheDocument();
     expect(within(eventSection!).getByText("Reported")).toBeInTheDocument();
-    expect(within(eventSection!).getByText("Uncited")).toBeInTheDocument();
+    expect(
+      await within(eventSection!).findByText("Uncited")
+    ).toBeInTheDocument();
     expect(within(eventSection!).getByText("Apr 25, 2026")).toBeInTheDocument();
+  });
+
+  it("renders existing entry citations and removes a citation", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockResolvedValue({
+      entries: [eventEntryFixture]
+    });
+    listEntryCitationsMock.mockResolvedValue(listCitationResponse);
+
+    render(<App />);
+
+    const eventSection = (
+      await screen.findByRole("heading", {
+        name: "Topic events"
+      })
+    ).closest("section");
+
+    expect(eventSection).not.toBeNull();
+    expect(
+      await within(eventSection!).findByText("1 citation")
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(eventSection!).getByRole("button", {
+        name: "Manage citations"
+      })
+    );
+
+    expect(
+      await within(eventSection!).findByText("Supports the event wording.")
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(eventSection!).getByRole("button", { name: "Remove citation" })
+    );
+
+    await waitFor(() => {
+      expect(detachEntryCitationMock).toHaveBeenCalledWith(
+        { entryId: "entry-1", citationId: "citation-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(
+      await within(eventSection!).findByText("Uncited")
+    ).toBeInTheDocument();
+  });
+
+  it("attaches saved evidence to an entry citation", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockResolvedValue({
+      entries: [eventEntryFixture]
+    });
+
+    render(<App />);
+
+    const eventSection = (
+      await screen.findByRole("heading", {
+        name: "Topic events"
+      })
+    ).closest("section");
+
+    expect(eventSection).not.toBeNull();
+    expect(
+      await within(eventSection!).findByText("Uncited")
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(eventSection!).getByRole("button", {
+        name: "Manage citations"
+      })
+    );
+
+    fireEvent.change(
+      await within(eventSection!).findByLabelText("Saved evidence"),
+      {
+        target: { value: "evidence-1" }
+      }
+    );
+    expect(listEvidenceAnchorsForItemMock).toHaveBeenCalledWith(
+      { evidenceItemId: "evidence-1" },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    fireEvent.change(await within(eventSection!).findByLabelText("Anchor"), {
+      target: { value: "anchor-1" }
+    });
+    fireEvent.change(within(eventSection!).getByLabelText("Note"), {
+      target: { value: " Supports the source quote. " }
+    });
+    fireEvent.click(
+      within(eventSection!).getByRole("button", { name: "Attach citation" })
+    );
+
+    await waitFor(() => {
+      expect(attachEntryCitationMock).toHaveBeenCalledWith(
+        {
+          entryId: "entry-1",
+          evidenceItemId: "evidence-1",
+          evidenceAnchorId: "anchor-1",
+          relationType: "supports",
+          note: " Supports the source quote. "
+        },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(
+      await within(eventSection!).findByText("1 citation")
+    ).toBeInTheDocument();
+    expect(
+      within(eventSection!).getByText(/Quote: A federal court granted/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows no saved evidence state", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockResolvedValue({
+      entries: [eventEntryFixture]
+    });
+    listEvidenceItemsMock.mockResolvedValue({ evidence: [] });
+
+    render(<App />);
+
+    const eventSection = (
+      await screen.findByRole("heading", {
+        name: "Topic events"
+      })
+    ).closest("section");
+
+    expect(eventSection).not.toBeNull();
+    fireEvent.click(
+      within(eventSection!).getByRole("button", {
+        name: "Manage citations"
+      })
+    );
+    expect(
+      await within(eventSection!).findByText(/No saved evidence available/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows a citation API error state with retry", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listEventEntriesMock.mockResolvedValue({
+      entries: [eventEntryFixture]
+    });
+    listEntryCitationsMock.mockRejectedValueOnce(
+      new Error("database unavailable")
+    );
+
+    render(<App />);
+
+    const eventSection = (
+      await screen.findByRole("heading", {
+        name: "Topic events"
+      })
+    ).closest("section");
+
+    expect(eventSection).not.toBeNull();
+    expect(
+      await within(eventSection!).findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(eventSection!).getByRole("button", { name: "Try again" })
+    );
+    expect(
+      await within(eventSection!).findByText("Uncited")
+    ).toBeInTheDocument();
   });
 
   it("opens and cancels the collapsible event form", async () => {

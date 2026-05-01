@@ -10,6 +10,8 @@ import {
   evidenceItemSchema,
   getEvidenceItemRequestSchema,
   getEvidenceItemResponseSchema,
+  listEvidenceItemsRequestSchema,
+  listEvidenceItemsResponseSchema,
   sourceSchema,
   sourceTypeSchema
 } from "./evidence-contracts.js";
@@ -222,6 +224,15 @@ describe("evidence contracts", () => {
     expect(createEvidenceItemResponseSchema.parse(record)).toEqual(record);
     expect(captureEvidenceUrlResponseSchema.parse(record)).toEqual(record);
     expect(getEvidenceItemResponseSchema.parse(record)).toEqual(record);
+    expect(
+      listEvidenceItemsRequestSchema.parse({ query: " Reuters " })
+    ).toEqual({ query: "Reuters" });
+    expect(listEvidenceItemsRequestSchema.parse({})).toEqual({});
+    expect(
+      listEvidenceItemsResponseSchema.parse({ evidence: [record] })
+    ).toEqual({
+      evidence: [record]
+    });
   });
 
   it("validates quote anchors with trimmed text", () => {

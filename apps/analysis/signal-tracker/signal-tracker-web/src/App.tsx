@@ -8,6 +8,7 @@ import {
   type AssessmentConfidenceLabel,
   type AssessmentUpdate,
   type ArchiveTopicResponse,
+  type AttachEntryCitationResponse,
   type CaptureEvidenceUrlRequest,
   type CaptureEvidenceUrlResponse,
   type CreateAssessmentUpdateRequest,
@@ -20,10 +21,17 @@ import {
   type CreateTopicRequest,
   type CreateTopicResponse,
   type DeleteTopicResponse,
+  type DetachEntryCitationResponse,
   type Entry,
+  type EntryCitationRecord,
   type EntryEpistemicStatus,
+  type EvidenceAnchor,
+  type EvidenceRecord,
   type GetTopicResponse,
   type ListEventEntriesResponse,
+  type ListEntryCitationsResponse,
+  type ListEvidenceAnchorsForItemResponse,
+  type ListEvidenceItemsResponse,
   type ListReviewNotesResponse,
   type ListTopicTimelineResponse,
   type ListTopicsResponse,
@@ -45,7 +53,16 @@ import {
 
 import { SignalTrackerApiError } from "./api/client";
 import { createAssessmentUpdate } from "./api/assessments";
-import { captureEvidenceUrl } from "./api/evidence";
+import {
+  captureEvidenceUrl,
+  listEvidenceAnchorsForItem,
+  listEvidenceItems
+} from "./api/evidence";
+import {
+  attachEntryCitation,
+  detachEntryCitation,
+  listEntryCitations
+} from "./api/citations";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import { listTopicTimeline } from "./api/timeline";
@@ -118,6 +135,12 @@ type AssessmentFieldErrors = Partial<
   Record<keyof AssessmentFormValues, string>
 >;
 
+type CitationFormValues = {
+  evidenceItemId: string;
+  evidenceAnchorId: string;
+  note: string;
+};
+
 type TopicTimelineMode = "recent" | "full";
 
 const defaultTopicFormValues: TopicFormValues = {
@@ -164,6 +187,12 @@ const defaultAssessmentFormValues: AssessmentFormValues = {
   probabilityPct: "",
   resolutionCriteria: "",
   targetResolutionDate: ""
+};
+
+const defaultCitationFormValues: CitationFormValues = {
+  evidenceItemId: "",
+  evidenceAnchorId: "",
+  note: ""
 };
 
 const assessmentConfidenceOptions = assessmentConfidenceLabelSchema.options.map(
@@ -1988,6 +2017,475 @@ function EvidenceCaptureResult({
   );
 }
 
+function EntryCitationPanel({ entry }: { entry: Entry }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [citationState, setCitationState] = useState<
+    DbBackedRequestState<ListEntryCitationsResponse>
+  >({ status: "loading" });
+  const [evidenceListState, setEvidenceListState] = useState<
+    DbBackedRequestState<ListEvidenceItemsResponse>
+  >({ status: "idle" });
+  const [anchorListState, setAnchorListState] = useState<
+    DbBackedRequestState<ListEvidenceAnchorsForItemResponse>
+  >({ status: "idle" });
+  const [mutationState, setMutationState] = useState<
+    DbBackedRequestState<
+      AttachEntryCitationResponse | DetachEntryCitationResponse
+    >
+  >({ status: "idle" });
+  const [citationForm, setCitationForm] = useState<CitationFormValues>(
+    defaultCitationFormValues
+  );
+  const citationRunId = useRef(0);
+  const evidenceRunId = useRef(0);
+  const anchorRunId = useRef(0);
+
+  const isMutating =
+    mutationState.status === "loading" || mutationState.status === "waking";
+  const selectedEvidence =
+    evidenceListState.status === "success"
+      ? evidenceListState.data.evidence.find(
+          (record) => record.evidenceItem.id === citationForm.evidenceItemId
+        )
+      : undefined;
+  const anchorOptions =
+    anchorListState.status === "success" ? anchorListState.data.anchors : [];
+  const citations =
+    citationState.status === "success" ? citationState.data.citations : [];
+  const canAttach = citationForm.evidenceItemId !== "" && !isMutating;
+
+  const loadCitations = useCallback(async () => {
+    const runId = citationRunId.current + 1;
+    citationRunId.current = runId;
+    setCitationState({ status: "loading" });
+
+    try {
+      const response = await listEntryCitations(
+        { entryId: entry.id },
+        {
+          onProgress: (progress) => {
+            if (citationRunId.current === runId) {
+              setCitationState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (citationRunId.current === runId) {
+        setCitationState({ status: "success", data: response });
+      }
+    } catch (error) {
+      if (citationRunId.current === runId) {
+        setCitationState({ status: "error", error });
+      }
+    }
+  }, [entry.id]);
+
+  const loadEvidenceItems = useCallback(async () => {
+    const runId = evidenceRunId.current + 1;
+    evidenceRunId.current = runId;
+    setEvidenceListState({ status: "loading" });
+
+    try {
+      const response = await listEvidenceItems(
+        { query: undefined },
+        {
+          onProgress: (progress) => {
+            if (evidenceRunId.current === runId) {
+              setEvidenceListState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (evidenceRunId.current === runId) {
+        setEvidenceListState({ status: "success", data: response });
+      }
+    } catch (error) {
+      if (evidenceRunId.current === runId) {
+        setEvidenceListState({ status: "error", error });
+      }
+    }
+  }, []);
+
+  const loadAnchors = useCallback(async (evidenceItemId: string) => {
+    const runId = anchorRunId.current + 1;
+    anchorRunId.current = runId;
+    setAnchorListState({ status: "loading" });
+
+    try {
+      const response = await listEvidenceAnchorsForItem(
+        { evidenceItemId },
+        {
+          onProgress: (progress) => {
+            if (anchorRunId.current === runId) {
+              setAnchorListState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (anchorRunId.current === runId) {
+        setAnchorListState({ status: "success", data: response });
+      }
+    } catch (error) {
+      if (anchorRunId.current === runId) {
+        setAnchorListState({ status: "error", error });
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadCitations();
+
+    return () => {
+      citationRunId.current += 1;
+    };
+  }, [loadCitations]);
+
+  useEffect(() => {
+    if (!isOpen || evidenceListState.status !== "idle") {
+      return;
+    }
+
+    void loadEvidenceItems();
+  }, [evidenceListState.status, isOpen, loadEvidenceItems]);
+
+  useEffect(() => {
+    if (!isOpen || !citationForm.evidenceItemId) {
+      anchorRunId.current += 1;
+      setAnchorListState({ status: "idle" });
+      return;
+    }
+
+    void loadAnchors(citationForm.evidenceItemId);
+  }, [citationForm.evidenceItemId, isOpen, loadAnchors]);
+
+  function updateEvidenceItemId(evidenceItemId: string) {
+    setCitationForm((currentValues) => ({
+      ...currentValues,
+      evidenceItemId,
+      evidenceAnchorId: ""
+    }));
+    setMutationState({ status: "idle" });
+  }
+
+  function updateCitationForm<FieldName extends keyof CitationFormValues>(
+    fieldName: FieldName,
+    value: CitationFormValues[FieldName]
+  ) {
+    setCitationForm((currentValues) => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+    setMutationState({ status: "idle" });
+  }
+
+  async function submitCitationAttach(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    await submitCitationAttachRequest();
+  }
+
+  async function submitCitationAttachRequest() {
+    if (!citationForm.evidenceItemId) {
+      return;
+    }
+
+    setMutationState({ status: "loading" });
+
+    try {
+      const response = await attachEntryCitation(
+        {
+          entryId: entry.id,
+          evidenceItemId: citationForm.evidenceItemId,
+          evidenceAnchorId: citationForm.evidenceAnchorId || undefined,
+          relationType: "supports",
+          note: citationForm.note || undefined
+        },
+        {
+          onProgress: (progress) => {
+            setMutationState({ status: progress.phase });
+          }
+        }
+      );
+
+      setMutationState({ status: "success", data: response });
+      setCitationForm(defaultCitationFormValues);
+      setCitationState((currentState) => {
+        const existingCitations =
+          currentState.status === "success" ? currentState.data.citations : [];
+
+        return {
+          status: "success",
+          data: {
+            citations: [
+              response.citation,
+              ...existingCitations.filter(
+                (record) => record.citation.id !== response.citation.citation.id
+              )
+            ]
+          }
+        };
+      });
+    } catch (error) {
+      setMutationState({ status: "error", error });
+    }
+  }
+
+  async function submitCitationDetach(citationId: string) {
+    setMutationState({ status: "loading" });
+
+    try {
+      const response = await detachEntryCitation(
+        {
+          entryId: entry.id,
+          citationId
+        },
+        {
+          onProgress: (progress) => {
+            setMutationState({ status: progress.phase });
+          }
+        }
+      );
+
+      setMutationState({ status: "success", data: response });
+      setCitationState((currentState) => {
+        const existingCitations =
+          currentState.status === "success" ? currentState.data.citations : [];
+
+        return {
+          status: "success",
+          data: {
+            citations: existingCitations.filter(
+              (record) => record.citation.id !== citationId
+            )
+          }
+        };
+      });
+    } catch (error) {
+      setMutationState({ status: "error", error });
+    }
+  }
+
+  return (
+    <div className="entry-citations">
+      <div className="entry-citations__summary">
+        <span className="entry-citations__badge">
+          {formatCitationBadge(citationState)}
+        </span>
+        <button
+          className="text-action"
+          type="button"
+          onClick={() => setIsOpen((currentValue) => !currentValue)}
+        >
+          {isOpen ? "Hide citations" : "Manage citations"}
+        </button>
+      </div>
+
+      {citationState.status === "error" ? (
+        <DbWakeUpStatus
+          state={citationState}
+          onRetry={() => void loadCitations()}
+        />
+      ) : null}
+
+      {isOpen ? (
+        <div className="entry-citations__panel">
+          {citationState.status === "loading" ? (
+            <p className="status-text" role="status">
+              Loading citations...
+            </p>
+          ) : null}
+          <DbWakeUpStatus
+            state={citationState}
+            onRetry={() => void loadCitations()}
+          />
+
+          {citationState.status === "success" && citations.length > 0 ? (
+            <ul className="entry-citations__list" aria-label="Entry citations">
+              {citations.map((record) => (
+                <CitationListItem
+                  key={record.citation.id}
+                  record={record}
+                  isMutating={isMutating}
+                  onDetach={() => void submitCitationDetach(record.citation.id)}
+                />
+              ))}
+            </ul>
+          ) : null}
+
+          {citationState.status === "success" && citations.length === 0 ? (
+            <p className="entry-citations__empty">
+              No citations attached to this entry yet.
+            </p>
+          ) : null}
+
+          {evidenceListState.status === "loading" ? (
+            <p className="status-text" role="status">
+              Loading saved evidence...
+            </p>
+          ) : null}
+          <DbWakeUpStatus
+            state={evidenceListState}
+            onRetry={() => void loadEvidenceItems()}
+          />
+
+          {evidenceListState.status === "success" &&
+          evidenceListState.data.evidence.length === 0 ? (
+            <p className="entry-citations__empty">
+              No saved evidence available. Save URL evidence before attaching a
+              citation.
+            </p>
+          ) : null}
+
+          {evidenceListState.status === "success" &&
+          evidenceListState.data.evidence.length > 0 ? (
+            <form
+              className="entry-citations__form"
+              aria-label={`Attach citation to ${entry.title}`}
+              onSubmit={(event) => void submitCitationAttach(event)}
+            >
+              <label className="form-field" htmlFor={`${entry.id}-evidence`}>
+                <span>Saved evidence</span>
+                <select
+                  id={`${entry.id}-evidence`}
+                  value={citationForm.evidenceItemId}
+                  disabled={isMutating}
+                  onChange={(event) => updateEvidenceItemId(event.target.value)}
+                >
+                  <option value="">Choose saved evidence</option>
+                  {evidenceListState.data.evidence.map((record) => (
+                    <option
+                      key={record.evidenceItem.id}
+                      value={record.evidenceItem.id}
+                    >
+                      {formatEvidenceOption(record)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {selectedEvidence ? (
+                <p className="entry-citations__selected-evidence">
+                  {formatEvidenceDetail(selectedEvidence)}
+                </p>
+              ) : null}
+
+              <label className="form-field" htmlFor={`${entry.id}-anchor`}>
+                <span>Anchor</span>
+                <select
+                  id={`${entry.id}-anchor`}
+                  value={citationForm.evidenceAnchorId}
+                  disabled={
+                    isMutating ||
+                    !citationForm.evidenceItemId ||
+                    anchorListState.status !== "success" ||
+                    anchorOptions.length === 0
+                  }
+                  onChange={(event) =>
+                    updateCitationForm("evidenceAnchorId", event.target.value)
+                  }
+                >
+                  <option value="">Whole evidence item</option>
+                  {anchorOptions.map((anchor) => (
+                    <option key={anchor.id} value={anchor.id}>
+                      {formatEvidenceAnchor(anchor)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              {anchorListState.status === "loading" ? (
+                <p className="status-text" role="status">
+                  Loading anchors...
+                </p>
+              ) : null}
+              <DbWakeUpStatus
+                state={anchorListState}
+                onRetry={() => {
+                  if (citationForm.evidenceItemId) {
+                    void loadAnchors(citationForm.evidenceItemId);
+                  }
+                }}
+              />
+
+              <label
+                className="form-field"
+                htmlFor={`${entry.id}-citation-note`}
+              >
+                <span>Note</span>
+                <textarea
+                  id={`${entry.id}-citation-note`}
+                  rows={2}
+                  value={citationForm.note}
+                  disabled={isMutating}
+                  onChange={(event) =>
+                    updateCitationForm("note", event.target.value)
+                  }
+                />
+              </label>
+
+              <button
+                className="secondary-action"
+                type="submit"
+                disabled={!canAttach}
+              >
+                {isMutating ? "Saving citation..." : "Attach citation"}
+              </button>
+
+              <DbWakeUpStatus
+                state={mutationState}
+                onRetry={() => void submitCitationAttachRequest()}
+              />
+            </form>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function CitationListItem({
+  record,
+  isMutating,
+  onDetach
+}: {
+  record: EntryCitationRecord;
+  isMutating: boolean;
+  onDetach: () => void;
+}) {
+  return (
+    <li className="entry-citations__item">
+      <div>
+        <strong>{record.evidence.evidenceItem.title}</strong>
+        <p>
+          {formatCitationRelation(record.citation.relationType)} evidence from{" "}
+          {record.evidence.source.canonicalName}
+          {record.anchor ? `, ${formatEvidenceAnchor(record.anchor)}` : ""}.
+        </p>
+        {record.evidence.evidenceItem.canonicalUrl ? (
+          <a
+            href={record.evidence.evidenceItem.canonicalUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            {record.evidence.evidenceItem.canonicalUrl}
+          </a>
+        ) : null}
+        {record.citation.note ? <p>{record.citation.note}</p> : null}
+      </div>
+      <button
+        className="text-action"
+        type="button"
+        disabled={isMutating}
+        onClick={onDetach}
+      >
+        Remove citation
+      </button>
+    </li>
+  );
+}
+
 function TopicTimelineSection({
   timelineState,
   mode,
@@ -2087,7 +2585,6 @@ function TimelineItemCard({ item }: { item: TopicTimelineItem }) {
         ) : (
           <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
         )}
-        <span>Uncited</span>
       </div>
       <h4>{entry.title}</h4>
       <p>
@@ -2105,6 +2602,7 @@ function TimelineItemCard({ item }: { item: TopicTimelineItem }) {
           />
         </>
       ) : null}
+      <EntryCitationPanel entry={entry} />
     </article>
   );
 }
@@ -2224,10 +2722,10 @@ function ReviewNotesSection({
                   {formatTopicDate(entry.sortAt)}
                 </time>
                 <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
-                <span>Uncited</span>
               </div>
               <h4>{entry.title}</h4>
               <p>{entry.bodyMd}</p>
+              <EntryCitationPanel entry={entry} />
             </article>
           ))}
         </div>
@@ -2351,10 +2849,10 @@ function EventEntriesSection({
                   {formatTopicDate(entry.sortAt)}
                 </time>
                 <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
-                <span>Uncited</span>
               </div>
               <h4>{entry.title}</h4>
               <p>{entry.bodyMd}</p>
+              <EntryCitationPanel entry={entry} />
             </article>
           ))}
         </div>
@@ -2442,6 +2940,7 @@ function CurrentAssessmentSection({
             title="Indicators"
             items={currentAssessment.indicators}
           />
+          <EntryCitationPanel entry={currentAssessment.entry} />
           {currentAssessment.resolutionCriteria ||
           currentAssessment.targetResolvesAt ? (
             <dl className="current-assessment-card__resolution">
@@ -3155,6 +3654,62 @@ function formatTopicDate(value: string): string {
   }
 
   return dateFormatter.format(date);
+}
+
+function formatCitationBadge(
+  state: DbBackedRequestState<ListEntryCitationsResponse>
+): string {
+  if (state.status === "success") {
+    const count = state.data.citations.length;
+
+    if (count === 0) {
+      return "Uncited";
+    }
+
+    return count === 1 ? "1 citation" : `${count} citations`;
+  }
+
+  if (state.status === "error") {
+    return "Citation status unavailable";
+  }
+
+  return "Checking citations";
+}
+
+function formatCitationRelation(
+  relationType: EntryCitationRecord["citation"]["relationType"]
+): string {
+  if (relationType === "source_for") {
+    return "Source for";
+  }
+
+  return relationType.charAt(0).toUpperCase() + relationType.slice(1);
+}
+
+function formatEvidenceOption(record: EvidenceRecord): string {
+  return `${record.evidenceItem.title} - ${record.source.canonicalName}`;
+}
+
+function formatEvidenceDetail(record: EvidenceRecord): string {
+  return record.evidenceItem.canonicalUrl
+    ? `${record.source.canonicalName}: ${record.evidenceItem.canonicalUrl}`
+    : record.source.canonicalName;
+}
+
+function formatEvidenceAnchor(anchor: EvidenceAnchor): string {
+  if (anchor.quoteText) {
+    return `Quote: ${anchor.quoteText}`;
+  }
+
+  if (anchor.pageLabel) {
+    return `Page ${anchor.pageLabel}`;
+  }
+
+  if (anchor.startPos !== undefined && anchor.endPos !== undefined) {
+    return `Text range ${anchor.startPos}-${anchor.endPos}`;
+  }
+
+  return "Anchor details";
 }
 
 function toEventSortAt(sortDate: string): string {

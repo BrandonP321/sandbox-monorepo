@@ -2,10 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { postSignalTrackerDbBackedApi } from "./db-backed-request";
 import {
-  captureEvidenceUrl,
-  listEvidenceAnchorsForItem,
-  listEvidenceItems
-} from "./evidence";
+  attachEntryCitation,
+  detachEntryCitation,
+  listEntryCitations
+} from "./citations";
 
 vi.mock("./db-backed-request", async () => {
   const actual = await vi.importActual<typeof import("./db-backed-request")>(
@@ -22,43 +22,49 @@ const postSignalTrackerDbBackedApiMock = vi.mocked(
   postSignalTrackerDbBackedApi
 );
 
-describe("evidence API wrappers", () => {
-  it("captures URL evidence through the DB-backed API path", async () => {
+describe("citation API wrappers", () => {
+  it("attaches entry citations through the DB-backed API path", async () => {
     const request = {
-      url: "https://www.reuters.com/world/example"
+      entryId: "entry-1",
+      evidenceItemId: "evidence-1",
+      relationType: "supports" as const,
+      note: undefined
     };
     const options = { wakeUpDelayMs: 25 };
 
-    await captureEvidenceUrl(request, options);
+    await attachEntryCitation(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      "captureEvidenceUrl",
+      "attachEntryCitation",
       request,
       options
     );
   });
 
-  it("lists evidence items through the DB-backed API path", async () => {
-    const request = { query: "reuters" };
+  it("detaches entry citations through the DB-backed API path", async () => {
+    const request = {
+      entryId: "entry-1",
+      citationId: "citation-1"
+    };
     const options = { requestTimeoutMs: 50 };
 
-    await listEvidenceItems(request, options);
+    await detachEntryCitation(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      "listEvidenceItems",
+      "detachEntryCitation",
       request,
       options
     );
   });
 
-  it("lists evidence anchors through the DB-backed API path", async () => {
-    const request = { evidenceItemId: "evidence-1" };
+  it("lists entry citations through the DB-backed API path", async () => {
+    const request = { entryId: "entry-1" };
     const options = { requestTimeoutMs: 50 };
 
-    await listEvidenceAnchorsForItem(request, options);
+    await listEntryCitations(request, options);
 
     expect(postSignalTrackerDbBackedApiMock).toHaveBeenCalledWith(
-      "listEvidenceAnchorsForItem",
+      "listEntryCitations",
       request,
       options
     );

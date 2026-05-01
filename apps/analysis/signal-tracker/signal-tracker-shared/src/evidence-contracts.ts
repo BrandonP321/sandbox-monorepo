@@ -130,6 +130,20 @@ export type GetEvidenceItemResponse = z.infer<
   typeof getEvidenceItemResponseSchema
 >;
 
+export const listEvidenceItemsRequestSchema = z.object({
+  query: optionalTrimmedString
+});
+export type ListEvidenceItemsRequest = z.infer<
+  typeof listEvidenceItemsRequestSchema
+>;
+
+export const listEvidenceItemsResponseSchema = z.object({
+  evidence: z.array(evidenceRecordSchema)
+});
+export type ListEvidenceItemsResponse = z.infer<
+  typeof listEvidenceItemsResponseSchema
+>;
+
 function hasLocatorFields(anchor: EvidenceAnchorLocatorFields): boolean {
   return (
     anchor.quoteText !== undefined ||

@@ -272,6 +272,26 @@ export class FakeEvidenceRowStore implements EvidenceRowStore {
     return this.rows.get(id);
   }
 
+  async selectEvidence(
+    options: { query?: string } = {}
+  ): Promise<EvidenceRows[]> {
+    const query = options.query?.toLocaleLowerCase();
+
+    return Array.from(this.rows.values())
+      .filter((rows) => {
+        if (!query) {
+          return true;
+        }
+
+        return [
+          rows.evidenceItem.title,
+          rows.evidenceItem.canonicalUrl ?? "",
+          rows.source.canonicalName
+        ].some((value) => value.toLocaleLowerCase().includes(query));
+      })
+      .sort(compareEvidenceRowsForList);
+  }
+
   seed(record: EvidenceRecord): void;
   seed(rows: EvidenceRows): void;
   seed(recordOrRows: EvidenceRecord | EvidenceRows): void {
@@ -522,6 +542,29 @@ function compareEvidenceAnchorRowsForList(
   }
 
   return left.id.localeCompare(right.id);
+}
+
+function compareEvidenceRowsForList(
+  left: EvidenceRows,
+  right: EvidenceRows
+): number {
+  const capturedAtComparison =
+    getTime(right.evidenceItem.capturedAt) -
+    getTime(left.evidenceItem.capturedAt);
+
+  if (capturedAtComparison !== 0) {
+    return capturedAtComparison;
+  }
+
+  const createdAtComparison =
+    getTime(right.evidenceItem.createdAt) -
+    getTime(left.evidenceItem.createdAt);
+
+  if (createdAtComparison !== 0) {
+    return createdAtComparison;
+  }
+
+  return left.evidenceItem.id.localeCompare(right.evidenceItem.id);
 }
 
 function compareEntryCitationRowsForList(

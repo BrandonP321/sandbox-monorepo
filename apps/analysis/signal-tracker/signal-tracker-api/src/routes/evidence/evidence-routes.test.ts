@@ -10,6 +10,7 @@ import { createCreateEvidenceItemHandler } from "./create-evidence-item";
 import { createGetEvidenceAnchorHandler } from "./get-evidence-anchor";
 import { createGetEvidenceItemHandler } from "./get-evidence-item";
 import { createListEvidenceAnchorsForItemHandler } from "./list-evidence-anchors-for-item";
+import { createListEvidenceItemsHandler } from "./list-evidence-items";
 
 describe("evidence routes", () => {
   it("creates manual evidence with a nested source", async () => {
@@ -116,7 +117,8 @@ describe("evidence routes", () => {
         }),
         findById: vi.fn(
           async (): Promise<EvidenceRecord | undefined> => undefined
-        )
+        ),
+        list: vi.fn(async () => [])
       }
     });
 
@@ -224,7 +226,8 @@ describe("evidence routes", () => {
         }),
         findById: vi.fn(
           async (): Promise<EvidenceRecord | undefined> => undefined
-        )
+        ),
+        list: vi.fn(async () => [])
       }
     });
 
@@ -289,6 +292,93 @@ describe("evidence routes", () => {
     ).rejects.toMatchObject({
       code: "EVIDENCE_ITEM_NOT_FOUND",
       statusCode: 404
+    });
+  });
+
+  it("lists evidence items with newest captures first and query filtering", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const olderRecord: EvidenceRecord = {
+      source: {
+        id: "source-1",
+        canonicalName: "Reuters",
+        baseUrl: "https://www.reuters.com",
+        sourceType: "news",
+        createdAt: "2026-04-24T00:00:00.000Z",
+        updatedAt: "2026-04-24T00:00:00.000Z"
+      },
+      evidenceItem: {
+        id: "evidence-1",
+        sourceId: "source-1",
+        canonicalUrl: "https://www.reuters.com/world/example",
+        title: "Court grants injunction",
+        capturedAt: "2026-04-24T00:00:00.000Z",
+        metadata: {},
+        createdAt: "2026-04-24T00:00:00.000Z",
+        updatedAt: "2026-04-24T00:00:00.000Z"
+      }
+    };
+    const newerRecord: EvidenceRecord = {
+      source: {
+        id: "source-2",
+        canonicalName: "Federal Register",
+        baseUrl: "https://www.federalregister.gov",
+        sourceType: "government",
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-26T00:00:00.000Z"
+      },
+      evidenceItem: {
+        id: "evidence-2",
+        sourceId: "source-2",
+        canonicalUrl: "https://www.federalregister.gov/documents/example",
+        title: "Agency releases proposed rule",
+        capturedAt: "2026-04-26T00:00:00.000Z",
+        metadata: {},
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-26T00:00:00.000Z"
+      }
+    };
+    await evidenceRepository.create(olderRecord);
+    await evidenceRepository.create(newerRecord);
+    const handler = createListEvidenceItemsHandler({ evidenceRepository });
+
+    const listResult = await handler({
+      method: "POST",
+      path: "/list-evidence-items",
+      body: JSON.stringify({})
+    });
+    const queryResult = await handler({
+      method: "POST",
+      path: "/list-evidence-items",
+      body: JSON.stringify({ query: " reuters " })
+    });
+
+    expect(listResult.statusCode).toBe(200);
+    expect(JSON.parse(listResult.body)).toEqual({
+      evidence: [newerRecord, olderRecord]
+    });
+    expect(JSON.parse(queryResult.body)).toEqual({
+      evidence: [olderRecord]
+    });
+  });
+
+  it("returns persistence unavailable when evidence list storage fails", async () => {
+    const handler = createListEvidenceItemsHandler({
+      evidenceRepository: {
+        list: vi.fn(async () => {
+          throw new Error("database unavailable");
+        })
+      }
+    });
+
+    await expect(
+      handler({
+        method: "POST",
+        path: "/list-evidence-items",
+        body: JSON.stringify({})
+      })
+    ).rejects.toMatchObject({
+      code: "PERSISTENCE_UNAVAILABLE",
+      statusCode: 503
     });
   });
 

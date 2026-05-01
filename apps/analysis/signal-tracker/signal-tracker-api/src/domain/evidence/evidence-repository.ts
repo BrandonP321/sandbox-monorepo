@@ -1,8 +1,13 @@
 import type { EvidenceRecord } from "@repo/signal-tracker-shared";
 
+export type ListEvidenceOptions = {
+  query?: string;
+};
+
 export type EvidenceRepository = {
   create(record: EvidenceRecord): Promise<EvidenceRecord>;
   findById(id: string): Promise<EvidenceRecord | undefined>;
+  list(options?: ListEvidenceOptions): Promise<EvidenceRecord[]>;
 };
 
 export class InMemoryEvidenceRepository implements EvidenceRepository {
@@ -41,6 +46,30 @@ export class InMemoryEvidenceRepository implements EvidenceRepository {
     const source = this.sources.get(evidenceItem.sourceId);
 
     return source ? { source, evidenceItem } : undefined;
+  }
+
+  async list(options: ListEvidenceOptions = {}): Promise<EvidenceRecord[]> {
+    const query = options.query?.toLocaleLowerCase();
+
+    return Array.from(this.evidenceItems.values())
+      .map((evidenceItem) => {
+        const source = this.sources.get(evidenceItem.sourceId);
+
+        return source ? { source, evidenceItem } : undefined;
+      })
+      .filter((record): record is EvidenceRecord => record !== undefined)
+      .filter((record) => {
+        if (!query) {
+          return true;
+        }
+
+        return [
+          record.evidenceItem.title,
+          record.evidenceItem.canonicalUrl ?? "",
+          record.source.canonicalName
+        ].some((value) => value.toLocaleLowerCase().includes(query));
+      })
+      .sort(compareEvidenceRecordsForList);
   }
 
   private findExistingEvidence(
@@ -83,4 +112,27 @@ export class InMemoryEvidenceRepository implements EvidenceRepository {
 
     return undefined;
   }
+}
+
+function compareEvidenceRecordsForList(
+  left: EvidenceRecord,
+  right: EvidenceRecord
+): number {
+  const capturedAtComparison =
+    new Date(right.evidenceItem.capturedAt).getTime() -
+    new Date(left.evidenceItem.capturedAt).getTime();
+
+  if (capturedAtComparison !== 0) {
+    return capturedAtComparison;
+  }
+
+  const createdAtComparison =
+    new Date(right.evidenceItem.createdAt).getTime() -
+    new Date(left.evidenceItem.createdAt).getTime();
+
+  if (createdAtComparison !== 0) {
+    return createdAtComparison;
+  }
+
+  return left.evidenceItem.id.localeCompare(right.evidenceItem.id);
 }

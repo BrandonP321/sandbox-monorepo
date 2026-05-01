@@ -97,4 +97,46 @@ describe("PostgresEvidenceRepository", () => {
       }
     });
   });
+
+  it("lists evidence records by newest capture and query", async () => {
+    const store = new FakeEvidenceRowStore();
+    const repository = new PostgresEvidenceRepository(store);
+    const olderRecord = buildEvidenceRecordFixture({
+      evidenceItem: buildEvidenceItemFixture({
+        id: "evidence-1",
+        title: "Court grants injunction",
+        capturedAt: "2026-04-24T00:00:00.000Z",
+        createdAt: "2026-04-24T00:00:00.000Z",
+        updatedAt: "2026-04-24T00:00:00.000Z"
+      })
+    });
+    const newerRecord = buildEvidenceRecordFixture({
+      source: buildSourceFixture({
+        id: "source-2",
+        canonicalName: "Federal Register",
+        baseUrl: "https://www.federalregister.gov",
+        sourceType: "government"
+      }),
+      evidenceItem: buildEvidenceItemFixture({
+        id: "evidence-2",
+        sourceId: "source-2",
+        canonicalUrl: "https://www.federalregister.gov/documents/example",
+        title: "Agency releases proposed rule",
+        capturedAt: "2026-04-26T00:00:00.000Z",
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-26T00:00:00.000Z"
+      })
+    });
+
+    await repository.create(olderRecord);
+    await repository.create(newerRecord);
+
+    await expect(repository.list()).resolves.toEqual([
+      newerRecord,
+      olderRecord
+    ]);
+    await expect(repository.list({ query: "reuters" })).resolves.toEqual([
+      olderRecord
+    ]);
+  });
 });

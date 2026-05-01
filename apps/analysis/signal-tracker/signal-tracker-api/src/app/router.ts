@@ -18,6 +18,7 @@ import { createCreateEvidenceItemHandler } from "../routes/evidence/create-evide
 import { createGetEvidenceAnchorHandler } from "../routes/evidence/get-evidence-anchor";
 import { createGetEvidenceItemHandler } from "../routes/evidence/get-evidence-item";
 import { createListEvidenceAnchorsForItemHandler } from "../routes/evidence/list-evidence-anchors-for-item";
+import { createListEvidenceItemsHandler } from "../routes/evidence/list-evidence-items";
 import { createCreateEventEntryHandler } from "../routes/event-entries/create-event-entry";
 import { createGetEventEntryHandler } from "../routes/event-entries/get-event-entry";
 import { createListEventEntriesHandler } from "../routes/event-entries/list-event-entries";
@@ -110,6 +111,9 @@ function createRouteHandlers(
       now: dependencies.now
     }),
     getEvidenceItem: createGetEvidenceItemHandler({
+      evidenceRepository: dependencies.evidenceRepository
+    }),
+    listEvidenceItems: createListEvidenceItemsHandler({
       evidenceRepository: dependencies.evidenceRepository
     }),
     createEvidenceAnchor: createCreateEvidenceAnchorHandler({

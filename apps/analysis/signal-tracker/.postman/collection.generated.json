@@ -414,6 +414,34 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "List Evidence Items",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-evidence-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-evidence-items"]
+            },
+            "description": "Lists reusable evidence items and their normalized sources for citation attachment.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"reuters\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
         }
       ]
     },

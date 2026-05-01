@@ -39,6 +39,8 @@ import {
   getEvidenceAnchorResponseSchema,
   getEvidenceItemRequestSchema,
   getEvidenceItemResponseSchema,
+  listEvidenceItemsRequestSchema,
+  listEvidenceItemsResponseSchema,
   listEvidenceAnchorsForItemRequestSchema,
   listEvidenceAnchorsForItemResponseSchema
 } from "./evidence-contracts.js";
@@ -138,6 +140,10 @@ export const signalTrackerRoutes = {
   getEvidenceItem: {
     method: "POST",
     path: "/get-evidence-item"
+  },
+  listEvidenceItems: {
+    method: "POST",
+    path: "/list-evidence-items"
   },
   createEvidenceAnchor: {
     method: "POST",
@@ -284,6 +290,11 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.getEvidenceItem,
     requestSchema: getEvidenceItemRequestSchema,
     responseSchema: getEvidenceItemResponseSchema
+  },
+  listEvidenceItems: {
+    route: signalTrackerRoutes.listEvidenceItems,
+    requestSchema: listEvidenceItemsRequestSchema,
+    responseSchema: listEvidenceItemsResponseSchema
   },
   createEvidenceAnchor: {
     route: signalTrackerRoutes.createEvidenceAnchor,

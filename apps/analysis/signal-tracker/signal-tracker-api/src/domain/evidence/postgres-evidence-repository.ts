@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, or } from "drizzle-orm";
 
 import {
   evidenceRecordSchema,
@@ -17,7 +17,10 @@ import {
   toDate,
   toIsoTimestamp
 } from "../persistence/timestamps";
-import type { EvidenceRepository } from "./evidence-repository";
+import type {
+  EvidenceRepository,
+  ListEvidenceOptions
+} from "./evidence-repository";
 
 export type SourceRow = typeof sources.$inferSelect;
 export type NewSourceRow = typeof sources.$inferInsert;
@@ -34,6 +37,7 @@ export type EvidenceRowStore = {
     evidenceItem: NewEvidenceItemRow
   ): Promise<EvidenceRows>;
   selectEvidenceById(id: string): Promise<EvidenceRows | undefined>;
+  selectEvidence(options?: ListEvidenceOptions): Promise<EvidenceRows[]>;
 };
 
 export class DrizzleEvidenceRowStore implements EvidenceRowStore {
@@ -91,6 +95,35 @@ export class DrizzleEvidenceRowStore implements EvidenceRowStore {
 
     return row;
   }
+
+  async selectEvidence(
+    options: ListEvidenceOptions = {}
+  ): Promise<EvidenceRows[]> {
+    const queryPattern = options.query
+      ? `%${escapeIlikePattern(options.query)}%`
+      : undefined;
+    const queryClause = queryPattern
+      ? or(
+          ilike(evidenceItems.title, queryPattern),
+          ilike(evidenceItems.canonicalUrl, queryPattern),
+          ilike(sources.canonicalName, queryPattern)
+        )
+      : undefined;
+
+    return await this.getDatabase()
+      .select({
+        source: sources,
+        evidenceItem: evidenceItems
+      })
+      .from(evidenceItems)
+      .innerJoin(sources, eq(evidenceItems.sourceId, sources.id))
+      .where(queryClause)
+      .orderBy(
+        desc(evidenceItems.capturedAt),
+        desc(evidenceItems.createdAt),
+        asc(evidenceItems.id)
+      );
+  }
 }
 
 export class PostgresEvidenceRepository implements EvidenceRepository {
@@ -113,6 +146,12 @@ export class PostgresEvidenceRepository implements EvidenceRepository {
     const rows = await this.store.selectEvidenceById(id);
 
     return rows ? mapEvidenceRows(rows) : undefined;
+  }
+
+  async list(options: ListEvidenceOptions = {}): Promise<EvidenceRecord[]> {
+    const rows = await this.store.selectEvidence(options);
+
+    return rows.map(mapEvidenceRows);
   }
 }
 
@@ -231,4 +270,11 @@ async function insertSource(
   }
 
   return sourceRow;
+}
+
+export function escapeIlikePattern(query: string): string {
+  return query
+    .replaceAll("\\", "\\\\")
+    .replaceAll("%", "\\%")
+    .replaceAll("_", "\\_");
 }
