@@ -40,3 +40,11 @@ export function createEvidenceItemNotFoundError(): AppError {
     404
   );
 }
+
+export function createEvidenceAnchorNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.evidenceAnchorNotFound,
+    "Evidence anchor not found",
+    404
+  );
+}

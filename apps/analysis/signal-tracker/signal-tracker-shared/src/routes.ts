@@ -23,10 +23,16 @@ import {
 import {
   captureEvidenceUrlRequestSchema,
   captureEvidenceUrlResponseSchema,
+  createEvidenceAnchorRequestSchema,
+  createEvidenceAnchorResponseSchema,
   createEvidenceItemRequestSchema,
   createEvidenceItemResponseSchema,
+  getEvidenceAnchorRequestSchema,
+  getEvidenceAnchorResponseSchema,
   getEvidenceItemRequestSchema,
-  getEvidenceItemResponseSchema
+  getEvidenceItemResponseSchema,
+  listEvidenceAnchorsForItemRequestSchema,
+  listEvidenceAnchorsForItemResponseSchema
 } from "./evidence-contracts.js";
 import {
   listTopicTimelineRequestSchema,
@@ -124,6 +130,18 @@ export const signalTrackerRoutes = {
   getEvidenceItem: {
     method: "POST",
     path: "/get-evidence-item"
+  },
+  createEvidenceAnchor: {
+    method: "POST",
+    path: "/create-evidence-anchor"
+  },
+  getEvidenceAnchor: {
+    method: "POST",
+    path: "/get-evidence-anchor"
+  },
+  listEvidenceAnchorsForItem: {
+    method: "POST",
+    path: "/list-evidence-anchors-for-item"
   },
   getHealth: {
     method: "POST",
@@ -246,6 +264,21 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.getEvidenceItem,
     requestSchema: getEvidenceItemRequestSchema,
     responseSchema: getEvidenceItemResponseSchema
+  },
+  createEvidenceAnchor: {
+    route: signalTrackerRoutes.createEvidenceAnchor,
+    requestSchema: createEvidenceAnchorRequestSchema,
+    responseSchema: createEvidenceAnchorResponseSchema
+  },
+  getEvidenceAnchor: {
+    route: signalTrackerRoutes.getEvidenceAnchor,
+    requestSchema: getEvidenceAnchorRequestSchema,
+    responseSchema: getEvidenceAnchorResponseSchema
+  },
+  listEvidenceAnchorsForItem: {
+    route: signalTrackerRoutes.listEvidenceAnchorsForItem,
+    requestSchema: listEvidenceAnchorsForItemRequestSchema,
+    responseSchema: listEvidenceAnchorsForItemResponseSchema
   },
   getHealth: {
     route: signalTrackerRoutes.getHealth,

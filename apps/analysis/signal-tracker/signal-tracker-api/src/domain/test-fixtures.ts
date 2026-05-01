@@ -1,5 +1,6 @@
 import type {
   AssessmentUpdate,
+  EvidenceAnchor,
   EvidenceItem,
   EvidenceRecord,
   Entry,
@@ -15,6 +16,10 @@ import type {
   EntryRow,
   NewEntryRow
 } from "./entries/postgres-entry-repository";
+import type {
+  EvidenceAnchorRow,
+  NewEvidenceAnchorRow
+} from "./evidence/postgres-evidence-anchor-repository";
 import type {
   EvidenceItemRow,
   EvidenceRows,
@@ -281,6 +286,22 @@ export function buildEvidenceRecordFixture(
   return { source, evidenceItem };
 }
 
+export function buildEvidenceAnchorFixture(
+  overrides: Partial<EvidenceAnchor> = {}
+): EvidenceAnchor {
+  return {
+    id: "anchor-1",
+    evidenceItemId: "evidence-1",
+    quoteText: "A federal court granted an injunction.",
+    prefix: "Earlier context.",
+    suffix: "Later context.",
+    locator: {},
+    createdAt: "2026-04-25T00:00:00.000Z",
+    updatedAt: "2026-04-25T00:00:00.000Z",
+    ...overrides
+  };
+}
+
 export function sourceToRow(source: Source): SourceRow {
   return {
     id: source.id,
@@ -352,4 +373,38 @@ export function newEvidenceRowsToRows(
   };
 
   return { source: sourceRow, evidenceItem: evidenceItemRow };
+}
+
+export function evidenceAnchorToRow(anchor: EvidenceAnchor): EvidenceAnchorRow {
+  return {
+    id: anchor.id,
+    evidenceItemId: anchor.evidenceItemId,
+    quoteText: anchor.quoteText ?? null,
+    prefix: anchor.prefix ?? null,
+    suffix: anchor.suffix ?? null,
+    pageLabel: anchor.pageLabel ?? null,
+    startPos: anchor.startPos ?? null,
+    endPos: anchor.endPos ?? null,
+    locatorJsonb: anchor.locator,
+    createdAt: toDate(anchor.createdAt),
+    updatedAt: toDate(anchor.updatedAt)
+  };
+}
+
+export function newEvidenceAnchorRowToRow(
+  anchor: NewEvidenceAnchorRow
+): EvidenceAnchorRow {
+  return {
+    id: anchor.id,
+    evidenceItemId: anchor.evidenceItemId,
+    quoteText: anchor.quoteText ?? null,
+    prefix: anchor.prefix ?? null,
+    suffix: anchor.suffix ?? null,
+    pageLabel: anchor.pageLabel ?? null,
+    startPos: anchor.startPos ?? null,
+    endPos: anchor.endPos ?? null,
+    locatorJsonb: anchor.locatorJsonb ?? {},
+    createdAt: anchor.createdAt,
+    updatedAt: anchor.updatedAt
+  };
 }

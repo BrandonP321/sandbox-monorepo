@@ -4,6 +4,7 @@ import {
   assessmentConfidenceLabelSchema,
   captureEvidenceUrlRequestSchema,
   createEventEntryRequestSchema,
+  createEvidenceAnchorRequestSchema,
   createEvidenceItemRequestSchema,
   createReviewNoteRequestSchema,
   listTopicTimelineRequestSchema,
@@ -40,6 +41,9 @@ describe("signal-tracker-shared public barrel", () => {
     );
     expect(signalTrackerRoutes.listTopicTimeline.path).toBe(
       "/list-topic-timeline"
+    );
+    expect(signalTrackerRoutes.createEvidenceAnchor.path).toBe(
+      "/create-evidence-anchor"
     );
     expect(
       createTopicRequestSchema.parse({
@@ -106,6 +110,16 @@ describe("signal-tracker-shared public barrel", () => {
         sourceType: "news"
       },
       title: "Evidence"
+    });
+    expect(
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: " evidence-1 ",
+        quoteText: " Supporting passage "
+      })
+    ).toMatchObject({
+      evidenceItemId: "evidence-1",
+      quoteText: "Supporting passage",
+      locator: {}
     });
   });
 });

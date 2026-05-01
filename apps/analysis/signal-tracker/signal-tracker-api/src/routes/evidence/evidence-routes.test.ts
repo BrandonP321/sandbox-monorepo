@@ -2,10 +2,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { EvidenceRecord } from "@repo/signal-tracker-shared";
 
+import { InMemoryEvidenceAnchorRepository } from "../../domain/evidence/evidence-anchor-repository";
 import { InMemoryEvidenceRepository } from "../../domain/evidence/evidence-repository";
+import { createCreateEvidenceAnchorHandler } from "./create-evidence-anchor";
 import { createCaptureEvidenceUrlHandler } from "./capture-evidence-url";
 import { createCreateEvidenceItemHandler } from "./create-evidence-item";
+import { createGetEvidenceAnchorHandler } from "./get-evidence-anchor";
 import { createGetEvidenceItemHandler } from "./get-evidence-item";
+import { createListEvidenceAnchorsForItemHandler } from "./list-evidence-anchors-for-item";
 
 describe("evidence routes", () => {
   it("creates manual evidence with a nested source", async () => {
@@ -280,6 +284,281 @@ describe("evidence routes", () => {
       handler({
         method: "POST",
         path: "/get-evidence-item",
+        body: JSON.stringify({ evidenceItemId: "missing-evidence" })
+      })
+    ).rejects.toMatchObject({
+      code: "EVIDENCE_ITEM_NOT_FOUND",
+      statusCode: 404
+    });
+  });
+
+  it("creates an evidence anchor for an existing evidence item", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const evidenceAnchorRepository = new InMemoryEvidenceAnchorRepository();
+    await evidenceRepository.create({
+      source: {
+        id: "source-1",
+        canonicalName: "Reuters",
+        sourceType: "news",
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      },
+      evidenceItem: {
+        id: "evidence-1",
+        sourceId: "source-1",
+        title: "Court grants injunction",
+        capturedAt: "2026-04-25T00:00:00.000Z",
+        metadata: {},
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      }
+    });
+    const handler = createCreateEvidenceAnchorHandler({
+      evidenceRepository,
+      evidenceAnchorRepository,
+      generateId: vi.fn(() => "anchor-1"),
+      now: () => new Date("2026-04-26T00:00:00.000Z")
+    });
+
+    const result = await handler({
+      method: "POST",
+      path: "/create-evidence-anchor",
+      body: JSON.stringify({
+        evidenceItemId: " evidence-1 ",
+        quoteText: " A federal court granted an injunction. ",
+        prefix: " Context before. ",
+        suffix: " Context after. "
+      })
+    });
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body)).toEqual({
+      anchor: {
+        id: "anchor-1",
+        evidenceItemId: "evidence-1",
+        quoteText: "A federal court granted an injunction.",
+        prefix: "Context before.",
+        suffix: "Context after.",
+        locator: {},
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-26T00:00:00.000Z"
+      }
+    });
+    await expect(
+      evidenceAnchorRepository.findById("anchor-1")
+    ).resolves.toEqual(JSON.parse(result.body).anchor);
+  });
+
+  it("returns evidence item not found when creating an anchor for missing evidence", async () => {
+    const handler = createCreateEvidenceAnchorHandler({
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository()
+    });
+
+    await expect(
+      handler({
+        method: "POST",
+        path: "/create-evidence-anchor",
+        body: JSON.stringify({
+          evidenceItemId: "missing-evidence",
+          pageLabel: "p. 14"
+        })
+      })
+    ).rejects.toMatchObject({
+      code: "EVIDENCE_ITEM_NOT_FOUND",
+      statusCode: 404
+    });
+  });
+
+  it("rejects invalid evidence anchor creation requests", async () => {
+    const handler = createCreateEvidenceAnchorHandler({
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository()
+    });
+
+    for (const body of [
+      {},
+      { evidenceItemId: "evidence-1" },
+      {
+        evidenceItemId: "evidence-1",
+        prefix: "Context only"
+      },
+      {
+        evidenceItemId: "evidence-1",
+        startPos: 10
+      },
+      {
+        evidenceItemId: "evidence-1",
+        startPos: 20,
+        endPos: 10
+      }
+    ]) {
+      await expect(
+        handler({
+          method: "POST",
+          path: "/create-evidence-anchor",
+          body: JSON.stringify(body)
+        })
+      ).rejects.toMatchObject({
+        code: "VALIDATION_ERROR",
+        statusCode: 400
+      });
+    }
+  });
+
+  it("returns persistence unavailable when evidence anchor storage fails", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    await evidenceRepository.create({
+      source: {
+        id: "source-1",
+        canonicalName: "Reuters",
+        sourceType: "news",
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      },
+      evidenceItem: {
+        id: "evidence-1",
+        sourceId: "source-1",
+        title: "Court grants injunction",
+        capturedAt: "2026-04-25T00:00:00.000Z",
+        metadata: {},
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      }
+    });
+    const handler = createCreateEvidenceAnchorHandler({
+      evidenceRepository,
+      evidenceAnchorRepository: {
+        create: vi.fn(async () => {
+          throw new Error("database unavailable");
+        }),
+        findById: vi.fn(async () => undefined),
+        listByEvidenceItemId: vi.fn(async () => [])
+      }
+    });
+
+    await expect(
+      handler({
+        method: "POST",
+        path: "/create-evidence-anchor",
+        body: JSON.stringify({
+          evidenceItemId: "evidence-1",
+          quoteText: "A federal court granted an injunction."
+        })
+      })
+    ).rejects.toMatchObject({
+      code: "PERSISTENCE_UNAVAILABLE",
+      statusCode: 503
+    });
+  });
+
+  it("reads and lists evidence anchors", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const evidenceAnchorRepository = new InMemoryEvidenceAnchorRepository();
+    await evidenceRepository.create({
+      source: {
+        id: "source-1",
+        canonicalName: "Reuters",
+        sourceType: "news",
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      },
+      evidenceItem: {
+        id: "evidence-1",
+        sourceId: "source-1",
+        title: "Court grants injunction",
+        capturedAt: "2026-04-25T00:00:00.000Z",
+        metadata: {},
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      }
+    });
+    await evidenceAnchorRepository.create({
+      id: "anchor-1",
+      evidenceItemId: "evidence-1",
+      quoteText: "Older quote",
+      locator: {},
+      createdAt: "2026-04-25T00:00:00.000Z",
+      updatedAt: "2026-04-25T00:00:00.000Z"
+    });
+    await evidenceAnchorRepository.create({
+      id: "anchor-2",
+      evidenceItemId: "evidence-1",
+      pageLabel: "p. 14",
+      locator: {},
+      createdAt: "2026-04-26T00:00:00.000Z",
+      updatedAt: "2026-04-26T00:00:00.000Z"
+    });
+    const getHandler = createGetEvidenceAnchorHandler({
+      evidenceAnchorRepository
+    });
+    const listHandler = createListEvidenceAnchorsForItemHandler({
+      evidenceRepository,
+      evidenceAnchorRepository
+    });
+
+    const getResult = await getHandler({
+      method: "POST",
+      path: "/get-evidence-anchor",
+      body: JSON.stringify({ anchorId: " anchor-2 " })
+    });
+    const listResult = await listHandler({
+      method: "POST",
+      path: "/list-evidence-anchors-for-item",
+      body: JSON.stringify({ evidenceItemId: " evidence-1 " })
+    });
+
+    expect(getResult.statusCode).toBe(200);
+    expect(JSON.parse(getResult.body)).toEqual({
+      anchor: {
+        id: "anchor-2",
+        evidenceItemId: "evidence-1",
+        pageLabel: "p. 14",
+        locator: {},
+        createdAt: "2026-04-26T00:00:00.000Z",
+        updatedAt: "2026-04-26T00:00:00.000Z"
+      }
+    });
+    expect(listResult.statusCode).toBe(200);
+    expect(JSON.parse(listResult.body)).toEqual({
+      anchors: [
+        JSON.parse(getResult.body).anchor,
+        {
+          id: "anchor-1",
+          evidenceItemId: "evidence-1",
+          quoteText: "Older quote",
+          locator: {},
+          createdAt: "2026-04-25T00:00:00.000Z",
+          updatedAt: "2026-04-25T00:00:00.000Z"
+        }
+      ]
+    });
+  });
+
+  it("returns not found for missing evidence anchors and missing evidence on list", async () => {
+    const getHandler = createGetEvidenceAnchorHandler({
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository()
+    });
+    const listHandler = createListEvidenceAnchorsForItemHandler({
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository()
+    });
+
+    await expect(
+      getHandler({
+        method: "POST",
+        path: "/get-evidence-anchor",
+        body: JSON.stringify({ anchorId: "missing-anchor" })
+      })
+    ).rejects.toMatchObject({
+      code: "EVIDENCE_ANCHOR_NOT_FOUND",
+      statusCode: 404
+    });
+
+    await expect(
+      listHandler({
+        method: "POST",
+        path: "/list-evidence-anchors-for-item",
         body: JSON.stringify({ evidenceItemId: "missing-evidence" })
       })
     ).rejects.toMatchObject({

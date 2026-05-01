@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   captureEvidenceUrlRequestSchema,
   captureEvidenceUrlResponseSchema,
+  createEvidenceAnchorRequestSchema,
   createEvidenceItemRequestSchema,
   createEvidenceItemResponseSchema,
+  evidenceAnchorSchema,
   evidenceItemSchema,
   getEvidenceItemRequestSchema,
   getEvidenceItemResponseSchema,
@@ -220,5 +222,100 @@ describe("evidence contracts", () => {
     expect(createEvidenceItemResponseSchema.parse(record)).toEqual(record);
     expect(captureEvidenceUrlResponseSchema.parse(record)).toEqual(record);
     expect(getEvidenceItemResponseSchema.parse(record)).toEqual(record);
+  });
+
+  it("validates quote anchors with trimmed text", () => {
+    expect(
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: " evidence-1 ",
+        quoteText: " Supporting passage ",
+        prefix: " Before ",
+        suffix: " After "
+      })
+    ).toEqual({
+      evidenceItemId: "evidence-1",
+      quoteText: "Supporting passage",
+      prefix: "Before",
+      suffix: "After",
+      locator: {}
+    });
+  });
+
+  it("validates page anchors", () => {
+    expect(
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: "evidence-1",
+        pageLabel: " p. 14 "
+      })
+    ).toEqual({
+      evidenceItemId: "evidence-1",
+      pageLabel: "p. 14",
+      locator: {}
+    });
+  });
+
+  it("validates text position anchors with locator details", () => {
+    expect(
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: "evidence-1",
+        startPos: 42,
+        endPos: 84,
+        locator: {
+          selector: "TextPositionSelector"
+        }
+      })
+    ).toEqual({
+      evidenceItemId: "evidence-1",
+      startPos: 42,
+      endPos: 84,
+      locator: {
+        selector: "TextPositionSelector"
+      }
+    });
+  });
+
+  it("rejects anchors without locator fields", () => {
+    expect(() =>
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: "evidence-1",
+        prefix: "Only context",
+        suffix: "is not enough"
+      })
+    ).toThrow(/Provide quoteText, pageLabel, startPos\/endPos, or locator/);
+  });
+
+  it("rejects incomplete and unordered text position ranges", () => {
+    expect(() =>
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: "evidence-1",
+        startPos: 42
+      })
+    ).toThrow(/startPos and endPos must be provided together/);
+
+    expect(() =>
+      createEvidenceAnchorRequestSchema.parse({
+        evidenceItemId: "evidence-1",
+        startPos: 84,
+        endPos: 42
+      })
+    ).toThrow(/startPos must be less than or equal to endPos/);
+  });
+
+  it("validates persisted anchor responses", () => {
+    expect(
+      evidenceAnchorSchema.parse({
+        id: "anchor-1",
+        evidenceItemId: " evidence-1 ",
+        pageLabel: " Page 1 ",
+        locator: {},
+        createdAt: "2026-04-25T00:00:00.000Z",
+        updatedAt: "2026-04-25T00:00:00.000Z"
+      })
+    ).toMatchObject({
+      id: "anchor-1",
+      evidenceItemId: "evidence-1",
+      pageLabel: "Page 1",
+      locator: {}
+    });
   });
 });

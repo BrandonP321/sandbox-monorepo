@@ -178,10 +178,50 @@ export const evidenceItems = pgTable(
   ]
 );
 
+export const evidenceAnchors = pgTable(
+  "evidence_anchors",
+  {
+    id: text("id").primaryKey(),
+    evidenceItemId: text("evidence_item_id")
+      .notNull()
+      .references(() => evidenceItems.id, { onDelete: "cascade" }),
+    quoteText: text("quote_text"),
+    prefix: text("prefix"),
+    suffix: text("suffix"),
+    pageLabel: text("page_label"),
+    startPos: integer("start_pos"),
+    endPos: integer("end_pos"),
+    locatorJsonb: jsonb("locator_jsonb").notNull().default({}),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
+  },
+  (table) => [
+    index("evidence_anchors_item_idx").on(table.evidenceItemId),
+    index("evidence_anchors_item_created_idx").on(
+      table.evidenceItemId,
+      table.createdAt,
+      table.id
+    ),
+    check(
+      "evidence_anchors_locator_present",
+      sql`${table.quoteText} is not null or ${table.pageLabel} is not null or (${table.startPos} is not null and ${table.endPos} is not null) or ${table.locatorJsonb} <> '{}'::jsonb`
+    ),
+    check(
+      "evidence_anchors_position_pair",
+      sql`(${table.startPos} is null and ${table.endPos} is null) or (${table.startPos} is not null and ${table.endPos} is not null)`
+    ),
+    check(
+      "evidence_anchors_position_order",
+      sql`${table.startPos} is null or ${table.endPos} is null or ${table.startPos} <= ${table.endPos}`
+    )
+  ]
+);
+
 export const signalTrackerSchema = {
   topics,
   entries,
   entryAssessments,
   sources,
-  evidenceItems
+  evidenceItems,
+  evidenceAnchors
 };

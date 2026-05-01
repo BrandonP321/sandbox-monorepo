@@ -6,6 +6,8 @@ const optionalTrimmedString = z.string().trim().min(1).optional();
 const optionalTrimmedUrl = z.string().trim().url().optional();
 
 const metadataSchema = z.record(z.string(), z.unknown());
+const locatorSchema = z.record(z.string(), z.unknown());
+const positionSchema = z.number().int().min(0);
 
 function isHttpUrl(value: string): boolean {
   try {
@@ -126,4 +128,135 @@ export type GetEvidenceItemRequest = z.infer<
 export const getEvidenceItemResponseSchema = evidenceRecordSchema;
 export type GetEvidenceItemResponse = z.infer<
   typeof getEvidenceItemResponseSchema
+>;
+
+function hasLocatorFields(anchor: EvidenceAnchorLocatorFields): boolean {
+  return (
+    anchor.quoteText !== undefined ||
+    anchor.pageLabel !== undefined ||
+    anchor.startPos !== undefined ||
+    Object.keys(anchor.locator ?? {}).length > 0
+  );
+}
+
+function hasCompletePositionRange(
+  anchor: EvidenceAnchorLocatorFields
+): boolean {
+  return (
+    (anchor.startPos === undefined && anchor.endPos === undefined) ||
+    (anchor.startPos !== undefined && anchor.endPos !== undefined)
+  );
+}
+
+function hasOrderedPositionRange(anchor: EvidenceAnchorLocatorFields): boolean {
+  return (
+    anchor.startPos === undefined ||
+    anchor.endPos === undefined ||
+    anchor.startPos <= anchor.endPos
+  );
+}
+
+type EvidenceAnchorLocatorFields = {
+  quoteText?: string;
+  pageLabel?: string;
+  startPos?: number;
+  endPos?: number;
+  locator?: Record<string, unknown>;
+};
+
+function refineEvidenceAnchorLocatorFields<
+  T extends EvidenceAnchorLocatorFields
+>(schema: z.ZodType<T>) {
+  return schema.superRefine((anchor, context) => {
+    if (!hasCompletePositionRange(anchor)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "startPos and endPos must be provided together",
+        path: anchor.startPos === undefined ? ["startPos"] : ["endPos"]
+      });
+    }
+
+    if (!hasOrderedPositionRange(anchor)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "startPos must be less than or equal to endPos",
+        path: ["startPos"]
+      });
+    }
+
+    if (!hasLocatorFields(anchor)) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Provide quoteText, pageLabel, startPos/endPos, or locator details"
+      });
+    }
+  });
+}
+
+const evidenceAnchorLocatorFieldsSchema = {
+  quoteText: optionalTrimmedString,
+  prefix: optionalTrimmedString,
+  suffix: optionalTrimmedString,
+  pageLabel: optionalTrimmedString,
+  startPos: positionSchema.optional(),
+  endPos: positionSchema.optional(),
+  locator: locatorSchema.default({})
+} as const;
+
+export const evidenceAnchorSchema = refineEvidenceAnchorLocatorFields(
+  z.object({
+    id: trimmedRequiredString,
+    evidenceItemId: trimmedRequiredString,
+    ...evidenceAnchorLocatorFieldsSchema,
+    createdAt: trimmedRequiredString,
+    updatedAt: trimmedRequiredString
+  })
+);
+export type EvidenceAnchor = z.infer<typeof evidenceAnchorSchema>;
+
+export const createEvidenceAnchorRequestSchema =
+  refineEvidenceAnchorLocatorFields(
+    z.object({
+      evidenceItemId: trimmedRequiredString,
+      ...evidenceAnchorLocatorFieldsSchema
+    })
+  );
+export type CreateEvidenceAnchorRequest = z.infer<
+  typeof createEvidenceAnchorRequestSchema
+>;
+
+export const createEvidenceAnchorResponseSchema = z.object({
+  anchor: evidenceAnchorSchema
+});
+export type CreateEvidenceAnchorResponse = z.infer<
+  typeof createEvidenceAnchorResponseSchema
+>;
+
+export const getEvidenceAnchorRequestSchema = z.object({
+  anchorId: trimmedRequiredString
+});
+export type GetEvidenceAnchorRequest = z.infer<
+  typeof getEvidenceAnchorRequestSchema
+>;
+
+export const getEvidenceAnchorResponseSchema = z.object({
+  anchor: evidenceAnchorSchema
+});
+export type GetEvidenceAnchorResponse = z.infer<
+  typeof getEvidenceAnchorResponseSchema
+>;
+
+export const listEvidenceAnchorsForItemRequestSchema = z.object({
+  evidenceItemId: trimmedRequiredString
+});
+export type ListEvidenceAnchorsForItemRequest = z.infer<
+  typeof listEvidenceAnchorsForItemRequestSchema
+>;
+
+export const listEvidenceAnchorsForItemResponseSchema = z.object({
+  anchors: z.array(evidenceAnchorSchema)
+});
+export type ListEvidenceAnchorsForItemResponse = z.infer<
+  typeof listEvidenceAnchorsForItemResponseSchema
 >;

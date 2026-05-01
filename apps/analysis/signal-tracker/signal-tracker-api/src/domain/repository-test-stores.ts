@@ -1,5 +1,6 @@
 import type {
   AssessmentUpdate,
+  EvidenceAnchor,
   EvidenceRecord,
   Entry,
   Topic
@@ -17,6 +18,11 @@ import type {
   NewEntryRow
 } from "./entries/postgres-entry-repository";
 import type {
+  EvidenceAnchorRow,
+  EvidenceAnchorRowStore,
+  NewEvidenceAnchorRow
+} from "./evidence/postgres-evidence-anchor-repository";
+import type {
   EvidenceRows,
   EvidenceRowStore,
   NewEvidenceItemRow,
@@ -24,8 +30,10 @@ import type {
 } from "./evidence/postgres-evidence-repository";
 import {
   assessmentUpdateToRows,
+  evidenceAnchorToRow,
   evidenceRecordToRows,
   entryToRow,
+  newEvidenceAnchorRowToRow,
   newEvidenceRowsToRows,
   newAssessmentRowsToRows,
   newEntryRowToRow,
@@ -293,6 +301,44 @@ export class FakeEvidenceRowStore implements EvidenceRowStore {
   }
 }
 
+export class FakeEvidenceAnchorRowStore implements EvidenceAnchorRowStore {
+  private readonly rows = new Map<string, EvidenceAnchorRow>();
+
+  async insertEvidenceAnchor(
+    anchor: NewEvidenceAnchorRow
+  ): Promise<EvidenceAnchorRow> {
+    const row = newEvidenceAnchorRowToRow(anchor);
+
+    this.rows.set(row.id, row);
+
+    return row;
+  }
+
+  async selectEvidenceAnchorById(
+    id: string
+  ): Promise<EvidenceAnchorRow | undefined> {
+    return this.rows.get(id);
+  }
+
+  async selectEvidenceAnchorsByEvidenceItemId(
+    evidenceItemId: string
+  ): Promise<EvidenceAnchorRow[]> {
+    return Array.from(this.rows.values())
+      .filter((row) => row.evidenceItemId === evidenceItemId)
+      .sort(compareEvidenceAnchorRowsForList);
+  }
+
+  seed(anchor: EvidenceAnchor): void;
+  seed(row: EvidenceAnchorRow): void;
+  seed(anchorOrRow: EvidenceAnchor | EvidenceAnchorRow): void {
+    const row = isEvidenceAnchorRow(anchorOrRow)
+      ? anchorOrRow
+      : evidenceAnchorToRow(anchorOrRow);
+
+    this.rows.set(row.id, row);
+  }
+}
+
 function isTopicRow(topicOrRow: Topic | TopicRow): topicOrRow is TopicRow {
   return topicOrRow.createdAt instanceof Date;
 }
@@ -311,6 +357,12 @@ function isEvidenceRows(
   recordOrRows: EvidenceRecord | EvidenceRows
 ): recordOrRows is EvidenceRows {
   return "evidenceItem" in recordOrRows && "createdAt" in recordOrRows.source;
+}
+
+function isEvidenceAnchorRow(
+  anchorOrRow: EvidenceAnchor | EvidenceAnchorRow
+): anchorOrRow is EvidenceAnchorRow {
+  return anchorOrRow.createdAt instanceof Date;
 }
 
 function compareTopicRowsForList(left: TopicRow, right: TopicRow): number {
@@ -367,6 +419,20 @@ function compareAssessmentRowsForList(
   }
 
   return left.entry.id.localeCompare(right.entry.id);
+}
+
+function compareEvidenceAnchorRowsForList(
+  left: EvidenceAnchorRow,
+  right: EvidenceAnchorRow
+): number {
+  const createdAtComparison =
+    getTime(right.createdAt) - getTime(left.createdAt);
+
+  if (createdAtComparison !== 0) {
+    return createdAtComparison;
+  }
+
+  return left.id.localeCompare(right.id);
 }
 
 function getTime(value: Date | string): number {

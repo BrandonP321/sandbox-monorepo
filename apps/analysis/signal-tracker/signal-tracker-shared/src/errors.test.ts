@@ -25,6 +25,9 @@ describe("signalTracker API error conventions", () => {
     expect(signalTrackerApiErrorCodes.evidenceItemNotFound).toBe(
       "EVIDENCE_ITEM_NOT_FOUND"
     );
+    expect(signalTrackerApiErrorCodes.evidenceAnchorNotFound).toBe(
+      "EVIDENCE_ANCHOR_NOT_FOUND"
+    );
     expect(
       isSignalTrackerRetryableDbErrorCode(
         signalTrackerApiErrorCodes.persistenceUnavailable

@@ -6,7 +6,8 @@ export const signalTrackerApiErrorCodes = {
   topicNotFound: "TOPIC_NOT_FOUND",
   eventEntryNotFound: "EVENT_ENTRY_NOT_FOUND",
   reviewNoteNotFound: "REVIEW_NOTE_NOT_FOUND",
-  evidenceItemNotFound: "EVIDENCE_ITEM_NOT_FOUND"
+  evidenceItemNotFound: "EVIDENCE_ITEM_NOT_FOUND",
+  evidenceAnchorNotFound: "EVIDENCE_ANCHOR_NOT_FOUND"
 } as const;
 
 export type SignalTrackerApiErrorCode =

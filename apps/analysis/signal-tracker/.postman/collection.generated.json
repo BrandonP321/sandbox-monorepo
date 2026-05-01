@@ -187,6 +187,34 @@
           "response": []
         },
         {
+          "name": "Create Evidence Anchor",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-evidence-anchor",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-evidence-anchor"]
+            },
+            "description": "Creates a precise quote, page, text-position, or locator anchor inside an existing evidence item.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"evidenceItemId\": \"evidence-1\",\n  \"quoteText\": \"A federal court granted an injunction.\",\n  \"prefix\": \"Earlier context.\",\n  \"suffix\": \"Later context.\",\n  \"locator\": {\n    \"selector\": \"manual_quote\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Evidence Item",
           "request": {
             "method": "POST",
@@ -215,6 +243,34 @@
           "response": []
         },
         {
+          "name": "Get Evidence Anchor",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/get-evidence-anchor",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-evidence-anchor"]
+            },
+            "description": "Reads one precise evidence anchor by ID.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"anchorId\": \"anchor-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Evidence Item",
           "request": {
             "method": "POST",
@@ -224,6 +280,34 @@
               "path": ["get-evidence-item"]
             },
             "description": "Reads a reusable evidence item and its normalized source.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"evidenceItemId\": \"evidence-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Evidence Anchors For Item",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-evidence-anchors-for-item",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-evidence-anchors-for-item"]
+            },
+            "description": "Lists precise anchors that belong to an existing evidence item.",
             "header": [
               {
                 "key": "Content-Type",

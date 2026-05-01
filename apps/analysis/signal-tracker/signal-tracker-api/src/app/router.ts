@@ -10,8 +10,11 @@ import {
 } from "./dependencies";
 import { createCreateAssessmentUpdateHandler } from "../routes/assessments/create-assessment-update";
 import { createCaptureEvidenceUrlHandler } from "../routes/evidence/capture-evidence-url";
+import { createCreateEvidenceAnchorHandler } from "../routes/evidence/create-evidence-anchor";
 import { createCreateEvidenceItemHandler } from "../routes/evidence/create-evidence-item";
+import { createGetEvidenceAnchorHandler } from "../routes/evidence/get-evidence-anchor";
 import { createGetEvidenceItemHandler } from "../routes/evidence/get-evidence-item";
+import { createListEvidenceAnchorsForItemHandler } from "../routes/evidence/list-evidence-anchors-for-item";
 import { createCreateEventEntryHandler } from "../routes/event-entries/create-event-entry";
 import { createGetEventEntryHandler } from "../routes/event-entries/get-event-entry";
 import { createListEventEntriesHandler } from "../routes/event-entries/list-event-entries";
@@ -104,6 +107,19 @@ function createRouteHandlers(
       now: dependencies.now
     }),
     getEvidenceItem: createGetEvidenceItemHandler({
+      evidenceRepository: dependencies.evidenceRepository
+    }),
+    createEvidenceAnchor: createCreateEvidenceAnchorHandler({
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now
+    }),
+    getEvidenceAnchor: createGetEvidenceAnchorHandler({
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository
+    }),
+    listEvidenceAnchorsForItem: createListEvidenceAnchorsForItemHandler({
+      evidenceAnchorRepository: dependencies.evidenceAnchorRepository,
       evidenceRepository: dependencies.evidenceRepository
     }),
     getHealth

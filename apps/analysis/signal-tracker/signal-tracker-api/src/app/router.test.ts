@@ -4,6 +4,7 @@ import { signalTrackerRoutes } from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../domain/assessments/assessment-repository";
 import { InMemoryEntryRepository } from "../domain/entries/entry-repository";
+import { InMemoryEvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
 import { InMemoryEvidenceRepository } from "../domain/evidence/evidence-repository";
 import { InMemoryTopicRepository } from "../domain/topics/topic-repository";
 import { createAppRouter } from "./router";
@@ -15,6 +16,7 @@ describe("createAppRouter", () => {
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",
       now: () => new Date("2026-04-25T00:00:00.000Z")
     });
@@ -52,15 +54,19 @@ describe("createAppRouter", () => {
   });
 
   it("shares injected evidence dependencies across route handlers", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const evidenceAnchorRepository = new InMemoryEvidenceAnchorRepository();
     const router = createAppRouter({
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
-      evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceRepository,
+      evidenceAnchorRepository,
       generateId: vi
         .fn(() => "source-1")
         .mockReturnValueOnce("source-1")
-        .mockReturnValueOnce("evidence-1"),
+        .mockReturnValueOnce("evidence-1")
+        .mockReturnValueOnce("anchor-1"),
       now: () => new Date("2026-04-25T00:00:00.000Z")
     });
 
@@ -83,6 +89,28 @@ describe("createAppRouter", () => {
 
     expect(getResult.statusCode).toBe(200);
     expect(JSON.parse(getResult.body)).toEqual(JSON.parse(createResult.body));
+
+    const createAnchorResult = await router({
+      method: signalTrackerRoutes.createEvidenceAnchor.method,
+      path: signalTrackerRoutes.createEvidenceAnchor.path,
+      body: JSON.stringify({
+        evidenceItemId: "evidence-1",
+        quoteText: "A federal court granted an injunction."
+      })
+    });
+
+    expect(createAnchorResult.statusCode).toBe(200);
+
+    const listAnchorsResult = await router({
+      method: signalTrackerRoutes.listEvidenceAnchorsForItem.method,
+      path: signalTrackerRoutes.listEvidenceAnchorsForItem.path,
+      body: JSON.stringify({ evidenceItemId: "evidence-1" })
+    });
+
+    expect(listAnchorsResult.statusCode).toBe(200);
+    expect(JSON.parse(listAnchorsResult.body)).toEqual({
+      anchors: [JSON.parse(createAnchorResult.body).anchor]
+    });
   });
 
   it("shares injected entry dependencies across review note route handlers", async () => {
@@ -96,6 +124,7 @@ describe("createAppRouter", () => {
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository,
       evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",
       generateId: () => "review-1",
       now: () => new Date("2026-04-25T00:00:00.000Z")
@@ -152,6 +181,7 @@ describe("createAppRouter", () => {
       entryRepository: new InMemoryEntryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
+      evidenceAnchorRepository: new InMemoryEvidenceAnchorRepository(),
       createId: () => "topic-1",
       generateId: vi
         .fn(() => "event-1")
