@@ -9,6 +9,7 @@ import {
   type SignalTrackerApiDependencies
 } from "./dependencies";
 import { createCreateAssessmentUpdateHandler } from "../routes/assessments/create-assessment-update";
+import { createCaptureEvidenceUrlHandler } from "../routes/evidence/capture-evidence-url";
 import { createCreateEvidenceItemHandler } from "../routes/evidence/create-evidence-item";
 import { createGetEvidenceItemHandler } from "../routes/evidence/get-evidence-item";
 import { createCreateEventEntryHandler } from "../routes/event-entries/create-event-entry";
@@ -93,6 +94,11 @@ function createRouteHandlers(
       assessmentRepository: dependencies.assessmentRepository
     }),
     createEvidenceItem: createCreateEvidenceItemHandler({
+      evidenceRepository: dependencies.evidenceRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now
+    }),
+    captureEvidenceUrl: createCaptureEvidenceUrlHandler({
       evidenceRepository: dependencies.evidenceRepository,
       generateId: dependencies.generateId,
       now: dependencies.now

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  captureEvidenceUrlRequestSchema,
+  captureEvidenceUrlResponseSchema,
   createEvidenceItemRequestSchema,
   createEvidenceItemResponseSchema,
   evidenceItemSchema,
@@ -140,6 +142,54 @@ describe("evidence contracts", () => {
     ).toThrow();
   });
 
+  it("validates URL evidence capture requests", () => {
+    expect(
+      captureEvidenceUrlRequestSchema.parse({
+        url: " https://www.reuters.com/world/example?utm_source=newsletter ",
+        source: {
+          canonicalName: " Reuters ",
+          sourceType: "news",
+          notes: " Wire service "
+        },
+        title: " Court grants injunction ",
+        author: " Jane Reporter ",
+        metadata: { submittedFrom: "postman" }
+      })
+    ).toEqual({
+      url: "https://www.reuters.com/world/example?utm_source=newsletter",
+      source: {
+        canonicalName: "Reuters",
+        sourceType: "news",
+        notes: "Wire service"
+      },
+      title: "Court grants injunction",
+      author: "Jane Reporter",
+      metadata: { submittedFrom: "postman" }
+    });
+  });
+
+  it("rejects invalid URL evidence capture requests", () => {
+    expect(() => captureEvidenceUrlRequestSchema.parse({})).toThrow();
+    expect(() =>
+      captureEvidenceUrlRequestSchema.parse({ url: "not-a-url" })
+    ).toThrow();
+    expect(() =>
+      captureEvidenceUrlRequestSchema.parse({ url: "ftp://example.com/file" })
+    ).toThrow();
+    expect(() =>
+      captureEvidenceUrlRequestSchema.parse({
+        url: "https://www.reuters.com/world/example",
+        title: " "
+      })
+    ).toThrow();
+    expect(() =>
+      captureEvidenceUrlRequestSchema.parse({
+        url: "https://www.reuters.com/world/example",
+        source: { sourceType: "blog" }
+      })
+    ).toThrow();
+  });
+
   it("validates read and response shapes", () => {
     expect(
       getEvidenceItemRequestSchema.parse({ evidenceItemId: " evidence-1 " })
@@ -168,6 +218,7 @@ describe("evidence contracts", () => {
     };
 
     expect(createEvidenceItemResponseSchema.parse(record)).toEqual(record);
+    expect(captureEvidenceUrlResponseSchema.parse(record)).toEqual(record);
     expect(getEvidenceItemResponseSchema.parse(record)).toEqual(record);
   });
 });

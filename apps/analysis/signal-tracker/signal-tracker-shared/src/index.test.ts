@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assessmentConfidenceLabelSchema,
+  captureEvidenceUrlRequestSchema,
   createEventEntryRequestSchema,
   createEvidenceItemRequestSchema,
   createReviewNoteRequestSchema,
@@ -30,6 +31,9 @@ describe("signal-tracker-shared public barrel", () => {
     ]);
     expect(signalTrackerRoutes.createEvidenceItem.path).toBe(
       "/create-evidence-item"
+    );
+    expect(signalTrackerRoutes.captureEvidenceUrl.path).toBe(
+      "/capture-evidence-url"
     );
     expect(signalTrackerRoutes.createReviewNote.path).toBe(
       "/create-review-note"
@@ -80,6 +84,13 @@ describe("signal-tracker-shared public barrel", () => {
     ).toEqual({
       topicId: "topic-1",
       limit: 10
+    });
+    expect(
+      captureEvidenceUrlRequestSchema.parse({
+        url: " https://www.reuters.com/world/example "
+      })
+    ).toEqual({
+      url: "https://www.reuters.com/world/example"
     });
     expect(
       createEvidenceItemRequestSchema.parse({

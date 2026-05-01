@@ -159,6 +159,34 @@
       "name": "Evidence",
       "item": [
         {
+          "name": "Capture Evidence URL",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/capture-evidence-url",
+              "host": ["{{baseUrl}}"],
+              "path": ["capture-evidence-url"]
+            },
+            "description": "Captures a pasted URL as a reusable evidence item with deterministic URL normalization and minimal source inference.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"url\": \"https://www.reuters.com/world/example?utm_source=newsletter\",\n  \"source\": {\n    \"canonicalName\": \"Reuters\",\n    \"sourceType\": \"news\"\n  },\n  \"title\": \"Court grants injunction\",\n  \"metadata\": {\n    \"submittedFrom\": \"postman\"\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Create Evidence Item",
           "request": {
             "method": "POST",

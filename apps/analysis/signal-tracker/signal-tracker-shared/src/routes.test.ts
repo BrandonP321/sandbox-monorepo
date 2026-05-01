@@ -75,6 +75,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/create-evidence-item"
     });
+    expect(signalTrackerRoutes.captureEvidenceUrl).toEqual({
+      method: "POST",
+      path: "/capture-evidence-url"
+    });
     expect(signalTrackerRoutes.getEvidenceItem).toEqual({
       method: "POST",
       path: "/get-evidence-item"
@@ -107,6 +111,7 @@ describe("signalTrackerRoutes", () => {
       "listReviewNotes",
       "listTopicTimeline",
       "createEvidenceItem",
+      "captureEvidenceUrl",
       "getEvidenceItem",
       "getHealth"
     ]);
@@ -127,6 +132,7 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.listReviewNotes,
       signalTrackerRoutes.listTopicTimeline,
       signalTrackerRoutes.createEvidenceItem,
+      signalTrackerRoutes.captureEvidenceUrl,
       signalTrackerRoutes.getEvidenceItem,
       signalTrackerRoutes.getHealth
     ]);
@@ -160,6 +166,13 @@ describe("signalTrackerRoutes", () => {
     ).toEqual({
       topicId: "topic-1",
       limit: 10
+    });
+    expect(
+      signalTrackerRouteContracts.captureEvidenceUrl.requestSchema.parse({
+        url: " https://www.reuters.com/world/example "
+      })
+    ).toEqual({
+      url: "https://www.reuters.com/world/example"
     });
     expect(
       signalTrackerRouteContracts.getHealth.responseSchema.parse({ ok: true })

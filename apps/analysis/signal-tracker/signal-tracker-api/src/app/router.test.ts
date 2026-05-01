@@ -65,13 +65,10 @@ describe("createAppRouter", () => {
     });
 
     const createResult = await router({
-      method: signalTrackerRoutes.createEvidenceItem.method,
-      path: signalTrackerRoutes.createEvidenceItem.path,
+      method: signalTrackerRoutes.captureEvidenceUrl.method,
+      path: signalTrackerRoutes.captureEvidenceUrl.path,
       body: JSON.stringify({
-        source: {
-          canonicalName: "Reuters",
-          sourceType: "news"
-        },
+        url: "https://www.reuters.com/world/example",
         title: "Court grants injunction"
       })
     });

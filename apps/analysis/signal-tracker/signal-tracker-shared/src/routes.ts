@@ -21,6 +21,8 @@ import {
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
 import {
+  captureEvidenceUrlRequestSchema,
+  captureEvidenceUrlResponseSchema,
   createEvidenceItemRequestSchema,
   createEvidenceItemResponseSchema,
   getEvidenceItemRequestSchema,
@@ -114,6 +116,10 @@ export const signalTrackerRoutes = {
   createEvidenceItem: {
     method: "POST",
     path: "/create-evidence-item"
+  },
+  captureEvidenceUrl: {
+    method: "POST",
+    path: "/capture-evidence-url"
   },
   getEvidenceItem: {
     method: "POST",
@@ -230,6 +236,11 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.createEvidenceItem,
     requestSchema: createEvidenceItemRequestSchema,
     responseSchema: createEvidenceItemResponseSchema
+  },
+  captureEvidenceUrl: {
+    route: signalTrackerRoutes.captureEvidenceUrl,
+    requestSchema: captureEvidenceUrlRequestSchema,
+    responseSchema: captureEvidenceUrlResponseSchema
   },
   getEvidenceItem: {
     route: signalTrackerRoutes.getEvidenceItem,

@@ -7,6 +7,14 @@ const optionalTrimmedUrl = z.string().trim().url().optional();
 
 const metadataSchema = z.record(z.string(), z.unknown());
 
+function isHttpUrl(value: string): boolean {
+  try {
+    return ["http:", "https:"].includes(new URL(value).protocol);
+  } catch {
+    return false;
+  }
+}
+
 export const sourceTypeSchema = z.enum([
   "news",
   "government",
@@ -79,6 +87,33 @@ export type CreateEvidenceItemRequest = z.infer<
 export const createEvidenceItemResponseSchema = evidenceRecordSchema;
 export type CreateEvidenceItemResponse = z.infer<
   typeof createEvidenceItemResponseSchema
+>;
+
+export const captureEvidenceUrlRequestSchema = z.object({
+  url: z.string().trim().url().refine(isHttpUrl, {
+    message: "URL must use http or https"
+  }),
+  source: z
+    .object({
+      canonicalName: optionalTrimmedString,
+      sourceType: sourceTypeSchema.optional(),
+      notes: optionalTrimmedString
+    })
+    .optional(),
+  title: optionalTrimmedString,
+  author: optionalTrimmedString,
+  publishedAt: optionalTrimmedString,
+  contentType: optionalTrimmedString,
+  language: optionalTrimmedString,
+  metadata: metadataSchema.optional()
+});
+export type CaptureEvidenceUrlRequest = z.infer<
+  typeof captureEvidenceUrlRequestSchema
+>;
+
+export const captureEvidenceUrlResponseSchema = evidenceRecordSchema;
+export type CaptureEvidenceUrlResponse = z.infer<
+  typeof captureEvidenceUrlResponseSchema
 >;
 
 export const getEvidenceItemRequestSchema = z.object({
