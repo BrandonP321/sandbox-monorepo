@@ -506,6 +506,7 @@ select {
 
 .current-assessment,
 .topic-timeline,
+.evidence-capture,
 .review-notes,
 .event-entries {
   margin-top: 1.25rem;
@@ -518,6 +519,7 @@ select {
 .current-assessment__header,
 .assessment-form__header,
 .topic-timeline__header,
+.evidence-capture__header,
 .review-notes__header,
 .review-note-form__header,
 .event-entries__header,
@@ -534,6 +536,7 @@ select {
 .current-assessment-card h4,
 .current-assessment-empty h4,
 .topic-timeline-card h4,
+.evidence-capture-result h4,
 .review-note-form h4,
 .review-note-card h4,
 .event-entry-form h4,
@@ -548,6 +551,7 @@ select {
 .topic-timeline__header p,
 .topic-timeline__empty,
 .topic-timeline-card p,
+.evidence-capture__header p,
 .review-notes__header p,
 .review-notes__empty,
 .review-note-card p,
@@ -561,6 +565,7 @@ select {
 }
 
 .assessment-form,
+.evidence-capture-form,
 .review-note-form,
 .event-entry-form {
   margin-top: 1.25rem;
@@ -572,6 +577,7 @@ select {
 
 .assessment-form__success,
 .topic-timeline__status,
+.evidence-capture-result__status,
 .review-note-form__success,
 .review-notes__status,
 .event-entry-form__success,
@@ -663,6 +669,59 @@ select {
   display: grid;
   gap: 0.85rem;
   margin-top: 1rem;
+}
+
+.evidence-capture-form {
+  display: grid;
+  grid-template-columns: minmax(16rem, 1fr) auto;
+  gap: 0 1rem;
+  align-items: end;
+}
+
+.evidence-capture-form .form-field {
+  margin-top: 0;
+}
+
+.evidence-capture-form .primary-action {
+  margin-top: 0;
+}
+
+.evidence-capture-form .db-wake-up-status {
+  grid-column: 1 / -1;
+}
+
+.evidence-capture-result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #d5ded9;
+  border-radius: 0.5rem;
+  background: #fbfcf8;
+}
+
+.evidence-capture-result__metadata {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 0.85rem 0 0;
+}
+
+.evidence-capture-result__metadata dt {
+  color: #637064;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.evidence-capture-result__metadata dd {
+  margin: 0.25rem 0 0;
+  overflow-wrap: anywhere;
+  color: #314034;
+  line-height: 1.45;
+}
+
+.evidence-capture-result__metadata a {
+  color: #214f43;
+  font-weight: 700;
 }
 
 .review-note-card,
@@ -818,8 +877,14 @@ select {
 
   .topic-detail__metadata,
   .dossier-empty-sections,
+  .evidence-capture-form,
+  .evidence-capture-result__metadata,
   .topic-list-card__metadata {
     grid-template-columns: 1fr;
+  }
+
+  .evidence-capture-form .primary-action {
+    justify-self: start;
   }
 
   .headline {

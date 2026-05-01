@@ -1,6 +1,7 @@
 import type {
   AssessmentUpdate,
   ArchiveTopicResponse,
+  CaptureEvidenceUrlResponse,
   CreateAssessmentUpdateResponse,
   CreateEventEntryResponse,
   CreateReviewNoteResponse,
@@ -28,6 +29,7 @@ import {
 import App from "./App";
 import { createAssessmentUpdate } from "./api/assessments";
 import { SignalTrackerApiError } from "./api/client";
+import { captureEvidenceUrl } from "./api/evidence";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import { listTopicTimeline } from "./api/timeline";
@@ -99,6 +101,16 @@ vi.mock("./api/assessments", async () => {
   return {
     ...actual,
     createAssessmentUpdate: vi.fn()
+  };
+});
+
+vi.mock("./api/evidence", async () => {
+  const actual =
+    await vi.importActual<typeof import("./api/evidence")>("./api/evidence");
+
+  return {
+    ...actual,
+    captureEvidenceUrl: vi.fn()
   };
 });
 
@@ -288,6 +300,37 @@ const listTopicTimelineResponse: ListTopicTimelineResponse = {
   items: []
 };
 
+const capturedEvidenceResponse: CaptureEvidenceUrlResponse = {
+  source: {
+    id: "source-1",
+    canonicalName: "www.reuters.com",
+    baseUrl: "https://www.reuters.com",
+    sourceType: "other",
+    notes: undefined,
+    createdAt: "2026-04-25T01:00:00.000Z",
+    updatedAt: "2026-04-25T01:00:00.000Z"
+  },
+  evidenceItem: {
+    id: "evidence-1",
+    sourceId: "source-1",
+    canonicalUrl: "https://www.reuters.com/world/example",
+    title: "Court grants injunction",
+    author: undefined,
+    publishedAt: undefined,
+    capturedAt: "2026-04-25T01:00:00.000Z",
+    contentType: undefined,
+    language: undefined,
+    snapshotHash: undefined,
+    storageKey: undefined,
+    metadata: {
+      originalUrl: "https://www.reuters.com/world/example?utm_source=feed",
+      captureMethod: "url_paste"
+    },
+    createdAt: "2026-04-25T01:00:00.000Z",
+    updatedAt: "2026-04-25T01:00:00.000Z"
+  }
+};
+
 afterEach(() => {
   vi.clearAllMocks();
 });
@@ -304,6 +347,7 @@ const listEventEntriesMock = vi.mocked(listEventEntries);
 const createReviewNoteMock = vi.mocked(createReviewNote);
 const listReviewNotesMock = vi.mocked(listReviewNotes);
 const createAssessmentUpdateMock = vi.mocked(createAssessmentUpdate);
+const captureEvidenceUrlMock = vi.mocked(captureEvidenceUrl);
 const listTopicTimelineMock = vi.mocked(listTopicTimeline);
 
 describe("App", () => {
@@ -321,6 +365,7 @@ describe("App", () => {
     createReviewNoteMock.mockResolvedValue(reviewNoteResponse);
     listReviewNotesMock.mockResolvedValue(listReviewNotesResponse);
     createAssessmentUpdateMock.mockResolvedValue(assessmentUpdateResponse);
+    captureEvidenceUrlMock.mockResolvedValue(capturedEvidenceResponse);
     listTopicTimelineMock.mockResolvedValue(listTopicTimelineResponse);
   });
 
@@ -1391,10 +1436,12 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { name: "Topic timeline" })
     ).toBeInTheDocument();
-    expect(listTopicTimelineMock).toHaveBeenCalledWith(
-      { topicId: "topic-1", limit: 6 },
-      expect.objectContaining({ onProgress: expect.any(Function) })
-    );
+    await waitFor(() => {
+      expect(listTopicTimelineMock).toHaveBeenCalledWith(
+        { topicId: "topic-1", limit: 6 },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
     expect(
       await screen.findByText(
         /No timeline entries yet. Add events, assessment updates, or review notes/
@@ -1469,7 +1516,7 @@ describe("App", () => {
 
     expect(timelineSection).not.toBeNull();
     expect(
-      within(timelineSection!).getByText("Review note")
+      await within(timelineSection!).findByText("Review note")
     ).toBeInTheDocument();
     expect(
       within(timelineSection!).getByText("Assessment update")
@@ -1568,6 +1615,242 @@ describe("App", () => {
         name: "Show recent timeline"
       })
     ).toBeInTheDocument();
+  });
+
+  it("renders the URL evidence capture form on topic detail", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    expect(
+      within(evidenceSection!).getByRole("form", {
+        name: "Capture URL evidence"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByLabelText("Evidence URL")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Evidence and citations" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows an evidence URL required error before calling the capture API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText("Enter an evidence URL.")
+    ).toBeInTheDocument();
+    expect(captureEvidenceUrlMock).not.toHaveBeenCalled();
+  });
+
+  it("validates evidence URL format before calling the capture API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.change(within(evidenceSection!).getByLabelText("Evidence URL"), {
+      target: { value: "ftp://example.com/source" }
+    });
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText(
+        "Enter a valid http or https URL."
+      )
+    ).toBeInTheDocument();
+    expect(captureEvidenceUrlMock).not.toHaveBeenCalled();
+  });
+
+  it("captures URL evidence and renders returned metadata", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.change(within(evidenceSection!).getByLabelText("Evidence URL"), {
+      target: {
+        value: " https://www.reuters.com/world/example?utm_source=feed "
+      }
+    });
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    await waitFor(() => {
+      expect(captureEvidenceUrlMock).toHaveBeenCalledWith(
+        { url: "https://www.reuters.com/world/example?utm_source=feed" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(
+      await within(evidenceSection!).findByText("Evidence saved or reused.")
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByRole("heading", {
+        name: "Court grants injunction"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByText("www.reuters.com")
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByRole("link", {
+        name: "https://www.reuters.com/world/example"
+      })
+    ).toHaveAttribute("href", "https://www.reuters.com/world/example");
+    expect(
+      within(evidenceSection!).getByText("Apr 25, 2026")
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByText("evidence-1")
+    ).toBeInTheDocument();
+    expect(within(evidenceSection!).getByLabelText("Evidence URL")).toHaveValue(
+      ""
+    );
+  });
+
+  it("uses neutral copy when the capture API returns an existing evidence item", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    captureEvidenceUrlMock.mockResolvedValueOnce({
+      ...capturedEvidenceResponse,
+      evidenceItem: {
+        ...capturedEvidenceResponse.evidenceItem,
+        id: "evidence-existing",
+        title: "Existing Reuters evidence"
+      }
+    });
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.change(within(evidenceSection!).getByLabelText("Evidence URL"), {
+      target: { value: "https://www.reuters.com/world/example" }
+    });
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText("Evidence saved or reused.")
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByRole("heading", {
+        name: "Existing Reuters evidence"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByText("evidence-existing")
+    ).toBeInTheDocument();
+  });
+
+  it("shows an evidence capture request error without clearing entered URL", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    captureEvidenceUrlMock.mockRejectedValueOnce(
+      new Error("database unavailable")
+    );
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.change(within(evidenceSection!).getByLabelText("Evidence URL"), {
+      target: { value: "https://www.reuters.com/world/example" }
+    });
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+    expect(within(evidenceSection!).getByLabelText("Evidence URL")).toHaveValue(
+      "https://www.reuters.com/world/example"
+    );
+
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Try again" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText("Evidence saved or reused.")
+    ).toBeInTheDocument();
+    expect(captureEvidenceUrlMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows wake-up progress while capturing URL evidence", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    captureEvidenceUrlMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<CaptureEvidenceUrlResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    const evidenceSection = (
+      await screen.findByRole("heading", { name: "Capture URL evidence" })
+    ).closest("section");
+
+    expect(evidenceSection).not.toBeNull();
+    fireEvent.change(within(evidenceSection!).getByLabelText("Evidence URL"), {
+      target: { value: "https://www.reuters.com/world/example" }
+    });
+    fireEvent.click(
+      within(evidenceSection!).getByRole("button", { name: "Save evidence" })
+    );
+
+    expect(
+      await within(evidenceSection!).findByText(
+        /The database is waking up after inactivity/
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(evidenceSection!).getByRole("button", {
+        name: "Saving evidence..."
+      })
+    ).toBeDisabled();
   });
 
   it("opens and cancels the inline assessment form", async () => {
@@ -1812,11 +2095,7 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { name: "Current assessment" })
     ).toBeInTheDocument();
-    for (const sectionName of [
-      "Evidence and citations",
-      "Review workflow",
-      "Export"
-    ]) {
+    for (const sectionName of ["Review workflow", "Export"]) {
       const section = screen
         .getByRole("heading", { name: sectionName })
         .closest("article");

@@ -1,5 +1,6 @@
 import {
   assessmentConfidenceLabelSchema,
+  captureEvidenceUrlRequestSchema,
   createAssessmentUpdateRequestSchema,
   createEventEntryRequestSchema,
   createReviewNoteRequestSchema,
@@ -7,6 +8,8 @@ import {
   type AssessmentConfidenceLabel,
   type AssessmentUpdate,
   type ArchiveTopicResponse,
+  type CaptureEvidenceUrlRequest,
+  type CaptureEvidenceUrlResponse,
   type CreateAssessmentUpdateRequest,
   type CreateAssessmentUpdateResponse,
   type CreateEventEntryRequest,
@@ -42,6 +45,7 @@ import {
 
 import { SignalTrackerApiError } from "./api/client";
 import { createAssessmentUpdate } from "./api/assessments";
+import { captureEvidenceUrl } from "./api/evidence";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import { listTopicTimeline } from "./api/timeline";
@@ -170,10 +174,6 @@ const assessmentConfidenceOptions = assessmentConfidenceLabelSchema.options.map(
 ) satisfies Array<{ value: AssessmentConfidenceLabel; label: string }>;
 
 const dossierSections = [
-  {
-    title: "Evidence and citations",
-    body: "Future evidence and citations will connect entries to reusable sources and precise anchors."
-  },
   {
     title: "Review workflow",
     body: "Future review workflow will support since-last-review checks and review completion."
@@ -957,6 +957,16 @@ function TopicDossierShell({
     DbBackedRequestState<ListTopicTimelineResponse>
   >({ status: "loading" });
   const timelineRunId = useRef(0);
+  const [evidenceUrl, setEvidenceUrl] = useState("");
+  const [evidenceUrlError, setEvidenceUrlError] = useState<string | undefined>(
+    undefined
+  );
+  const [captureEvidenceState, setCaptureEvidenceState] = useState<
+    DbBackedRequestState<CaptureEvidenceUrlResponse>
+  >({ status: "idle" });
+  const lastSubmittedEvidenceCapture = useRef<CaptureEvidenceUrlRequest | null>(
+    null
+  );
 
   const isUpdating =
     updateState.status === "loading" || updateState.status === "waking";
@@ -973,6 +983,9 @@ function TopicDossierShell({
   const isCreatingAssessment =
     createAssessmentState.status === "loading" ||
     createAssessmentState.status === "waking";
+  const isCapturingEvidence =
+    captureEvidenceState.status === "loading" ||
+    captureEvidenceState.status === "waking";
   const canDelete = deleteConfirmationTitle === topic.title && !isDeleting;
 
   const loadEventEntries = useCallback(async () => {
@@ -1166,6 +1179,11 @@ function TopicDossierShell({
       ...currentErrors,
       [fieldName]: undefined
     }));
+  }
+
+  function updateEvidenceUrl(value: string) {
+    setEvidenceUrl(value);
+    setEvidenceUrlError(undefined);
   }
 
   function openEventForm() {
@@ -1513,6 +1531,55 @@ function TopicDossierShell({
     }
   }
 
+  async function handleCaptureEvidenceSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const parsedRequest = captureEvidenceUrlRequestSchema.safeParse({
+      url: evidenceUrl
+    });
+
+    if (!parsedRequest.success) {
+      setEvidenceUrlError(
+        evidenceUrl.trim()
+          ? "Enter a valid http or https URL."
+          : "Enter an evidence URL."
+      );
+      setCaptureEvidenceState({ status: "idle" });
+      return;
+    }
+
+    lastSubmittedEvidenceCapture.current = parsedRequest.data;
+    await submitEvidenceCapture(parsedRequest.data);
+  }
+
+  async function retryCaptureEvidence() {
+    if (!lastSubmittedEvidenceCapture.current) {
+      return;
+    }
+
+    await submitEvidenceCapture(lastSubmittedEvidenceCapture.current);
+  }
+
+  async function submitEvidenceCapture(request: CaptureEvidenceUrlRequest) {
+    setEvidenceUrlError(undefined);
+    setCaptureEvidenceState({ status: "loading" });
+
+    try {
+      const response = await captureEvidenceUrl(request, {
+        onProgress: (progress) => {
+          setCaptureEvidenceState({ status: progress.phase });
+        }
+      });
+
+      setCaptureEvidenceState({ status: "success", data: response });
+      setEvidenceUrl("");
+    } catch (error) {
+      setCaptureEvidenceState({ status: "error", error });
+    }
+  }
+
   function showFullTimeline() {
     setTimelineMode("full");
     void loadTimeline("full");
@@ -1622,6 +1689,16 @@ function TopicDossierShell({
         onRetry={() => void loadTimeline(timelineMode)}
         onShowFull={showFullTimeline}
         onShowRecent={showRecentTimeline}
+      />
+
+      <EvidenceCaptureSection
+        evidenceUrl={evidenceUrl}
+        evidenceUrlError={evidenceUrlError}
+        captureState={captureEvidenceState}
+        isCapturing={isCapturingEvidence}
+        onUpdateEvidenceUrl={updateEvidenceUrl}
+        onSubmit={(event) => void handleCaptureEvidenceSubmit(event)}
+        onRetryCapture={() => void retryCaptureEvidence()}
       />
 
       <ReviewNotesSection
@@ -1786,6 +1863,128 @@ function TopicDossierShell({
         ))}
       </section>
     </>
+  );
+}
+
+function EvidenceCaptureSection({
+  evidenceUrl,
+  evidenceUrlError,
+  captureState,
+  isCapturing,
+  onUpdateEvidenceUrl,
+  onSubmit,
+  onRetryCapture
+}: {
+  evidenceUrl: string;
+  evidenceUrlError: string | undefined;
+  captureState: DbBackedRequestState<CaptureEvidenceUrlResponse>;
+  isCapturing: boolean;
+  onUpdateEvidenceUrl: (value: string) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onRetryCapture: () => void;
+}) {
+  const urlErrorId = "evidence-url-error";
+  const capturedRecord =
+    captureState.status === "success" ? captureState.data : null;
+
+  return (
+    <section
+      className="evidence-capture"
+      aria-labelledby="evidence-capture-title"
+    >
+      <div className="evidence-capture__header">
+        <div>
+          <p className="eyebrow">Evidence</p>
+          <h3 id="evidence-capture-title">Capture URL evidence</h3>
+          <p>
+            Paste a source URL to save a reusable evidence item before attaching
+            citations later.
+          </p>
+        </div>
+      </div>
+
+      <form
+        className="evidence-capture-form"
+        aria-label="Capture URL evidence"
+        noValidate
+        onSubmit={onSubmit}
+      >
+        <label className="form-field" htmlFor="evidence-url">
+          <span>Evidence URL</span>
+          <input
+            id="evidence-url"
+            type="url"
+            inputMode="url"
+            placeholder="https://example.com/source"
+            value={evidenceUrl}
+            disabled={isCapturing}
+            aria-invalid={evidenceUrlError ? true : undefined}
+            aria-describedby={evidenceUrlError ? urlErrorId : undefined}
+            onChange={(event) => onUpdateEvidenceUrl(event.target.value)}
+          />
+          {evidenceUrlError ? (
+            <span className="field-error" id={urlErrorId}>
+              {evidenceUrlError}
+            </span>
+          ) : null}
+        </label>
+
+        <button className="primary-action" type="submit" disabled={isCapturing}>
+          {isCapturing ? "Saving evidence..." : "Save evidence"}
+        </button>
+
+        <DbWakeUpStatus state={captureState} onRetry={onRetryCapture} />
+      </form>
+
+      {capturedRecord ? (
+        <EvidenceCaptureResult record={capturedRecord} />
+      ) : null}
+    </section>
+  );
+}
+
+function EvidenceCaptureResult({
+  record
+}: {
+  record: CaptureEvidenceUrlResponse;
+}) {
+  const canonicalUrl = record.evidenceItem.canonicalUrl;
+
+  return (
+    <article className="evidence-capture-result" aria-live="polite">
+      <p className="status-text evidence-capture-result__status">
+        Evidence saved or reused.
+      </p>
+      <h4>{record.evidenceItem.title}</h4>
+      <dl className="evidence-capture-result__metadata">
+        <div>
+          <dt>Source</dt>
+          <dd>{record.source.canonicalName}</dd>
+        </div>
+        {canonicalUrl ? (
+          <div>
+            <dt>Canonical URL</dt>
+            <dd>
+              <a href={canonicalUrl} target="_blank" rel="noreferrer">
+                {canonicalUrl}
+              </a>
+            </dd>
+          </div>
+        ) : null}
+        <div>
+          <dt>Captured</dt>
+          <dd>{formatTopicDate(record.evidenceItem.capturedAt)}</dd>
+        </div>
+        <div>
+          <dt>Evidence ID</dt>
+          <dd>{record.evidenceItem.id}</dd>
+        </div>
+        <div>
+          <dt>Source ID</dt>
+          <dd>{record.source.id}</dd>
+        </div>
+      </dl>
+    </article>
   );
 }
 
