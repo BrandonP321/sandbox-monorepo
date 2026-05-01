@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
+  createReviewNoteRequestSchema,
+  createReviewNoteResponseSchema,
   entryEpistemicStatusSchema,
   entryKindSchema,
   entryOriginTypeSchema,
@@ -10,8 +12,12 @@ import {
   entryStatusSchema,
   getEventEntryRequestSchema,
   getEventEntryResponseSchema,
+  getReviewNoteRequestSchema,
+  getReviewNoteResponseSchema,
   listEventEntriesRequestSchema,
   listEventEntriesResponseSchema,
+  listReviewNotesRequestSchema,
+  listReviewNotesResponseSchema,
   updateEventEntryRequestSchema,
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
@@ -168,6 +174,52 @@ describe("entry contracts", () => {
     ).toThrow();
   });
 
+  it("validates review note creation requests", () => {
+    expect(
+      createReviewNoteRequestSchema.parse({
+        topicId: " topic-1 ",
+        title: " Weekly review ",
+        bodyMd: " No major developments since the prior review. ",
+        sortAt: " 2026-04-25T00:00:00.000Z ",
+        epistemicStatus: "observed"
+      })
+    ).toEqual({
+      topicId: "topic-1",
+      title: "Weekly review",
+      bodyMd: "No major developments since the prior review.",
+      sortAt: "2026-04-25T00:00:00.000Z",
+      epistemicStatus: "observed"
+    });
+
+    expect(() =>
+      createReviewNoteRequestSchema.parse({
+        topicId: "topic-1",
+        title: " ",
+        bodyMd: "No major developments since the prior review.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed"
+      })
+    ).toThrow();
+    expect(() =>
+      createReviewNoteRequestSchema.parse({
+        topicId: "topic-1",
+        title: "Weekly review",
+        bodyMd: " ",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed"
+      })
+    ).toThrow();
+    expect(() =>
+      createReviewNoteRequestSchema.parse({
+        topicId: "topic-1",
+        title: "Weekly review",
+        bodyMd: "No major developments since the prior review.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "rumored"
+      })
+    ).toThrow();
+  });
+
   it("validates event entry read and update requests", () => {
     expect(getEventEntryRequestSchema.parse({ entryId: " entry-1 " })).toEqual({
       entryId: "entry-1"
@@ -209,6 +261,23 @@ describe("entry contracts", () => {
     ).toThrow();
   });
 
+  it("validates review note read and list requests", () => {
+    expect(getReviewNoteRequestSchema.parse({ entryId: " review-1 " })).toEqual(
+      {
+        entryId: "review-1"
+      }
+    );
+    expect(() => getReviewNoteRequestSchema.parse({ entryId: " " })).toThrow();
+    expect(
+      listReviewNotesRequestSchema.parse({ topicId: " topic-1 " })
+    ).toEqual({
+      topicId: "topic-1"
+    });
+    expect(() =>
+      listReviewNotesRequestSchema.parse({ topicId: " " })
+    ).toThrow();
+  });
+
   it("validates event entry response shapes", () => {
     const entry = entrySchema.parse({
       id: "entry-1",
@@ -231,5 +300,28 @@ describe("entry contracts", () => {
       entries: [entry]
     });
     expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+  });
+
+  it("validates review note response shapes", () => {
+    const entry = entrySchema.parse({
+      id: "review-1",
+      topicId: "topic-1",
+      kind: "review",
+      epistemicStatus: "observed",
+      title: "Weekly review",
+      bodyMd: "No major developments since the prior review.",
+      sortAt: "2026-04-25T00:00:00.000Z",
+      isApproximateDate: false,
+      originType: "manual",
+      status: "active",
+      createdAt: "2026-04-25T01:00:00.000Z",
+      updatedAt: "2026-04-25T01:00:00.000Z"
+    });
+
+    expect(createReviewNoteResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(getReviewNoteResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(listReviewNotesResponseSchema.parse({ entries: [entry] })).toEqual({
+      entries: [entry]
+    });
   });
 });

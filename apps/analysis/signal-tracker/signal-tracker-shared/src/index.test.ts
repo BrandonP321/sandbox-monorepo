@@ -4,6 +4,7 @@ import {
   assessmentConfidenceLabelSchema,
   createEventEntryRequestSchema,
   createEvidenceItemRequestSchema,
+  createReviewNoteRequestSchema,
   createTopicRequestSchema,
   isSignalTrackerRetryableDbErrorCode,
   signalTrackerApiErrorCodes,
@@ -29,6 +30,9 @@ describe("signal-tracker-shared public barrel", () => {
     expect(signalTrackerRoutes.createEvidenceItem.path).toBe(
       "/create-evidence-item"
     );
+    expect(signalTrackerRoutes.createReviewNote.path).toBe(
+      "/create-review-note"
+    );
     expect(
       createTopicRequestSchema.parse({
         title: " Topic ",
@@ -50,6 +54,19 @@ describe("signal-tracker-shared public barrel", () => {
       topicId: "topic-1",
       title: "Event",
       bodyMd: "Body"
+    });
+    expect(
+      createReviewNoteRequestSchema.parse({
+        topicId: " topic-1 ",
+        title: " Review ",
+        bodyMd: " No major changes. ",
+        sortAt: " 2026-04-25T00:00:00.000Z ",
+        epistemicStatus: "observed"
+      })
+    ).toMatchObject({
+      topicId: "topic-1",
+      title: "Review",
+      bodyMd: "No major changes."
     });
     expect(
       createEvidenceItemRequestSchema.parse({

@@ -25,6 +25,14 @@ export function createEventEntryNotFoundError(): AppError {
   );
 }
 
+export function createReviewNoteNotFoundError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.reviewNoteNotFound,
+    "Review note not found",
+    404
+  );
+}
+
 export function createEvidenceItemNotFoundError(): AppError {
   return new AppError(
     signalTrackerApiErrorCodes.evidenceItemNotFound,

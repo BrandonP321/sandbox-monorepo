@@ -16,6 +16,9 @@ import { createGetEventEntryHandler } from "../routes/event-entries/get-event-en
 import { createListEventEntriesHandler } from "../routes/event-entries/list-event-entries";
 import { createUpdateEventEntryHandler } from "../routes/event-entries/update-event-entry";
 import { getHealth } from "../routes/health/get-health";
+import { createCreateReviewNoteHandler } from "../routes/review-notes/create-review-note";
+import { createGetReviewNoteHandler } from "../routes/review-notes/get-review-note";
+import { createListReviewNotesHandler } from "../routes/review-notes/list-review-notes";
 import { createArchiveTopicHandler } from "../routes/topics/archive-topic";
 import { createCreateTopicHandler } from "../routes/topics/create-topic";
 import { createDeleteTopicHandler } from "../routes/topics/delete-topic";
@@ -62,6 +65,12 @@ function createRouteHandlers(
       generateId: dependencies.generateId,
       now: dependencies.now
     }),
+    createReviewNote: createCreateReviewNoteHandler({
+      entryRepository: dependencies.entryRepository,
+      topicRepository: dependencies.topicRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now
+    }),
     getEventEntry: createGetEventEntryHandler({
       entryRepository: dependencies.entryRepository
     }),
@@ -71,6 +80,12 @@ function createRouteHandlers(
     updateEventEntry: createUpdateEventEntryHandler({
       entryRepository: dependencies.entryRepository,
       now: dependencies.now
+    }),
+    getReviewNote: createGetReviewNoteHandler({
+      entryRepository: dependencies.entryRepository
+    }),
+    listReviewNotes: createListReviewNotesHandler({
+      entryRepository: dependencies.entryRepository
     }),
     createEvidenceItem: createCreateEvidenceItemHandler({
       evidenceRepository: dependencies.evidenceRepository,

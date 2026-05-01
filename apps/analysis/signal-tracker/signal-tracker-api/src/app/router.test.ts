@@ -87,4 +87,65 @@ describe("createAppRouter", () => {
     expect(getResult.statusCode).toBe(200);
     expect(JSON.parse(getResult.body)).toEqual(JSON.parse(createResult.body));
   });
+
+  it("shares injected entry dependencies across review note route handlers", async () => {
+    const assessmentRepository = new InMemoryAssessmentRepository();
+    const findLatestActiveByTopic = vi.spyOn(
+      assessmentRepository,
+      "findLatestActiveByTopic"
+    );
+    const router = createAppRouter({
+      topicRepository: new InMemoryTopicRepository(),
+      entryRepository: new InMemoryEntryRepository(),
+      assessmentRepository,
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      createId: () => "topic-1",
+      generateId: () => "review-1",
+      now: () => new Date("2026-04-25T00:00:00.000Z")
+    });
+
+    await router({
+      method: signalTrackerRoutes.createTopic.method,
+      path: signalTrackerRoutes.createTopic.path,
+      body: JSON.stringify({
+        title: "Iran strike risk",
+        framingQuestion: "Will tensions escalate?"
+      })
+    });
+
+    const createResult = await router({
+      method: signalTrackerRoutes.createReviewNote.method,
+      path: signalTrackerRoutes.createReviewNote.path,
+      body: JSON.stringify({
+        topicId: "topic-1",
+        title: "Weekly review",
+        bodyMd: "No major developments since the prior review.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed"
+      })
+    });
+
+    expect(createResult.statusCode).toBe(200);
+
+    const getResult = await router({
+      method: signalTrackerRoutes.getReviewNote.method,
+      path: signalTrackerRoutes.getReviewNote.path,
+      body: JSON.stringify({ entryId: "review-1" })
+    });
+
+    expect(getResult.statusCode).toBe(200);
+    expect(JSON.parse(getResult.body)).toEqual(JSON.parse(createResult.body));
+
+    const listResult = await router({
+      method: signalTrackerRoutes.listReviewNotes.method,
+      path: signalTrackerRoutes.listReviewNotes.path,
+      body: JSON.stringify({ topicId: "topic-1" })
+    });
+
+    expect(listResult.statusCode).toBe(200);
+    expect(JSON.parse(listResult.body)).toEqual({
+      entries: [JSON.parse(createResult.body).entry]
+    });
+    expect(findLatestActiveByTopic).not.toHaveBeenCalled();
+  });
 });

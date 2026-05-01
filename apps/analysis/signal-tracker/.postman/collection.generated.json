@@ -217,6 +217,95 @@
       ]
     },
     {
+      "name": "Review Notes",
+      "item": [
+        {
+          "name": "Create Review Note",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/create-review-note",
+              "host": ["{{baseUrl}}"],
+              "path": ["create-review-note"]
+            },
+            "description": "Creates a manual review note entry inside a tracked topic without updating the current assessment.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"title\": \"Weekly review\",\n  \"bodyMd\": \"No major developments since the prior review.\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\",\n  \"epistemicStatus\": \"observed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Review Note",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/get-review-note",
+              "host": ["{{baseUrl}}"],
+              "path": ["get-review-note"]
+            },
+            "description": "Retrieves a review note entry by ID.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryId\": \"review-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Review Notes",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/list-review-notes",
+              "host": ["{{baseUrl}}"],
+              "path": ["list-review-notes"]
+            },
+            "description": "Lists active manual review note entries for a tracked topic.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"topicId\": \"topic-1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Topics",
       "item": [
         {

@@ -29,6 +29,28 @@ describe("PostgresEntryRepository", () => {
     });
   });
 
+  it("maps review note rows through the base entry shape", () => {
+    expect(
+      mapEntryRow(
+        buildEntryRowFixture({
+          id: "review-1",
+          kind: "review",
+          epistemicStatus: "observed",
+          title: "Weekly review",
+          bodyMd: "No major developments since the prior review."
+        })
+      )
+    ).toEqual(
+      buildEntryFixture({
+        id: "review-1",
+        kind: "review",
+        epistemicStatus: "observed",
+        title: "Weekly review",
+        bodyMd: "No major developments since the prior review."
+      })
+    );
+  });
+
   it("persists a valid entry through the entry row store", async () => {
     const store = new FakeEntryRowStore();
     const repository = new PostgresEntryRepository(store);

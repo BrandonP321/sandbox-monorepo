@@ -62,6 +62,26 @@ export type CreateEventEntryResponse = z.infer<
   typeof createEventEntryResponseSchema
 >;
 
+export const createReviewNoteRequestSchema = z.object({
+  topicId: trimmedRequiredString,
+  title: trimmedRequiredString,
+  bodyMd: trimmedRequiredString,
+  sortAt: trimmedRequiredString,
+  epistemicStatus: entryEpistemicStatusSchema
+});
+
+export type CreateReviewNoteRequest = z.infer<
+  typeof createReviewNoteRequestSchema
+>;
+
+export const createReviewNoteResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type CreateReviewNoteResponse = z.infer<
+  typeof createReviewNoteResponseSchema
+>;
+
 export const getEventEntryRequestSchema = z.object({
   entryId: trimmedRequiredString
 });
@@ -88,6 +108,34 @@ export const listEventEntriesResponseSchema = z.object({
 
 export type ListEventEntriesResponse = z.infer<
   typeof listEventEntriesResponseSchema
+>;
+
+export const getReviewNoteRequestSchema = z.object({
+  entryId: trimmedRequiredString
+});
+
+export type GetReviewNoteRequest = z.infer<typeof getReviewNoteRequestSchema>;
+
+export const getReviewNoteResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type GetReviewNoteResponse = z.infer<typeof getReviewNoteResponseSchema>;
+
+export const listReviewNotesRequestSchema = z.object({
+  topicId: trimmedRequiredString
+});
+
+export type ListReviewNotesRequest = z.infer<
+  typeof listReviewNotesRequestSchema
+>;
+
+export const listReviewNotesResponseSchema = z.object({
+  entries: z.array(entrySchema)
+});
+
+export type ListReviewNotesResponse = z.infer<
+  typeof listReviewNotesResponseSchema
 >;
 
 export const updateEventEntryRequestSchema = z

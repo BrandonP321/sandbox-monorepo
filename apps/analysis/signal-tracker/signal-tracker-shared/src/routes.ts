@@ -7,10 +7,16 @@ import {
 import {
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
+  createReviewNoteRequestSchema,
+  createReviewNoteResponseSchema,
   getEventEntryRequestSchema,
   getEventEntryResponseSchema,
+  getReviewNoteRequestSchema,
+  getReviewNoteResponseSchema,
   listEventEntriesRequestSchema,
   listEventEntriesResponseSchema,
+  listReviewNotesRequestSchema,
+  listReviewNotesResponseSchema,
   updateEventEntryRequestSchema,
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
@@ -73,6 +79,10 @@ export const signalTrackerRoutes = {
     method: "POST",
     path: "/create-assessment-update"
   },
+  createReviewNote: {
+    method: "POST",
+    path: "/create-review-note"
+  },
   getEventEntry: {
     method: "POST",
     path: "/get-event-entry"
@@ -84,6 +94,14 @@ export const signalTrackerRoutes = {
   updateEventEntry: {
     method: "POST",
     path: "/update-event-entry"
+  },
+  getReviewNote: {
+    method: "POST",
+    path: "/get-review-note"
+  },
+  listReviewNotes: {
+    method: "POST",
+    path: "/list-review-notes"
   },
   createEvidenceItem: {
     method: "POST",
@@ -165,6 +183,11 @@ export const signalTrackerRouteContracts = {
     requestSchema: createAssessmentUpdateRequestSchema,
     responseSchema: createAssessmentUpdateResponseSchema
   },
+  createReviewNote: {
+    route: signalTrackerRoutes.createReviewNote,
+    requestSchema: createReviewNoteRequestSchema,
+    responseSchema: createReviewNoteResponseSchema
+  },
   getEventEntry: {
     route: signalTrackerRoutes.getEventEntry,
     requestSchema: getEventEntryRequestSchema,
@@ -179,6 +202,16 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.updateEventEntry,
     requestSchema: updateEventEntryRequestSchema,
     responseSchema: updateEventEntryResponseSchema
+  },
+  getReviewNote: {
+    route: signalTrackerRoutes.getReviewNote,
+    requestSchema: getReviewNoteRequestSchema,
+    responseSchema: getReviewNoteResponseSchema
+  },
+  listReviewNotes: {
+    route: signalTrackerRoutes.listReviewNotes,
+    requestSchema: listReviewNotesRequestSchema,
+    responseSchema: listReviewNotesResponseSchema
   },
   createEvidenceItem: {
     route: signalTrackerRoutes.createEvidenceItem,

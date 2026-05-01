@@ -19,6 +19,9 @@ describe("signalTracker API error conventions", () => {
     expect(signalTrackerApiErrorCodes.eventEntryNotFound).toBe(
       "EVENT_ENTRY_NOT_FOUND"
     );
+    expect(signalTrackerApiErrorCodes.reviewNoteNotFound).toBe(
+      "REVIEW_NOTE_NOT_FOUND"
+    );
     expect(signalTrackerApiErrorCodes.evidenceItemNotFound).toBe(
       "EVIDENCE_ITEM_NOT_FOUND"
     );
