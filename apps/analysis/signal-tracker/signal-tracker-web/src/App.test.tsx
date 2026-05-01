@@ -1064,7 +1064,7 @@ describe("App", () => {
       await within(eventSection!).findByText("1 citation")
     ).toBeInTheDocument();
     fireEvent.click(
-      within(eventSection!).getByRole("button", {
+      await within(eventSection!).findByRole("button", {
         name: "Manage citations"
       })
     );
@@ -1106,7 +1106,7 @@ describe("App", () => {
       await within(eventSection!).findByText("Uncited")
     ).toBeInTheDocument();
     fireEvent.click(
-      within(eventSection!).getByRole("button", {
+      await within(eventSection!).findByRole("button", {
         name: "Manage citations"
       })
     );
@@ -1168,7 +1168,7 @@ describe("App", () => {
 
     expect(eventSection).not.toBeNull();
     fireEvent.click(
-      within(eventSection!).getByRole("button", {
+      await within(eventSection!).findByRole("button", {
         name: "Manage citations"
       })
     );
