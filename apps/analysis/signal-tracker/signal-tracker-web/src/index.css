@@ -505,6 +505,7 @@ select {
 }
 
 .current-assessment,
+.review-notes,
 .event-entries {
   margin-top: 1.25rem;
   padding: 1.25rem;
@@ -515,6 +516,8 @@ select {
 
 .current-assessment__header,
 .assessment-form__header,
+.review-notes__header,
+.review-note-form__header,
 .event-entries__header,
 .event-entry-form__header {
   display: flex;
@@ -528,6 +531,8 @@ select {
 .assessment-form h4,
 .current-assessment-card h4,
 .current-assessment-empty h4,
+.review-note-form h4,
+.review-note-card h4,
 .event-entry-form h4,
 .event-entry-card h4 {
   margin: 0;
@@ -537,6 +542,9 @@ select {
 .current-assessment__header p,
 .current-assessment-empty p,
 .current-assessment-card p,
+.review-notes__header p,
+.review-notes__empty,
+.review-note-card p,
 .event-entries__header p,
 .event-entries__empty,
 .event-entry-card p {
@@ -547,6 +555,7 @@ select {
 }
 
 .assessment-form,
+.review-note-form,
 .event-entry-form {
   margin-top: 1.25rem;
   padding: 1rem;
@@ -556,6 +565,8 @@ select {
 }
 
 .assessment-form__success,
+.review-note-form__success,
+.review-notes__status,
 .event-entry-form__success,
 .event-entries__status {
   margin-top: 0.75rem;
@@ -639,12 +650,14 @@ select {
   font-weight: 800;
 }
 
+.review-note-list,
 .event-entry-list {
   display: grid;
   gap: 0.85rem;
   margin-top: 1rem;
 }
 
+.review-note-card,
 .event-entry-card {
   padding: 1rem;
   border: 1px solid #d5ded9;
@@ -652,6 +665,7 @@ select {
   background: #fbfcf8;
 }
 
+.review-note-card__metadata,
 .event-entry-card__metadata {
   display: flex;
   flex-wrap: wrap;
@@ -659,6 +673,8 @@ select {
   margin-bottom: 0.6rem;
 }
 
+.review-note-card__metadata time,
+.review-note-card__metadata span,
 .event-entry-card__metadata time,
 .event-entry-card__metadata span {
   padding: 0.2rem 0.5rem;

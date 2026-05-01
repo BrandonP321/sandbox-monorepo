@@ -2,6 +2,7 @@ import {
   assessmentConfidenceLabelSchema,
   createAssessmentUpdateRequestSchema,
   createEventEntryRequestSchema,
+  createReviewNoteRequestSchema,
   updateTopicRequestSchema,
   type AssessmentConfidenceLabel,
   type AssessmentUpdate,
@@ -10,6 +11,8 @@ import {
   type CreateAssessmentUpdateResponse,
   type CreateEventEntryRequest,
   type CreateEventEntryResponse,
+  type CreateReviewNoteRequest,
+  type CreateReviewNoteResponse,
   createTopicRequestSchema,
   type CreateTopicRequest,
   type CreateTopicResponse,
@@ -18,6 +21,7 @@ import {
   type EntryEpistemicStatus,
   type GetTopicResponse,
   type ListEventEntriesResponse,
+  type ListReviewNotesResponse,
   type ListTopicsResponse,
   type ReviewCadence,
   type Topic,
@@ -37,6 +41,7 @@ import {
 import { SignalTrackerApiError } from "./api/client";
 import { createAssessmentUpdate } from "./api/assessments";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
+import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import {
   archiveTopic,
   createTopic,
@@ -78,6 +83,17 @@ type EventEntryFormValues = {
 
 type EventEntryFieldErrors = Partial<
   Record<keyof EventEntryFormValues, string>
+>;
+
+type ReviewNoteFormValues = {
+  title: string;
+  bodyMd: string;
+  sortDate: string;
+  epistemicStatus: EntryEpistemicStatus;
+};
+
+type ReviewNoteFieldErrors = Partial<
+  Record<keyof ReviewNoteFormValues, string>
 >;
 
 type AssessmentFormValues = {
@@ -123,6 +139,13 @@ const defaultEventEntryFormValues: EventEntryFormValues = {
   epistemicStatus: "reported"
 };
 
+const defaultReviewNoteFormValues: ReviewNoteFormValues = {
+  title: "",
+  bodyMd: "",
+  sortDate: "",
+  epistemicStatus: "inferred"
+};
+
 const defaultAssessmentFormValues: AssessmentFormValues = {
   judgment: "",
   confidenceLabel: "",
@@ -142,10 +165,6 @@ const assessmentConfidenceOptions = assessmentConfidenceLabelSchema.options.map(
 ) satisfies Array<{ value: AssessmentConfidenceLabel; label: string }>;
 
 const dossierSections = [
-  {
-    title: "Review notes",
-    body: "Future review notes will record what you concluded when revisiting this dossier."
-  },
   {
     title: "Evidence and citations",
     body: "Future evidence and citations will connect entries to reusable sources and precise anchors."
@@ -897,6 +916,20 @@ function TopicDossierShell({
     DbBackedRequestState<CreateEventEntryResponse>
   >({ status: "idle" });
   const lastSubmittedEvent = useRef<CreateEventEntryRequest | null>(null);
+  const [reviewNoteListState, setReviewNoteListState] = useState<
+    DbBackedRequestState<ListReviewNotesResponse>
+  >({ status: "loading" });
+  const reviewNoteListRunId = useRef(0);
+  const [isReviewNoteFormOpen, setIsReviewNoteFormOpen] = useState(false);
+  const [reviewNoteForm, setReviewNoteForm] = useState<ReviewNoteFormValues>(
+    defaultReviewNoteFormValues
+  );
+  const [reviewNoteFieldErrors, setReviewNoteFieldErrors] =
+    useState<ReviewNoteFieldErrors>({});
+  const [createReviewNoteState, setCreateReviewNoteState] = useState<
+    DbBackedRequestState<CreateReviewNoteResponse>
+  >({ status: "idle" });
+  const lastSubmittedReviewNote = useRef<CreateReviewNoteRequest | null>(null);
   const [currentAssessment, setCurrentAssessment] =
     useState<AssessmentUpdate | null>(initialCurrentAssessment);
   const [isAssessmentFormOpen, setIsAssessmentFormOpen] = useState(false);
@@ -921,6 +954,9 @@ function TopicDossierShell({
   const isCreatingEvent =
     createEventState.status === "loading" ||
     createEventState.status === "waking";
+  const isCreatingReviewNote =
+    createReviewNoteState.status === "loading" ||
+    createReviewNoteState.status === "waking";
   const isCreatingAssessment =
     createAssessmentState.status === "loading" ||
     createAssessmentState.status === "waking";
@@ -947,13 +983,45 @@ function TopicDossierShell({
         setEventListState({
           status: "success",
           data: {
-            entries: sortEventEntries(response.entries)
+            entries: sortEntries(response.entries)
           }
         });
       }
     } catch (error) {
       if (eventListRunId.current === runId) {
         setEventListState({ status: "error", error });
+      }
+    }
+  }, [topic.id]);
+
+  const loadReviewNotes = useCallback(async () => {
+    const runId = reviewNoteListRunId.current + 1;
+    reviewNoteListRunId.current = runId;
+    setReviewNoteListState({ status: "loading" });
+
+    try {
+      const response = await listReviewNotes(
+        { topicId: topic.id },
+        {
+          onProgress: (progress) => {
+            if (reviewNoteListRunId.current === runId) {
+              setReviewNoteListState({ status: progress.phase });
+            }
+          }
+        }
+      );
+
+      if (reviewNoteListRunId.current === runId) {
+        setReviewNoteListState({
+          status: "success",
+          data: {
+            entries: sortEntries(response.entries)
+          }
+        });
+      }
+    } catch (error) {
+      if (reviewNoteListRunId.current === runId) {
+        setReviewNoteListState({ status: "error", error });
       }
     }
   }, [topic.id]);
@@ -971,6 +1039,14 @@ function TopicDossierShell({
       eventListRunId.current += 1;
     };
   }, [loadEventEntries]);
+
+  useEffect(() => {
+    void loadReviewNotes();
+
+    return () => {
+      reviewNoteListRunId.current += 1;
+    };
+  }, [loadReviewNotes]);
 
   useEffect(() => {
     setCurrentAssessment(initialCurrentAssessment);
@@ -1004,6 +1080,20 @@ function TopicDossierShell({
     }));
   }
 
+  function updateReviewNoteField<FieldName extends keyof ReviewNoteFormValues>(
+    fieldName: FieldName,
+    value: ReviewNoteFormValues[FieldName]
+  ) {
+    setReviewNoteForm((currentValues) => ({
+      ...currentValues,
+      [fieldName]: value
+    }));
+    setReviewNoteFieldErrors((currentErrors) => ({
+      ...currentErrors,
+      [fieldName]: undefined
+    }));
+  }
+
   function updateAssessmentField<FieldName extends keyof AssessmentFormValues>(
     fieldName: FieldName,
     value: AssessmentFormValues[FieldName]
@@ -1030,6 +1120,20 @@ function TopicDossierShell({
     setEventFieldErrors({});
     setCreateEventState({ status: "idle" });
     lastSubmittedEvent.current = null;
+  }
+
+  function openReviewNoteForm() {
+    setIsReviewNoteFormOpen(true);
+    setCreateReviewNoteState({ status: "idle" });
+    setReviewNoteFieldErrors({});
+  }
+
+  function cancelReviewNoteForm() {
+    setIsReviewNoteFormOpen(false);
+    setReviewNoteForm(defaultReviewNoteFormValues);
+    setReviewNoteFieldErrors({});
+    setCreateReviewNoteState({ status: "idle" });
+    lastSubmittedReviewNote.current = null;
   }
 
   function openAssessmentForm() {
@@ -1203,7 +1307,7 @@ function TopicDossierShell({
         return {
           status: "success",
           data: {
-            entries: sortEventEntries([
+            entries: sortEntries([
               response.entry,
               ...currentState.data.entries.filter(
                 (entry) => entry.id !== response.entry.id
@@ -1214,6 +1318,77 @@ function TopicDossierShell({
       });
     } catch (error) {
       setCreateEventState({ status: "error", error });
+    }
+  }
+
+  async function handleCreateReviewNoteSubmit(
+    event: FormEvent<HTMLFormElement>
+  ) {
+    event.preventDefault();
+
+    const parsedRequest = createReviewNoteRequestSchema.safeParse({
+      topicId: topic.id,
+      title: reviewNoteForm.title,
+      bodyMd: reviewNoteForm.bodyMd,
+      sortAt: toEventSortAt(reviewNoteForm.sortDate),
+      epistemicStatus: reviewNoteForm.epistemicStatus
+    });
+
+    if (!parsedRequest.success) {
+      setReviewNoteFieldErrors(
+        createReviewNoteFieldErrors(parsedRequest.error.issues)
+      );
+      setCreateReviewNoteState({ status: "idle" });
+      return;
+    }
+
+    lastSubmittedReviewNote.current = parsedRequest.data;
+    await submitReviewNote(parsedRequest.data);
+  }
+
+  async function retryCreateReviewNote() {
+    if (!lastSubmittedReviewNote.current) {
+      return;
+    }
+
+    await submitReviewNote(lastSubmittedReviewNote.current);
+  }
+
+  async function submitReviewNote(request: CreateReviewNoteRequest) {
+    setReviewNoteFieldErrors({});
+    setCreateReviewNoteState({ status: "loading" });
+
+    try {
+      const response = await createReviewNote(request, {
+        onProgress: (progress) => {
+          setCreateReviewNoteState({ status: progress.phase });
+        }
+      });
+
+      setCreateReviewNoteState({ status: "success", data: response });
+      setReviewNoteForm(defaultReviewNoteFormValues);
+      setReviewNoteListState((currentState) => {
+        if (currentState.status !== "success") {
+          return {
+            status: "success",
+            data: { entries: [response.entry] }
+          };
+        }
+
+        return {
+          status: "success",
+          data: {
+            entries: sortEntries([
+              response.entry,
+              ...currentState.data.entries.filter(
+                (entry) => entry.id !== response.entry.id
+              )
+            ])
+          }
+        };
+      });
+    } catch (error) {
+      setCreateReviewNoteState({ status: "error", error });
     }
   }
 
@@ -1368,6 +1543,26 @@ function TopicDossierShell({
         onRetryCreate={() => void retryCreateAssessment()}
       />
 
+      <ReviewNotesSection
+        entries={
+          reviewNoteListState.status === "success"
+            ? reviewNoteListState.data.entries
+            : []
+        }
+        reviewNoteListState={reviewNoteListState}
+        isReviewNoteFormOpen={isReviewNoteFormOpen}
+        formValues={reviewNoteForm}
+        fieldErrors={reviewNoteFieldErrors}
+        createState={createReviewNoteState}
+        isCreating={isCreatingReviewNote}
+        onOpenForm={openReviewNoteForm}
+        onCancelForm={cancelReviewNoteForm}
+        onUpdateField={updateReviewNoteField}
+        onSubmit={(event) => void handleCreateReviewNoteSubmit(event)}
+        onRetryList={() => void loadReviewNotes()}
+        onRetryCreate={() => void retryCreateReviewNote()}
+      />
+
       <EventEntriesSection
         entries={
           eventListState.status === "success" ? eventListState.data.entries : []
@@ -1510,6 +1705,133 @@ function TopicDossierShell({
         ))}
       </section>
     </>
+  );
+}
+
+function ReviewNotesSection({
+  entries,
+  reviewNoteListState,
+  isReviewNoteFormOpen,
+  formValues,
+  fieldErrors,
+  createState,
+  isCreating,
+  onOpenForm,
+  onCancelForm,
+  onUpdateField,
+  onSubmit,
+  onRetryList,
+  onRetryCreate
+}: {
+  entries: Entry[];
+  reviewNoteListState: DbBackedRequestState<ListReviewNotesResponse>;
+  isReviewNoteFormOpen: boolean;
+  formValues: ReviewNoteFormValues;
+  fieldErrors: ReviewNoteFieldErrors;
+  createState: DbBackedRequestState<CreateReviewNoteResponse>;
+  isCreating: boolean;
+  onOpenForm: () => void;
+  onCancelForm: () => void;
+  onUpdateField: <FieldName extends keyof ReviewNoteFormValues>(
+    fieldName: FieldName,
+    value: ReviewNoteFormValues[FieldName]
+  ) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onRetryList: () => void;
+  onRetryCreate: () => void;
+}) {
+  return (
+    <section className="review-notes" aria-labelledby="review-notes-title">
+      <div className="review-notes__header">
+        <div>
+          <p className="eyebrow">Review notes</p>
+          <h3 id="review-notes-title">Review notes</h3>
+          <p>
+            Capture what you noticed or concluded while revisiting this dossier.
+            Events and assessment updates stay separate.
+          </p>
+        </div>
+        {isReviewNoteFormOpen ? null : (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={onOpenForm}
+          >
+            Add review note
+          </button>
+        )}
+      </div>
+
+      {isReviewNoteFormOpen ? (
+        <form
+          className="review-note-form"
+          aria-label="Add review note"
+          onSubmit={onSubmit}
+        >
+          <div className="review-note-form__header">
+            <h4>Add review note</h4>
+            <button
+              className="text-action"
+              type="button"
+              disabled={isCreating}
+              onClick={onCancelForm}
+            >
+              Cancel
+            </button>
+          </div>
+          <ReviewNoteFields
+            values={formValues}
+            fieldErrors={fieldErrors}
+            onUpdateField={onUpdateField}
+          />
+          <button
+            className="primary-action"
+            type="submit"
+            disabled={isCreating}
+          >
+            {isCreating ? "Saving review note..." : "Save review note"}
+          </button>
+          {createState.status === "success" ? (
+            <p className="status-text review-note-form__success" role="status">
+              Review note saved.
+            </p>
+          ) : null}
+          <DbWakeUpStatus state={createState} onRetry={onRetryCreate} />
+        </form>
+      ) : null}
+
+      {reviewNoteListState.status === "loading" ? (
+        <p className="status-text review-notes__status" role="status">
+          Loading review notes...
+        </p>
+      ) : null}
+      <DbWakeUpStatus state={reviewNoteListState} onRetry={onRetryList} />
+
+      {reviewNoteListState.status === "success" && entries.length === 0 ? (
+        <p className="review-notes__empty">
+          No review notes yet. Add a dated reflection when you revisit this
+          dossier.
+        </p>
+      ) : null}
+
+      {entries.length > 0 ? (
+        <div className="review-note-list" aria-label="Review notes">
+          {entries.map((entry) => (
+            <article className="review-note-card" key={entry.id}>
+              <div className="review-note-card__metadata">
+                <time dateTime={entry.sortAt}>
+                  {formatTopicDate(entry.sortAt)}
+                </time>
+                <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
+                <span>Uncited</span>
+              </div>
+              <h4>{entry.title}</h4>
+              <p>{entry.bodyMd}</p>
+            </article>
+          ))}
+        </div>
+      ) : null}
+    </section>
   );
 }
 
@@ -2084,6 +2406,108 @@ function EventEntryFields({
   );
 }
 
+function ReviewNoteFields({
+  values,
+  fieldErrors,
+  onUpdateField
+}: {
+  values: ReviewNoteFormValues;
+  fieldErrors: ReviewNoteFieldErrors;
+  onUpdateField: <FieldName extends keyof ReviewNoteFormValues>(
+    fieldName: FieldName,
+    value: ReviewNoteFormValues[FieldName]
+  ) => void;
+}) {
+  const titleErrorId = "review-note-title-error";
+  const bodyErrorId = "review-note-body-error";
+  const dateErrorId = "review-note-date-error";
+  const epistemicStatusErrorId = "review-note-epistemic-status-error";
+
+  return (
+    <>
+      <label className="form-field" htmlFor="review-note-title">
+        <span>Review note title</span>
+        <input
+          id="review-note-title"
+          type="text"
+          value={values.title}
+          aria-invalid={fieldErrors.title ? "true" : undefined}
+          aria-describedby={fieldErrors.title ? titleErrorId : undefined}
+          onChange={(event) => onUpdateField("title", event.target.value)}
+        />
+        {fieldErrors.title ? (
+          <span className="field-error" id={titleErrorId}>
+            {fieldErrors.title}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="review-note-body">
+        <span>Review note</span>
+        <textarea
+          id="review-note-body"
+          rows={4}
+          value={values.bodyMd}
+          aria-invalid={fieldErrors.bodyMd ? "true" : undefined}
+          aria-describedby={fieldErrors.bodyMd ? bodyErrorId : undefined}
+          onChange={(event) => onUpdateField("bodyMd", event.target.value)}
+        />
+        {fieldErrors.bodyMd ? (
+          <span className="field-error" id={bodyErrorId}>
+            {fieldErrors.bodyMd}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="review-note-date">
+        <span>Review date</span>
+        <input
+          id="review-note-date"
+          type="date"
+          value={values.sortDate}
+          aria-invalid={fieldErrors.sortDate ? "true" : undefined}
+          aria-describedby={fieldErrors.sortDate ? dateErrorId : undefined}
+          onChange={(event) => onUpdateField("sortDate", event.target.value)}
+        />
+        {fieldErrors.sortDate ? (
+          <span className="field-error" id={dateErrorId}>
+            {fieldErrors.sortDate}
+          </span>
+        ) : null}
+      </label>
+
+      <label className="form-field" htmlFor="review-note-epistemic-status">
+        <span>Epistemic label</span>
+        <select
+          id="review-note-epistemic-status"
+          value={values.epistemicStatus}
+          aria-invalid={fieldErrors.epistemicStatus ? "true" : undefined}
+          aria-describedby={
+            fieldErrors.epistemicStatus ? epistemicStatusErrorId : undefined
+          }
+          onChange={(event) =>
+            onUpdateField(
+              "epistemicStatus",
+              event.target.value as EntryEpistemicStatus
+            )
+          }
+        >
+          {epistemicStatusOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        {fieldErrors.epistemicStatus ? (
+          <span className="field-error" id={epistemicStatusErrorId}>
+            {fieldErrors.epistemicStatus}
+          </span>
+        ) : null}
+      </label>
+    </>
+  );
+}
+
 function MetadataItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -2161,6 +2585,34 @@ function createEventFieldErrors(
 
     if (fieldName === "sortAt") {
       errors.sortDate = "Choose an event date.";
+    }
+
+    if (fieldName === "epistemicStatus") {
+      errors.epistemicStatus = "Choose a valid epistemic label.";
+    }
+  }
+
+  return errors;
+}
+
+function createReviewNoteFieldErrors(
+  issues: Array<{ path: PropertyKey[] }>
+): ReviewNoteFieldErrors {
+  const errors: ReviewNoteFieldErrors = {};
+
+  for (const issue of issues) {
+    const fieldName = issue.path[0];
+
+    if (fieldName === "title") {
+      errors.title = "Enter a review note title.";
+    }
+
+    if (fieldName === "bodyMd") {
+      errors.bodyMd = "Enter a review note.";
+    }
+
+    if (fieldName === "sortAt") {
+      errors.sortDate = "Choose a review date.";
     }
 
     if (fieldName === "epistemicStatus") {
@@ -2323,7 +2775,7 @@ function parseTextareaLines(value: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-function sortEventEntries(entries: Entry[]): Entry[] {
+function sortEntries(entries: Entry[]): Entry[] {
   return [...entries].sort((left, right) => {
     const sortAtComparison = right.sortAt.localeCompare(left.sortAt);
 

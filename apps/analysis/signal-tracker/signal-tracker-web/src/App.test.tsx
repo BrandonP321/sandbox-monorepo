@@ -3,11 +3,13 @@ import type {
   ArchiveTopicResponse,
   CreateAssessmentUpdateResponse,
   CreateEventEntryResponse,
+  CreateReviewNoteResponse,
   CreateTopicResponse,
   DeleteTopicResponse,
   Entry,
   GetTopicResponse,
   ListEventEntriesResponse,
+  ListReviewNotesResponse,
   ListTopicsResponse,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
@@ -25,6 +27,7 @@ import App from "./App";
 import { createAssessmentUpdate } from "./api/assessments";
 import { SignalTrackerApiError } from "./api/client";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
+import { createReviewNote, listReviewNotes } from "./api/review-notes";
 import {
   archiveTopic,
   createTopic,
@@ -68,6 +71,19 @@ vi.mock("./api/event-entries", async () => {
     ...actual,
     createEventEntry: vi.fn(),
     listEventEntries: vi.fn()
+  };
+});
+
+vi.mock("./api/review-notes", async () => {
+  const actual =
+    await vi.importActual<typeof import("./api/review-notes")>(
+      "./api/review-notes"
+    );
+
+  return {
+    ...actual,
+    createReviewNote: vi.fn(),
+    listReviewNotes: vi.fn()
   };
 });
 
@@ -169,6 +185,29 @@ const listEventEntriesResponse: ListEventEntriesResponse = {
   entries: []
 };
 
+const reviewNoteFixture: Entry = {
+  id: "review-1",
+  topicId: "topic-1",
+  kind: "review",
+  epistemicStatus: "inferred",
+  title: "Weekly review",
+  bodyMd: "Reviewed recent developments and found no material change.",
+  sortAt: "2026-04-26T00:00:00.000Z",
+  isApproximateDate: false,
+  originType: "manual",
+  status: "active",
+  createdAt: "2026-04-26T01:00:00.000Z",
+  updatedAt: "2026-04-26T01:00:00.000Z"
+};
+
+const reviewNoteResponse: CreateReviewNoteResponse = {
+  entry: reviewNoteFixture
+};
+
+const listReviewNotesResponse: ListReviewNotesResponse = {
+  entries: []
+};
+
 const assessmentUpdateFixture: AssessmentUpdate = {
   entry: {
     id: "assessment-1",
@@ -211,6 +250,8 @@ const archiveTopicMock = vi.mocked(archiveTopic);
 const deleteTopicMock = vi.mocked(deleteTopic);
 const createEventEntryMock = vi.mocked(createEventEntry);
 const listEventEntriesMock = vi.mocked(listEventEntries);
+const createReviewNoteMock = vi.mocked(createReviewNote);
+const listReviewNotesMock = vi.mocked(listReviewNotes);
 const createAssessmentUpdateMock = vi.mocked(createAssessmentUpdate);
 
 describe("App", () => {
@@ -225,6 +266,8 @@ describe("App", () => {
     deleteTopicMock.mockResolvedValue(deletedTopicResponse);
     createEventEntryMock.mockResolvedValue(eventEntryResponse);
     listEventEntriesMock.mockResolvedValue(listEventEntriesResponse);
+    createReviewNoteMock.mockResolvedValue(reviewNoteResponse);
+    listReviewNotesMock.mockResolvedValue(listReviewNotesResponse);
     createAssessmentUpdateMock.mockResolvedValue(assessmentUpdateResponse);
   });
 
@@ -986,6 +1029,243 @@ describe("App", () => {
     ).toBeDisabled();
   });
 
+  it("renders the review notes section with an empty state on the topic detail route", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    expect(listReviewNotesMock).toHaveBeenCalledWith(
+      { topicId: "topic-1" },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    expect(
+      await screen.findByText(
+        /No review notes yet. Add a dated reflection when you revisit this dossier/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders persisted review notes with epistemic and uncited state", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listReviewNotesMock.mockResolvedValue({
+      entries: [reviewNoteFixture]
+    });
+
+    render(<App />);
+
+    const reviewNotesSection = (
+      await screen.findByRole("heading", {
+        name: "Review notes"
+      })
+    ).closest("section");
+
+    expect(reviewNotesSection).not.toBeNull();
+    expect(
+      await screen.findByRole("heading", {
+        name: "Weekly review"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(reviewNotesSection!).getByText("Inferred")
+    ).toBeInTheDocument();
+    expect(
+      within(reviewNotesSection!).getByText("Uncited")
+    ).toBeInTheDocument();
+    expect(
+      within(reviewNotesSection!).getByText("Apr 26, 2026")
+    ).toBeInTheDocument();
+  });
+
+  it("opens and cancels the collapsible review note form", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+
+    expect(
+      screen.getByRole("form", { name: "Add review note" })
+    ).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Review note title"), {
+      target: { value: "Draft review" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+
+    expect(
+      screen.queryByRole("form", { name: "Add review note" })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+    expect(screen.getByLabelText("Review note title")).toHaveValue("");
+    expect(screen.getByLabelText("Epistemic label")).toHaveValue("inferred");
+  });
+
+  it("shows review note form validation errors before calling the create API", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save review note" }));
+
+    expect(
+      await screen.findByText("Enter a review note title.")
+    ).toBeInTheDocument();
+    expect(screen.getByText("Enter a review note.")).toBeInTheDocument();
+    expect(screen.getByText("Choose a review date.")).toBeInTheDocument();
+    expect(createReviewNoteMock).not.toHaveBeenCalled();
+  });
+
+  it("creates a review note and renders it in the review notes section", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+    fireEvent.change(screen.getByLabelText("Review note title"), {
+      target: { value: " Weekly review " }
+    });
+    fireEvent.change(screen.getByLabelText("Review note"), {
+      target: {
+        value: " Reviewed recent developments and found no material change. "
+      }
+    });
+    fireEvent.change(screen.getByLabelText("Review date"), {
+      target: { value: "2026-04-26" }
+    });
+    fireEvent.change(screen.getByLabelText("Epistemic label"), {
+      target: { value: "inferred" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save review note" }));
+
+    await waitFor(() => {
+      expect(createReviewNoteMock).toHaveBeenCalledWith(
+        {
+          topicId: "topic-1",
+          title: "Weekly review",
+          bodyMd: "Reviewed recent developments and found no material change.",
+          sortAt: "2026-04-26T00:00:00.000Z",
+          epistemicStatus: "inferred"
+        },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(await screen.findByText("Review note saved.")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Weekly review" })
+    ).toBeInTheDocument();
+  });
+
+  it("shows a review note create request error without clearing entered text", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createReviewNoteMock.mockRejectedValueOnce(
+      new Error("database unavailable")
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+    fireEvent.change(screen.getByLabelText("Review note title"), {
+      target: { value: "Weekly review" }
+    });
+    fireEvent.change(screen.getByLabelText("Review note"), {
+      target: {
+        value: "Reviewed recent developments and found no material change."
+      }
+    });
+    fireEvent.change(screen.getByLabelText("Review date"), {
+      target: { value: "2026-04-26" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save review note" }));
+
+    expect(
+      await screen.findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Review note title")).toHaveValue(
+      "Weekly review"
+    );
+    expect(screen.getByLabelText("Review note")).toHaveValue(
+      "Reviewed recent developments and found no material change."
+    );
+    expect(screen.getByLabelText("Review date")).toHaveValue("2026-04-26");
+  });
+
+  it("shows wake-up progress while loading review notes", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listReviewNotesMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<ListReviewNotesResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows wake-up progress while creating a review note", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    createReviewNoteMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<CreateReviewNoteResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Review notes" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add review note" }));
+    fireEvent.change(screen.getByLabelText("Review note title"), {
+      target: { value: "Weekly review" }
+    });
+    fireEvent.change(screen.getByLabelText("Review note"), {
+      target: {
+        value: "Reviewed recent developments and found no material change."
+      }
+    });
+    fireEvent.change(screen.getByLabelText("Review date"), {
+      target: { value: "2026-04-26" }
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save review note" }));
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Saving review note..." })
+    ).toBeDisabled();
+  });
+
   it("renders the no-assessment empty state on the topic detail route", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
 
@@ -1293,7 +1573,6 @@ describe("App", () => {
       await screen.findByRole("heading", { name: "Current assessment" })
     ).toBeInTheDocument();
     for (const sectionName of [
-      "Review notes",
       "Evidence and citations",
       "Review workflow",
       "Export"
