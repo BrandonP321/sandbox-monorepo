@@ -22,9 +22,11 @@ import {
   type GetTopicResponse,
   type ListEventEntriesResponse,
   type ListReviewNotesResponse,
+  type ListTopicTimelineResponse,
   type ListTopicsResponse,
   type ReviewCadence,
   type Topic,
+  type TopicTimelineItem,
   type UpdateTopicRequest,
   type UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
@@ -42,6 +44,7 @@ import { SignalTrackerApiError } from "./api/client";
 import { createAssessmentUpdate } from "./api/assessments";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
+import { listTopicTimeline } from "./api/timeline";
 import {
   archiveTopic,
   createTopic,
@@ -110,6 +113,8 @@ type AssessmentFormValues = {
 type AssessmentFieldErrors = Partial<
   Record<keyof AssessmentFormValues, string>
 >;
+
+type TopicTimelineMode = "recent" | "full";
 
 const defaultTopicFormValues: TopicFormValues = {
   title: "",
@@ -183,6 +188,9 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   dateStyle: "medium",
   timeZone: "UTC"
 });
+
+const RECENT_TIMELINE_VISIBLE_COUNT = 5;
+const RECENT_TIMELINE_REQUEST_LIMIT = RECENT_TIMELINE_VISIBLE_COUNT + 1;
 
 export default function App() {
   const [route, setRoute] = useState<AppRoute>(() =>
@@ -944,6 +952,11 @@ function TopicDossierShell({
   const lastSubmittedAssessment = useRef<CreateAssessmentUpdateRequest | null>(
     null
   );
+  const [timelineMode, setTimelineMode] = useState<TopicTimelineMode>("recent");
+  const [timelineState, setTimelineState] = useState<
+    DbBackedRequestState<ListTopicTimelineResponse>
+  >({ status: "loading" });
+  const timelineRunId = useRef(0);
 
   const isUpdating =
     updateState.status === "loading" || updateState.status === "waking";
@@ -1026,6 +1039,44 @@ function TopicDossierShell({
     }
   }, [topic.id]);
 
+  const loadTimeline = useCallback(
+    async (mode: TopicTimelineMode) => {
+      const runId = timelineRunId.current + 1;
+      timelineRunId.current = runId;
+      setTimelineState({ status: "loading" });
+
+      try {
+        const response = await listTopicTimeline(
+          mode === "recent"
+            ? {
+                topicId: topic.id,
+                limit: RECENT_TIMELINE_REQUEST_LIMIT
+              }
+            : { topicId: topic.id },
+          {
+            onProgress: (progress) => {
+              if (timelineRunId.current === runId) {
+                setTimelineState({ status: progress.phase });
+              }
+            }
+          }
+        );
+
+        if (timelineRunId.current === runId) {
+          setTimelineState({
+            status: "success",
+            data: response
+          });
+        }
+      } catch (error) {
+        if (timelineRunId.current === runId) {
+          setTimelineState({ status: "error", error });
+        }
+      }
+    },
+    [topic.id]
+  );
+
   useEffect(() => {
     if (!isEditing) {
       setTopicForm(topicToFormValues(topic));
@@ -1047,6 +1098,15 @@ function TopicDossierShell({
       reviewNoteListRunId.current += 1;
     };
   }, [loadReviewNotes]);
+
+  useEffect(() => {
+    setTimelineMode("recent");
+    void loadTimeline("recent");
+
+    return () => {
+      timelineRunId.current += 1;
+    };
+  }, [loadTimeline]);
 
   useEffect(() => {
     setCurrentAssessment(initialCurrentAssessment);
@@ -1316,6 +1376,7 @@ function TopicDossierShell({
           }
         };
       });
+      void loadTimeline(timelineMode);
     } catch (error) {
       setCreateEventState({ status: "error", error });
     }
@@ -1387,6 +1448,7 @@ function TopicDossierShell({
           }
         };
       });
+      void loadTimeline(timelineMode);
     } catch (error) {
       setCreateReviewNoteState({ status: "error", error });
     }
@@ -1445,9 +1507,20 @@ function TopicDossierShell({
       setCreateAssessmentState({ status: "success", data: response });
       setCurrentAssessment(response.assessmentUpdate);
       setAssessmentForm(defaultAssessmentFormValues);
+      void loadTimeline(timelineMode);
     } catch (error) {
       setCreateAssessmentState({ status: "error", error });
     }
+  }
+
+  function showFullTimeline() {
+    setTimelineMode("full");
+    void loadTimeline("full");
+  }
+
+  function showRecentTimeline() {
+    setTimelineMode("recent");
+    void loadTimeline("recent");
   }
 
   if (isEditing) {
@@ -1541,6 +1614,14 @@ function TopicDossierShell({
         onUpdateField={updateAssessmentField}
         onSubmit={(event) => void handleCreateAssessmentSubmit(event)}
         onRetryCreate={() => void retryCreateAssessment()}
+      />
+
+      <TopicTimelineSection
+        timelineState={timelineState}
+        mode={timelineMode}
+        onRetry={() => void loadTimeline(timelineMode)}
+        onShowFull={showFullTimeline}
+        onShowRecent={showRecentTimeline}
       />
 
       <ReviewNotesSection
@@ -1705,6 +1786,127 @@ function TopicDossierShell({
         ))}
       </section>
     </>
+  );
+}
+
+function TopicTimelineSection({
+  timelineState,
+  mode,
+  onRetry,
+  onShowFull,
+  onShowRecent
+}: {
+  timelineState: DbBackedRequestState<ListTopicTimelineResponse>;
+  mode: TopicTimelineMode;
+  onRetry: () => void;
+  onShowFull: () => void;
+  onShowRecent: () => void;
+}) {
+  const items =
+    timelineState.status === "success"
+      ? getVisibleTimelineItems(timelineState.data.items, mode)
+      : [];
+  const hasFullHistory =
+    mode === "recent" &&
+    timelineState.status === "success" &&
+    timelineState.data.items.length > RECENT_TIMELINE_VISIBLE_COUNT;
+
+  return (
+    <section className="topic-timeline" aria-labelledby="topic-timeline-title">
+      <div className="topic-timeline__header">
+        <div>
+          <p className="eyebrow">Timeline</p>
+          <h3 id="topic-timeline-title">Topic timeline</h3>
+          <p>
+            Recent Events, Assessment Updates, and Review Notes in one
+            chronology.
+          </p>
+        </div>
+        {mode === "full" ? (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={onShowRecent}
+          >
+            Show recent timeline
+          </button>
+        ) : hasFullHistory ? (
+          <button
+            className="secondary-action"
+            type="button"
+            onClick={onShowFull}
+          >
+            View full history
+          </button>
+        ) : null}
+      </div>
+
+      {timelineState.status === "loading" ? (
+        <p className="status-text topic-timeline__status" role="status">
+          Loading topic timeline...
+        </p>
+      ) : null}
+      <DbWakeUpStatus state={timelineState} onRetry={onRetry} />
+
+      {timelineState.status === "success" && items.length === 0 ? (
+        <p className="topic-timeline__empty">
+          No timeline entries yet. Add events, assessment updates, or review
+          notes to build this dossier history.
+        </p>
+      ) : null}
+
+      {items.length > 0 ? (
+        <div className="topic-timeline__list" aria-label="Topic timeline">
+          {items.map((item) => (
+            <TimelineItemCard item={item} key={item.entry.id} />
+          ))}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
+function TimelineItemCard({ item }: { item: TopicTimelineItem }) {
+  const entry = item.entry;
+
+  return (
+    <article
+      className={`topic-timeline-card topic-timeline-card--${item.kind}`}
+    >
+      <div className="topic-timeline-card__metadata">
+        <span>{formatTimelineItemKind(item.kind)}</span>
+        <time dateTime={entry.sortAt}>{formatTopicDate(entry.sortAt)}</time>
+        {item.kind === "assessment" ? (
+          <>
+            <span>
+              {formatAssessmentConfidence(item.assessment.confidenceLabel)}
+            </span>
+            {item.assessment.probabilityPct !== undefined ? (
+              <span>{item.assessment.probabilityPct}% probability</span>
+            ) : null}
+          </>
+        ) : (
+          <span>{formatEpistemicStatus(entry.epistemicStatus)}</span>
+        )}
+        <span>Uncited</span>
+      </div>
+      <h4>{entry.title}</h4>
+      <p>
+        {item.kind === "assessment" ? item.assessment.judgment : entry.bodyMd}
+      </p>
+      {item.kind === "assessment" ? (
+        <>
+          <AssessmentList
+            title="Assumptions"
+            items={item.assessment.assumptions}
+          />
+          <AssessmentList
+            title="Indicators"
+            items={item.assessment.indicators}
+          />
+        </>
+      ) : null}
+    </article>
   );
 }
 
@@ -2730,6 +2932,18 @@ function formatAssessmentConfidence(
   );
 }
 
+function formatTimelineItemKind(kind: TopicTimelineItem["kind"]): string {
+  if (kind === "assessment") {
+    return "Assessment update";
+  }
+
+  if (kind === "review") {
+    return "Review note";
+  }
+
+  return "Event";
+}
+
 function formatTopicStatus(status: Topic["status"]): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
@@ -2791,4 +3005,15 @@ function sortEntries(entries: Entry[]): Entry[] {
 
     return left.id.localeCompare(right.id);
   });
+}
+
+function getVisibleTimelineItems(
+  items: TopicTimelineItem[],
+  mode: TopicTimelineMode
+): TopicTimelineItem[] {
+  if (mode === "full") {
+    return items;
+  }
+
+  return items.slice(0, RECENT_TIMELINE_VISIBLE_COUNT);
 }

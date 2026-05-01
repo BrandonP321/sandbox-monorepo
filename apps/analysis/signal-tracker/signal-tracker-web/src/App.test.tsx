@@ -10,7 +10,9 @@ import type {
   GetTopicResponse,
   ListEventEntriesResponse,
   ListReviewNotesResponse,
+  ListTopicTimelineResponse,
   ListTopicsResponse,
+  TopicTimelineItem,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
@@ -28,6 +30,7 @@ import { createAssessmentUpdate } from "./api/assessments";
 import { SignalTrackerApiError } from "./api/client";
 import { createEventEntry, listEventEntries } from "./api/event-entries";
 import { createReviewNote, listReviewNotes } from "./api/review-notes";
+import { listTopicTimeline } from "./api/timeline";
 import {
   archiveTopic,
   createTopic,
@@ -96,6 +99,16 @@ vi.mock("./api/assessments", async () => {
   return {
     ...actual,
     createAssessmentUpdate: vi.fn()
+  };
+});
+
+vi.mock("./api/timeline", async () => {
+  const actual =
+    await vi.importActual<typeof import("./api/timeline")>("./api/timeline");
+
+  return {
+    ...actual,
+    listTopicTimeline: vi.fn()
   };
 });
 
@@ -237,6 +250,44 @@ const assessmentUpdateResponse: CreateAssessmentUpdateResponse = {
   assessmentUpdate: assessmentUpdateFixture
 };
 
+const eventTimelineItem: TopicTimelineItem = {
+  kind: "event",
+  entry: {
+    ...eventEntryFixture,
+    kind: "event"
+  }
+};
+
+const reviewTimelineItem: TopicTimelineItem = {
+  kind: "review",
+  entry: {
+    ...reviewNoteFixture,
+    kind: "review"
+  }
+};
+
+const assessmentTimelineItem: TopicTimelineItem = {
+  kind: "assessment",
+  entry: {
+    ...assessmentUpdateFixture.entry,
+    kind: "assessment"
+  },
+  assessment: {
+    judgment: assessmentUpdateFixture.judgment,
+    confidenceLabel: assessmentUpdateFixture.confidenceLabel,
+    probabilityPct: assessmentUpdateFixture.probabilityPct,
+    assumptions: assessmentUpdateFixture.assumptions,
+    indicators: assessmentUpdateFixture.indicators,
+    resolutionCriteria: assessmentUpdateFixture.resolutionCriteria,
+    targetResolvesAt: assessmentUpdateFixture.targetResolvesAt,
+    previousAssessmentEntryId: assessmentUpdateFixture.previousAssessmentEntryId
+  }
+};
+
+const listTopicTimelineResponse: ListTopicTimelineResponse = {
+  items: []
+};
+
 afterEach(() => {
   vi.clearAllMocks();
 });
@@ -253,6 +304,7 @@ const listEventEntriesMock = vi.mocked(listEventEntries);
 const createReviewNoteMock = vi.mocked(createReviewNote);
 const listReviewNotesMock = vi.mocked(listReviewNotes);
 const createAssessmentUpdateMock = vi.mocked(createAssessmentUpdate);
+const listTopicTimelineMock = vi.mocked(listTopicTimeline);
 
 describe("App", () => {
   beforeEach(() => {
@@ -269,6 +321,7 @@ describe("App", () => {
     createReviewNoteMock.mockResolvedValue(reviewNoteResponse);
     listReviewNotesMock.mockResolvedValue(listReviewNotesResponse);
     createAssessmentUpdateMock.mockResolvedValue(assessmentUpdateResponse);
+    listTopicTimelineMock.mockResolvedValue(listTopicTimelineResponse);
   });
 
   it("renders the loading state while the health check is in flight", () => {
@@ -1330,6 +1383,193 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders the topic timeline with an empty state by default", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+
+    render(<App />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Topic timeline" })
+    ).toBeInTheDocument();
+    expect(listTopicTimelineMock).toHaveBeenCalledWith(
+      { topicId: "topic-1", limit: 6 },
+      expect.objectContaining({ onProgress: expect.any(Function) })
+    );
+    expect(
+      await screen.findByText(
+        /No timeline entries yet. Add events, assessment updates, or review notes/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("shows wake-up progress while loading topic timeline items", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listTopicTimelineMock.mockImplementation(
+      async (_request, options) =>
+        new Promise<ListTopicTimelineResponse>(() => {
+          options?.onProgress?.({
+            phase: "waking",
+            attempt: 1,
+            maxAttempts: 3
+          });
+        })
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/The database is waking up after inactivity/)
+    ).toBeInTheDocument();
+  });
+
+  it("shows a topic timeline request error with a retry affordance", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listTopicTimelineMock
+      .mockRejectedValueOnce(new Error("database unavailable"))
+      .mockResolvedValueOnce(listTopicTimelineResponse);
+
+    render(<App />);
+
+    const timelineSection = (
+      await screen.findByRole("heading", { name: "Topic timeline" })
+    ).closest("section");
+
+    expect(timelineSection).not.toBeNull();
+    expect(
+      await within(timelineSection!).findByText(
+        "The database-backed request could not be completed."
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(
+      within(timelineSection!).getByRole("button", { name: "Try again" })
+    );
+
+    await waitFor(() => {
+      expect(listTopicTimelineMock).toHaveBeenCalledTimes(2);
+    });
+    expect(
+      await within(timelineSection!).findByText(
+        /No timeline entries yet. Add events, assessment updates, or review notes/
+      )
+    ).toBeInTheDocument();
+  });
+
+  it("renders mixed topic timeline items with clear entry labels", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listTopicTimelineMock.mockResolvedValue({
+      items: [reviewTimelineItem, assessmentTimelineItem, eventTimelineItem]
+    });
+
+    render(<App />);
+
+    const timelineSection = (
+      await screen.findByRole("heading", { name: "Topic timeline" })
+    ).closest("section");
+
+    expect(timelineSection).not.toBeNull();
+    expect(
+      within(timelineSection!).getByText("Review note")
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByText("Assessment update")
+    ).toBeInTheDocument();
+    expect(within(timelineSection!).getByText("Event")).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("heading", { name: "Weekly review" })
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("heading", {
+        name: "Assessment update - 2026-04-25"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("heading", {
+        name: "Court grants injunction"
+      })
+    ).toBeInTheDocument();
+    expect(within(timelineSection!).getByText("Medium")).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByText("35% probability")
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByText("Diplomatic channels remain open")
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByText("Watch for evacuation orders")
+    ).toBeInTheDocument();
+  });
+
+  it("renders five recent topic timeline items before full history expansion", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listTopicTimelineMock.mockResolvedValue({
+      items: buildTimelineItems(6)
+    });
+
+    render(<App />);
+
+    const timelineSection = (
+      await screen.findByRole("heading", { name: "Topic timeline" })
+    ).closest("section");
+
+    expect(timelineSection).not.toBeNull();
+    expect(
+      await within(timelineSection!).findByRole("heading", {
+        name: "Timeline item 1"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("heading", { name: "Timeline item 5" })
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).queryByRole("heading", {
+        name: "Timeline item 6"
+      })
+    ).not.toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("button", {
+        name: "View full history"
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("fetches and renders full topic timeline history on demand", async () => {
+    window.history.pushState({}, "", "/topics/topic-1");
+    listTopicTimelineMock
+      .mockResolvedValueOnce({ items: buildTimelineItems(6) })
+      .mockResolvedValueOnce({ items: buildTimelineItems(6) });
+
+    render(<App />);
+
+    const timelineSection = (
+      await screen.findByRole("heading", { name: "Topic timeline" })
+    ).closest("section");
+
+    expect(timelineSection).not.toBeNull();
+    fireEvent.click(
+      await within(timelineSection!).findByRole("button", {
+        name: "View full history"
+      })
+    );
+
+    await waitFor(() => {
+      expect(listTopicTimelineMock).toHaveBeenLastCalledWith(
+        { topicId: "topic-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
+    expect(
+      await within(timelineSection!).findByRole("heading", {
+        name: "Timeline item 6"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(timelineSection!).getByRole("button", {
+        name: "Show recent timeline"
+      })
+    ).toBeInTheDocument();
+  });
+
   it("opens and cancels the inline assessment form", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
 
@@ -1734,3 +1974,23 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 });
+
+function buildTimelineItems(count: number): TopicTimelineItem[] {
+  return Array.from({ length: count }, (_, index) => {
+    const itemNumber = index + 1;
+    const day = String(30 - index).padStart(2, "0");
+
+    return {
+      kind: "event",
+      entry: {
+        ...eventEntryFixture,
+        kind: "event",
+        id: `timeline-event-${itemNumber}`,
+        title: `Timeline item ${itemNumber}`,
+        sortAt: `2026-04-${day}T00:00:00.000Z`,
+        createdAt: `2026-04-${day}T01:00:00.000Z`,
+        updatedAt: `2026-04-${day}T01:00:00.000Z`
+      }
+    };
+  });
+}

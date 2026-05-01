@@ -505,6 +505,7 @@ select {
 }
 
 .current-assessment,
+.topic-timeline,
 .review-notes,
 .event-entries {
   margin-top: 1.25rem;
@@ -516,6 +517,7 @@ select {
 
 .current-assessment__header,
 .assessment-form__header,
+.topic-timeline__header,
 .review-notes__header,
 .review-note-form__header,
 .event-entries__header,
@@ -531,6 +533,7 @@ select {
 .assessment-form h4,
 .current-assessment-card h4,
 .current-assessment-empty h4,
+.topic-timeline-card h4,
 .review-note-form h4,
 .review-note-card h4,
 .event-entry-form h4,
@@ -542,6 +545,9 @@ select {
 .current-assessment__header p,
 .current-assessment-empty p,
 .current-assessment-card p,
+.topic-timeline__header p,
+.topic-timeline__empty,
+.topic-timeline-card p,
 .review-notes__header p,
 .review-notes__empty,
 .review-note-card p,
@@ -565,6 +571,7 @@ select {
 }
 
 .assessment-form__success,
+.topic-timeline__status,
 .review-note-form__success,
 .review-notes__status,
 .event-entry-form__success,
@@ -651,6 +658,7 @@ select {
 }
 
 .review-note-list,
+.topic-timeline__list,
 .event-entry-list {
   display: grid;
   gap: 0.85rem;
@@ -658,6 +666,7 @@ select {
 }
 
 .review-note-card,
+.topic-timeline-card,
 .event-entry-card {
   padding: 1rem;
   border: 1px solid #d5ded9;
@@ -666,6 +675,7 @@ select {
 }
 
 .review-note-card__metadata,
+.topic-timeline-card__metadata,
 .event-entry-card__metadata {
   display: flex;
   flex-wrap: wrap;
@@ -675,6 +685,8 @@ select {
 
 .review-note-card__metadata time,
 .review-note-card__metadata span,
+.topic-timeline-card__metadata time,
+.topic-timeline-card__metadata span,
 .event-entry-card__metadata time,
 .event-entry-card__metadata span {
   padding: 0.2rem 0.5rem;
@@ -684,6 +696,22 @@ select {
   color: #4b5a50;
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+.topic-timeline-card {
+  border-left-width: 0.3rem;
+}
+
+.topic-timeline-card--event {
+  border-left-color: #36715d;
+}
+
+.topic-timeline-card--assessment {
+  border-left-color: #75662b;
+}
+
+.topic-timeline-card--review {
+  border-left-color: #586b8a;
 }
 
 .topic-edit-form__header {
