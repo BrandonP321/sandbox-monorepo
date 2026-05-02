@@ -160,6 +160,9 @@ importers:
 
   apps/analysis/signal-tracker/signal-tracker-web:
     dependencies:
+      "@reduxjs/toolkit":
+        specifier: ^2.11.2
+        version: 2.11.2(react-redux@9.2.0(@types/react@19.2.10)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
       "@repo/api-contracts":
         specifier: workspace:*
         version: link:../../../../packages/api-contracts
@@ -172,6 +175,12 @@ importers:
       react-dom:
         specifier: ^19.1.1
         version: 19.2.4(react@19.2.4)
+      react-redux:
+        specifier: ^9.2.0
+        version: 9.2.0(@types/react@19.2.10)(react@19.2.4)(redux@5.0.1)
+      redux:
+        specifier: ^5.0.1
+        version: 5.0.1
     devDependencies:
       "@repo/config-eslint":
         specifier: workspace:*
