@@ -6,7 +6,7 @@ import {
   type SignalTrackerRouteResponse
 } from "@repo/signal-tracker-shared";
 
-import { loadRuntimeConfig } from "../config";
+import { loadRuntimeConfig } from "../../config";
 
 export type SignalTrackerApiPostOptions<TName extends SignalTrackerRouteName> =
   {

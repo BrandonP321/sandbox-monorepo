@@ -23,6 +23,12 @@ Redux Toolkit is wired through `src/store.ts`, with React-Redux typed hooks in
 server-state work by extending `signalTrackerApi` with shared route contracts
 from `@repo/signal-tracker-shared`.
 
+## Backend test scaffold
+
+The pre-product frontend used to exercise backend routes is preserved under
+`src/backendTestScaffold/`. New product UI should start from the root `src/App.tsx`
+entrypoint instead of extending that scaffold.
+
 ## Override the API locally (optional)
 
 If you want to point at a non-local API during dev, set `VITE_API_URL`:
