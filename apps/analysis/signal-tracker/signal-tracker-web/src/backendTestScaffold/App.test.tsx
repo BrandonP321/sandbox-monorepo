@@ -1146,8 +1146,12 @@ describe("App", () => {
     expect(
       await within(eventSection!).findByText("1 citation")
     ).toBeInTheDocument();
+    const citationList = within(eventSection!).getByRole("list", {
+      name: "Entry citations"
+    });
+
     expect(
-      within(eventSection!).getByText(/Quote: A federal court granted/)
+      within(citationList).getByText(/Quote: A federal court granted/)
     ).toBeInTheDocument();
   });
 

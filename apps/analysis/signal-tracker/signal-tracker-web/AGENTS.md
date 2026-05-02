@@ -13,7 +13,16 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 ## Notes
 
 - Configure API base URL with `VITE_API_URL`.
+- Use Tailwind CSS as the styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer usually consumed through shadcn/ui.
+- Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
+- Treat Tailwind Plus and Catalyst as reference or pattern sources only, not as the controlling design system.
 - Do not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
-- Use `@repo/ui-base` only for behavior abstractions; keep Signal Tracker-specific UI components, markup, and styling in this web package.
+- Use `@repo/ui-base` only for behavior abstractions.
+- Keep generic copy-owned UI primitives product-agnostic in `src/components/ui/` and keep Signal Tracker-specific components in `src/components/signal-tracker/`.
+- Signal Tracker-specific components should encode product concepts such as topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
+- Do not mix shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another UI system interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
+- Keep component props narrow and intentional. Start with the props the current UI needs, then expand the component API only when a real caller needs the extra control.
+- When supported props come straight from a native element, prefer `Pick<>` over manually rewriting each native prop type, then spread only that picked subset onto the underlying element.
+- Do not extend full native HTML prop types, add generic prop pass-throughs, or expose broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches by default. Add them later only for a concrete Signal Tracker use case.
 - If behavior is duplicated across Signal Tracker components and is general enough for reuse, extend `@repo/ui-base` with tests instead of copying it locally.
 - Keep looking for component boundaries and reusable utilities as UI work grows; make small refactors when they keep the feature implementation clear and sustainable.

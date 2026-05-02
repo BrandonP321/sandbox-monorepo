@@ -50,6 +50,7 @@ Details: see WORKFLOW.md.
 - Keep diffs small; separate refactors from feature changes.
 - Minimize dependencies; justify new dependencies explicitly.
 - Prefer reuse via `packages/*`; avoid app-local utility sprawl.
+- When a directory accumulates recurring conventions, implementation patterns, or gotchas, call out the opportunity to add or update a more local `AGENTS.md` so future Codex runs get that guidance automatically.
 
 ## Reuse / Consolidation Rule (critical)
 

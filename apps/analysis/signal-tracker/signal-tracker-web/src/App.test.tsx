@@ -10,5 +10,8 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Signal Tracker" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Verify Button" })
+    ).toBeInTheDocument();
   });
 });

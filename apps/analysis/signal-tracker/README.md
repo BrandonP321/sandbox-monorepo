@@ -6,7 +6,7 @@ This repo should stay implementation-focused. Product direction belongs in Googl
 
 ## Packages
 
-- `signal-tracker-web`: React/Vite frontend with native HTML elements and local CSS.
+- `signal-tracker-web`: React/Vite frontend using Tailwind CSS, shadcn/ui, and Radix UI for the local Signal Tracker UI foundation.
 - `signal-tracker-api`: Lambda-style TypeScript API with a local dev server.
 - `signal-tracker-shared`: project-scoped route contracts, schemas, and shared types.
 - `signal-tracker-infra`: AWS CDK deployment package.
@@ -15,7 +15,13 @@ Use `signal-tracker-shared` before promoting Signal Tracker-only contracts to re
 
 ## UI Architecture
 
-Signal Tracker should use `@repo/ui-base` for shared behavior abstractions only. Do not import `@repo/ui` or other styled shared UI packages into Signal Tracker. Product-specific UI components belong inside `signal-tracker-web`, with local markup and CSS.
+Signal Tracker uses Tailwind CSS as its styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer underneath many shadcn/ui components. Signal Tracker is not choosing between shadcn/ui and Radix UI; the intended relationship is layered. Use shadcn/ui first for common app components. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
+
+Signal Tracker should continue to use `@repo/ui-base` for shared behavior abstractions only. Do not import `@repo/ui` or other styled shared UI packages into Signal Tracker. Product-specific UI components belong inside `signal-tracker-web`.
+
+Avoid mixing multiple primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented. Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
+
+Prefer narrow, purpose-built component interfaces. Start local primitives and product components with only the props the current UI needs, then expand them when a concrete caller requires the extra capability. Avoid exposing full native element prop surfaces, generic pass-through escape hatches, or broad accessibility/data/id props by default; those can be added later when they solve a real implementation problem.
 
 When a behavior abstraction becomes reusable enough, promote it into `@repo/ui-base` with a small API and tests rather than copying behavior across Signal Tracker components.
 

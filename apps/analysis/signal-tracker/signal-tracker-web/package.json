@@ -14,15 +14,19 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@repo/api-contracts": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-redux": "^9.2.0",
-    "redux": "^5.0.1"
+    "redux": "^5.0.1",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
     "@repo/config-eslint": "workspace:*",
     "@repo/config-test": "workspace:*",
     "@repo/config-ts": "workspace:*",
+    "@tailwindcss/vite": "^4.2.4",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^16.3.0",
     "@types/node": "^24.1.0",
@@ -31,6 +35,7 @@
     "@vitejs/plugin-react": "^5.0.2",
     "eslint": "^9.39.2",
     "jsdom": "^26.1.0",
+    "tailwindcss": "^4.2.4",
     "typescript": "^5.9.3",
     "vite": "^7.1.4",
     "vitest": "^3.2.4"
