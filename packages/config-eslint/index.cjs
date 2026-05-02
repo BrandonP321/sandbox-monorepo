@@ -31,7 +31,7 @@ const baseConfig = [
     }
   },
   {
-    ignores: ["dist/**", "build/**", "cdk.out/**"]
+    ignores: ["dist/**", "build/**", "cdk.out/**", "storybook-static/**"]
   }
 ];
 

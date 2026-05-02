@@ -9,6 +9,8 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Lint: `pnpm --filter signal-tracker-web lint`
 - Typecheck: `pnpm --filter signal-tracker-web typecheck`
 - Build: `pnpm --filter signal-tracker-web build`
+- Storybook: `pnpm --filter signal-tracker-web storybook`
+- Build Storybook: `pnpm --filter signal-tracker-web build-storybook`
 
 ## Notes
 
@@ -19,6 +21,7 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Do not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
 - Use `@repo/ui-base` only for behavior abstractions.
 - Keep generic copy-owned UI primitives product-agnostic in `src/components/ui/` and keep Signal Tracker-specific components in `src/components/signal-tracker/`.
+- Keep Storybook stories focused on generic UI primitives in `src/components/ui/`; do not use Storybook stories for product workflows unless that scope is explicitly expanded.
 - Signal Tracker-specific components should encode product concepts such as topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
 - Do not mix shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another UI system interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
 - Keep component props narrow and intentional. Start with the props the current UI needs, then expand the component API only when a real caller needs the extra control.

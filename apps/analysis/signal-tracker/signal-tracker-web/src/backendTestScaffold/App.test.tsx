@@ -1435,7 +1435,7 @@ describe("App", () => {
       within(reviewNotesSection!).getByText("Inferred")
     ).toBeInTheDocument();
     expect(
-      within(reviewNotesSection!).getByText("Uncited")
+      await within(reviewNotesSection!).findByText("Uncited")
     ).toBeInTheDocument();
     expect(
       within(reviewNotesSection!).getByText("Apr 26, 2026")

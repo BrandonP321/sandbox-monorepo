@@ -49,6 +49,23 @@ pnpm --filter signal-tracker-web dev
 The web app loads `/config.json` at runtime when deployed. For local dev it
 defaults to `http://localhost:3001` if the runtime config is missing.
 
+## Storybook
+
+Use Storybook for the generic local UI primitives in `src/components/ui/`:
+
+```bash
+pnpm --filter signal-tracker-web storybook
+```
+
+Build the static Storybook output with:
+
+```bash
+pnpm --filter signal-tracker-web build-storybook
+```
+
+This Storybook setup is intentionally minimal while these components remain
+app-local.
+
 ## Runtime config (deployed)
 
 The CDK stack writes `/config.json` into the site bucket with the deployed API
