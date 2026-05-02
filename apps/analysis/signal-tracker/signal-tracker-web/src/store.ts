@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
-import { signalTrackerApi } from "./services/signalTrackerApi";
+import { signalTrackerApi } from "./api";
 
 export function makeStore() {
   return configureStore({

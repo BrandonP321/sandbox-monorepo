@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { signalTrackerApi } from "./services/signalTrackerApi";
+import { signalTrackerApi } from "./api";
 import { makeStore, store } from "./store";
 
 describe("store", () => {

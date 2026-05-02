@@ -45,7 +45,7 @@ const dynamicBaseQuery: BaseQueryFn<
 export const signalTrackerApi = createApi({
   reducerPath: "signalTrackerApi",
   baseQuery: dynamicBaseQuery,
-  tagTypes: ["Health"],
+  tagTypes: ["Evidence", "Health", "Topics"],
   endpoints: (builder) => ({
     getHealth: builder.query<SignalTrackerHealthResponse, void>({
       query: () => {

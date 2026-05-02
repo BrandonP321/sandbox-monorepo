@@ -19,9 +19,11 @@ base URL, so the web app does not need rebuild-time env injection.
 ## State management
 
 Redux Toolkit is wired through `src/store.ts`, with React-Redux typed hooks in
-`src/storeHooks.ts`. RTK Query services live under `src/services/`; start new
-server-state work by extending `signalTrackerApi` with shared route contracts
-from `@repo/signal-tracker-shared`.
+`src/storeHooks.ts`. RTK Query API modules live under `src/api/`; keep the base
+`signalTrackerApi` setup there and add resource-specific endpoints under folders
+like `src/api/topics/` and `src/api/evidence/`. Import request and response types
+directly from `@repo/signal-tracker-shared` instead of duplicating them in the
+web app.
 
 ## Backend test scaffold
 
