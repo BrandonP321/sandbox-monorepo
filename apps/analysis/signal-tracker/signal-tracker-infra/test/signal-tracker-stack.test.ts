@@ -38,7 +38,7 @@ describe("SignalTrackerStack", () => {
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate",
+      Name: "signal-tracker-prod-validate-build",
       Cache: { Type: "NO_CACHE" },
       Environment: Match.objectLike({
         ComputeType: "BUILD_LAMBDA_4GB",
@@ -48,7 +48,7 @@ describe("SignalTrackerStack", () => {
       }),
       Source: Match.objectLike({
         BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml",
         Type: "CODEPIPELINE"
       })
     });
@@ -61,7 +61,35 @@ describe("SignalTrackerStack", () => {
           Name: "Validate",
           Actions: Match.arrayWith([
             Match.objectLike({
-              Name: "Validate",
+              Name: "Lint",
+              RunOrder: 1,
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
+              })
+            }),
+            Match.objectLike({
+              Name: "Typecheck",
+              RunOrder: 1,
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
+              })
+            }),
+            Match.objectLike({
+              Name: "Test",
+              RunOrder: 1,
+              ActionTypeId: Match.objectLike({
+                Category: "Build",
+                Owner: "AWS",
+                Provider: "CodeBuild"
+              })
+            }),
+            Match.objectLike({
+              Name: "Build",
+              RunOrder: 1,
               ActionTypeId: Match.objectLike({
                 Category: "Build",
                 Owner: "AWS",

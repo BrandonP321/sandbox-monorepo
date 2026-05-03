@@ -289,4 +289,72 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       })
     });
   });
+
+  it("can create parallel validation actions", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+
+    new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      buildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
+      connectionName: "signal-tracker-prod-source",
+      deployBuildEnvironment: { computeMode: "lambda" },
+      deployStackName: "SignalTrackerStack",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      pipelineName: "signal-tracker-prod",
+      projectName: "signal-tracker-prod-deploy",
+      region: "us-east-1",
+      sourceActionName: "Source",
+      validationActions: [
+        {
+          actionName: "Lint",
+          buildSpecPath:
+            "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml"
+        },
+        {
+          actionName: "Typecheck",
+          buildSpecPath:
+            "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml"
+        }
+      ]
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "signal-tracker-prod-validate-lint",
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml"
+      })
+    });
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "signal-tracker-prod-validate-typecheck",
+      Source: Match.objectLike({
+        BuildSpec:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml"
+      })
+    });
+    template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
+      Stages: Match.arrayWith([
+        Match.objectLike({
+          Name: "Validate",
+          Actions: Match.arrayWith([
+            Match.objectLike({
+              Name: "Lint",
+              RunOrder: 1
+            }),
+            Match.objectLike({
+              Name: "Typecheck",
+              RunOrder: 1
+            })
+          ])
+        })
+      ])
+    });
+  });
 });

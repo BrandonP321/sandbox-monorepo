@@ -16,7 +16,4 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
-      - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
       - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
-      - pnpm -r --workspace-concurrency=1 --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build

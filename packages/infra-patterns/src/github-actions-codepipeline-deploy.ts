@@ -26,10 +26,19 @@ export interface GitHubActionsCodePipelineDeployProps {
   readonly projectName: string;
   readonly region: string;
   readonly sourceActionName: string;
+  readonly validationActions?: readonly CodePipelineDeployValidationActionProps[];
   readonly validationBuildEnvironment?: CodePipelineDeployBuildEnvironmentProps;
   readonly validationBuildSpecPath?: string;
   readonly validationProjectConstructId?: string;
   readonly validationProjectName?: string;
+}
+
+export interface CodePipelineDeployValidationActionProps {
+  readonly actionName: string;
+  readonly buildEnvironment?: CodePipelineDeployBuildEnvironmentProps;
+  readonly buildSpecPath: string;
+  readonly projectConstructId?: string;
+  readonly projectName?: string;
 }
 
 const NODE_24_LAMBDA_BUILD_IMAGE: codebuild.IBuildImage = {
@@ -68,6 +77,7 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
   public readonly project: codebuild.Project;
   public readonly starterRole: iam.Role;
   public readonly validationProject?: codebuild.Project;
+  public readonly validationProjects: readonly codebuild.Project[];
 
   constructor(
     scope: Construct,
@@ -112,17 +122,19 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       serviceRole
     );
 
-    if (props.validationBuildSpecPath) {
-      this.validationProject = this.createBuildProject(
-        props.validationProjectConstructId ?? "ValidateProject",
-        props.validationProjectName ?? `${props.pipelineName}-validate`,
+    const validationActions = resolveValidationActions(props);
+    this.validationProjects = validationActions.map((validationAction) =>
+      this.createBuildProject(
+        validationAction.projectConstructId,
+        validationAction.projectName,
         "Validation runner for a monorepo app triggered by GitHub Actions through CodePipeline.",
-        props.validationBuildSpecPath,
-        props.validationBuildEnvironment ?? props.deployBuildEnvironment,
+        validationAction.buildSpecPath,
+        validationAction.buildEnvironment,
         props,
         serviceRole
-      );
-    }
+      )
+    );
+    this.validationProject = this.validationProjects[0];
 
     const sourceOutput = new codepipeline.Artifact("SourceArtifact");
 
@@ -151,15 +163,20 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       })
     );
 
-    if (this.validationProject) {
+    if (this.validationProjects.length > 0) {
       const validateStage = this.pipeline.addStage({ stageName: "Validate" });
-      validateStage.addAction(
-        new codepipelineActions.CodeBuildAction({
-          actionName: "Validate",
-          input: sourceOutput,
-          project: this.validationProject
-        })
-      );
+      for (const [
+        index,
+        validationProject
+      ] of this.validationProjects.entries()) {
+        validateStage.addAction(
+          new codepipelineActions.CodeBuildAction({
+            actionName: validationActions[index].actionName,
+            input: sourceOutput,
+            project: validationProject
+          })
+        );
+      }
     }
 
     const prodStage = this.pipeline.addStage({ stageName: "Prod" });
@@ -247,4 +264,62 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
 
     return project;
   }
+}
+
+interface ResolvedValidationAction {
+  readonly actionName: string;
+  readonly buildEnvironment:
+    | CodePipelineDeployBuildEnvironmentProps
+    | undefined;
+  readonly buildSpecPath: string;
+  readonly projectConstructId: string;
+  readonly projectName: string;
+}
+
+function resolveValidationActions(
+  props: GitHubActionsCodePipelineDeployProps
+): readonly ResolvedValidationAction[] {
+  if (props.validationActions) {
+    return props.validationActions.map((validationAction) => ({
+      actionName: validationAction.actionName,
+      buildEnvironment:
+        validationAction.buildEnvironment ??
+        props.validationBuildEnvironment ??
+        props.deployBuildEnvironment,
+      buildSpecPath: validationAction.buildSpecPath,
+      projectConstructId:
+        validationAction.projectConstructId ??
+        `Validate${toConstructIdPart(validationAction.actionName)}Project`,
+      projectName:
+        validationAction.projectName ??
+        `${props.pipelineName}-validate-${toProjectNamePart(validationAction.actionName)}`
+    }));
+  }
+
+  if (!props.validationBuildSpecPath) {
+    return [];
+  }
+
+  return [
+    {
+      actionName: "Validate",
+      buildEnvironment:
+        props.validationBuildEnvironment ?? props.deployBuildEnvironment,
+      buildSpecPath: props.validationBuildSpecPath,
+      projectConstructId:
+        props.validationProjectConstructId ?? "ValidateProject",
+      projectName:
+        props.validationProjectName ?? `${props.pipelineName}-validate`
+    }
+  ];
+}
+
+function toConstructIdPart(value: string): string {
+  const sanitized = value.replace(/[^A-Za-z0-9]/g, "");
+  return sanitized.length > 0 ? sanitized : "Action";
+}
+
+function toProjectNamePart(value: string): string {
+  const sanitized = value.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  return sanitized.replace(/^-|-$/g, "") || "action";
 }
