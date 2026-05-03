@@ -31,6 +31,6 @@ phases:
       - test "$API_BASE_URL" != "None"
       - test "$WEB_BUCKET_NAME" != "None"
       - test "$WEB_DISTRIBUTION_ID" != "None"
-      - pnpm --filter signal-tracker-infra run publish:web
+      - ulimit -n 4096 && pnpm --filter signal-tracker-infra run publish:web
       - 'echo "Web URL: $WEB_URL"'
       - 'echo "API URL: $API_BASE_URL"'
