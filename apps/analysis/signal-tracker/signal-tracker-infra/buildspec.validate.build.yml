@@ -16,4 +16,4 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - ulimit -n 4096 && pnpm -r --workspace-concurrency=1 --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
+      - pnpm -r --workspace-concurrency=1 --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
