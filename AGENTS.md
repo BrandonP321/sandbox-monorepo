@@ -63,6 +63,15 @@ Before adding new code:
 
 Authoritative playbook: see SHARED_CODE_PLAYBOOK.md.
 
+## Frontend Work
+
+- Prefer simple, explicit React/TypeScript components over clever abstractions, deep indirection, or speculative flexibility.
+- Keep feature files cohesive. Treat roughly 100 lines as a decomposition review trigger, not a hard limit; split only when a clearer component, hook, helper, schema, or test utility boundary appears.
+- Avoid unnecessary `useEffect`, stored derived state, broad context providers, premature Redux/global state, and raw `fetch` calls inside components.
+- Keep TypeScript strict. Avoid `any`; use `unknown`, schemas, type guards, discriminated unions, and exhaustive checks when they fit the problem.
+- Test user-visible behavior with typed fixtures/factories and shared render utilities where practical. Do not make tests a weakly typed zone.
+- Use the app or package's existing UI stack before adding dependencies, new component systems, or duplicate primitives.
+
 ## Dependency Direction (do not violate)
 
 - `apps/*` MAY depend on `packages/*`

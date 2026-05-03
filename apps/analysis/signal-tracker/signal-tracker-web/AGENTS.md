@@ -27,5 +27,8 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Keep component props narrow and intentional. Start with the props the current UI needs, then expand the component API only when a real caller needs the extra control.
 - When supported props come straight from a native element, prefer `Pick<>` over manually rewriting each native prop type, then spread only that picked subset onto the underlying element.
 - Do not extend full native HTML prop types, add generic prop pass-throughs, or expose broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches by default. Add them later only for a concrete Signal Tracker use case.
+- Centralize API calls under `src/api/`. Keep RTK Query endpoints, query keys/tags, invalidation, and response parsing consistent instead of scattering raw `fetch` calls through components.
+- Validate or narrow external data at the boundary, using `@repo/signal-tracker-shared` route contracts and schemas where they apply.
+- When adding the first non-trivial form, add the minimal React Hook Form/Zod/`@repo/ui-base` integration needed for schema-driven forms instead of hand-wiring repeated field plumbing.
 - If behavior is duplicated across Signal Tracker components and is general enough for reuse, extend `@repo/ui-base` with tests instead of copying it locally.
 - Keep looking for component boundaries and reusable utilities as UI work grows; make small refactors when they keep the feature implementation clear and sustainable.

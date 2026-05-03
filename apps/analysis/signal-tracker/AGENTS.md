@@ -30,6 +30,15 @@
 - Do not expose full native element prop surfaces, generic prop pass-throughs, or broad accessibility/data/id escape hatches by default. Add those only when they solve a real Signal Tracker implementation problem.
 - If Signal Tracker needs a behavior abstraction that belongs in `@repo/ui-base`, extend `@repo/ui-base` with a small, general API and tests instead of duplicating behavior in the app.
 
+## Frontend Data And State
+
+- Keep Signal Tracker UI work app-local unless a behavior abstraction clearly belongs in `@repo/ui-base` or an issue explicitly requires broader shared-package work.
+- Use route contracts, request/response schemas, and domain types from `@repo/signal-tracker-shared`; do not duplicate API shapes in the web app.
+- Use RTK Query as the server-state layer. Do not store server data or derived server data in standalone Redux slices.
+- Async UI must account for loading, error, empty, and success states, even when shared components render those states.
+- Normalize API errors through shared app infrastructure as that infrastructure emerges; avoid one-off error shapes and swallowed async failures in feature components.
+- Non-trivial forms should be schema-driven, infer TypeScript types from the schema, and use reusable field components rather than repeated manual field wiring.
+
 ## Product Source Of Truth
 
 Google Drive holds durable product direction. Use the Google Drive plugin/connector when product context is needed, especially before making implementation decisions that affect behavior, data model, scope, or release sequencing.
