@@ -6,12 +6,13 @@ import {
   fetchBaseQuery
 } from "@reduxjs/toolkit/query/react";
 
-import {
-  signalTrackerRouteContracts,
-  type SignalTrackerHealthResponse
-} from "@repo/signal-tracker-shared";
+import { type SignalTrackerHealthResponse } from "@repo/signal-tracker-shared";
 
 import { loadRuntimeConfig, type RuntimeConfig } from "../config";
+import {
+  buildSignalTrackerRouteRequest,
+  parseSignalTrackerRouteResponse
+} from "./routeContract";
 
 let cachedConfig: RuntimeConfig | null = null;
 let configPromise: Promise<RuntimeConfig> | null = null;
@@ -45,21 +46,26 @@ const dynamicBaseQuery: BaseQueryFn<
 export const signalTrackerApi = createApi({
   reducerPath: "signalTrackerApi",
   baseQuery: dynamicBaseQuery,
-  tagTypes: ["Evidence", "Health", "Topics"],
+  tagTypes: [
+    "EntryCitation",
+    "EntryCitations",
+    "EventEntries",
+    "EventEntry",
+    "Evidence",
+    "EvidenceAnchor",
+    "EvidenceAnchors",
+    "EvidenceItem",
+    "Health",
+    "Topic",
+    "Topics",
+    "TopicTimeline"
+  ],
   endpoints: (builder) => ({
     getHealth: builder.query<SignalTrackerHealthResponse, void>({
-      query: () => {
-        const contract = signalTrackerRouteContracts.getHealth;
-
-        return {
-          url: contract.route.path,
-          method: contract.route.method,
-          body: contract.requestSchema.parse({})
-        };
-      },
+      query: () => buildSignalTrackerRouteRequest("getHealth", {}),
       providesTags: ["Health"],
       transformResponse: (response: unknown) =>
-        signalTrackerRouteContracts.getHealth.responseSchema.parse(response)
+        parseSignalTrackerRouteResponse("getHealth", response)
     })
   })
 });

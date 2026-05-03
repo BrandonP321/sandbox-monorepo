@@ -1,29 +1,102 @@
 import {
-  signalTrackerRouteContracts,
+  type ArchiveTopicRequest,
+  type ArchiveTopicResponse,
+  type CreateTopicRequest,
+  type CreateTopicResponse,
+  type DeleteTopicRequest,
+  type DeleteTopicResponse,
+  type GetTopicRequest,
+  type GetTopicResponse,
   type ListTopicsRequest,
-  type ListTopicsResponse
+  type ListTopicsResponse,
+  type UpdateTopicRequest,
+  type UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
+import {
+  buildSignalTrackerRouteRequest,
+  parseSignalTrackerRouteResponse
+} from "../routeContract";
 import { signalTrackerApi } from "../signalTrackerApi";
 
-const listTopicsContract = signalTrackerRouteContracts.listTopics;
 const defaultListTopicsRequest = {
   query: undefined
 } satisfies ListTopicsRequest;
 
 export const topicApi = signalTrackerApi.injectEndpoints({
   endpoints: (builder) => ({
-    listTopics: builder.query<ListTopicsResponse, ListTopicsRequest | void>({
-      query: (request = defaultListTopicsRequest) => ({
-        url: listTopicsContract.route.path,
-        method: listTopicsContract.route.method,
-        body: listTopicsContract.requestSchema.parse(request)
-      }),
-      providesTags: ["Topics"],
+    createTopic: builder.mutation<CreateTopicResponse, CreateTopicRequest>({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("createTopic", request),
+      invalidatesTags: [{ type: "Topics", id: "LIST" }],
       transformResponse: (response: unknown) =>
-        listTopicsContract.responseSchema.parse(response)
+        parseSignalTrackerRouteResponse("createTopic", response)
+    }),
+    getTopic: builder.query<GetTopicResponse, GetTopicRequest>({
+      query: (request) => buildSignalTrackerRouteRequest("getTopic", request),
+      providesTags: (_result, _error, request) => [
+        { type: "Topic", id: request.topicId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("getTopic", response)
+    }),
+    listTopics: builder.query<ListTopicsResponse, ListTopicsRequest | void>({
+      query: (request = defaultListTopicsRequest) =>
+        buildSignalTrackerRouteRequest(
+          "listTopics",
+          request ?? defaultListTopicsRequest
+        ),
+      providesTags: (result) => [
+        { type: "Topics", id: "LIST" },
+        ...(result?.topics.map((topic) => ({
+          type: "Topic" as const,
+          id: topic.id
+        })) ?? [])
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("listTopics", response)
+    }),
+    updateTopic: builder.mutation<UpdateTopicResponse, UpdateTopicRequest>({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("updateTopic", request),
+      invalidatesTags: (result, _error, request) => [
+        { type: "Topics", id: "LIST" },
+        { type: "Topic", id: request.topicId },
+        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("updateTopic", response)
+    }),
+    archiveTopic: builder.mutation<ArchiveTopicResponse, ArchiveTopicRequest>({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("archiveTopic", request),
+      invalidatesTags: (result, _error, request) => [
+        { type: "Topics", id: "LIST" },
+        { type: "Topic", id: request.topicId },
+        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("archiveTopic", response)
+    }),
+    deleteTopic: builder.mutation<DeleteTopicResponse, DeleteTopicRequest>({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("deleteTopic", request),
+      invalidatesTags: (result, _error, request) => [
+        { type: "Topics", id: "LIST" },
+        { type: "Topic", id: request.topicId },
+        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("deleteTopic", response)
     })
   })
 });
 
-export const { useListTopicsQuery } = topicApi;
+export const {
+  useArchiveTopicMutation,
+  useCreateTopicMutation,
+  useDeleteTopicMutation,
+  useGetTopicQuery,
+  useListTopicsQuery,
+  useUpdateTopicMutation
+} = topicApi;

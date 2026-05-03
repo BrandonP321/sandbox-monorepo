@@ -1,32 +1,145 @@
 import {
-  signalTrackerRouteContracts,
+  type CaptureEvidenceUrlRequest,
+  type CaptureEvidenceUrlResponse,
+  type CreateEvidenceAnchorRequest,
+  type CreateEvidenceAnchorResponse,
+  type CreateEvidenceItemRequest,
+  type CreateEvidenceItemResponse,
+  type GetEvidenceAnchorRequest,
+  type GetEvidenceAnchorResponse,
+  type GetEvidenceItemRequest,
+  type GetEvidenceItemResponse,
+  type ListEvidenceAnchorsForItemRequest,
+  type ListEvidenceAnchorsForItemResponse,
   type ListEvidenceItemsRequest,
   type ListEvidenceItemsResponse
 } from "@repo/signal-tracker-shared";
 
+import {
+  buildSignalTrackerRouteRequest,
+  parseSignalTrackerRouteResponse
+} from "../routeContract";
 import { signalTrackerApi } from "../signalTrackerApi";
 
-const listEvidenceItemsContract = signalTrackerRouteContracts.listEvidenceItems;
 const defaultListEvidenceItemsRequest = {
   query: undefined
 } satisfies ListEvidenceItemsRequest;
 
 export const evidenceApi = signalTrackerApi.injectEndpoints({
   endpoints: (builder) => ({
+    createEvidenceItem: builder.mutation<
+      CreateEvidenceItemResponse,
+      CreateEvidenceItemRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("createEvidenceItem", request),
+      invalidatesTags: (result) => [
+        { type: "Evidence", id: "LIST" },
+        ...(result
+          ? [{ type: "EvidenceItem" as const, id: result.evidenceItem.id }]
+          : [])
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("createEvidenceItem", response)
+    }),
+    captureEvidenceUrl: builder.mutation<
+      CaptureEvidenceUrlResponse,
+      CaptureEvidenceUrlRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("captureEvidenceUrl", request),
+      invalidatesTags: (result) => [
+        { type: "Evidence", id: "LIST" },
+        ...(result
+          ? [{ type: "EvidenceItem" as const, id: result.evidenceItem.id }]
+          : [])
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("captureEvidenceUrl", response)
+    }),
+    getEvidenceItem: builder.query<
+      GetEvidenceItemResponse,
+      GetEvidenceItemRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("getEvidenceItem", request),
+      providesTags: (_result, _error, request) => [
+        { type: "EvidenceItem", id: request.evidenceItemId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("getEvidenceItem", response)
+    }),
     listEvidenceItems: builder.query<
       ListEvidenceItemsResponse,
       ListEvidenceItemsRequest | void
     >({
-      query: (request = defaultListEvidenceItemsRequest) => ({
-        url: listEvidenceItemsContract.route.path,
-        method: listEvidenceItemsContract.route.method,
-        body: listEvidenceItemsContract.requestSchema.parse(request)
-      }),
-      providesTags: ["Evidence"],
+      query: (request = defaultListEvidenceItemsRequest) =>
+        buildSignalTrackerRouteRequest(
+          "listEvidenceItems",
+          request ?? defaultListEvidenceItemsRequest
+        ),
+      providesTags: (result) => [
+        { type: "Evidence", id: "LIST" },
+        ...(result?.evidence.map(({ evidenceItem }) => ({
+          type: "EvidenceItem" as const,
+          id: evidenceItem.id
+        })) ?? [])
+      ],
       transformResponse: (response: unknown) =>
-        listEvidenceItemsContract.responseSchema.parse(response)
+        parseSignalTrackerRouteResponse("listEvidenceItems", response)
+    }),
+    createEvidenceAnchor: builder.mutation<
+      CreateEvidenceAnchorResponse,
+      CreateEvidenceAnchorRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("createEvidenceAnchor", request),
+      invalidatesTags: (result, _error, request) => [
+        { type: "EvidenceAnchors", id: request.evidenceItemId },
+        ...(result
+          ? [{ type: "EvidenceAnchor" as const, id: result.anchor.id }]
+          : [])
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("createEvidenceAnchor", response)
+    }),
+    getEvidenceAnchor: builder.query<
+      GetEvidenceAnchorResponse,
+      GetEvidenceAnchorRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("getEvidenceAnchor", request),
+      providesTags: (_result, _error, request) => [
+        { type: "EvidenceAnchor", id: request.anchorId }
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("getEvidenceAnchor", response)
+    }),
+    listEvidenceAnchorsForItem: builder.query<
+      ListEvidenceAnchorsForItemResponse,
+      ListEvidenceAnchorsForItemRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("listEvidenceAnchorsForItem", request),
+      providesTags: (result, _error, request) => [
+        { type: "EvidenceAnchors", id: request.evidenceItemId },
+        ...(result?.anchors.map((anchor) => ({
+          type: "EvidenceAnchor" as const,
+          id: anchor.id
+        })) ?? [])
+      ],
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("listEvidenceAnchorsForItem", response)
     })
   })
 });
 
-export const { useListEvidenceItemsQuery } = evidenceApi;
+export const {
+  useCaptureEvidenceUrlMutation,
+  useCreateEvidenceAnchorMutation,
+  useCreateEvidenceItemMutation,
+  useGetEvidenceAnchorQuery,
+  useGetEvidenceItemQuery,
+  useListEvidenceAnchorsForItemQuery,
+  useListEvidenceItemsQuery
+} = evidenceApi;
