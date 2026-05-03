@@ -1,41 +1,41 @@
 import {
-  FormInputControl,
+  FormTextareaControl,
   type FormFieldName,
-  type FormInputControlRenderProps
+  type FormTextareaControlRenderProps
 } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
 
 import { FormField } from "./FormField";
-import { Input, type InputProps } from "./Input";
+import { Textarea, type TextareaProps } from "../Textarea";
 
-type FormInputProps<TFieldValues extends FieldValues> = Pick<
-  InputProps,
-  "placeholder" | "required" | "type"
+type FormTextareaProps<TFieldValues extends FieldValues> = Pick<
+  TextareaProps,
+  "placeholder" | "required" | "rows"
 > & {
   className?: string;
   description?: string;
   disabled?: boolean;
   id?: string;
-  inputClassName?: string;
   label: string;
   name: FormFieldName<TFieldValues, string>;
+  textareaClassName?: string;
 };
 
-function FormInput<TFieldValues extends FieldValues>({
+function FormTextarea<TFieldValues extends FieldValues>({
   className,
   description,
   disabled = false,
   id,
-  inputClassName,
   label,
   name,
   placeholder,
   required,
-  type = "text"
-}: FormInputProps<TFieldValues>) {
+  rows,
+  textareaClassName
+}: FormTextareaProps<TFieldValues>) {
   return (
-    <FormInputControl<TFieldValues> disabled={disabled} id={id} name={name}>
-      {({ error, ref, ...controlProps }: FormInputControlRenderProps) => (
+    <FormTextareaControl<TFieldValues> disabled={disabled} id={id} name={name}>
+      {({ error, ref, ...controlProps }: FormTextareaControlRenderProps) => (
         <FormField
           className={className}
           description={description}
@@ -45,9 +45,9 @@ function FormInput<TFieldValues extends FieldValues>({
           required={required ?? controlProps.required}
         >
           {(fieldProps) => (
-            <Input
+            <Textarea
               {...fieldProps}
-              className={inputClassName}
+              className={textareaClassName}
               disabled={controlProps.disabled}
               name={controlProps.name}
               onBlur={controlProps.onBlur}
@@ -55,14 +55,14 @@ function FormInput<TFieldValues extends FieldValues>({
               placeholder={placeholder}
               ref={ref}
               required={required ?? controlProps.required}
-              type={type}
+              rows={rows}
               value={controlProps.value}
             />
           )}
         </FormField>
       )}
-    </FormInputControl>
+    </FormTextareaControl>
   );
 }
 
-export { FormInput, type FormInputProps };
+export { FormTextarea, type FormTextareaProps };

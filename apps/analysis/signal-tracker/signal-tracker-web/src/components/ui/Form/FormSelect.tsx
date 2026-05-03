@@ -2,7 +2,7 @@ import { FormDropdownControl, type FormFieldName } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
 
 import { FormField } from "./FormField";
-import { Select, type SelectOption, type SelectProps } from "./Select";
+import { Select, type SelectOption, type SelectProps } from "../Select";
 
 type FormSelectProps<TFieldValues extends FieldValues> = Pick<
   SelectProps,

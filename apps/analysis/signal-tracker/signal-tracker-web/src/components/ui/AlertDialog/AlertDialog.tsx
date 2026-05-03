@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { Button } from "./Button";
+import { Button } from "../Button";
 import {
   Dialog,
   DialogClose,
@@ -9,8 +9,8 @@ import {
   type DialogContentProps,
   type DialogProps,
   type DialogTriggerProps
-} from "./Dialog";
-import { useDialogContext } from "./DialogContext";
+} from "../Dialog";
+import { useDialogContext } from "../Dialog";
 
 type AlertDialogProps = DialogProps;
 

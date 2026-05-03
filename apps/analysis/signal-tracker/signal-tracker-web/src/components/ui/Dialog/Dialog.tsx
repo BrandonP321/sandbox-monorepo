@@ -5,7 +5,7 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-import { Button } from "./Button";
+import { Button } from "../Button";
 import {
   DialogContext,
   useDialogContext,

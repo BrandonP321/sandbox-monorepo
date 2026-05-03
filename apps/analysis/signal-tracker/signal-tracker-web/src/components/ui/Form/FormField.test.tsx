@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FormField } from "./FormField";
-import { Input } from "./Input";
+import { Input } from "../Input";
 
 describe("FormField", () => {
   it("connects the label to the rendered control", () => {

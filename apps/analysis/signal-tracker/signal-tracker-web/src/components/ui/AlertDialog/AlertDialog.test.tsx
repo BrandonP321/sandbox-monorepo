@@ -6,8 +6,8 @@ import {
   AlertDialogContent,
   AlertDialogTrigger
 } from "./AlertDialog";
-import { useDialogContext } from "./DialogContext";
-import { Button } from "./Button";
+import { Button } from "../Button";
+import { useDialogContext } from "../Dialog";
 
 function wait(milliseconds = 1000) {
   return new Promise<void>((resolve) => {

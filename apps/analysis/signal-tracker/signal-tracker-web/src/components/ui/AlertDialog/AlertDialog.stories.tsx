@@ -5,7 +5,7 @@ import {
   AlertDialogContent,
   AlertDialogTrigger
 } from "./AlertDialog";
-import { Button } from "./Button";
+import { Button } from "../Button";
 
 const meta = {
   title: "UI/AlertDialog",

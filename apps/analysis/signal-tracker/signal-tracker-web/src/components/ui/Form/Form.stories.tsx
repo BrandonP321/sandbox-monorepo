@@ -4,7 +4,7 @@ import { Form, FormProvider } from "@repo/ui-base";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "./Button";
+import { Button } from "../Button";
 import { FormInput } from "./FormInput";
 import { FormSelect } from "./FormSelect";
 import { FormTextarea } from "./FormTextarea";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { FormField } from "./FormField";
-import { Input } from "./Input";
+import { Input } from "../Input";
 
 const meta = {
   title: "UI/FormField"

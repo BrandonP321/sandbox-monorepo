@@ -1,7 +1,7 @@
 import { MoreHorizontal } from "lucide-react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Button } from "./Button";
+import { Button } from "../Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
