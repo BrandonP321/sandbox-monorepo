@@ -5,6 +5,8 @@ import {
   useFormContext
 } from "react-hook-form";
 
+import { useFormSchemaMetadata } from "./FormSchemaMetadataContext";
+
 type FormFieldValue<TValue> = TValue | null | undefined;
 
 export type FormFieldName<
@@ -18,6 +20,7 @@ export type UseFormFieldResult<
 > = {
   error?: string;
   isDisabled: boolean;
+  isRequired: boolean;
   name: string;
   onBlur: () => void;
   ref: (instance: TElement | null) => void;
@@ -34,6 +37,7 @@ export function useFormField<
     TValue
   >
 >(name: TName, disabled = false): UseFormFieldResult<TElement, TValue> {
+  const { requiredFieldNames } = useFormSchemaMetadata();
   const { control, formState } = useFormContext<TFieldValues>();
   const { field, fieldState } = useController<TFieldValues, TName>({
     control,
@@ -47,6 +51,7 @@ export function useFormField<
         ? fieldState.error.message
         : undefined,
     isDisabled: disabled || formState.isSubmitting,
+    isRequired: requiredFieldNames.has(field.name),
     name: field.name,
     onBlur: field.onBlur,
     ref: field.ref as (instance: TElement | null) => void,

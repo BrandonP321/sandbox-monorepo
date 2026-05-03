@@ -5,21 +5,20 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { FormProvider as SchemaFormProvider } from "../FormProvider/FormProvider";
-
 import {
-  FormInputControl,
-  type FormInputControlProps,
-  type FormInputControlRenderProps
-} from "./FormInputControl";
+  FormTextareaControl,
+  type FormTextareaControlProps,
+  type FormTextareaControlRenderProps
+} from "./FormTextareaControl";
 
 type ExampleFormValues = {
-  company?: string | null;
+  notes?: string | null;
 };
 
-type FakeInputViewProps = Omit<FormInputControlRenderProps, "ref">;
+type FakeTextareaViewProps = Omit<FormTextareaControlRenderProps, "ref">;
 
-const FakeInputView = forwardRef<HTMLInputElement, FakeInputViewProps>(
-  function FakeInputView({ disabled, id, name, required, value }, ref) {
+const FakeTextareaView = forwardRef<HTMLTextAreaElement, FakeTextareaViewProps>(
+  function FakeTextareaView({ disabled, id, name, required, value }, ref) {
     return (
       <output
         data-disabled={String(Boolean(disabled))}
@@ -48,33 +47,33 @@ function TestForm({
 }
 
 function TestField(
-  props: Omit<FormInputControlProps<ExampleFormValues>, "children">
+  props: Omit<FormTextareaControlProps<ExampleFormValues>, "children">
 ) {
   return (
-    <FormInputControl<ExampleFormValues> {...props}>
-      {({ ref, ...inputProps }: FormInputControlRenderProps) => (
-        <FakeInputView {...inputProps} ref={ref} />
+    <FormTextareaControl<ExampleFormValues> {...props}>
+      {({ ref, ...textareaProps }: FormTextareaControlRenderProps) => (
+        <FakeTextareaView {...textareaProps} ref={ref} />
       )}
-    </FormInputControl>
+    </FormTextareaControl>
   );
 }
 
-describe("FormInputControl", () => {
+describe("FormTextareaControl", () => {
   it("renders the RHF field value through the functional contract", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ company: "OpenAI" }}>
-        <TestField name="company" />
+      <TestForm defaultValues={{ notes: "Long note" }}>
+        <TestField name="notes" />
       </TestForm>
     );
 
-    expect(markup).toContain('data-name="company"');
-    expect(markup).toContain('data-value="OpenAI"');
+    expect(markup).toContain('data-name="notes"');
+    expect(markup).toContain('data-value="Long note"');
   });
 
   it("coerces nullish RHF values to an empty string", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ company: undefined }}>
-        <TestField name="company" />
+      <TestForm defaultValues={{ notes: undefined }}>
+        <TestField name="notes" />
       </TestForm>
     );
 
@@ -83,8 +82,8 @@ describe("FormInputControl", () => {
 
   it("passes disabled state through the RHF wrapper", () => {
     const markup = renderToStaticMarkup(
-      <TestForm defaultValues={{ company: "OpenAI" }}>
-        <TestField disabled name="company" />
+      <TestForm defaultValues={{ notes: "Long note" }}>
+        <TestField disabled name="notes" />
       </TestForm>
     );
 
@@ -93,33 +92,33 @@ describe("FormInputControl", () => {
 
   it("passes schema-required state through the RHF wrapper", () => {
     const schema = z.object({
-      company: z.string().min(1),
-      optionalCompany: z.string().optional()
+      notes: z.string().min(1),
+      optionalNotes: z.string().optional()
     });
 
     type SchemaFormValues = z.input<typeof schema>;
 
     const markup = renderToStaticMarkup(
       <SchemaFormProvider
-        defaultValues={{ company: "OpenAI", optionalCompany: "" }}
+        defaultValues={{ notes: "Long note", optionalNotes: "" }}
         schema={schema}
       >
-        <FormInputControl<SchemaFormValues> name="company">
-          {({ ref, ...inputProps }: FormInputControlRenderProps) => (
-            <FakeInputView {...inputProps} ref={ref} />
+        <FormTextareaControl<SchemaFormValues> name="notes">
+          {({ ref, ...textareaProps }: FormTextareaControlRenderProps) => (
+            <FakeTextareaView {...textareaProps} ref={ref} />
           )}
-        </FormInputControl>
-        <FormInputControl<SchemaFormValues> name="optionalCompany">
-          {({ ref, ...inputProps }: FormInputControlRenderProps) => (
-            <FakeInputView {...inputProps} ref={ref} />
+        </FormTextareaControl>
+        <FormTextareaControl<SchemaFormValues> name="optionalNotes">
+          {({ ref, ...textareaProps }: FormTextareaControlRenderProps) => (
+            <FakeTextareaView {...textareaProps} ref={ref} />
           )}
-        </FormInputControl>
+        </FormTextareaControl>
       </SchemaFormProvider>
     );
 
-    expect(markup).toContain('data-name="company"');
+    expect(markup).toContain('data-name="notes"');
     expect(markup).toContain('data-required="true"');
-    expect(markup).toContain('data-name="optionalCompany"');
+    expect(markup).toContain('data-name="optionalNotes"');
     expect(markup).toContain('data-required="false"');
   });
 });

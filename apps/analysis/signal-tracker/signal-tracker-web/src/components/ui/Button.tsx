@@ -44,12 +44,18 @@ type ButtonNativeProps = Pick<
 >;
 
 type ButtonProps = ButtonNativeProps & {
+  isLoading?: boolean;
+  loadingLabel?: string;
   variant?: ButtonVariant;
   size?: ButtonSize;
 };
 
 function Button({
   className,
+  children,
+  disabled,
+  isLoading = false,
+  loadingLabel = "Loading...",
   size = "default",
   type = "button",
   variant = "default",
@@ -58,10 +64,14 @@ function Button({
   return (
     <button
       {...buttonProps}
+      aria-busy={isLoading ? true : undefined}
       data-slot="button"
+      disabled={disabled || isLoading}
       className={cn(buttonVariants({ variant, size, className }))}
       type={type}
-    />
+    >
+      {isLoading ? loadingLabel : children}
+    </button>
   );
 }
 

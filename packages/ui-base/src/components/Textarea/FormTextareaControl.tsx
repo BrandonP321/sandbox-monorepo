@@ -8,26 +8,26 @@ import {
 } from "../FormControl.types";
 import { type FormFieldName, useFormField } from "../../form/useFormField";
 
-export type FormInputControlRenderProps =
-  FormControlRenderPropsBase<HTMLInputElement> & {
-    onChange: ChangeEventHandler<HTMLInputElement>;
+export type FormTextareaControlRenderProps =
+  FormControlRenderPropsBase<HTMLTextAreaElement> & {
+    onChange: ChangeEventHandler<HTMLTextAreaElement>;
     required: boolean;
     value: string;
   };
 
-export type FormInputControlProps<TFieldValues extends FieldValues> = {
-  children: FormControlChildren<FormInputControlRenderProps>;
+export type FormTextareaControlProps<TFieldValues extends FieldValues> = {
+  children: FormControlChildren<FormTextareaControlRenderProps>;
   disabled?: boolean;
   id?: string;
   name: FormFieldName<TFieldValues, string>;
 };
 
-export function FormInputControl<TFieldValues extends FieldValues>({
+export function FormTextareaControl<TFieldValues extends FieldValues>({
   children,
   disabled = false,
   id,
   name
-}: FormInputControlProps<TFieldValues>) {
+}: FormTextareaControlProps<TFieldValues>) {
   const generatedId = useId();
   const {
     error,
@@ -38,13 +38,13 @@ export function FormInputControl<TFieldValues extends FieldValues>({
     ref,
     setValue,
     value
-  } = useFormField<TFieldValues, string>(name, disabled);
-  const inputId = id ?? `input-${generatedId}`;
+  } = useFormField<TFieldValues, string, HTMLTextAreaElement>(name, disabled);
+  const textareaId = id ?? `textarea-${generatedId}`;
 
   return children({
     disabled: isDisabled,
     error,
-    id: inputId,
+    id: textareaId,
     ref,
     name: fieldName,
     onBlur,

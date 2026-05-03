@@ -2,6 +2,9 @@ import { forwardRef } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
+
+import { FormProvider as SchemaFormProvider } from "../FormProvider/FormProvider";
 
 import {
   FormDropdownControl,
@@ -25,13 +28,14 @@ type FakeDropdownViewProps<TValue> = Omit<
 const FakeDropdownView = forwardRef<
   HTMLSelectElement,
   FakeDropdownViewProps<string>
->(function FakeDropdownView({ disabled, id, name, value }, ref) {
+>(function FakeDropdownView({ disabled, id, name, required, value }, ref) {
   return (
     <output
       data-disabled={String(Boolean(disabled))}
       data-has-ref={String(Boolean(ref))}
       data-id={id ?? ""}
       data-name={name ?? ""}
+      data-required={String(Boolean(required))}
       data-value={String(value ?? "")}
     />
   );
@@ -134,5 +138,37 @@ describe("FormDropdownControl", () => {
     );
 
     expect(markup).toContain('data-value="2"');
+  });
+
+  it("passes schema-required state through the RHF wrapper", () => {
+    const schema = z.object({
+      country: z.string().min(1),
+      optionalCountry: z.string().optional()
+    });
+
+    type SchemaFormValues = z.input<typeof schema>;
+
+    const markup = renderToStaticMarkup(
+      <SchemaFormProvider
+        defaultValues={{ country: "ca", optionalCountry: "" }}
+        schema={schema}
+      >
+        <FormDropdownControl<SchemaFormValues> name="country">
+          {({ ref, ...dropdownProps }: FormDropdownControlRenderProps) => (
+            <FakeDropdownView {...dropdownProps} ref={ref} />
+          )}
+        </FormDropdownControl>
+        <FormDropdownControl<SchemaFormValues> name="optionalCountry">
+          {({ ref, ...dropdownProps }: FormDropdownControlRenderProps) => (
+            <FakeDropdownView {...dropdownProps} ref={ref} />
+          )}
+        </FormDropdownControl>
+      </SchemaFormProvider>
+    );
+
+    expect(markup).toContain('data-name="country"');
+    expect(markup).toContain('data-required="true"');
+    expect(markup).toContain('data-name="optionalCountry"');
+    expect(markup).toContain('data-required="false"');
   });
 });

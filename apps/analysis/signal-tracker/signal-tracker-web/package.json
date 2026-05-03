@@ -13,16 +13,24 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@radix-ui/react-collapsible": "^1.1.12",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
     "@reduxjs/toolkit": "^2.11.2",
     "@repo/api-contracts": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*",
+    "@repo/ui-base": "workspace:*",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "lucide-react": "^0.577.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.71.2",
     "react-redux": "^9.2.0",
     "redux": "^5.0.1",
-    "tailwind-merge": "^3.5.0"
+    "tailwind-merge": "^3.5.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@repo/config-eslint": "workspace:*",

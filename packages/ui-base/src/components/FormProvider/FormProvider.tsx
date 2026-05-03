@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   FormProvider as RHFFormProvider,
@@ -5,6 +6,11 @@ import {
   useForm
 } from "react-hook-form";
 import { z, type ZodObject, type ZodRawShape } from "zod";
+
+import {
+  createFormSchemaMetadata,
+  FormSchemaMetadataContext
+} from "../../form/FormSchemaMetadataContext";
 
 type FormValues<TSchema extends ZodObject<ZodRawShape>> = z.input<TSchema>;
 
@@ -22,6 +28,10 @@ export function FormProvider<TSchema extends ZodObject<ZodRawShape>>({
   reValidateMode = "onChange",
   ...useFormParams
 }: FormProviderProps<TSchema>) {
+  const schemaMetadata = useMemo(
+    () => createFormSchemaMetadata(schema),
+    [schema]
+  );
   const methods = useForm<FormValues<TSchema>>({
     ...useFormParams,
     reValidateMode,
@@ -29,5 +39,9 @@ export function FormProvider<TSchema extends ZodObject<ZodRawShape>>({
     resolver: zodResolver(schema, undefined, { raw: true })
   });
 
-  return <RHFFormProvider {...methods}>{children}</RHFFormProvider>;
+  return (
+    <FormSchemaMetadataContext.Provider value={schemaMetadata}>
+      <RHFFormProvider {...methods}>{children}</RHFFormProvider>
+    </FormSchemaMetadataContext.Provider>
+  );
 }

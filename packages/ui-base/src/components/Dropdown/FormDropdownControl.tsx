@@ -10,6 +10,7 @@ import { type FormFieldName, useFormField } from "../../form/useFormField";
 export type FormDropdownControlRenderProps<TValue = string> =
   FormControlRenderPropsBase<HTMLSelectElement> & {
     onValueChange: (value: TValue | undefined) => void;
+    required: boolean;
     value: TValue | undefined;
   };
 
@@ -36,6 +37,7 @@ export function FormDropdownControl<
   const {
     error,
     isDisabled,
+    isRequired,
     name: fieldName,
     onBlur,
     ref,
@@ -51,6 +53,7 @@ export function FormDropdownControl<
     name: fieldName,
     onBlur,
     onValueChange: setValue,
+    required: isRequired,
     ref,
     value: value ?? undefined
   });

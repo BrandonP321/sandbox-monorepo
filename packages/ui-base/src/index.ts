@@ -16,6 +16,11 @@ export {
   type FormInputControlRenderProps
 } from "./components/Input/FormInputControl";
 export {
+  FormTextareaControl,
+  type FormTextareaControlProps,
+  type FormTextareaControlRenderProps
+} from "./components/Textarea/FormTextareaControl";
+export {
   FormRadioGroupControl,
   type FormRadioGroupControlProps,
   type FormRadioGroupControlRenderProps
