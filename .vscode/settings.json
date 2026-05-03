@@ -4,8 +4,17 @@
   "editor.detectIndentation": false,
   "editor.insertSpaces": true,
   "editor.tabSize": 2,
+  "editor.quickSuggestions": {
+    "comments": "off",
+    "other": "on",
+    "strings": "off"
+  },
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.tabCompletion": "on",
   "editor.formatOnSave": true,
   "prettier.requireConfig": true,
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
   "explorer.fileNesting.enabled": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
