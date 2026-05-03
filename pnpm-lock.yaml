@@ -178,6 +178,9 @@ importers:
       "@repo/api-contracts":
         specifier: workspace:*
         version: link:../../../../packages/api-contracts
+      "@repo/frontend-config":
+        specifier: workspace:*
+        version: link:../../../../packages/frontend-config
       "@repo/signal-tracker-shared":
         specifier: workspace:*
         version: link:../signal-tracker-shared
@@ -450,6 +453,9 @@ importers:
       "@reduxjs/toolkit":
         specifier: ^2.11.2
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.10)(react@19.2.4)(redux@5.0.1))(react@19.2.4)
+      "@repo/frontend-config":
+        specifier: workspace:*
+        version: link:../../../../packages/frontend-config
       "@repo/hello-world-shared":
         specifier: workspace:*
         version: link:../hello-world-shared
@@ -594,6 +600,30 @@ importers:
   packages/config-test: {}
 
   packages/config-ts: {}
+
+  packages/frontend-config:
+    devDependencies:
+      "@repo/config-eslint":
+        specifier: workspace:*
+        version: link:../config-eslint
+      "@repo/config-test":
+        specifier: workspace:*
+        version: link:../config-test
+      "@repo/config-ts":
+        specifier: workspace:*
+        version: link:../config-ts
+      "@types/node":
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
 
   packages/infra-patterns:
     dependencies:

@@ -43,7 +43,8 @@ pnpm --filter hello-world-infra exec cdk bootstrap aws://498283327683/us-east-1
 
 ## Deploy
 
-Deploy builds the frontend and deploys API + web in one command:
+Deploy provisions the API and static hosting first, reads the deployed API URL,
+then builds and publishes the frontend with `VITE_API_BASE_URL`:
 
 ```bash
 pnpm --filter hello-world-infra deploy
@@ -55,15 +56,16 @@ For Codex or any other non-interactive terminal, pass the CDK approval override 
 pnpm --filter hello-world-infra run deploy:ci
 ```
 
-The stack also writes `/config.json` into the site bucket so the frontend picks
-up the deployed API URL at runtime.
-
-If `dist/` is missing, the CDK stack will skip static assets and emit a warning.
+The CDK stack does not write `/config.json`. The API URL is embedded into the
+Vite bundle at build time and the built assets are synced to the stack's web
+bucket after `cdk deploy`.
 
 ## Outputs
 
 - `ApiBaseUrl`: HTTP API endpoint
 - `WebUrl`: CloudFront distribution URL for the frontend
+- `WebBucketName`: private S3 bucket that stores the built frontend assets
+- `WebDistributionId`: CloudFront distribution invalidated after asset publish
 - `HelloWorldDeployPipelineName`: CodePipeline used for Prod deploys
 - `HelloWorldDeployProjectName`: CodeBuild project used by the `Prod` stage for validation, deployment, and URL output variables
 - `HelloWorldGitHubActionsRoleArn`: IAM role GitHub Actions assumes to start the deploy pipeline
@@ -145,9 +147,14 @@ pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-i
 The deploy buildspec executes:
 
 ```bash
-pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run build
+pnpm -r --filter hello-world-api --filter hello-world-infra run build
 pnpm --filter hello-world-infra run deploy:ci:no-build
+pnpm --filter hello-world-infra run publish:web
 ```
+
+`publish:web` reads `ApiBaseUrl`, `WebBucketName`, and `WebDistributionId`,
+builds `hello-world-web` with `VITE_API_BASE_URL`, syncs `dist/` to S3, and
+invalidates CloudFront.
 
 The buildspecs live at:
 

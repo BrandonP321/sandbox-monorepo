@@ -71,13 +71,18 @@ export class HelloWorldStack extends cdk.Stack {
       value: api.httpApi.apiEndpoint
     });
 
-    const site = new SpaSite(this, "HelloWorldSite", {
-      distPath: path.join(__dirname, "..", "..", "hello-world-web", "dist"),
-      runtimeConfig: { apiBaseUrl: api.httpApi.apiEndpoint }
-    });
+    const site = new SpaSite(this, "HelloWorldSite");
 
     new cdk.CfnOutput(this, "WebUrl", {
       value: `https://${site.distribution.domainName}`
+    });
+
+    new cdk.CfnOutput(this, "WebBucketName", {
+      value: site.bucket.bucketName
+    });
+
+    new cdk.CfnOutput(this, "WebDistributionId", {
+      value: site.distribution.distributionId
     });
 
     new cdk.CfnOutput(this, "HelloWorldDeployPipelineName", {

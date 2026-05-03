@@ -165,6 +165,12 @@ describe("SignalTrackerStack", () => {
     template.hasOutput("SignalTrackerDatabaseCapacityMode", {
       Value: "default"
     });
+    template.hasOutput("WebBucketName", {
+      Value: Match.anyValue()
+    });
+    template.hasOutput("WebDistributionId", {
+      Value: Match.anyValue()
+    });
   });
 
   it("can synthesize recruiting capacity mode without auto-pause", () => {

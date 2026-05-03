@@ -1,11 +1,17 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import App from "./App";
 
+vi.mock("@/api", () => {
+  return {
+    useListTopicsQuery: () => ({})
+  };
+});
+
 describe("App", () => {
   it("renders the final Signal Tracker shell and primary surfaces", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Signal Tracker" })
@@ -28,7 +34,7 @@ describe("App", () => {
   });
 
   it("does not render temporary backend scaffold copy", () => {
-    render(<App />);
+    renderApp();
 
     expect(
       screen.queryByRole("button", { name: "Verify Button" })
@@ -41,3 +47,7 @@ describe("App", () => {
     ).not.toBeInTheDocument();
   });
 });
+
+function renderApp() {
+  return render(<App />);
+}

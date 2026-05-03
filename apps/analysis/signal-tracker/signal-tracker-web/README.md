@@ -46,8 +46,8 @@ Apply the same principle across frontend work: choose the smallest clear interfa
 pnpm --filter signal-tracker-web dev
 ```
 
-The web app loads `/config.json` at runtime when deployed. For local dev it
-defaults to `http://localhost:3001` if the runtime config is missing.
+The web app uses `VITE_API_BASE_URL` when present. For local dev it defaults to
+`http://localhost:3001` when no API env vars are set.
 
 ## Storybook
 
@@ -66,10 +66,11 @@ pnpm --filter signal-tracker-web build-storybook
 This Storybook setup is intentionally minimal while these components remain
 app-local.
 
-## Runtime config (deployed)
+## API target config
 
-The CDK stack writes `/config.json` into the site bucket with the deployed API
-base URL, so the web app does not need rebuild-time env injection.
+The deploy pipeline builds the web bundle with `VITE_API_BASE_URL` set to the
+deployed API URL. Because Vite embeds env vars at build time, changing the
+deployed API target requires rebuilding and republishing the web assets.
 
 ## State management
 
@@ -88,8 +89,14 @@ entrypoint instead of extending that scaffold.
 
 ## Override the API locally (optional)
 
-If you want to point at a non-local API during dev, set `VITE_API_URL`:
+If you want to point at a non-local API during dev, set `VITE_API_BASE_URL`:
 
 ```bash
-VITE_API_URL="https://your-api-id.execute-api.region.amazonaws.com" pnpm --filter signal-tracker-web dev
+VITE_API_BASE_URL="https://your-api-id.execute-api.region.amazonaws.com" pnpm --filter signal-tracker-web dev
+```
+
+For the current deployed Prod API, you can use the stage shortcut:
+
+```bash
+VITE_API_STAGE=prod pnpm --filter signal-tracker-web dev
 ```

@@ -12,6 +12,7 @@ Extract to `packages/*` when any of these are true:
 
 - `@repo/api-core`: route registration, local-dev server adapter, response helpers, errors, logging.
 - `@repo/api-contracts`: repo-wide web+api schemas/types.
+- `@repo/frontend-config`: browser-safe frontend environment/stage config helpers.
 - `@repo/infra-patterns`: CDK constructs for API + SPA deployment defaults.
 - `@repo/ui-base`: behavior-only UI primitives and form wiring.
 

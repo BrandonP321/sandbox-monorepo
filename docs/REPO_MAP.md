@@ -14,6 +14,7 @@
 /packages
   api-core        # shared API runtime/router/error/logging/helpers
   api-contracts   # shared request/response schemas and DTOs
+  frontend-config # shared frontend environment/stage config helpers
   infra-patterns  # reusable CDK constructs and deployment helpers
   postman-sync    # repo-wide Postman collection/environment generation and sync tooling
   ui-base         # shared UI behavior primitives and form wiring
@@ -52,6 +53,7 @@ Signal Tracker UI is intentionally different from other app families: it may use
 ## Where new code should go (rule of thumb)
 
 - API request handling primitives: `packages/api-core`
+- Frontend environment/stage resolution helpers: `packages/frontend-config`
 - Repo-wide shared web/api schemas: `packages/api-contracts`
 - Postman collection/environment generation: `packages/postman-sync`
 - Project-scoped schemas/routes/types used by multiple project packages: `<project>-shared`

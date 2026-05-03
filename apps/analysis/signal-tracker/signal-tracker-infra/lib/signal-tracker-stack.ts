@@ -121,13 +121,18 @@ export class SignalTrackerStack extends cdk.Stack {
       value: databaseCapacityMode
     });
 
-    const site = new SpaSite(this, "SignalTrackerSite", {
-      distPath: path.join(__dirname, "..", "..", "signal-tracker-web", "dist"),
-      runtimeConfig: { apiBaseUrl: api.httpApi.apiEndpoint }
-    });
+    const site = new SpaSite(this, "SignalTrackerSite");
 
     new cdk.CfnOutput(this, "WebUrl", {
       value: `https://${site.distribution.domainName}`
+    });
+
+    new cdk.CfnOutput(this, "WebBucketName", {
+      value: site.bucket.bucketName
+    });
+
+    new cdk.CfnOutput(this, "WebDistributionId", {
+      value: site.distribution.distributionId
     });
 
     new cdk.CfnOutput(this, "SignalTrackerDeployPipelineName", {

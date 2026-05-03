@@ -19,6 +19,7 @@
     "@radix-ui/react-popover": "^1.1.15",
     "@reduxjs/toolkit": "^2.11.2",
     "@repo/api-contracts": "workspace:*",
+    "@repo/frontend-config": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*",
     "@repo/ui-base": "workspace:*",
     "class-variance-authority": "^0.7.1",

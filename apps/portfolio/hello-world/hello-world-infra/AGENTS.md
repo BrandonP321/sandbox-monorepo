@@ -14,7 +14,7 @@
 
 ## Notes
 
-- Build the frontend before `cdk deploy` so the `dist/` assets are available.
+- Deploy CDK before publishing frontend assets so the API URL is available, then build the web bundle with `VITE_API_BASE_URL` and sync `dist/` to the stack's web bucket.
 - Standard AWS CLI profile: `sandbox-admin`
 - Standard region: `us-east-1`
 - Current deployment account: `498283327683`

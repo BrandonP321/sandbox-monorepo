@@ -14,7 +14,7 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 
 ## Notes
 
-- Configure API base URL with `VITE_API_URL`.
+- Configure API base URL with `VITE_API_BASE_URL`, or use `VITE_API_STAGE=prod` as the local shortcut to the deployed API. Do not reintroduce `/config.json` runtime config.
 - Use Tailwind CSS as the styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer usually consumed through shadcn/ui.
 - Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Treat Tailwind Plus and Catalyst as reference or pattern sources only, not as the controlling design system.

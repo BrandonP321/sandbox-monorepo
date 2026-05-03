@@ -90,5 +90,12 @@ describe("HelloWorldStack", () => {
     expect(validationProjectLogicalIds).toHaveLength(1);
     expect(validationProjectLogicalIds[0]).toContain("ValidationProject");
     expect(validationProjectLogicalIds[0]).not.toContain("ValidateProject");
+
+    template.hasOutput("WebBucketName", {
+      Value: Match.anyValue()
+    });
+    template.hasOutput("WebDistributionId", {
+      Value: Match.anyValue()
+    });
   });
 });

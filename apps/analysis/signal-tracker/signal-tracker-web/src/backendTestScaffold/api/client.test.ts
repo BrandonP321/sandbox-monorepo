@@ -4,20 +4,17 @@ import { postSignalTrackerApi } from "./client";
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllEnvs();
 });
 
 describe("postSignalTrackerApi", () => {
   it("posts to shared route specs and parses successful responses", async () => {
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ apiBaseUrl: "https://api.example.com" })
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ ok: true })
-      } as Response);
+    vi.stubEnv("VITE_API_BASE_URL", "https://api.example.com");
+
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ ok: true })
+    } as Response);
 
     vi.stubGlobal("fetch", fetchMock);
 
@@ -28,7 +25,7 @@ describe("postSignalTrackerApi", () => {
 
     expect(result).toEqual({ ok: true });
     expect(fetchMock).toHaveBeenNthCalledWith(
-      2,
+      1,
       "https://api.example.com/get-health",
       expect.objectContaining({
         method: "POST",
@@ -38,22 +35,16 @@ describe("postSignalTrackerApi", () => {
   });
 
   it("throws standard API errors from failed responses", async () => {
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 404
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: false,
-        status: 503,
-        json: async () => ({
-          error: {
-            code: "PERSISTENCE_UNAVAILABLE",
-            message: "Topic persistence is temporarily unavailable"
-          }
-        })
-      } as Response);
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+      json: async () => ({
+        error: {
+          code: "PERSISTENCE_UNAVAILABLE",
+          message: "Topic persistence is temporarily unavailable"
+        }
+      })
+    } as Response);
 
     vi.stubGlobal("fetch", fetchMock);
 

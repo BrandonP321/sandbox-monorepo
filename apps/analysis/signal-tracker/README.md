@@ -74,7 +74,10 @@ pnpm --filter signal-tracker-api dev
 pnpm --filter signal-tracker-web dev
 ```
 
-The API defaults to `http://localhost:3001`. The web app loads `/config.json` in deployment and defaults to the local API during development when runtime config is missing.
+The API defaults to `http://localhost:3001`. The web app uses
+`VITE_API_BASE_URL` when present, can use `VITE_API_STAGE=prod` as a local
+shortcut to the deployed API, and otherwise defaults to the local API during
+development.
 
 For local API development, `pnpm --filter signal-tracker-api dev`
 automatically loads `apps/analysis/signal-tracker/.env.local` when present.

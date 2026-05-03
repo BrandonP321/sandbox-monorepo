@@ -7,6 +7,8 @@ env:
   exported-variables:
     - WEB_URL
     - API_BASE_URL
+    - WEB_BUCKET_NAME
+    - WEB_DISTRIBUTION_ID
 
 phases:
   install:
@@ -19,11 +21,16 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - pnpm -r --filter hello-world-web --filter hello-world-api --filter hello-world-infra run build
+      - pnpm -r --filter hello-world-api --filter hello-world-infra run build
       - pnpm --filter hello-world-infra run deploy:ci:no-build
       - 'export WEB_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebUrl''].OutputValue | [0]" --output text)'
       - 'export API_BASE_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''ApiBaseUrl''].OutputValue | [0]" --output text)'
+      - 'export WEB_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebBucketName''].OutputValue | [0]" --output text)'
+      - 'export WEB_DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebDistributionId''].OutputValue | [0]" --output text)'
       - test "$WEB_URL" != "None"
       - test "$API_BASE_URL" != "None"
+      - test "$WEB_BUCKET_NAME" != "None"
+      - test "$WEB_DISTRIBUTION_ID" != "None"
+      - pnpm --filter hello-world-infra run publish:web
       - 'echo "Web URL: $WEB_URL"'
       - 'echo "API URL: $API_BASE_URL"'

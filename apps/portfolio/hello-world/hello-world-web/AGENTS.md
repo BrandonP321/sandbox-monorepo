@@ -10,4 +10,4 @@
 
 ## Notes
 
-- Configure API base URL with `VITE_API_URL`.
+- Configure API base URL with `VITE_API_BASE_URL`, or use `VITE_API_STAGE=prod` as the local shortcut to the deployed API. Do not reintroduce `/config.json` runtime config.
