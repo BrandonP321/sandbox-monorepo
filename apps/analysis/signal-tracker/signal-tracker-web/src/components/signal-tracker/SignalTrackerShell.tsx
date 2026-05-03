@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
+import { useListTopicsQuery } from "@/api";
 
 type WorkspaceSurface = "topics" | "details";
 
@@ -25,6 +26,8 @@ const surfaces = [
 export function SignalTrackerShell() {
   const [activeSurface, setActiveSurface] =
     useState<WorkspaceSurface>("topics");
+
+  useListTopicsQuery();
 
   return (
     <main className="bg-background text-foreground min-h-screen">
