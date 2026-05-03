@@ -7,6 +7,11 @@ const appDependency = (dependency: string) =>
   path.resolve(__dirname, "node_modules", dependency);
 
 export default defineConfig({
+  build: {
+    rollupOptions: {
+      maxParallelFileOps: 32
+    }
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
