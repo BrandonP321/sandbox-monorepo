@@ -50,7 +50,18 @@ Details: see WORKFLOW.md.
 - Keep diffs small; separate refactors from feature changes.
 - Minimize dependencies; justify new dependencies explicitly.
 - Prefer reuse via `packages/*`; avoid app-local utility sprawl.
-- When a directory accumulates recurring conventions, implementation patterns, or gotchas, call out the opportunity to add or update a more local `AGENTS.md` so future Codex runs get that guidance automatically.
+
+## Agent Guidance Maintenance
+
+- Treat corrected assumptions, repeated user guidance, durable implementation conventions, and recurring gotchas as candidates for `AGENTS.md` updates.
+- When a user gives guidance that should shape future Codex behavior, update the relevant `AGENTS.md` in the same change when the scope is clear and the guidance is durable.
+- Choose the narrowest level that will reliably reach future work:
+  - Root `AGENTS.md` for repo-wide engineering workflow, testing, safety, dependency, or collaboration rules.
+  - Project or app-level `AGENTS.md` for product, package, deployment, or stack-specific rules.
+  - Directory-level `AGENTS.md` for local component, module, or file-organization conventions.
+- Add a new, more local `AGENTS.md` when an area has recurring conventions but no existing guidance file at the right scope.
+- Do not document one-off task details, stale issue state, secrets, or temporary debugging observations as standing agent guidance.
+- If the right scope is unclear, call out the proposed `AGENTS.md` update and the level where it belongs before adding it.
 
 ## Reuse / Consolidation Rule (critical)
 
@@ -66,11 +77,20 @@ Authoritative playbook: see SHARED_CODE_PLAYBOOK.md.
 ## Frontend Work
 
 - Prefer simple, explicit React/TypeScript components over clever abstractions, deep indirection, or speculative flexibility.
-- Keep feature files cohesive. Treat roughly 100 lines as a decomposition review trigger, not a hard limit; split only when a clearer component, hook, helper, schema, or test utility boundary appears.
+- Keep feature files cohesive. Treat roughly 100 lines as a decomposition review trigger, not a hard limit; split only when a clearer component, hook, helper, schema, or test fixture boundary appears.
 - Avoid unnecessary `useEffect`, stored derived state, broad context providers, premature Redux/global state, and raw `fetch` calls inside components.
 - Keep TypeScript strict. Avoid `any`; use `unknown`, schemas, type guards, discriminated unions, and exhaustive checks when they fit the problem.
-- Test user-visible behavior with typed fixtures/factories and shared render utilities where practical. Do not make tests a weakly typed zone.
+- Test user-visible behavior and accessibility-facing semantics. Do not make tests a weakly typed zone.
 - Use the app or package's existing UI stack before adding dependencies, new component systems, or duplicate primitives.
+
+## Unit Testing
+
+- Apply the 80/20 rule: write the smallest set of tests likely to catch most regressions in the touched behavior, and avoid broad assertions that only restate implementation details.
+- Prefer behavior and contract tests over prop plumbing, class names, private structure, or framework behavior. For UI, assert what users can perceive or operate; for APIs and domain code, assert request/response contracts, state transitions, validation, and error behavior.
+- Keep simple tests direct and readable. Do not introduce test helper functions, utility classes, or custom render wrappers until duplication is real and the abstraction makes the test easier to understand.
+- When test setup is repeated, prefer small file-local setup functions or typed fixtures first. Promote shared helpers only after the same pattern appears across multiple files and has a stable, narrow API.
+- Avoid brittle copy duplication. If a label, status, or description is reused as a stable product string, consider exporting it from feature code and importing it in tests; when exact copy is the behavior under test, assert the literal text intentionally.
+- Keep tests focused on one meaningful outcome. A regression guard should fail for a reason a maintainer can act on quickly.
 
 ## Dependency Direction (do not violate)
 

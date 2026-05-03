@@ -208,9 +208,11 @@ Current examples:
 ## Testing guidance
 
 - Add at least one regression guard for every behavioral change.
+- Apply the 80/20 rule: prefer the smallest behavior-focused test set that protects the meaningful component contract.
 - Static structure can be covered with server-rendered markup tests.
 - Use Storybook play tests sparingly for browser-only behavior that markup tests do not exercise.
 - Interactive shell behavior and meaningful form flows are the default cases where story-level guards still belong.
+- Avoid asserting styling implementation details unless the visual token or class is the behavior under test.
 
 ## Change discipline
 

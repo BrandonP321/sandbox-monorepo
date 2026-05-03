@@ -32,3 +32,5 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Keep Storybook examples visually bounded. If an example relies on `w-full`, give it an explicit parent width or stable fixed example width so preview wrappers do not collapse or hide it.
 - Include a simple default story for the expected 80 percent use case. Add one manual or controlled story only when it demonstrates a reusable composition pattern future agents are likely to need.
 - Tests should exercise user-visible behavior and the accessibility semantics of the underlying primitive, including keyboard activation when that is the primary or most reliable way to trigger the Radix behavior in jsdom.
+- Prefer role, label, and accessible-name queries over test IDs or implementation selectors. Do not assert Tailwind class names unless the class is the behavior being protected.
+- Keep primitive tests thin. Put most regression coverage in the composed form, dialog, or product workflow where the user-visible behavior actually emerges.
