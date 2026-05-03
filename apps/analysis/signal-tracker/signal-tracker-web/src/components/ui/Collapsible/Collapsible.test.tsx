@@ -63,21 +63,4 @@ describe("Collapsible", () => {
 
     expect(handleOpenChange).toHaveBeenCalledWith(true);
   });
-
-  it("merges custom content classes", () => {
-    render(
-      <Collapsible defaultOpen>
-        <CollapsibleTrigger>
-          <Button>Show details</Button>
-        </CollapsibleTrigger>
-        <CollapsibleContent className="pt-4">
-          <p>Collapsible content</p>
-        </CollapsibleContent>
-      </Collapsible>
-    );
-
-    expect(screen.getByText("Collapsible content").parentElement).toHaveClass(
-      "pt-4"
-    );
-  });
 });

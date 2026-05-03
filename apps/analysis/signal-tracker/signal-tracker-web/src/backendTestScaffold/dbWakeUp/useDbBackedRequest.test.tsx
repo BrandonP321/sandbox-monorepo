@@ -14,7 +14,9 @@ describe("useDbBackedRequest", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Run request" }));
 
-    expect(screen.getByTestId("request-status")).toHaveTextContent("loading");
+    expect(screen.getByLabelText("Request status")).toHaveTextContent(
+      "loading"
+    );
     expect(await screen.findByText("success: loaded")).toBeInTheDocument();
   });
 
@@ -36,12 +38,12 @@ describe("useDbBackedRequest", () => {
       await vi.advanceTimersByTimeAsync(500);
     });
 
-    expect(screen.getByTestId("request-status")).toHaveTextContent("waking");
+    expect(screen.getByLabelText("Request status")).toHaveTextContent("waking");
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(500);
     });
-    expect(screen.getByTestId("request-status")).toHaveTextContent(
+    expect(screen.getByLabelText("Request status")).toHaveTextContent(
       "success: loaded"
     );
   });
@@ -77,7 +79,7 @@ function Harness({ request, wakeUpDelayMs }: HarnessProps) {
       <button type="button" onClick={() => void run()}>
         Run request
       </button>
-      <p data-testid="request-status">
+      <p aria-label="Request status">
         {state.status === "success" ? `success: ${state.data}` : state.status}
       </p>
     </div>

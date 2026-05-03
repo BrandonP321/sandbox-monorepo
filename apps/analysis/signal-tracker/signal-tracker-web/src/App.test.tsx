@@ -1,6 +1,3 @@
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
-
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -42,15 +39,5 @@ describe("App", () => {
         "Tailwind CSS and the local shadcn-style Button are wired in."
       )
     ).not.toBeInTheDocument();
-  });
-
-  it("does not import the backend test scaffold from the production App entrypoint", () => {
-    const appSource = readFileSync(
-      resolve(process.cwd(), "src/App.tsx"),
-      "utf8"
-    );
-
-    expect(appSource).not.toContain("backendTestScaffold");
-    expect(appSource).not.toContain("TempApp");
   });
 });

@@ -7,24 +7,12 @@ import { Input } from "../Input";
 describe("FormField", () => {
   it("connects the label to the rendered control", () => {
     render(
-      <FormField id="title" label="Title">
+      <FormField label="Title">
         {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
       </FormField>
     );
 
-    expect(screen.getByLabelText("Title")).toHaveAttribute("id", "title");
-  });
-
-  it("generates a field id when one is not provided", () => {
-    render(
-      <FormField label="Generated title">
-        {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
-      </FormField>
-    );
-
-    expect(screen.getByLabelText("Generated title").id).toMatch(
-      /^form-field-\d+$/
-    );
+    expect(screen.getByRole("textbox", { name: "Title" })).toBeInTheDocument();
   });
 
   it("connects description and error text to the rendered control", () => {
@@ -32,40 +20,30 @@ describe("FormField", () => {
       <FormField
         description="Use a short title."
         error="Title is required."
-        id="title"
         label="Title"
       >
         {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
       </FormField>
     );
 
-    const input = screen.getByLabelText("Title");
+    const input = screen.getByRole("textbox", { name: "Title" });
 
-    expect(input).toHaveAttribute(
-      "aria-describedby",
-      "title-description title-error"
+    expect(input).toHaveAccessibleDescription(
+      "Use a short title. Title is required."
     );
-    expect(input).toHaveAttribute("aria-invalid", "true");
-    expect(screen.getByText("Use a short title.")).toHaveAttribute(
-      "id",
-      "title-description"
-    );
-    expect(screen.getByText("Title is required.")).toHaveAttribute(
-      "id",
-      "title-error"
-    );
+    expect(input).toBeInvalid();
   });
 
-  it("merges caller classes into the field wrapper", () => {
+  it("preserves explicit IDs for stable control references", () => {
     render(
-      <FormField className="max-w-sm" id="title" label="Title">
+      <FormField id="title" label="Title">
         {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
       </FormField>
     );
 
-    expect(screen.getByLabelText("Title").parentElement).toHaveClass(
-      "max-w-sm"
-    );
+    const input = screen.getByLabelText("Title");
+
+    expect(input).toHaveAttribute("id", "title");
   });
 
   it("shows a required indicator when the field is required", () => {

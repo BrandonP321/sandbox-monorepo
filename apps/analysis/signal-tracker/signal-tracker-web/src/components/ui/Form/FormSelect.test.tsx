@@ -56,7 +56,6 @@ describe("FormSelect", () => {
     const select = screen.getByLabelText("Status");
 
     expect(select).toHaveValue("draft");
-    expect(select.id).toMatch(/^select-/);
 
     fireEvent.change(select, { target: { value: "active" } });
 
@@ -69,8 +68,11 @@ describe("FormSelect", () => {
     const error = await screen.findByText("Status is required.");
     const select = screen.getByLabelText("Status");
 
-    expect(error).toHaveAttribute("id", `${select.id}-error`);
-    expect(select).toHaveAttribute("aria-invalid", "true");
+    expect(error).toBeInTheDocument();
+    expect(select).toHaveAccessibleDescription(
+      "Choose the current status. Status is required."
+    );
+    expect(select).toBeInvalid();
   });
 
   it("marks schema-required fields as required", () => {

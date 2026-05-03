@@ -50,7 +50,6 @@ describe("FormTextarea", () => {
     const textarea = screen.getByLabelText("Notes");
 
     expect(textarea).toHaveValue("Initial note");
-    expect(textarea.id).toMatch(/^textarea-/);
 
     fireEvent.change(textarea, { target: { value: "Updated note" } });
 
@@ -65,8 +64,11 @@ describe("FormTextarea", () => {
     const error = await screen.findByText("Notes are required.");
     const textarea = screen.getByLabelText("Notes");
 
-    expect(error).toHaveAttribute("id", `${textarea.id}-error`);
-    expect(textarea).toHaveAttribute("aria-invalid", "true");
+    expect(error).toBeInTheDocument();
+    expect(textarea).toHaveAccessibleDescription(
+      "Use a concise note. Notes are required."
+    );
+    expect(textarea).toBeInvalid();
   });
 
   it("marks schema-required fields as required", () => {

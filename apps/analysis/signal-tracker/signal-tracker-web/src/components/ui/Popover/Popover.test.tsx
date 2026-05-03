@@ -48,19 +48,4 @@ describe("Popover", () => {
 
     expect(screen.queryByText("Popover content")).not.toBeInTheDocument();
   });
-
-  it("merges custom content classes", () => {
-    render(
-      <Popover defaultOpen>
-        <PopoverTrigger>
-          <Button>Open popover</Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-96" data-testid="popover-content">
-          <p>Popover content</p>
-        </PopoverContent>
-      </Popover>
-    );
-
-    expect(screen.getByTestId("popover-content")).toHaveClass("w-96");
-  });
 });

@@ -50,7 +50,6 @@ describe("FormInput", () => {
     const input = screen.getByLabelText("Title");
 
     expect(input).toHaveValue("Initial title");
-    expect(input.id).toMatch(/^input-/);
 
     fireEvent.change(input, { target: { value: "Updated title" } });
 
@@ -65,8 +64,11 @@ describe("FormInput", () => {
     const error = await screen.findByText("Title is required.");
     const input = screen.getByLabelText("Title");
 
-    expect(error).toHaveAttribute("id", `${input.id}-error`);
-    expect(input).toHaveAttribute("aria-invalid", "true");
+    expect(error).toBeInTheDocument();
+    expect(input).toHaveAccessibleDescription(
+      "Use a short title. Title is required."
+    );
+    expect(input).toBeInvalid();
   });
 
   it("marks schema-required fields as required", () => {

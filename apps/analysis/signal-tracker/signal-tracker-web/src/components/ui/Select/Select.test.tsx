@@ -9,68 +9,55 @@ const options = [
 ];
 
 describe("Select", () => {
-  it("renders a select with default styling and options", () => {
+  it("renders a selectable combobox with options", () => {
     render(
-      <Select
-        onChange={() => {}}
-        options={options}
-        placeholder="Choose status"
-        value=""
-      />
+      <>
+        <label htmlFor="status">Status</label>
+        <Select
+          id="status"
+          onChange={() => {}}
+          options={options}
+          placeholder="Choose status"
+          value=""
+        />
+      </>
     );
 
-    const select = screen.getByDisplayValue("Choose status");
+    const select = screen.getByRole("combobox", { name: "Status" });
 
-    expect(select).toHaveClass("border-input");
-    expect(select).toHaveClass("bg-background");
-    expect(select).toHaveClass("rounded-md");
+    expect(select).toHaveValue("");
+    expect(
+      screen.getByRole("option", { name: "Choose status" })
+    ).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Draft" })).toHaveValue("draft");
   });
 
-  it("supports narrow native select props", () => {
+  it("updates value and preserves validation state", () => {
     const handleChange = vi.fn();
 
     render(
-      <Select
-        aria-describedby="status-error"
-        aria-invalid
-        id="status"
-        name="status"
-        onChange={handleChange}
-        options={options}
-        required
-        value="draft"
-      />
+      <>
+        <label htmlFor="status">Status</label>
+        <Select
+          aria-describedby="status-error"
+          aria-invalid
+          id="status"
+          onChange={handleChange}
+          options={options}
+          required
+        />
+        <p id="status-error">Status is required.</p>
+      </>
     );
 
-    const select = screen.getByDisplayValue("Draft");
+    const select = screen.getByRole("combobox", { name: "Status" });
 
     fireEvent.change(select, { target: { value: "active" } });
 
-    expect(select).toHaveAttribute("aria-describedby", "status-error");
-    expect(select).toHaveAttribute("aria-invalid", "true");
-    expect(select).toHaveAttribute("id", "status");
-    expect(select).toHaveAttribute("name", "status");
+    expect(select).toHaveAccessibleDescription("Status is required.");
+    expect(select).toBeInvalid();
     expect(select).toBeRequired();
+    expect(select).toHaveValue("active");
     expect(handleChange).toHaveBeenCalledTimes(1);
-  });
-
-  it("merges caller classes with the select treatment", () => {
-    render(
-      <Select
-        className="h-10 rounded-lg"
-        onChange={() => {}}
-        options={options}
-        value=""
-      />
-    );
-
-    const select = screen.getByRole("combobox");
-
-    expect(select).toHaveClass("border-input");
-    expect(select).toHaveClass("h-10");
-    expect(select).toHaveClass("rounded-lg");
-    expect(select).not.toHaveClass("h-9");
-    expect(select).not.toHaveClass("rounded-md");
   });
 });

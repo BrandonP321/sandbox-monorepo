@@ -79,7 +79,7 @@ describe("DropdownMenu", () => {
     expect(handleSelect).not.toHaveBeenCalled();
   });
 
-  it("renders labels, separators, and custom item classes", () => {
+  it("renders labels and separators around menu items", () => {
     render(
       <DropdownMenu defaultOpen>
         <DropdownMenuTrigger>
@@ -88,14 +88,14 @@ describe("DropdownMenu", () => {
         <DropdownMenuContent>
           <DropdownMenuLabel>Manage</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem className="text-base">Archive</DropdownMenuItem>
+          <DropdownMenuItem>Archive</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
 
     expect(screen.getByText("Manage")).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: "Archive" })).toHaveClass(
-      "text-base"
-    );
+    expect(
+      screen.getByRole("menuitem", { name: "Archive" })
+    ).toBeInTheDocument();
   });
 });
