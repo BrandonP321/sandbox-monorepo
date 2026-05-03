@@ -22,6 +22,11 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Do not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
 - Use `@repo/ui-base` only for behavior abstractions.
 - Keep generic copy-owned UI primitives product-agnostic in `src/components/ui/` and keep Signal Tracker-specific components in `src/components/signal-tracker/`.
+- Put route-level page components and page-only helper components in `src/pages/`. Prefer list-page names such as `ListTopicsPage` for list/index routes rather than `View*Surface` names.
+- Keep page components free of bespoke props. If page components ever need props, standardize those props across every page component instead of adding route-specific page prop contracts.
+- Use TanStack Router for Signal Tracker page routing. Keep the route tree app-local and code-based unless the route set grows enough to justify file-route generation.
+- Add app routes to the typed route registry in `src/routeRegistry.ts`, and reuse those registry values in router definitions, `Link` targets, and route hooks such as `useParams` instead of re-entering route path strings.
+- Page routes should render page content directly for now; do not introduce an `AppShell` until multiple pages need shared persistent navigation or layout chrome.
 - Keep Storybook stories focused on generic UI primitives in `src/components/ui/`; do not use Storybook stories for product workflows unless that scope is explicitly expanded.
 - Signal Tracker-specific components should encode product concepts such as topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
 - Do not mix shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another UI system interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.

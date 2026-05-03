@@ -23,6 +23,7 @@
     "@repo/frontend-config": "workspace:*",
     "@repo/signal-tracker-shared": "workspace:*",
     "@repo/ui-base": "workspace:*",
+    "@tanstack/react-router": "^1.169.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.577.0",

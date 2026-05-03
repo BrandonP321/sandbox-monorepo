@@ -1,5 +1,10 @@
-import { SignalTrackerShell } from "@/components/signal-tracker/SignalTrackerShell";
+import { useState } from "react";
+import { RouterProvider } from "@tanstack/react-router";
+
+import { createSignalTrackerRouter } from "@/router";
 
 export default function App() {
-  return <SignalTrackerShell />;
+  const [router] = useState(() => createSignalTrackerRouter());
+
+  return <RouterProvider router={router} />;
 }

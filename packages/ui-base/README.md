@@ -16,6 +16,7 @@ The package starts with form infrastructure and RHF-backed form controls:
 - `FormDropdownControl`
 - `FormCheckboxGroupControl`
 - `FormRadioGroupControl`
+- `useDebouncedValue`
 
 These exports do not ship styles or field chrome. Designed packages such as
 `@repo/ui` inject their own rendering components and keep ownership of layout,
@@ -35,3 +36,5 @@ Shared type helpers for these render contracts live in
   migrating the next pair.
 - Keep plain, non-RHF controls in the designed package unless there is a clear
   behavior contract worth reusing across multiple design systems.
+- Keep shared hooks behavior-only, style-free, and independent of any one app's
+  domain model.
