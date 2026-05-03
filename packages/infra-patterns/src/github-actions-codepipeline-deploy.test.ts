@@ -180,7 +180,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -256,7 +256,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -284,7 +284,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       }),
       Source: Match.objectLike({
         BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml",
         Type: "CODEPIPELINE"
       })
     });

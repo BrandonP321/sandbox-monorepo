@@ -195,9 +195,6 @@ The buildspecs live at:
 - `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml`
 - `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`
 
-`buildspec.validate.yml` is retained for the already-deployed single validation
-action until the pipeline updates itself to the split validation projects.
-
 Signal Tracker CodeBuild projects use the AWS-managed Node `24` Lambda compute image.
 
 The buildspecs pin:
