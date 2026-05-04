@@ -102,8 +102,8 @@ function FormInputExample() {
         />
         <div className="flex items-center gap-2">
           <Button type="submit">Submit</Button>
-          <FormValuePreview />
         </div>
+        <FormValuePreview />
         {submittedValues ? (
           <p className="text-sm">
             Submitted values: {JSON.stringify(submittedValues)}

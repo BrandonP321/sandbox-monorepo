@@ -1,14 +1,42 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import {
+  CircleAlert,
+  CircleCheck,
+  Info,
+  TriangleAlert,
+  type LucideIcon
+} from "lucide-react";
 import type { ReactNode } from "react";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-const alertVariants = cva("rounded-md border p-4 text-sm", {
+const alertVariants = cva(
+  "grid grid-cols-[auto_1fr] gap-x-3 rounded-md border p-4 text-sm",
+  {
+    variants: {
+      variant: {
+        default: "border-border bg-background text-foreground",
+        danger: "border-danger/40 bg-danger/5 text-foreground",
+        info: "border-sky-600/30 bg-sky-50 text-foreground",
+        success: "border-emerald-600/30 bg-emerald-50 text-foreground",
+        warning: "border-amber-600/30 bg-amber-50 text-foreground"
+      }
+    },
+    defaultVariants: {
+      variant: "default"
+    }
+  }
+);
+
+const alertIconVariants = cva("mt-0.5 size-4 shrink-0", {
   variants: {
     variant: {
-      default: "border-border bg-background text-foreground",
-      danger: "border-danger/40 bg-danger/5 text-foreground"
+      default: "text-primary",
+      danger: "text-danger",
+      info: "text-sky-700",
+      success: "text-emerald-700",
+      warning: "text-amber-700"
     }
   },
   defaultVariants: {
@@ -17,6 +45,14 @@ const alertVariants = cva("rounded-md border p-4 text-sm", {
 });
 
 type AlertVariant = NonNullable<VariantProps<typeof alertVariants>["variant"]>;
+
+const alertIconByVariant = {
+  default: Info,
+  danger: CircleAlert,
+  info: Info,
+  success: CircleCheck,
+  warning: TriangleAlert
+} satisfies Record<AlertVariant, LucideIcon>;
 
 type AlertNativeProps = Pick<React.ComponentProps<"div">, "className" | "role">;
 
@@ -36,6 +72,8 @@ function Alert({
   variant = "default",
   ...alertProps
 }: AlertProps) {
+  const Icon = alertIconByVariant[variant];
+
   return (
     <div
       {...alertProps}
@@ -43,19 +81,29 @@ function Alert({
       role={role}
       className={cn(alertVariants({ variant, className }))}
     >
-      {title ? (
-        <p data-slot="alert-title" className="font-medium">
-          {title}
-        </p>
-      ) : null}
-      <div
-        data-slot="alert-content"
-        className={cn(title ? "text-muted-foreground mt-1" : undefined)}
-      >
-        {children}
+      <Icon
+        aria-hidden="true"
+        data-slot="alert-icon"
+        className={alertIconVariants({ variant })}
+      />
+      <div className="min-w-0">
+        {title ? (
+          <p data-slot="alert-title" className="font-medium">
+            {title}
+          </p>
+        ) : null}
+        <div
+          data-slot="alert-content"
+          className={cn(title ? "text-muted-foreground mt-1" : undefined)}
+        >
+          {children}
+        </div>
       </div>
       {actions ? (
-        <div data-slot="alert-actions" className="mt-3 flex items-center gap-2">
+        <div
+          data-slot="alert-actions"
+          className="col-start-2 mt-3 flex items-center gap-2"
+        >
           {actions}
         </div>
       ) : null}

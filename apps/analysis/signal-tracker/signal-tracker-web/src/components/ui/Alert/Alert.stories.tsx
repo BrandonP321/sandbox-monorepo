@@ -32,3 +32,27 @@ export const Danger: Story = {
     variant: "danger"
   }
 };
+
+export const Success: Story = {
+  args: {
+    children: "The topic is available in the active topic list.",
+    title: "Topic created.",
+    variant: "success"
+  }
+};
+
+export const Info: Story = {
+  args: {
+    children: "Evidence can be attached after the topic has been created.",
+    title: "Evidence can wait.",
+    variant: "info"
+  }
+};
+
+export const Warning: Story = {
+  args: {
+    children: "Unsaved edits will be lost if you leave this view.",
+    title: "Unsaved changes.",
+    variant: "warning"
+  }
+};
