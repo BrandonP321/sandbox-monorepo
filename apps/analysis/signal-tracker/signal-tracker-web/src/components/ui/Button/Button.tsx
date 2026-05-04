@@ -55,7 +55,7 @@ function Button({
   children,
   disabled,
   isLoading = false,
-  loadingLabel = "Loading...",
+  loadingLabel,
   size = "default",
   type = "button",
   variant = "default",
@@ -70,7 +70,7 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       type={type}
     >
-      {isLoading ? loadingLabel : children}
+      {isLoading ? (loadingLabel ?? children) : children}
     </button>
   );
 }

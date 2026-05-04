@@ -79,10 +79,10 @@ function Dialog({
         const result = await action();
         setIsDialogConfirming(false);
         setOpen(false);
-        return result;
+        return { data: result, ok: true } as const;
       } catch (error) {
         setIsDialogConfirming(false);
-        throw error;
+        return { error, ok: false } as const;
       }
     },
     [setOpen]

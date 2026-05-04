@@ -12,6 +12,8 @@ import {
   getTopicResponseSchema,
   listTopicsRequestSchema,
   listTopicsResponseSchema,
+  topicMetadataSchema,
+  topicMetadataValidationMessages,
   topicSchema,
   topicStatusSchema,
   updateTopicRequestSchema,
@@ -46,6 +48,21 @@ describe("topic contracts", () => {
     });
 
     expect(payload.scopeNote).toBeUndefined();
+  });
+
+  it("uses shared topic metadata validation messages", () => {
+    expect(
+      topicMetadataSchema.safeParse({
+        title: " ",
+        framingQuestion: "What is being tracked?"
+      }).error?.issues[0]?.message
+    ).toBe(topicMetadataValidationMessages.title);
+    expect(
+      topicMetadataSchema.safeParse({
+        title: "Ukraine ceasefire negotiations",
+        framingQuestion: ""
+      }).error?.issues[0]?.message
+    ).toBe(topicMetadataValidationMessages.framingQuestion);
   });
 
   it("rejects a missing topic title", () => {

@@ -6,7 +6,7 @@ export type FormSubmitHandler<T extends FieldValues> = (
   event?: BaseSyntheticEvent
 ) => Promise<void>;
 
-type FormProps<T extends FieldValues> = Omit<
+export type FormProps<T extends FieldValues> = Omit<
   FormHTMLAttributes<HTMLFormElement>,
   "onSubmit"
 > & {

@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor
+} from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Button } from "../Button";
@@ -68,6 +74,44 @@ function ConfirmingDialogActions() {
   );
 }
 
+function FailingDialogExample({
+  onResult
+}: {
+  onResult: (ok: boolean) => void;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button>Open dialog</Button>
+      </DialogTrigger>
+      <DialogContent
+        footer={<FailingDialogActions onResult={onResult} />}
+        title="Async dialog"
+      >
+        <p>Async dialog body</p>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function FailingDialogActions({
+  onResult
+}: {
+  onResult: (ok: boolean) => void;
+}) {
+  const { runDialogConfirm } = useDialogContext();
+
+  async function handleConfirm() {
+    const result = await runDialogConfirm(async () => {
+      throw new Error("Save failed");
+    });
+
+    onResult(result.ok);
+  }
+
+  return <Button onClick={() => void handleConfirm()}>Confirm</Button>;
+}
+
 describe("Dialog", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -124,6 +168,19 @@ describe("Dialog", () => {
     });
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps the dialog open and returns failure state after rejected confirmation", async () => {
+    const handleResult = vi.fn();
+    render(<FailingDialogExample onResult={handleResult} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+
+    await waitFor(() => {
+      expect(handleResult).toHaveBeenCalledWith(false);
+    });
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("renders custom confirm action labels", () => {

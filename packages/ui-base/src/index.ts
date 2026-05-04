@@ -1,4 +1,8 @@
-export { Form, type FormSubmitHandler } from "./components/Form/Form";
+export {
+  Form,
+  type FormProps,
+  type FormSubmitHandler
+} from "./components/Form/Form";
 export { FormProvider } from "./components/FormProvider/FormProvider";
 export {
   FormCheckboxGroupControl,

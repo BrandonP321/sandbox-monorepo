@@ -15,3 +15,8 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 - Product components may import generic primitives from `@/components/ui`.
 - UI primitive implementations should import sibling primitives from their folder barrels, such as `../Button`, instead of importing through the root `@/components/ui` barrel.
 - Keep private helper files inside the owning folder. Export helpers from that folder only when another primitive or product component has a concrete need for them.
+
+## Dialogs
+
+- Prefer uncontrolled `Dialog` state for normal modal flows. Put a lightweight child component inside `Dialog` when the flow needs `useDialogContext()` for close or confirm behavior.
+- `runDialogConfirm` returns an explicit success/failure result and keeps the dialog open on failure. Use the returned error when the dialog should show an inline retryable failure; do not rely on expected async failures throwing through form or click handlers.

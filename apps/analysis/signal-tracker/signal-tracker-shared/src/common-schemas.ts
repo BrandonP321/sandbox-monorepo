@@ -1,12 +1,24 @@
 import { z } from "zod";
 
-export const trimmedRequiredString = z.string().trim().min(1);
+export const defaultRequiredStringMessage = "Enter a value.";
 
-export const optionalTrimmedString = z
-  .string()
-  .trim()
-  .optional()
-  .transform((value) => (value === "" ? undefined : value));
+export function createTrimmedRequiredString(
+  message = defaultRequiredStringMessage
+) {
+  return z.string().trim().min(1, message);
+}
+
+export function createOptionalTrimmedString() {
+  return z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => (value === "" ? undefined : value));
+}
+
+export const trimmedRequiredString = createTrimmedRequiredString();
+
+export const optionalTrimmedString = createOptionalTrimmedString();
 
 export const optionalClearableTrimmedString = z
   .union([z.string().trim(), z.null()])

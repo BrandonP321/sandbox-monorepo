@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { assessmentUpdateSchema } from "./assessment-contracts.js";
 import {
+  createOptionalTrimmedString,
+  createTrimmedRequiredString,
   optionalClearableTrimmedString,
   optionalTrimmedString,
   trimmedRequiredString
@@ -18,24 +20,49 @@ export const reviewCadenceSchema = z.enum([
 ]);
 export type ReviewCadence = z.infer<typeof reviewCadenceSchema>;
 
-export const topicSchema = z.object({
+export type TopicMetadataValidationMessages = Partial<{
+  title: string;
+  framingQuestion: string;
+}>;
+
+export const topicMetadataValidationMessages = {
+  title: "Enter a topic title.",
+  framingQuestion: "Enter a framing question."
+} as const satisfies Required<TopicMetadataValidationMessages>;
+
+export function createTopicMetadataSchemaShape(
+  messages: TopicMetadataValidationMessages = {}
+) {
+  const resolvedMessages = {
+    ...topicMetadataValidationMessages,
+    ...messages
+  };
+
+  return {
+    title: createTrimmedRequiredString(resolvedMessages.title),
+    framingQuestion: createTrimmedRequiredString(
+      resolvedMessages.framingQuestion
+    ),
+    scopeNote: createOptionalTrimmedString()
+  };
+}
+
+export const topicMetadataSchema = z.object(createTopicMetadataSchemaShape());
+
+export type TopicMetadata = z.infer<typeof topicMetadataSchema>;
+
+export const topicSchema = topicMetadataSchema.extend({
   id: trimmedRequiredString,
-  title: trimmedRequiredString,
-  framingQuestion: trimmedRequiredString,
   status: topicStatusSchema,
   createdAt: trimmedRequiredString,
   updatedAt: trimmedRequiredString,
-  scopeNote: optionalTrimmedString,
   reviewCadence: reviewCadenceSchema,
   archivedAt: trimmedRequiredString.optional()
 });
 
 export type Topic = z.infer<typeof topicSchema>;
 
-export const createTopicRequestSchema = z.object({
-  title: trimmedRequiredString,
-  framingQuestion: trimmedRequiredString,
-  scopeNote: optionalTrimmedString,
+export const createTopicRequestSchema = topicMetadataSchema.extend({
   reviewCadence: reviewCadenceSchema.optional().default("ad_hoc")
 });
 
@@ -75,8 +102,8 @@ export type ListTopicsResponse = z.infer<typeof listTopicsResponseSchema>;
 export const updateTopicRequestSchema = z
   .object({
     topicId: trimmedRequiredString,
-    title: trimmedRequiredString.optional(),
-    framingQuestion: trimmedRequiredString.optional(),
+    title: topicMetadataSchema.shape.title.optional(),
+    framingQuestion: topicMetadataSchema.shape.framingQuestion.optional(),
     scopeNote: optionalClearableTrimmedString,
     reviewCadence: reviewCadenceSchema.optional()
   })

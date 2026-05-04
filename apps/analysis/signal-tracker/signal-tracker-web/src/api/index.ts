@@ -1,3 +1,4 @@
+export * from "./apiError";
 export * from "./assessments/assessmentApi";
 export * from "./citations/citationApi";
 export * from "./entries/entryApi";

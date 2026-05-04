@@ -26,6 +26,8 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Form layout wrappers should allow omitted IDs and generate stable local IDs while still preserving explicit IDs when callers need stable control references.
 - React Hook Form wrappers should reuse behavior-only controls from `@repo/ui-base` and compose them with Signal Tracker-local visual primitives.
 - Prefer schema-derived required state from `@repo/ui-base` for form wrappers, with explicit overrides only when a caller needs to diverge from the schema.
+- Product forms should import shared Signal Tracker schema shapes or builders for contract-backed fields instead of recreating `z.string()` field rules locally. Keep local form code focused on layout, submit orchestration, and rare message overrides.
+- Form action buttons should disable while React Hook Form is submitting. Reserve loading/busy state for the submit action or a button that is actually performing the submitted work; cancel/secondary actions should usually disable without `aria-busy`.
 
 ## Stories And Tests
 

@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Topic } from "@repo/signal-tracker-shared";
@@ -6,11 +13,13 @@ import type { Topic } from "@repo/signal-tracker-shared";
 import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
+  useCreateTopicMutation: vi.fn(),
   useListTopicsQuery: vi.fn()
 }));
 
 vi.mock("@/api", () => {
   return {
+    useCreateTopicMutation: apiMocks.useCreateTopicMutation,
     useListTopicsQuery: apiMocks.useListTopicsQuery
   };
 });
@@ -34,6 +43,15 @@ const topicWithoutScopeNote = {
   scopeNote: undefined
 } as const satisfies Topic;
 
+const createdTopic = {
+  ...topic,
+  id: "topic-created",
+  title: "New topic",
+  framingQuestion: "What changed?",
+  scopeNote: undefined,
+  reviewCadence: "ad_hoc"
+} as const satisfies Topic;
+
 type ListTopicsHookResult = {
   data?: { topics: Topic[] };
   isError: boolean;
@@ -41,10 +59,22 @@ type ListTopicsHookResult = {
   refetch: () => void;
 };
 
+type CreateTopicHookResult = [
+  (request: unknown) => { unwrap: () => Promise<unknown> },
+  { isLoading: boolean }
+];
+
 describe("App", () => {
+  const createTopic = vi.fn();
+  const unwrapCreateTopic = vi.fn();
+
   beforeEach(() => {
     window.history.replaceState(null, "", "/");
+    createTopic.mockReset();
+    unwrapCreateTopic.mockReset();
+    apiMocks.useCreateTopicMutation.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
+    mockCreateTopicMutation();
     mockListTopicsQuery({ data: { topics: [topic] } });
   });
 
@@ -62,8 +92,181 @@ describe("App", () => {
     expect(
       screen.getByRole("textbox", { name: "Search topics" })
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create topic" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Create topic" })).toBeEnabled();
     expect(screen.queryByText("Workspace surfaces")).not.toBeInTheDocument();
+  });
+
+  it("opens and cancels the create topic modal without preserving draft input", async () => {
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "Draft topic" }
+    });
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+    const reopenedDialog = await openCreateTopicModal();
+
+    expect(
+      within(reopenedDialog).getByRole("textbox", { name: "Title" })
+    ).toHaveValue("");
+  });
+
+  it("shows create topic validation before calling the API", async () => {
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Create topic" })
+    );
+
+    expect(await screen.findByText("Enter a topic title.")).toBeInTheDocument();
+    expect(screen.getByText("Enter a framing question.")).toBeInTheDocument();
+    expect(createTopic).not.toHaveBeenCalled();
+  });
+
+  it("submits create topic through the shared request shape and navigates to the new topic", async () => {
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: " New topic " }
+    });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Framing question" }),
+      {
+        target: { value: " What changed? " }
+      }
+    );
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Create topic" })
+    );
+
+    await waitFor(() => {
+      expect(createTopic).toHaveBeenCalledWith({
+        title: "New topic",
+        framingQuestion: "What changed?",
+        scopeNote: undefined,
+        reviewCadence: "ad_hoc"
+      });
+    });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Topic Details" })
+    ).toBeInTheDocument();
+    expect(window.location.pathname).toBe("/topics/topic-created");
+    expect(screen.getByText("Topic ID: topic-created")).toBeInTheDocument();
+  });
+
+  it("sends the optional scope note when provided", async () => {
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "New topic" }
+    });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Framing question" }),
+      {
+        target: { value: "What changed?" }
+      }
+    );
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Scope note" }),
+      {
+        target: { value: " Track only official statements. " }
+      }
+    );
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Create topic" })
+    );
+
+    await waitFor(() => {
+      expect(createTopic).toHaveBeenCalledWith({
+        title: "New topic",
+        framingQuestion: "What changed?",
+        scopeNote: "Track only official statements.",
+        reviewCadence: "ad_hoc"
+      });
+    });
+  });
+
+  it("shows create topic API failures without clearing entered values", async () => {
+    unwrapCreateTopic.mockRejectedValueOnce({
+      status: 400,
+      data: {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Topic title is already in use."
+        }
+      }
+    });
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "New topic" }
+    });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Framing question" }),
+      {
+        target: { value: "What changed?" }
+      }
+    );
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Create topic" })
+    );
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Topic title is already in use."
+    );
+    expect(within(dialog).getByRole("textbox", { name: "Title" })).toHaveValue(
+      "New topic"
+    );
+    expect(
+      within(dialog).getByRole("textbox", { name: "Framing question" })
+    ).toHaveValue("What changed?");
+  });
+
+  it("disables duplicate create topic submission while the mutation is pending", async () => {
+    let resolveCreateTopic: (value: unknown) => void = () => undefined;
+    unwrapCreateTopic.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveCreateTopic = resolve;
+      })
+    );
+    renderApp();
+    const dialog = await openCreateTopicModal();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "New topic" }
+    });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Framing question" }),
+      {
+        target: { value: "What changed?" }
+      }
+    );
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Create topic" })
+    );
+
+    expect(
+      await within(dialog).findByRole("button", { name: "Creating topic..." })
+    ).toBeDisabled();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Creating topic..." })
+    );
+    expect(createTopic).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveCreateTopic({ topic: createdTopic });
+    });
   });
 
   it("renders a compact loading state for active topics", async () => {
@@ -217,6 +420,17 @@ describe("App", () => {
       )
     ).not.toBeInTheDocument();
   });
+
+  function mockCreateTopicMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapCreateTopic.mockResolvedValue({ topic: createdTopic });
+    createTopic.mockReturnValue({ unwrap: unwrapCreateTopic });
+    apiMocks.useCreateTopicMutation.mockReturnValue([
+      createTopic,
+      { isLoading }
+    ] satisfies CreateTopicHookResult);
+  }
 });
 
 function mockListTopicsQuery(
@@ -243,4 +457,10 @@ async function expectListTopicsPage() {
   expect(
     await screen.findByRole("heading", { level: 1, name: "Topics" })
   ).toBeInTheDocument();
+}
+
+async function openCreateTopicModal() {
+  fireEvent.click(await screen.findByRole("button", { name: "Create topic" }));
+
+  return screen.findByRole("dialog", { name: "Create topic" });
 }

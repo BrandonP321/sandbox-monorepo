@@ -6,6 +6,7 @@ import { useDebouncedValue } from "@repo/ui-base";
 import { useListTopicsQuery } from "@/api";
 import { Button, Input, Skeleton } from "@/components/ui";
 
+import { CreateTopicModal } from "./CreateTopicModal";
 import { TopicListItem } from "./TopicListItem";
 
 const searchDebounceMs = 250;
@@ -39,9 +40,7 @@ export function ListTopicsPage() {
               </p>
             </div>
 
-            <Button disabled variant="outline">
-              Create topic
-            </Button>
+            <CreateTopicModal />
           </div>
         </header>
 

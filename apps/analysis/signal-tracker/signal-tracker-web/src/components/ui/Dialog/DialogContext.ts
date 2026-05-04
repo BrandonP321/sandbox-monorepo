@@ -1,10 +1,22 @@
 import { createContext, useContext } from "react";
 
+type DialogConfirmResult<T> =
+  | {
+      data: T;
+      ok: true;
+    }
+  | {
+      error: unknown;
+      ok: false;
+    };
+
 type DialogContextValue = {
   closeDialog: () => void;
   isDialogConfirming: boolean;
   open: boolean;
-  runDialogConfirm: <T>(action: () => Promise<T>) => Promise<T>;
+  runDialogConfirm: <T>(
+    action: () => Promise<T>
+  ) => Promise<DialogConfirmResult<T>>;
   setOpen: (open: boolean) => void;
 };
 
@@ -20,4 +32,9 @@ function useDialogContext() {
   return context;
 }
 
-export { DialogContext, useDialogContext, type DialogContextValue };
+export {
+  DialogContext,
+  useDialogContext,
+  type DialogConfirmResult,
+  type DialogContextValue
+};
