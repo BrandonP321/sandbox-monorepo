@@ -17,7 +17,7 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {
+export const InfoDefault: Story = {
   args: {
     actions: <Button variant="outline">Retry</Button>,
     children: "Retry the request without leaving the page.",

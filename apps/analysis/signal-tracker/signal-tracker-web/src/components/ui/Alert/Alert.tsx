@@ -16,7 +16,6 @@ const alertVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-border bg-background text-foreground",
         danger: "border-danger/40 bg-danger/5 text-foreground",
         info: "border-sky-600/30 bg-sky-50 text-foreground",
         success: "border-emerald-600/30 bg-emerald-50 text-foreground",
@@ -24,7 +23,7 @@ const alertVariants = cva(
       }
     },
     defaultVariants: {
-      variant: "default"
+      variant: "info"
     }
   }
 );
@@ -32,7 +31,6 @@ const alertVariants = cva(
 const alertIconVariants = cva("mt-0.5 size-4 shrink-0", {
   variants: {
     variant: {
-      default: "text-primary",
       danger: "text-danger",
       info: "text-sky-700",
       success: "text-emerald-700",
@@ -40,14 +38,13 @@ const alertIconVariants = cva("mt-0.5 size-4 shrink-0", {
     }
   },
   defaultVariants: {
-    variant: "default"
+    variant: "info"
   }
 });
 
 type AlertVariant = NonNullable<VariantProps<typeof alertVariants>["variant"]>;
 
 const alertIconByVariant = {
-  default: Info,
   danger: CircleAlert,
   info: Info,
   success: CircleCheck,
@@ -69,7 +66,7 @@ function Alert({
   className,
   role = "alert",
   title,
-  variant = "default",
+  variant = "info",
   ...alertProps
 }: AlertProps) {
   const Icon = alertIconByVariant[variant];
