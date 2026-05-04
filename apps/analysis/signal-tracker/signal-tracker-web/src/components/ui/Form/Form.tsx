@@ -7,9 +7,12 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
+import { Alert } from "../Alert";
+
 type FormProps<T extends FieldValues> = BaseFormProps<T> & {
   actions?: ReactNode;
   error?: string;
+  errorTitle?: string;
 };
 
 function Form<T extends FieldValues>({
@@ -17,15 +20,16 @@ function Form<T extends FieldValues>({
   children,
   className,
   error,
+  errorTitle,
   ...props
 }: FormProps<T>) {
   return (
     <BaseForm {...props} className={cn("grid gap-4", className)}>
       {children}
       {error ? (
-        <p className="text-danger text-sm font-medium" role="alert">
+        <Alert title={errorTitle} variant="danger">
           {error}
-        </p>
+        </Alert>
       ) : null}
       {actions ? (
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

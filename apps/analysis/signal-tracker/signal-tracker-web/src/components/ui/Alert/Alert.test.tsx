@@ -4,13 +4,14 @@ import { describe, expect, it } from "vitest";
 import { Alert } from "./Alert";
 
 describe("Alert", () => {
-  it("renders alert title, description, and actions", () => {
+  it("renders alert title, content, and actions", () => {
     render(
       <Alert
         actions={<button type="button">Retry</button>}
-        description="Retry the request."
         title="Topics could not be loaded."
-      />
+      >
+        Retry the request.
+      </Alert>
     );
 
     expect(screen.getByRole("alert")).toBeInTheDocument();

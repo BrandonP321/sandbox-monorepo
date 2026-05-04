@@ -80,12 +80,11 @@ export function ListTopicsPage() {
                     Retry
                   </Button>
                 }
-                description={
-                  errorMessage ?? "Retry the request without leaving the page."
-                }
                 title="Topics could not be loaded."
                 variant="danger"
-              />
+              >
+                {errorMessage ?? "Retry the request without leaving the page."}
+              </Alert>
             ) : null}
             {!isLoading && !isError && topics.length === 0 ? (
               <TopicListEmptyState hasQuery={hasQuery} />

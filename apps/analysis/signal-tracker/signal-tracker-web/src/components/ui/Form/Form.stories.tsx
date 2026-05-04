@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Form, FormProvider } from "@repo/ui-base";
+import { FormProvider } from "@repo/ui-base";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "../Button";
+import { Form } from "./Form";
 import { FormInput } from "./FormInput";
 import { FormSelect } from "./FormSelect";
 import { FormTextarea } from "./FormTextarea";
@@ -115,4 +116,37 @@ function FormInputExample() {
 
 export const FormInputControl: Story = {
   render: () => <FormInputExample />
+};
+
+export const WithErrorMessage: Story = {
+  render: () => (
+    <FormProvider
+      defaultValues={{
+        priority: "high",
+        subtitle: "",
+        summary: "A short description of the timeline direction.",
+        title: "Compact timeline"
+      }}
+      schema={exampleFormSchema}
+    >
+      <Form<ExampleFormValues>
+        actions={<Button type="submit">Save changes</Button>}
+        className="w-96"
+        error="Topic could not be saved. Resolve the API error and try again."
+        errorTitle="Unable to save topic"
+        onSubmit={async () => undefined}
+      >
+        <FormInput<ExampleFormValues>
+          label="Title"
+          name="title"
+          placeholder="Enter title"
+        />
+        <FormTextarea<ExampleFormValues>
+          label="Summary"
+          name="summary"
+          placeholder="Enter summary"
+        />
+      </Form>
+    </FormProvider>
+  )
 };

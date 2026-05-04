@@ -48,6 +48,7 @@ function CreateTopicDialogContent() {
     >
       <TopicForm
         error={errorMessage}
+        errorTitle="Unable to create topic"
         onCancel={closeDialog}
         onSubmit={handleSubmit}
       />

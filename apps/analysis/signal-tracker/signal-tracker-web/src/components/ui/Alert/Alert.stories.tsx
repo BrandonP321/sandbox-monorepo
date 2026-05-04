@@ -20,14 +20,14 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     actions: <Button variant="outline">Retry</Button>,
-    description: "Retry the request without leaving the page.",
+    children: "Retry the request without leaving the page.",
     title: "Topics could not be loaded."
   }
 };
 
 export const Danger: Story = {
   args: {
-    description: "Resolve the API error before trying again.",
+    children: "Resolve the API error before trying again.",
     title: "Topic could not be deleted.",
     variant: "danger"
   }

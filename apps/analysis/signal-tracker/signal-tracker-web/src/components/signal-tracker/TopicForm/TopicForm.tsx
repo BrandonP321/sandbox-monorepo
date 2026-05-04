@@ -24,6 +24,7 @@ type TopicFormInitialValues = Partial<
 
 type TopicFormProps = {
   error?: string;
+  errorTitle?: string;
   initialValues?: TopicFormInitialValues;
   onCancel: () => void;
   onSubmit: (request: CreateTopicRequest) => Promise<void>;
@@ -37,6 +38,7 @@ const defaultTopicFormValues = {
 
 function TopicForm({
   error,
+  errorTitle,
   initialValues,
   onCancel,
   onSubmit
@@ -60,6 +62,7 @@ function TopicForm({
       <Form<TopicFormValues>
         onSubmit={handleSubmit}
         error={error}
+        errorTitle={errorTitle}
         actions={
           <>
             <FormButton onClick={onCancel} variant="outline">

@@ -22,15 +22,15 @@ type AlertNativeProps = Pick<React.ComponentProps<"div">, "className" | "role">;
 
 type AlertProps = AlertNativeProps & {
   actions?: ReactNode;
-  description?: ReactNode;
-  title: ReactNode;
+  children: ReactNode;
+  title?: ReactNode;
   variant?: AlertVariant;
 };
 
 function Alert({
   actions,
+  children,
   className,
-  description,
   role = "alert",
   title,
   variant = "default",
@@ -43,14 +43,17 @@ function Alert({
       role={role}
       className={cn(alertVariants({ variant, className }))}
     >
-      <p data-slot="alert-title" className="font-medium">
-        {title}
-      </p>
-      {description ? (
-        <p data-slot="alert-description" className="text-muted-foreground mt-1">
-          {description}
+      {title ? (
+        <p data-slot="alert-title" className="font-medium">
+          {title}
         </p>
       ) : null}
+      <div
+        data-slot="alert-content"
+        className={cn(title ? "text-muted-foreground mt-1" : undefined)}
+      >
+        {children}
+      </div>
       {actions ? (
         <div data-slot="alert-actions" className="mt-3 flex items-center gap-2">
           {actions}
