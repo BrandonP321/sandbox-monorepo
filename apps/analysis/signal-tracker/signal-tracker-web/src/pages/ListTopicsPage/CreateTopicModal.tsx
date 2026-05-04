@@ -1,9 +1,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import type { CreateTopicRequest } from "@repo/signal-tracker-shared";
-import { useEffect, useState } from "react";
 
 import { useCreateTopicMutation } from "@/api";
-import { getApiErrorMessage } from "@/api/apiError";
 import { TopicForm } from "@/components/signal-tracker";
 import {
   Button,
@@ -27,37 +25,20 @@ function CreateTopicModal() {
 
 function CreateTopicModalContent() {
   const navigate = useNavigate();
-  const [createTopic] = useCreateTopicMutation();
-  const [submitError, setSubmitError] = useState<string>();
-  const { closeDialog, open, runDialogConfirm } = useDialogContext();
-
-  useEffect(() => {
-    if (!open) {
-      setSubmitError(undefined);
-    }
-  }, [open]);
+  const [createTopic, { errorMessage }] = useCreateTopicMutation();
+  const { closeDialog, runDialogConfirm } = useDialogContext();
 
   async function handleSubmit(request: CreateTopicRequest) {
-    setSubmitError(undefined);
-
     const result = await runDialogConfirm(async () =>
       createTopic(request).unwrap()
     );
 
-    if (!result.ok) {
-      setSubmitError(getApiErrorMessage(result.error));
-      return;
+    if (result.ok) {
+      await navigate({
+        to: appRoutes.topicDetails.path,
+        params: { topicId: result.data.topic.id }
+      });
     }
-
-    await navigate({
-      to: appRoutes.topicDetails.path,
-      params: { topicId: result.data.topic.id }
-    });
-  }
-
-  function handleCancel() {
-    setSubmitError(undefined);
-    closeDialog();
   }
 
   return (
@@ -66,8 +47,8 @@ function CreateTopicModalContent() {
       title="Create topic"
     >
       <TopicForm
-        error={submitError}
-        onCancel={handleCancel}
+        error={errorMessage}
+        onCancel={closeDialog}
         onSubmit={handleSubmit}
       />
     </DialogContent>

@@ -4,20 +4,21 @@ import { useState } from "react";
 import { useDebouncedValue } from "@repo/ui-base";
 
 import { useListTopicsQuery } from "@/api";
-import { Button, Input, Skeleton } from "@/components/ui";
+import { Alert, Button, Input, Skeleton } from "@/components/ui";
 
 import { CreateTopicModal } from "./CreateTopicModal";
 import { TopicListItem } from "./TopicListItem";
 
-const searchDebounceMs = 250;
+const searchDebounceMs = 500;
 
 export function ListTopicsPage() {
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebouncedValue(query.trim(), searchDebounceMs);
   const normalizedQuery = debouncedQuery || undefined;
-  const { data, isError, isLoading, refetch } = useListTopicsQuery({
-    query: normalizedQuery
-  });
+  const { data, errorMessage, isError, isLoading, refetch } =
+    useListTopicsQuery({
+      query: normalizedQuery
+    });
   const topics = data?.topics ?? [];
   const hasQuery = normalizedQuery !== undefined;
 
@@ -73,7 +74,18 @@ export function ListTopicsPage() {
           <div className="mt-4">
             {isLoading ? <TopicListLoadingState /> : null}
             {!isLoading && isError ? (
-              <TopicListErrorState onRetry={refetch} />
+              <Alert
+                actions={
+                  <Button onClick={refetch} variant="outline">
+                    Retry
+                  </Button>
+                }
+                description={
+                  errorMessage ?? "Retry the request without leaving the page."
+                }
+                title="Topics could not be loaded."
+                variant="destructive"
+              />
             ) : null}
             {!isLoading && !isError && topics.length === 0 ? (
               <TopicListEmptyState hasQuery={hasQuery} />
@@ -102,20 +114,6 @@ function TopicListLoadingState() {
       <Skeleton className="h-20 w-full" />
       <Skeleton className="h-20 w-full" />
       <Skeleton className="h-20 w-full" />
-    </div>
-  );
-}
-
-function TopicListErrorState({ onRetry }: { onRetry: () => void }) {
-  return (
-    <div className="border-destructive/40 bg-destructive/5 rounded-md border p-4">
-      <p className="text-sm font-medium">Topics could not be loaded.</p>
-      <p className="text-muted-foreground mt-1 text-sm">
-        Retry the request without leaving the page.
-      </p>
-      <Button className="mt-3" onClick={onRetry} variant="outline">
-        Retry
-      </Button>
     </div>
   );
 }

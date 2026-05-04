@@ -6,10 +6,12 @@ import {
   waitFor,
   within
 } from "@testing-library/react";
+import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Topic } from "@repo/signal-tracker-shared";
 
+import { getApiErrorMessage } from "./api/apiError";
 import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
@@ -54,6 +56,7 @@ const createdTopic = {
 
 type ListTopicsHookResult = {
   data?: { topics: Topic[] };
+  errorMessage?: string;
   isError: boolean;
   isLoading: boolean;
   refetch: () => void;
@@ -61,7 +64,7 @@ type ListTopicsHookResult = {
 
 type CreateTopicHookResult = [
   (request: unknown) => { unwrap: () => Promise<unknown> },
-  { isLoading: boolean }
+  { errorMessage?: string; isLoading: boolean }
 ];
 
 describe("App", () => {
@@ -320,6 +323,7 @@ describe("App", () => {
   it("renders an inline error state with retry behavior", async () => {
     const retry = mockListTopicsQuery({
       data: undefined,
+      errorMessage: "Topic list is temporarily unavailable.",
       isError: true
     });
 
@@ -327,6 +331,9 @@ describe("App", () => {
 
     expect(
       await screen.findByText("Topics could not be loaded.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Topic list is temporarily unavailable.")
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Retry" }));
@@ -337,7 +344,6 @@ describe("App", () => {
   it("debounces search before using the existing list topics query contract", async () => {
     renderApp();
     await expectListTopicsPage();
-    vi.useFakeTimers();
 
     fireEvent.change(screen.getByRole("textbox", { name: "Search topics" }), {
       target: { value: "Iran" }
@@ -347,12 +353,10 @@ describe("App", () => {
       query: undefined
     });
 
-    act(() => {
-      vi.advanceTimersByTime(250);
-    });
-
-    expect(apiMocks.useListTopicsQuery).toHaveBeenLastCalledWith({
-      query: "Iran"
+    await waitFor(() => {
+      expect(apiMocks.useListTopicsQuery).toHaveBeenLastCalledWith({
+        query: "Iran"
+      });
     });
   });
 
@@ -368,16 +372,13 @@ describe("App", () => {
 
     renderApp();
     await expectListTopicsPage();
-    vi.useFakeTimers();
 
     fireEvent.change(screen.getByRole("textbox", { name: "Search topics" }), {
       target: { value: "missing" }
     });
-    act(() => {
-      vi.advanceTimersByTime(250);
-    });
-
-    expect(screen.getByText("No matching topics found.")).toBeInTheDocument();
+    expect(
+      await screen.findByText("No matching topics found.")
+    ).toBeInTheDocument();
     expect(screen.queryByText("No active topics yet.")).not.toBeInTheDocument();
   });
 
@@ -425,11 +426,31 @@ describe("App", () => {
     isLoading = false
   }: { isLoading?: boolean } = {}) {
     unwrapCreateTopic.mockResolvedValue({ topic: createdTopic });
-    createTopic.mockReturnValue({ unwrap: unwrapCreateTopic });
-    apiMocks.useCreateTopicMutation.mockReturnValue([
-      createTopic,
-      { isLoading }
-    ] satisfies CreateTopicHookResult);
+    apiMocks.useCreateTopicMutation.mockImplementation(
+      function useMockCreateTopicMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function createTopicTrigger(request: unknown) {
+          createTopic(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapCreateTopic();
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          createTopicTrigger,
+          { errorMessage, isLoading }
+        ] satisfies CreateTopicHookResult;
+      }
+    );
   }
 });
 

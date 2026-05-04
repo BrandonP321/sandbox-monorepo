@@ -18,6 +18,7 @@ import {
   parseSignalTrackerRouteResponse
 } from "../routeContract";
 import { signalTrackerApi } from "../signalTrackerApi";
+import { getMutation, getQuery } from "../rtkQueryHooks";
 
 const defaultListTopicsRequest = {
   query: undefined
@@ -92,11 +93,19 @@ export const topicApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const {
-  useArchiveTopicMutation,
-  useCreateTopicMutation,
-  useDeleteTopicMutation,
-  useGetTopicQuery,
-  useListTopicsQuery,
-  useUpdateTopicMutation
-} = topicApi;
+export const useGetTopicQuery = getQuery(topicApi.useGetTopicQuery);
+
+export const useListTopicsQuery = getQuery(topicApi.useListTopicsQuery);
+
+export const useArchiveTopicMutation = getMutation(
+  topicApi.useArchiveTopicMutation
+);
+export const useCreateTopicMutation = getMutation(
+  topicApi.useCreateTopicMutation
+);
+export const useDeleteTopicMutation = getMutation(
+  topicApi.useDeleteTopicMutation
+);
+export const useUpdateTopicMutation = getMutation(
+  topicApi.useUpdateTopicMutation
+);
