@@ -16,7 +16,7 @@ Use Radix UI directly only when shadcn/ui does not provide the needed primitive 
 
 Tailwind Plus and Catalyst, if used, should be treated as reference libraries and sources of implementation patterns, not as the controlling design system.
 
-Avoid mixing multiple primitive systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component system interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
+Avoid mixing multiple primitive systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component system interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
 
 ## Component organization
 

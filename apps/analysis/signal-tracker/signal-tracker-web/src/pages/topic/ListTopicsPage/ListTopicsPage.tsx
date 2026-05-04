@@ -6,8 +6,8 @@ import { useDebouncedValue } from "@repo/ui-base";
 import { useListTopicsQuery } from "@/api";
 import { Alert, Button, Input, Skeleton } from "@/components/ui";
 
-import { CreateTopicModal } from "./CreateTopicModal";
-import { TopicListItem } from "./TopicListItem";
+import { CreateTopicDialog } from "./components/CreateTopicDialog";
+import { TopicListItem } from "./components/TopicListItem";
 
 const searchDebounceMs = 500;
 
@@ -41,7 +41,7 @@ export function ListTopicsPage() {
               </p>
             </div>
 
-            <CreateTopicModal />
+            <CreateTopicDialog />
           </div>
         </header>
 
@@ -84,7 +84,7 @@ export function ListTopicsPage() {
                   errorMessage ?? "Retry the request without leaving the page."
                 }
                 title="Topics could not be loaded."
-                variant="destructive"
+                variant="danger"
               />
             ) : null}
             {!isLoading && !isError && topics.length === 0 ? (

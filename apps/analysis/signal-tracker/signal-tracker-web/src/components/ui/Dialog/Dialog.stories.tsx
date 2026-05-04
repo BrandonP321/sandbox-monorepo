@@ -42,7 +42,7 @@ function DialogStory() {
         title="Dialog heading"
       >
         <p className="text-sm">
-          Use this primitive for generic modal surfaces before adding
+          Use this primitive for generic dialog surfaces before adding
           product-specific topic or entry behavior.
         </p>
       </DialogContent>

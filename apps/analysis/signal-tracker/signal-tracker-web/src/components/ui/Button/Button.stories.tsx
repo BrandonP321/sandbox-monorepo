@@ -28,10 +28,10 @@ export const Secondary: Story = {
   }
 };
 
-export const Destructive: Story = {
+export const Danger: Story = {
   args: {
     children: "Delete topic",
-    variant: "destructive"
+    variant: "danger"
   }
 };
 

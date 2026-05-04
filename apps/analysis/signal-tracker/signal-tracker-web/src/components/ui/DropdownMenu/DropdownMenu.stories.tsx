@@ -31,7 +31,7 @@ function BasicDropdownMenuStory() {
         <DropdownMenuItem>Rename</DropdownMenuItem>
         <DropdownMenuItem disabled>Duplicate</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        <DropdownMenuItem variant="danger">Delete</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -53,7 +53,7 @@ function GroupedDropdownMenuStory() {
           <DropdownMenuSeparator />
           <DropdownMenuLabel>Manage</DropdownMenuLabel>
           <DropdownMenuItem>Copy link</DropdownMenuItem>
-          <DropdownMenuItem variant="destructive">Archive</DropdownMenuItem>
+          <DropdownMenuItem variant="danger">Delete</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

@@ -26,7 +26,7 @@ function AlertDialogStory() {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <Button variant="destructive">Delete item</Button>
+        <Button variant="danger">Delete item</Button>
       </AlertDialogTrigger>
       <AlertDialogContent
         confirmText="Delete"
@@ -36,7 +36,7 @@ function AlertDialogStory() {
         title="Delete this item?"
       >
         <p className="text-sm">
-          Alert dialogs should be reserved for destructive or high-consequence
+          Alert dialogs should be reserved for irreversible or high-consequence
           choices that need explicit confirmation before continuing.
         </p>
       </AlertDialogContent>
@@ -60,7 +60,7 @@ function CustomTextAlertDialogStory() {
       >
         <div className="grid gap-3 text-sm">
           <p>
-            The alert dialog owns the standard cancel and destructive confirm
+            The alert dialog owns the standard cancel and danger-toned confirm
             actions. Use label props to fit the action language to the context.
           </p>
           <div className="rounded-md border bg-muted/40 p-3 text-muted-foreground">

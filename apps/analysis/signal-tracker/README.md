@@ -19,7 +19,7 @@ Signal Tracker uses Tailwind CSS as its styling foundation, shadcn/ui as the def
 
 Signal Tracker should continue to use `@repo/ui-base` for shared behavior abstractions only. Do not import `@repo/ui` or other styled shared UI packages into Signal Tracker. Product-specific UI components belong inside `signal-tracker-web`.
 
-Avoid mixing multiple primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented. Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
+Avoid mixing multiple primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented. Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 
 Prefer narrow, purpose-built component interfaces. Start local primitives and product components with only the props the current UI needs, then expand them when a concrete caller requires the extra capability. Avoid exposing full native element prop surfaces, generic pass-through escape hatches, or broad accessibility/data/id props by default; those can be added later when they solve a real implementation problem.
 

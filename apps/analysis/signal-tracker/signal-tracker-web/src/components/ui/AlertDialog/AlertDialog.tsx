@@ -67,7 +67,7 @@ function AlertDialogContent({
             isLoading={isDialogConfirming}
             loadingLabel={loadingText}
             onClick={() => void handleConfirm()}
-            variant="destructive"
+            variant="danger"
           >
             {confirmText}
           </Button>

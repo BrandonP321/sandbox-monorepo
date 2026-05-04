@@ -65,7 +65,7 @@ function FormField({
         </p>
       ) : null}
       {error ? (
-        <p className="text-destructive text-sm font-medium" id={errorId}>
+        <p className="text-danger text-sm font-medium" id={errorId}>
           {error}
         </p>
       ) : null}

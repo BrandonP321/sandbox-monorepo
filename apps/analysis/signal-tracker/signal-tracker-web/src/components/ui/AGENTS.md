@@ -18,5 +18,9 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 
 ## Dialogs
 
-- Prefer uncontrolled `Dialog` state for normal modal flows. Put a lightweight child component inside `Dialog` when the flow needs `useDialogContext()` for close or confirm behavior.
+- Prefer uncontrolled `Dialog` state for normal dialog flows. Put a lightweight child component inside `Dialog` when the flow needs `useDialogContext()` for close or confirm behavior.
 - `runDialogConfirm` returns an explicit success/failure result and keeps the dialog open on failure. Use the returned `ok` state for dialog control flow; for API-backed forms, prefer the standardized RTK Query hook `errorMessage` as the rendered inline error source instead of duplicating submit-error state in the dialog.
+
+## Styling Terminology
+
+- Use `danger` for UI styling variants and color tokens, `error` for failure state or messages, and reserve `destructive` for domain prose about irreversible operations.

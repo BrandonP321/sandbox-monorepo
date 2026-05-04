@@ -17,7 +17,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Use PascalCase filenames for React component files that export a component, such as `Button.tsx`. Keep non-component utility filenames lower-case or domain-named.
 - Keep `src/components/ui/` product-agnostic. Copy-owned shadcn-style primitives belong there.
 - Keep Signal Tracker product concepts in `src/components/signal-tracker/`, including topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
-- Keep primitive responsibilities separate: positioned content, command menus, disclosure sections, modal dialogs, and confirmation dialogs should not borrow behavior from each other unless one is intentionally implemented as a thin specialization of another.
+- Keep primitive responsibilities separate: positioned content, command menus, disclosure sections, dialogs, and confirmation dialogs should not borrow behavior from each other unless one is intentionally implemented as a thin specialization of another.
 - Do not add richer APIs such as checkbox/radio menu items, submenus, accordion grouping, broad positioning controls, or form-specific behavior to primitives until a concrete caller needs them.
 
 ## Forms

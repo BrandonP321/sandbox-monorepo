@@ -5,8 +5,8 @@ import {
   Outlet
 } from "@tanstack/react-router";
 
-import { ListTopicsPage } from "./pages/ListTopicsPage";
-import { TopicDetailsPendingPage } from "./pages/TopicDetailsPage/TopicDetailsPendingPage";
+import { ListTopicsPage } from "./pages/topic/ListTopicsPage";
+import { TopicDetailsPendingPage } from "./pages/topic/TopicDetailsPage/TopicDetailsPendingPage";
 import { appRoutes } from "./routeRegistry";
 
 const rootRoute = createRootRoute({

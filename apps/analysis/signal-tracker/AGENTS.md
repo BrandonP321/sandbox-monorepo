@@ -24,7 +24,7 @@
 - Keep generic copy-owned UI primitives product-agnostic in a local web-app layer such as `src/components/ui/`.
 - Keep product-specific Signal Tracker components inside `signal-tracker-web`, in a product layer such as `src/components/signal-tracker/`.
 - The Signal Tracker product layer should encode topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
-- Avoid mixing primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same modal, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
+- Avoid mixing primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
 - Prefer narrow, purpose-built component interfaces. Start with only the props the current UI needs, then expand when a concrete caller requires more capability.
 - When supported props come straight from a native element, prefer `Pick<>` over manually rewriting each native prop type, then spread only that picked subset onto the underlying element.
 - Do not expose full native element prop surfaces, generic prop pass-throughs, or broad accessibility/data/id escape hatches by default. Add those only when they solve a real Signal Tracker implementation problem.

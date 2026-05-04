@@ -99,9 +99,9 @@ describe("App", () => {
     expect(screen.queryByText("Workspace surfaces")).not.toBeInTheDocument();
   });
 
-  it("opens and cancels the create topic modal without preserving draft input", async () => {
+  it("opens and cancels the create topic dialog without preserving draft input", async () => {
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
       target: { value: "Draft topic" }
@@ -110,7 +110,7 @@ describe("App", () => {
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    const reopenedDialog = await openCreateTopicModal();
+    const reopenedDialog = await openCreateTopicDialog();
 
     expect(
       within(reopenedDialog).getByRole("textbox", { name: "Title" })
@@ -119,7 +119,7 @@ describe("App", () => {
 
   it("shows create topic validation before calling the API", async () => {
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.click(
       within(dialog).getByRole("button", { name: "Create topic" })
@@ -132,7 +132,7 @@ describe("App", () => {
 
   it("submits create topic through the shared request shape and navigates to the new topic", async () => {
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
       target: { value: " New topic " }
@@ -165,7 +165,7 @@ describe("App", () => {
 
   it("sends the optional scope note when provided", async () => {
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
       target: { value: "New topic" }
@@ -208,7 +208,7 @@ describe("App", () => {
       }
     });
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
       target: { value: "New topic" }
@@ -243,7 +243,7 @@ describe("App", () => {
       })
     );
     renderApp();
-    const dialog = await openCreateTopicModal();
+    const dialog = await openCreateTopicDialog();
 
     fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
       target: { value: "New topic" }
@@ -480,7 +480,7 @@ async function expectListTopicsPage() {
   ).toBeInTheDocument();
 }
 
-async function openCreateTopicModal() {
+async function openCreateTopicDialog() {
   fireEvent.click(await screen.findByRole("button", { name: "Create topic" }));
 
   return screen.findByRole("dialog", { name: "Create topic" });

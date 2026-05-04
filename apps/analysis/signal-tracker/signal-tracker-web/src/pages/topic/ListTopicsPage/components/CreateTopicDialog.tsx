@@ -12,18 +12,18 @@ import {
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
-function CreateTopicModal() {
+function CreateTopicDialog() {
   return (
     <Dialog>
       <DialogTrigger>
         <Button variant="outline">Create topic</Button>
       </DialogTrigger>
-      <CreateTopicModalContent />
+      <CreateTopicDialogContent />
     </Dialog>
   );
 }
 
-function CreateTopicModalContent() {
+function CreateTopicDialogContent() {
   const navigate = useNavigate();
   const [createTopic, { errorMessage }] = useCreateTopicMutation();
   const { closeDialog, runDialogConfirm } = useDialogContext();
@@ -55,4 +55,4 @@ function CreateTopicModalContent() {
   );
 }
 
-export { CreateTopicModal };
+export { CreateTopicDialog };

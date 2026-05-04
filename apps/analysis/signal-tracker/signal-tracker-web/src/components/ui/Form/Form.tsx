@@ -23,7 +23,7 @@ function Form<T extends FieldValues>({
     <BaseForm {...props} className={cn("grid gap-4", className)}>
       {children}
       {error ? (
-        <p className="text-destructive text-sm font-medium" role="alert">
+        <p className="text-danger text-sm font-medium" role="alert">
           {error}
         </p>
       ) : null}

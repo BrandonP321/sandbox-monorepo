@@ -25,10 +25,10 @@ export const Default: Story = {
   }
 };
 
-export const Destructive: Story = {
+export const Danger: Story = {
   args: {
     description: "Resolve the API error before trying again.",
     title: "Topic could not be deleted.",
-    variant: "destructive"
+    variant: "danger"
   }
 };
