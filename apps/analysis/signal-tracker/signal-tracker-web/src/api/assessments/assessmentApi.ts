@@ -7,6 +7,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { getMutation } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const assessmentApi = signalTrackerApi.injectEndpoints({
@@ -36,4 +37,6 @@ export const assessmentApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const { useCreateAssessmentUpdateMutation } = assessmentApi;
+export const useCreateAssessmentUpdateMutation = getMutation(
+  assessmentApi.useCreateAssessmentUpdateMutation
+);

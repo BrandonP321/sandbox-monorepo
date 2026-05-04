@@ -13,6 +13,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "./routeContract";
+import { getQuery } from "./rtkQueryHooks";
 
 let cachedConfig: RuntimeConfig | null = null;
 let configPromise: Promise<RuntimeConfig> | null = null;
@@ -70,4 +71,4 @@ export const signalTrackerApi = createApi({
   })
 });
 
-export const { useGetHealthQuery } = signalTrackerApi;
+export const useGetHealthQuery = getQuery(signalTrackerApi.useGetHealthQuery);

@@ -7,6 +7,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const timelineApi = signalTrackerApi.injectEndpoints({
@@ -30,4 +31,6 @@ export const timelineApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const { useListTopicTimelineQuery } = timelineApi;
+export const useListTopicTimelineQuery = getQuery(
+  timelineApi.useListTopicTimelineQuery
+);

@@ -13,6 +13,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const entryApi = signalTrackerApi.injectEndpoints({
@@ -79,9 +80,13 @@ export const entryApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const {
-  useCreateEventEntryMutation,
-  useGetEventEntryQuery,
-  useListEventEntriesQuery,
-  useUpdateEventEntryMutation
-} = entryApi;
+export const useCreateEventEntryMutation = getMutation(
+  entryApi.useCreateEventEntryMutation
+);
+export const useGetEventEntryQuery = getQuery(entryApi.useGetEventEntryQuery);
+export const useListEventEntriesQuery = getQuery(
+  entryApi.useListEventEntriesQuery
+);
+export const useUpdateEventEntryMutation = getMutation(
+  entryApi.useUpdateEventEntryMutation
+);

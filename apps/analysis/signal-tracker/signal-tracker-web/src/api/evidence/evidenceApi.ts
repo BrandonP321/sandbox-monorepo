@@ -19,6 +19,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 const defaultListEvidenceItemsRequest = {
@@ -134,12 +135,24 @@ export const evidenceApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const {
-  useCaptureEvidenceUrlMutation,
-  useCreateEvidenceAnchorMutation,
-  useCreateEvidenceItemMutation,
-  useGetEvidenceAnchorQuery,
-  useGetEvidenceItemQuery,
-  useListEvidenceAnchorsForItemQuery,
-  useListEvidenceItemsQuery
-} = evidenceApi;
+export const useCaptureEvidenceUrlMutation = getMutation(
+  evidenceApi.useCaptureEvidenceUrlMutation
+);
+export const useCreateEvidenceAnchorMutation = getMutation(
+  evidenceApi.useCreateEvidenceAnchorMutation
+);
+export const useCreateEvidenceItemMutation = getMutation(
+  evidenceApi.useCreateEvidenceItemMutation
+);
+export const useGetEvidenceAnchorQuery = getQuery(
+  evidenceApi.useGetEvidenceAnchorQuery
+);
+export const useGetEvidenceItemQuery = getQuery(
+  evidenceApi.useGetEvidenceItemQuery
+);
+export const useListEvidenceAnchorsForItemQuery = getQuery(
+  evidenceApi.useListEvidenceAnchorsForItemQuery
+);
+export const useListEvidenceItemsQuery = getQuery(
+  evidenceApi.useListEvidenceItemsQuery
+);

@@ -11,6 +11,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const citationApi = signalTrackerApi.injectEndpoints({
@@ -75,8 +76,12 @@ export const citationApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const {
-  useAttachEntryCitationMutation,
-  useDetachEntryCitationMutation,
-  useListEntryCitationsQuery
-} = citationApi;
+export const useAttachEntryCitationMutation = getMutation(
+  citationApi.useAttachEntryCitationMutation
+);
+export const useDetachEntryCitationMutation = getMutation(
+  citationApi.useDetachEntryCitationMutation
+);
+export const useListEntryCitationsQuery = getQuery(
+  citationApi.useListEntryCitationsQuery
+);
