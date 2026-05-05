@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { fallbackApiErrorMessage, getApiErrorMessage } from "./apiError";
+import {
+  fallbackApiErrorMessage,
+  getApiErrorMessage,
+  isApiErrorCode
+} from "./apiError";
 
 describe("getApiErrorMessage", () => {
   it("reads standard API error payloads", () => {
@@ -52,5 +56,56 @@ describe("getApiErrorMessage", () => {
     expect(getApiErrorMessage({ message: "   " })).toBe(
       fallbackApiErrorMessage
     );
+  });
+});
+
+describe("isApiErrorCode", () => {
+  it("matches standard API error payload codes", () => {
+    expect(
+      isApiErrorCode(
+        {
+          error: {
+            code: "TOPIC_NOT_FOUND",
+            message: "Topic not found"
+          }
+        },
+        "TOPIC_NOT_FOUND"
+      )
+    ).toBe(true);
+  });
+
+  it("matches RTK fetchBaseQuery error data payload codes", () => {
+    expect(
+      isApiErrorCode(
+        {
+          status: 404,
+          data: {
+            error: {
+              code: "TOPIC_NOT_FOUND",
+              message: "Topic not found"
+            }
+          }
+        },
+        "TOPIC_NOT_FOUND"
+      )
+    ).toBe(true);
+  });
+
+  it("returns false for other errors", () => {
+    expect(
+      isApiErrorCode(
+        {
+          status: 500,
+          data: {
+            error: {
+              code: "DATABASE_UNAVAILABLE",
+              message: "Database unavailable"
+            }
+          }
+        },
+        "TOPIC_NOT_FOUND"
+      )
+    ).toBe(false);
+    expect(isApiErrorCode("Request failed", "TOPIC_NOT_FOUND")).toBe(false);
   });
 });

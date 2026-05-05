@@ -1,4 +1,5 @@
 import { apiErrorSchema } from "@repo/api-contracts";
+import type { SignalTrackerApiErrorCode } from "@repo/signal-tracker-shared";
 
 const fallbackApiErrorMessage =
   "An unexpected error occurred. Please try again.";
@@ -52,6 +53,33 @@ function getApiErrorMessage(
   return fallbackMessage;
 }
 
+function isApiErrorCode(
+  error: unknown,
+  code: SignalTrackerApiErrorCode
+): boolean {
+  const directCode = parseApiErrorPayloadCode(error);
+
+  if (directCode === code) {
+    return true;
+  }
+
+  if (!isRecord(error) || !("data" in error)) {
+    return false;
+  }
+
+  return parseApiErrorPayloadCode(error.data) === code;
+}
+
+function parseApiErrorPayloadCode(error: unknown) {
+  const parsedError = apiErrorSchema.safeParse(error);
+
+  if (!parsedError.success) {
+    return undefined;
+  }
+
+  return parsedError.data.error.code;
+}
+
 function parseApiErrorPayloadMessage(error: unknown) {
   const parsedError = apiErrorSchema.safeParse(error);
 
@@ -76,4 +104,4 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-export { fallbackApiErrorMessage, getApiErrorMessage };
+export { fallbackApiErrorMessage, getApiErrorMessage, isApiErrorCode };

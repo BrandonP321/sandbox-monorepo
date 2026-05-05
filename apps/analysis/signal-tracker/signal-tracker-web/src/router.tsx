@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-router";
 
 import { ListTopicsPage } from "./pages/topic/ListTopicsPage";
-import { TopicDetailsPendingPage } from "./pages/topic/TopicDetailsPage/TopicDetailsPendingPage";
+import { TopicDetailsPage } from "./pages/topic/TopicDetailsPage";
 import { appRoutes } from "./routeRegistry";
 
 const rootRoute = createRootRoute({
@@ -28,7 +28,7 @@ const listTopicsRoute = createRoute({
 const topicDetailsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: appRoutes.topicDetails.path,
-  component: TopicDetailsPendingPage
+  component: TopicDetailsPage
 });
 
 const routeTree = rootRoute.addChildren([

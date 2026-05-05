@@ -9,19 +9,21 @@ import {
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Topic } from "@repo/signal-tracker-shared";
+import type { GetTopicResponse, Topic } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "./api/apiError";
 import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
   useCreateTopicMutation: vi.fn(),
+  useGetTopicQuery: vi.fn(),
   useListTopicsQuery: vi.fn()
 }));
 
 vi.mock("@/api", () => {
   return {
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
+    useGetTopicQuery: apiMocks.useGetTopicQuery,
     useListTopicsQuery: apiMocks.useListTopicsQuery
   };
 });
@@ -54,8 +56,25 @@ const createdTopic = {
   reviewCadence: "ad_hoc"
 } as const satisfies Topic;
 
+const archivedTopic = {
+  ...topic,
+  id: "topic-archived",
+  title: "Archived topic",
+  status: "archived",
+  archivedAt: "2026-01-03T00:00:00.000Z"
+} as const satisfies Topic;
+
 type ListTopicsHookResult = {
   data?: { topics: Topic[] };
+  errorMessage?: string;
+  isError: boolean;
+  isLoading: boolean;
+  refetch: () => void;
+};
+
+type GetTopicHookResult = {
+  data?: GetTopicResponse;
+  error?: unknown;
   errorMessage?: string;
   isError: boolean;
   isLoading: boolean;
@@ -76,8 +95,10 @@ describe("App", () => {
     createTopic.mockReset();
     unwrapCreateTopic.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
+    apiMocks.useGetTopicQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
     mockCreateTopicMutation();
+    mockGetTopicQuery();
     mockListTopicsQuery({ data: { topics: [topic] } });
   });
 
@@ -157,10 +178,9 @@ describe("App", () => {
       });
     });
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Topic Details" })
+      await screen.findByRole("heading", { level: 1, name: "New topic" })
     ).toBeInTheDocument();
     expect(window.location.pathname).toBe("/topics/topic-created");
-    expect(screen.getByText("Topic ID: topic-created")).toBeInTheDocument();
   });
 
   it("sends the optional scope note when provided", async () => {
@@ -393,13 +413,157 @@ describe("App", () => {
     );
 
     expect(
-      await screen.findByRole("heading", { level: 1, name: "Topic Details" })
+      await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
     ).toBeInTheDocument();
     expect(window.location.pathname).toBe("/topics/topic-1");
-    expect(screen.getByText("Topic ID: topic-1")).toBeInTheDocument();
+    expect(apiMocks.useGetTopicQuery).toHaveBeenLastCalledWith({
+      topicId: "topic-1"
+    });
+    expect(
+      screen.getByText("Will the conflict expand over the next month?")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Track official signals and military movements.")
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Back to topics" })
     ).toHaveAttribute("href", "/topics");
+    expect(screen.getByRole("button", { name: "Add entry" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Topic settings" })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole("region", { name: "Timeline" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("complementary", { name: "Current assessment" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
+  });
+
+  it("renders the topic details route from a direct URL", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    expect(apiMocks.useGetTopicQuery).toHaveBeenLastCalledWith({
+      topicId: "topic-1"
+    });
+  });
+
+  it("omits the compact scope note when the topic has none", async () => {
+    window.history.replaceState(null, "", "/topics/topic-2");
+    mockGetTopicQuery({
+      data: { topic: topicWithoutScopeNote, currentAssessment: null }
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "AI copyright litigation"
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Track official signals and military movements.")
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows archived status only when a direct archived topic URL is opened", async () => {
+    window.history.replaceState(null, "", "/topics/topic-archived");
+    mockGetTopicQuery({
+      data: { topic: archivedTopic, currentAssessment: null }
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Archived topic" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Archived")).toBeInTheDocument();
+  });
+
+  it("renders a structured loading state for topic details", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    mockGetTopicQuery({ data: undefined, isLoading: true });
+
+    renderApp();
+
+    expect(
+      await screen.findByText("Loading topic details")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Back to topics" })
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders a topic details error state with retry behavior", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    const retry = mockGetTopicQuery({
+      data: undefined,
+      error: {
+        status: 503,
+        data: {
+          error: {
+            code: "DATABASE_UNAVAILABLE",
+            message: "Topic details are temporarily unavailable."
+          }
+        }
+      },
+      errorMessage: "Topic details are temporarily unavailable.",
+      isError: true
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByText("Topic could not be loaded.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Topic details are temporarily unavailable.")
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Retry" }));
+
+    expect(retry).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders topic not found without the generic retry error", async () => {
+    window.history.replaceState(null, "", "/topics/topic-missing");
+    mockGetTopicQuery({
+      data: undefined,
+      error: {
+        status: 404,
+        data: {
+          error: {
+            code: "TOPIC_NOT_FOUND",
+            message: "Topic not found"
+          }
+        }
+      },
+      errorMessage: "Topic not found",
+      isError: true
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Topic not found" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Topic not found.")).toBeInTheDocument();
+    expect(
+      screen.getByText("No topic matched topic-missing.")
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText("Topic could not be loaded.")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Retry" })
+    ).not.toBeInTheDocument();
   });
 
   it("renders the list page for the /topics route", async () => {
@@ -469,6 +633,28 @@ function mockListTopicsQuery(
     refetch,
     ...overrides
   } satisfies ListTopicsHookResult);
+
+  return refetch;
+}
+
+function mockGetTopicQuery(
+  overrides: Partial<GetTopicHookResult> = {}
+): () => void {
+  const refetch = vi.fn();
+
+  apiMocks.useGetTopicQuery.mockImplementation(
+    ({ topicId }: { topicId: string }) => {
+      const resolvedTopic = topicId === createdTopic.id ? createdTopic : topic;
+
+      return {
+        data: { topic: resolvedTopic, currentAssessment: null },
+        isError: false,
+        isLoading: false,
+        refetch,
+        ...overrides
+      } satisfies GetTopicHookResult;
+    }
+  );
 
   return refetch;
 }

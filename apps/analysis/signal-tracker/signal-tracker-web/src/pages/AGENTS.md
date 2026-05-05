@@ -9,6 +9,10 @@ Also follow `../../AGENTS.md` for Signal Tracker web routing, UI stack, and vali
 - Keep page components free of bespoke props. If page components ever need props, standardize those props across every page component instead of adding route-specific page prop contracts.
 - Page-only child components may live beside the page that owns them. Promote them only when a second page has a concrete need for the same component.
 
+## Loading States
+
+- For now, use the simple shared `LoadingState` spinner for page-level loading. Do not add skeleton loading to pages unless the user explicitly asks for it; skeletons are deferred until the UI surface is stable enough to justify the extra implementation overhead.
+
 ## Routing
 
 - Use TanStack Router for page routing.
