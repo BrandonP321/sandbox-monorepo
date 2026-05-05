@@ -11,6 +11,7 @@ type SubmitButtonProps = Omit<FormButtonProps, "loadingOnSubmit" | "type">;
 function FormButton({
   disabled,
   isLoading = false,
+  // TODO: Make this true by default?
   loadingOnSubmit = false,
   ...props
 }: FormButtonProps) {

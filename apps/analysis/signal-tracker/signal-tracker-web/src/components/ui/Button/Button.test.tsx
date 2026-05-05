@@ -22,4 +22,36 @@ describe("Button", () => {
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute("aria-busy", "true");
   });
+
+  it("renders optional left and right icons with the button label", () => {
+    render(
+      <Button
+        iconLeft={<span aria-hidden="true">Left icon</span>}
+        iconRight={<span aria-hidden="true">Right icon</span>}
+      >
+        Save
+      </Button>
+    );
+
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(screen.getByText("Left icon")).toBeInTheDocument();
+    expect(screen.getByText("Right icon")).toBeInTheDocument();
+  });
+
+  it("hides icons while rendering replacement loading text", () => {
+    render(
+      <Button
+        iconLeft={<span>Left icon</span>}
+        isLoading
+        loadingLabel="Saving..."
+      >
+        Save
+      </Button>
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Saving..." })
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Left icon")).not.toBeInTheDocument();
+  });
 });

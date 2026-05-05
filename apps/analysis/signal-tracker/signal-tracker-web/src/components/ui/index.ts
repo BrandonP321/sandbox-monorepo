@@ -4,6 +4,7 @@ export * from "./Badge";
 export * from "./Button";
 export * from "./Card";
 export * from "./Collapsible";
+export * from "./ContentHeader";
 export * from "./Dialog";
 export * from "./DropdownMenu";
 export * from "./EmptyState";

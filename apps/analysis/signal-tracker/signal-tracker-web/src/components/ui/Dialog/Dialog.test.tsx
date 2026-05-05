@@ -122,7 +122,11 @@ describe("Dialog", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
 
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    const dialog = screen.getByRole("dialog");
+
+    expect(dialog).toBeInTheDocument();
+    expect(dialog).toHaveAccessibleName("Dialog heading");
+    expect(dialog).toHaveAccessibleDescription("Dialog description");
     expect(
       screen.getByRole("heading", { name: "Dialog heading" })
     ).toBeInTheDocument();

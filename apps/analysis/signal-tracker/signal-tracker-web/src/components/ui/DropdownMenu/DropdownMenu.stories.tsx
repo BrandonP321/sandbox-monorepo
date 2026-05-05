@@ -42,9 +42,12 @@ function GroupedDropdownMenuStory() {
     <div className="flex min-h-48 items-center justify-center">
       <DropdownMenu>
         <DropdownMenuTrigger>
-          <Button aria-label="Open item menu" size="icon" variant="ghost">
-            <MoreHorizontal aria-hidden="true" className="size-4" />
-          </Button>
+          <Button
+            aria-label="Open item menu"
+            iconLeft={<MoreHorizontal aria-hidden="true" className="size-4" />}
+            size="icon"
+            variant="ghost"
+          />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel>Review</DropdownMenuLabel>

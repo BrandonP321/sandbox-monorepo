@@ -19,6 +19,7 @@ import {
   Alert,
   Badge,
   Button,
+  ContentHeader,
   EmptyState,
   LoadingState
 } from "@/components/ui";
@@ -133,8 +134,10 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
         </div>
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
-          <Button disabled>
-            <Plus aria-hidden="true" className="size-4" />
+          <Button
+            disabled
+            iconLeft={<Plus aria-hidden="true" className="size-4" />}
+          >
             Add entry
           </Button>
           <TopicSettingsModal topic={topic} />
@@ -196,10 +199,12 @@ function TopicDetailsFallbackHeader({ title }: { title: string }) {
         <ArrowLeft aria-hidden="true" className="size-4" />
         Back to topics
       </Link>
-      <p className="text-muted-foreground mt-4 text-xs font-medium uppercase">
-        Signal Tracker
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold">{title}</h1>
+      <ContentHeader
+        className="mt-4"
+        eyebrow="Signal Tracker"
+        headingLevel={1}
+        title={title}
+      />
     </header>
   );
 }

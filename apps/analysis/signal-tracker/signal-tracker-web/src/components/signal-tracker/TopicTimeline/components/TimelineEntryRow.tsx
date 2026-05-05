@@ -106,14 +106,19 @@ function TimelineEntryRow({
           <div className="flex items-center gap-2 sm:justify-end">
             {actionClusterSlot}
             <CollapsibleTrigger>
-              <Button size="sm" variant="ghost">
-                <ChevronDown
-                  aria-hidden="true"
-                  className={cn(
-                    "size-4 transition-transform",
-                    isExpanded ? "rotate-180" : undefined
-                  )}
-                />
+              <Button
+                iconLeft={
+                  <ChevronDown
+                    aria-hidden="true"
+                    className={cn(
+                      "size-4 transition-transform",
+                      isExpanded ? "rotate-180" : undefined
+                    )}
+                  />
+                }
+                size="sm"
+                variant="ghost"
+              >
                 <span>{isExpanded ? "Collapse" : "Expand"}</span>
                 <span className="sr-only"> details for {entry.title}</span>
               </Button>

@@ -13,8 +13,10 @@ function TopicSettingsModal({ topic }: TopicSettingsModalProps) {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant="outline">
-          <Settings aria-hidden="true" className="size-4" />
+        <Button
+          iconLeft={<Settings aria-hidden="true" className="size-4" />}
+          variant="outline"
+        >
           Topic settings
         </Button>
       </DialogTrigger>

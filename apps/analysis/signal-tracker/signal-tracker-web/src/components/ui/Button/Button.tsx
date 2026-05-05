@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import type { ReactNode } from "react";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -39,10 +40,12 @@ type ButtonSize = NonNullable<VariantProps<typeof buttonVariants>["size"]>;
 
 type ButtonNativeProps = Pick<
   React.ComponentProps<"button">,
-  "children" | "className" | "disabled" | "onClick" | "type"
+  "aria-label" | "children" | "className" | "disabled" | "onClick" | "type"
 >;
 
 type ButtonProps = ButtonNativeProps & {
+  iconLeft?: ReactNode;
+  iconRight?: ReactNode;
   isLoading?: boolean;
   loadingLabel?: string;
   variant?: ButtonVariant;
@@ -53,6 +56,8 @@ function Button({
   className,
   children,
   disabled,
+  iconLeft,
+  iconRight,
   isLoading = false,
   loadingLabel,
   size = "default",
@@ -60,6 +65,9 @@ function Button({
   variant = "default",
   ...buttonProps
 }: ButtonProps) {
+  const content = isLoading ? (loadingLabel ?? children) : children;
+  const shouldRenderIcons = !isLoading || loadingLabel === undefined;
+
   return (
     <button
       {...buttonProps}
@@ -69,7 +77,9 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       type={type}
     >
-      {isLoading ? (loadingLabel ?? children) : children}
+      {shouldRenderIcons ? iconLeft : null}
+      {content}
+      {shouldRenderIcons ? iconRight : null}
     </button>
   );
 }

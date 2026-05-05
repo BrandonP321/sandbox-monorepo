@@ -8,6 +8,7 @@ import {
   Card,
   CardContent,
   CardHeader,
+  ContentHeader,
   EmptyState,
   LoadingState
 } from "@/components/ui";
@@ -44,20 +45,12 @@ function TopicTimeline({ topicId }: TopicTimelineProps) {
     <section aria-labelledby="topic-timeline-heading">
       <Card>
         <CardHeader>
-          <div>
-            <p className="text-muted-foreground text-xs font-medium uppercase">
-              History
-            </p>
-            <h2
-              id="topic-timeline-heading"
-              className="mt-1 text-xl font-semibold"
-            >
-              Timeline
-            </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Compact topic history with inline entry details.
-            </p>
-          </div>
+          <ContentHeader
+            description="Compact topic history with inline entry details."
+            eyebrow="History"
+            headingLevel={2}
+            title={<span id="topic-timeline-heading">Timeline</span>}
+          />
         </CardHeader>
         <CardContent>
           {isLoading ? <LoadingState label="Loading timeline" /> : null}

@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { ArrowRight, Plus } from "lucide-react";
 
 import { Button } from "./Button";
 
@@ -32,6 +33,14 @@ export const Danger: Story = {
   args: {
     children: "Delete topic",
     variant: "danger"
+  }
+};
+
+export const WithIcons: Story = {
+  args: {
+    children: "Add entry",
+    iconLeft: <Plus aria-hidden="true" className="size-4" />,
+    iconRight: <ArrowRight aria-hidden="true" className="size-4" />
   }
 };
 

@@ -6,6 +6,7 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 import { Button } from "../Button";
+import { ContentHeader } from "../ContentHeader";
 import {
   DialogContext,
   useDialogContext,
@@ -156,22 +157,30 @@ function DialogContent({
           className
         )}
       >
-        <div className="grid gap-1.5 text-left">
-          <DialogPrimitive.Title
-            data-slot="dialog-title"
-            className="text-lg font-semibold"
-          >
-            {title}
-          </DialogPrimitive.Title>
-          {description ? (
+        <ContentHeader
+          description={description}
+          headingLevel={2}
+          renderDescription={({
+            children,
+            className: descriptionClassName
+          }) => (
             <DialogPrimitive.Description
               data-slot="dialog-description"
-              className="text-muted-foreground text-sm"
+              className={descriptionClassName}
             >
-              {description}
+              {children}
             </DialogPrimitive.Description>
-          ) : null}
-        </div>
+          )}
+          renderHeading={({ children, className: headingClassName }) => (
+            <DialogPrimitive.Title
+              data-slot="dialog-title"
+              className={headingClassName}
+            >
+              {children}
+            </DialogPrimitive.Title>
+          )}
+          title={title}
+        />
 
         {children}
 

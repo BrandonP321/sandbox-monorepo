@@ -8,6 +8,7 @@ import { useListTopicsQuery } from "@/api";
 import {
   Alert,
   Button,
+  ContentHeader,
   EmptyState,
   Input,
   LoadingState
@@ -17,8 +18,6 @@ import { CreateTopicDialog } from "./components/CreateTopicDialog";
 import { TopicListItem } from "./components/TopicListItem";
 
 const searchDebounceMs = 500;
-
-// TODO: Create reusable UI components for this page.
 
 export function ListTopicsPage() {
   const [query, setQuery] = useState("");
@@ -39,46 +38,36 @@ export function ListTopicsPage() {
     <main className="bg-background text-foreground min-h-screen">
       <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8">
         <header className="border-border border-b pb-5">
-          <p className="text-muted-foreground text-xs font-medium uppercase">
-            Signal Tracker
-          </p>
-          <div className="mt-3 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h1 className="text-3xl font-semibold">Topics</h1>
-              <p className="text-muted-foreground mt-2 max-w-2xl text-sm">
-                Scan active dossiers and open one topic workspace at a time.
-              </p>
-            </div>
-
-            <CreateTopicDialog />
-          </div>
+          <ContentHeader
+            actions={<CreateTopicDialog />}
+            description="Scan active dossiers and open one topic workspace at a time."
+            eyebrow="Signal Tracker"
+            headingLevel={1}
+            title="Topics"
+          />
         </header>
 
         <section className="py-5" aria-labelledby="list-topics-heading">
-          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <h2 id="list-topics-heading" className="text-xl font-semibold">
-                Active topics
-              </h2>
-              <p className="text-muted-foreground mt-1 text-sm">
-                Titles, framing questions, and compact scope notes only.
-              </p>
-            </div>
-
-            <div className="w-full md:max-w-sm">
-              <label className="text-sm font-medium" htmlFor="topic-search">
-                Search topics
-              </label>
-              <Input
-                className="mt-2"
-                id="topic-search"
-                name="topic-search"
-                onChange={handleSearchChange}
-                placeholder="Filter by title or framing question"
-                value={query}
-              />
-            </div>
-          </div>
+          <ContentHeader
+            actions={
+              <div className="w-full md:max-w-sm">
+                <label className="text-sm font-medium" htmlFor="topic-search">
+                  Search topics
+                </label>
+                <Input
+                  className="mt-2"
+                  id="topic-search"
+                  name="topic-search"
+                  onChange={handleSearchChange}
+                  placeholder="Filter by title or framing question"
+                  value={query}
+                />
+              </div>
+            }
+            description="Titles, framing questions, and compact scope notes only."
+            headingLevel={2}
+            title={<span id="list-topics-heading">Active topics</span>}
+          />
 
           <div className="mt-4">
             {isLoading ? <LoadingState label="Loading active topics" /> : null}

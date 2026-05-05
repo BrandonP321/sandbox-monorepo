@@ -23,9 +23,12 @@ function BasicCollapsibleStory() {
     <div className="w-96">
       <Collapsible>
         <CollapsibleTrigger>
-          <Button className="w-full justify-between" variant="outline">
+          <Button
+            className="w-full justify-between"
+            iconRight={<ChevronDown aria-hidden="true" className="size-4" />}
+            variant="outline"
+          >
             Show details
-            <ChevronDown aria-hidden="true" className="size-4" />
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
