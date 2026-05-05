@@ -2,12 +2,16 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Plus } from "lucide-react";
 import {
   signalTrackerApiErrorCodes,
+  type AssessmentUpdate,
   type Topic
 } from "@repo/signal-tracker-shared";
 
 import { isApiErrorCode } from "@/api/apiError";
 import { useGetTopicQuery } from "@/api";
-import { TopicSettingsModal } from "@/components/signal-tracker";
+import {
+  CurrentAssessmentPanel,
+  TopicSettingsModal
+} from "@/components/signal-tracker";
 import {
   Alert,
   Badge,
@@ -21,8 +25,6 @@ import {
 import { appRoutes } from "@/routeRegistry";
 
 import { useTopicDetailsPageParams } from "./hooks/useTopicDetailsPageParams";
-
-// TODO: Create reusable UI components for this page
 
 export function TopicDetailsPage() {
   const { topicId } = useTopicDetailsPageParams();
@@ -50,21 +52,37 @@ export function TopicDetailsPage() {
         ) : null}
 
         {!isLoading && !isError && data ? (
-          <TopicDetailsWorkspace topic={data.topic} />
+          <TopicDetailsWorkspace
+            currentAssessment={data.currentAssessment}
+            topic={data.topic}
+          />
         ) : null}
       </section>
     </main>
   );
 }
 
-function TopicDetailsWorkspace({ topic }: { topic: Topic }) {
+function TopicDetailsWorkspace({
+  currentAssessment,
+  topic
+}: {
+  currentAssessment: AssessmentUpdate | null;
+  topic: Topic;
+}) {
   return (
     <>
       <TopicDetailsHeader topic={topic} />
 
       <div className="grid gap-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <TimelinePlaceholder />
-        <CurrentAssessmentPlaceholder />
+        <aside
+          aria-labelledby="current-assessment-heading"
+          className="lg:col-start-2 lg:row-start-1"
+        >
+          <CurrentAssessmentPanel assessment={currentAssessment} />
+        </aside>
+        <div className="lg:col-start-1 lg:row-start-1">
+          <TimelinePlaceholder />
+        </div>
       </div>
     </>
   );
@@ -139,34 +157,6 @@ function TimelinePlaceholder() {
         </CardContent>
       </Card>
     </section>
-  );
-}
-
-function CurrentAssessmentPlaceholder() {
-  return (
-    <aside aria-labelledby="current-assessment-heading">
-      <Card className="lg:sticky lg:top-6">
-        <CardHeader>
-          <div className="flex flex-col gap-1">
-            <h2
-              id="current-assessment-heading"
-              className="text-lg font-semibold"
-            >
-              Current assessment
-            </h2>
-            <p className="text-muted-foreground text-sm">
-              Compact judgment panel and mobile banner surface.
-            </p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            description="The latest assessment treatment will appear in this region."
-            title="No current assessment displayed in this shell."
-          />
-        </CardContent>
-      </Card>
-    </aside>
   );
 }
 

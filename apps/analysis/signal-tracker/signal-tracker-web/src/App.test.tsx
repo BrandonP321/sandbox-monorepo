@@ -11,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   ArchiveTopicResponse,
+  AssessmentUpdate,
   DeleteTopicResponse,
   GetTopicResponse,
   Topic,
@@ -75,6 +76,31 @@ const archivedTopic = {
   status: "archived",
   archivedAt: "2026-01-03T00:00:00.000Z"
 } as const satisfies Topic;
+
+const currentAssessment = {
+  entry: {
+    id: "assessment-entry-1",
+    topicId: topic.id,
+    kind: "assessment",
+    epistemicStatus: "inferred",
+    title: "Strike risk assessment",
+    bodyMd: "Risk is rising.",
+    sortAt: "2026-05-01T00:00:00.000Z",
+    isApproximateDate: false,
+    originType: "manual",
+    status: "active",
+    createdAt: "2026-05-01T00:00:00.000Z",
+    updatedAt: "2026-05-01T00:00:00.000Z"
+  },
+  judgment: "Risk is rising but still constrained by diplomatic incentives.",
+  confidenceLabel: "medium",
+  probabilityPct: 55,
+  assumptions: ["Backchannel talks remain active."],
+  indicators: ["Watch for evacuation orders."],
+  resolutionCriteria: undefined,
+  targetResolvesAt: undefined,
+  previousAssessmentEntryId: undefined
+} as const satisfies AssessmentUpdate;
 
 type ListTopicsHookResult = {
   data?: { topics: Topic[] };
@@ -471,6 +497,10 @@ describe("App", () => {
     expect(
       screen.getByRole("complementary", { name: "Current assessment" })
     ).toBeInTheDocument();
+    expect(screen.getByText("No assessment yet")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Add assessment" })
+    ).toBeDisabled();
     expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
   });
 
@@ -841,6 +871,51 @@ describe("App", () => {
     expect(apiMocks.useGetTopicQuery).toHaveBeenLastCalledWith({
       topicId: "topic-1"
     });
+  });
+
+  it("renders the current assessment returned by the topic details query", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    mockGetTopicQuery({
+      data: { topic, currentAssessment }
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
+    ).toBeInTheDocument();
+
+    const currentAssessmentRegion = screen.getByRole("complementary", {
+      name: "Current assessment"
+    });
+
+    expect(
+      within(currentAssessmentRegion).getByText(
+        "Risk is rising but still constrained by diplomatic incentives."
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByText("Medium")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByText("55% probability")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByText("May 1, 2026")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByText(
+        "Backchannel talks remain active."
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByText("Watch for evacuation orders.")
+    ).toBeInTheDocument();
+    expect(
+      within(currentAssessmentRegion).getByRole("button", {
+        name: "Update assessment"
+      })
+    ).toBeDisabled();
   });
 
   it("omits the compact scope note when the topic has none", async () => {
