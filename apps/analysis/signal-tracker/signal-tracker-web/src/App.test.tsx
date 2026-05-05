@@ -293,6 +293,9 @@ describe("App", () => {
     expect(
       screen.getByText("Create topic will start the next topic dossier.")
     ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("button", { name: "Create topic" })
+    ).toHaveLength(2);
   });
 
   it("renders populated topic rows from the current Topic contract", async () => {

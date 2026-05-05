@@ -1,15 +1,24 @@
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 
+import { Radar } from "lucide-react";
 import { useDebouncedValue } from "@repo/ui-base";
 
 import { useListTopicsQuery } from "@/api";
-import { Alert, Button, Input, Skeleton } from "@/components/ui";
+import {
+  Alert,
+  Button,
+  EmptyState,
+  Input,
+  LoadingState
+} from "@/components/ui";
 
 import { CreateTopicDialog } from "./components/CreateTopicDialog";
 import { TopicListItem } from "./components/TopicListItem";
 
 const searchDebounceMs = 500;
+
+// TODO: Create reusable UI components for this page.
 
 export function ListTopicsPage() {
   const [query, setQuery] = useState("");
@@ -72,7 +81,8 @@ export function ListTopicsPage() {
           </div>
 
           <div className="mt-4">
-            {isLoading ? <TopicListLoadingState /> : null}
+            {isLoading ? <LoadingState label="Loading active topics" /> : null}
+
             {!isLoading && isError ? (
               <Alert
                 actions={
@@ -86,9 +96,11 @@ export function ListTopicsPage() {
                 {errorMessage ?? "Retry the request without leaving the page."}
               </Alert>
             ) : null}
+
             {!isLoading && !isError && topics.length === 0 ? (
               <TopicListEmptyState hasQuery={hasQuery} />
             ) : null}
+
             {!isLoading && !isError && topics.length > 0 ? (
               <ul
                 className="m-0 grid list-none gap-3 p-0"
@@ -106,28 +118,17 @@ export function ListTopicsPage() {
   );
 }
 
-function TopicListLoadingState() {
-  return (
-    <div aria-live="polite" className="grid gap-3" role="status">
-      <span className="sr-only">Loading active topics</span>
-      <Skeleton className="h-20 w-full" />
-      <Skeleton className="h-20 w-full" />
-      <Skeleton className="h-20 w-full" />
-    </div>
-  );
-}
-
 function TopicListEmptyState({ hasQuery }: { hasQuery: boolean }) {
   return (
-    <div className="border-border bg-background rounded-md border p-4">
-      <p className="text-sm font-medium">
-        {hasQuery ? "No matching topics found." : "No active topics yet."}
-      </p>
-      <p className="text-muted-foreground mt-1 text-sm">
-        {hasQuery
+    <EmptyState
+      action={hasQuery ? undefined : <CreateTopicDialog />}
+      description={
+        hasQuery
           ? "Adjust the search text to return to the active dossier list."
-          : "Create topic will start the next topic dossier."}
-      </p>
-    </div>
+          : "Create topic will start the next topic dossier."
+      }
+      icon={<Radar className="size-8" strokeWidth={1.75} />}
+      title={hasQuery ? "No matching topics found." : "No active topics yet."}
+    />
   );
 }
