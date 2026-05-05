@@ -15,7 +15,9 @@ import type {
   CreateAssessmentUpdateResponse,
   DeleteTopicResponse,
   GetTopicResponse,
+  ListTopicTimelineResponse,
   Topic,
+  TopicTimelineItem,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
@@ -28,6 +30,7 @@ const apiMocks = vi.hoisted(() => ({
   useCreateTopicMutation: vi.fn(),
   useDeleteTopicMutation: vi.fn(),
   useGetTopicQuery: vi.fn(),
+  useListTopicTimelineQuery: vi.fn(),
   useListTopicsQuery: vi.fn(),
   useUpdateTopicMutation: vi.fn()
 }));
@@ -40,6 +43,7 @@ vi.mock("@/api", () => {
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
     useDeleteTopicMutation: apiMocks.useDeleteTopicMutation,
     useGetTopicQuery: apiMocks.useGetTopicQuery,
+    useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery,
     useListTopicsQuery: apiMocks.useListTopicsQuery,
     useUpdateTopicMutation: apiMocks.useUpdateTopicMutation
   };
@@ -106,6 +110,39 @@ const currentAssessment = {
   previousAssessmentEntryId: undefined
 } as const satisfies AssessmentUpdate;
 
+const eventTimelineItem = {
+  kind: "event",
+  entry: {
+    id: "event-entry-1",
+    topicId: topic.id,
+    kind: "event",
+    epistemicStatus: "reported",
+    title: "Ceasefire talks resume",
+    bodyMd: "Delegations reopened indirect talks.",
+    sortAt: "2026-05-02T00:00:00.000Z",
+    isApproximateDate: false,
+    originType: "manual",
+    status: "active",
+    createdAt: "2026-05-02T00:00:00.000Z",
+    updatedAt: "2026-05-02T00:00:00.000Z"
+  }
+} as const satisfies TopicTimelineItem;
+
+const assessmentTimelineItem = {
+  kind: "assessment",
+  entry: currentAssessment.entry,
+  assessment: {
+    judgment: currentAssessment.judgment,
+    confidenceLabel: currentAssessment.confidenceLabel,
+    probabilityPct: currentAssessment.probabilityPct,
+    assumptions: currentAssessment.assumptions,
+    indicators: currentAssessment.indicators,
+    resolutionCriteria: currentAssessment.resolutionCriteria,
+    targetResolvesAt: currentAssessment.targetResolvesAt,
+    previousAssessmentEntryId: currentAssessment.previousAssessmentEntryId
+  }
+} as const satisfies TopicTimelineItem;
+
 type ListTopicsHookResult = {
   data?: { topics: Topic[] };
   errorMessage?: string;
@@ -117,6 +154,14 @@ type ListTopicsHookResult = {
 type GetTopicHookResult = {
   data?: GetTopicResponse;
   error?: unknown;
+  errorMessage?: string;
+  isError: boolean;
+  isLoading: boolean;
+  refetch: () => void;
+};
+
+type ListTopicTimelineHookResult = {
+  data?: ListTopicTimelineResponse;
   errorMessage?: string;
   isError: boolean;
   isLoading: boolean;
@@ -160,6 +205,7 @@ describe("App", () => {
     apiMocks.useCreateTopicMutation.mockReset();
     apiMocks.useDeleteTopicMutation.mockReset();
     apiMocks.useGetTopicQuery.mockReset();
+    apiMocks.useListTopicTimelineQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
     apiMocks.useUpdateTopicMutation.mockReset();
     mockArchiveTopicMutation();
@@ -167,6 +213,7 @@ describe("App", () => {
     mockCreateTopicMutation();
     mockDeleteTopicMutation();
     mockGetTopicQuery();
+    mockListTopicTimelineQuery();
     mockListTopicsQuery({ data: { topics: [topic] } });
     mockUpdateTopicMutation();
   });
@@ -504,6 +551,10 @@ describe("App", () => {
     expect(
       screen.getByRole("region", { name: "Timeline" })
     ).toBeInTheDocument();
+    expect(apiMocks.useListTopicTimelineQuery).toHaveBeenLastCalledWith({
+      topicId: "topic-1"
+    });
+    expect(screen.getByText("No timeline entries yet")).toBeInTheDocument();
     expect(
       screen.getByRole("complementary", { name: "Current assessment" })
     ).toBeInTheDocument();
@@ -537,6 +588,30 @@ describe("App", () => {
     fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("renders compact timeline rows on the topic details route", async () => {
+    mockListTopicTimelineQuery({
+      data: { items: [assessmentTimelineItem, eventTimelineItem] }
+    });
+    window.history.replaceState(null, "", "/topics/topic-1");
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Iran strike risk"
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("article", { name: "Ceasefire talks resume" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("article", { name: "Strike risk assessment" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Assessment Update")).toBeInTheDocument();
+    expect(screen.getByText("55% probability")).toBeInTheDocument();
   });
 
   it("validates topic settings before submitting metadata updates", async () => {
@@ -1320,6 +1395,22 @@ function mockGetTopicQuery(
       } satisfies GetTopicHookResult;
     }
   );
+
+  return refetch;
+}
+
+function mockListTopicTimelineQuery(
+  overrides: Partial<ListTopicTimelineHookResult> = {}
+): () => void {
+  const refetch = vi.fn();
+
+  apiMocks.useListTopicTimelineQuery.mockReturnValue({
+    data: { items: [] },
+    isError: false,
+    isLoading: false,
+    refetch,
+    ...overrides
+  } satisfies ListTopicTimelineHookResult);
 
   return refetch;
 }

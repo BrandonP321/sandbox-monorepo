@@ -12,15 +12,13 @@ import { useGetTopicQuery } from "@/api";
 import {
   AssessmentUpdateComposer,
   CurrentAssessmentPanel,
+  TopicTimeline,
   TopicSettingsModal
 } from "@/components/signal-tracker";
 import {
   Alert,
   Badge,
   Button,
-  Card,
-  CardContent,
-  CardHeader,
   EmptyState,
   LoadingState
 } from "@/components/ui";
@@ -89,7 +87,7 @@ function TopicDetailsWorkspace({
           />
         </aside>
         <div className="lg:col-start-1 lg:row-start-1">
-          <TimelinePlaceholder />
+          <TopicTimeline topicId={topic.id} />
         </div>
       </div>
       <AssessmentUpdateComposer
@@ -143,34 +141,6 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
         </div>
       </div>
     </header>
-  );
-}
-
-function TimelinePlaceholder() {
-  return (
-    <section aria-labelledby="topic-timeline-heading">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <h2 id="topic-timeline-heading" className="text-xl font-semibold">
-                Timeline
-              </h2>
-              <p className="text-muted-foreground text-sm">
-                Compact topic history and entry expansion surface.
-              </p>
-            </div>
-            <Badge variant="secondary">Reserved region</Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <EmptyState
-            description="Events and assessment updates will compose here in chronological context."
-            title="No timeline entries loaded in this shell."
-          />
-        </CardContent>
-      </Card>
-    </section>
   );
 }
 
