@@ -6,8 +6,9 @@ import { z } from "zod";
 
 import { Button } from "../Button";
 import { Form } from "./Form";
-import { FormInput } from "./FormInput";
+import { FormNumberInput } from "./FormNumberInput";
 import { FormSelect } from "./FormSelect";
+import { FormTextInput } from "./FormTextInput";
 import { FormTextarea } from "./FormTextarea";
 
 const meta = {
@@ -26,6 +27,12 @@ const exampleFormSchema = z.object({
 });
 
 type ExampleFormValues = z.input<typeof exampleFormSchema>;
+
+const numberFormSchema = z.object({
+  probabilityPct: z.number().min(0).max(100).optional()
+});
+
+type NumberFormValues = z.input<typeof numberFormSchema>;
 
 const priorityOptions = [
   { label: "Low", value: "low" },
@@ -55,7 +62,19 @@ function FormValuePreview() {
   );
 }
 
-function FormInputExample() {
+function FormNumberValuePreview() {
+  const probabilityPct = useWatch<NumberFormValues, "probabilityPct">({
+    name: "probabilityPct"
+  });
+
+  return (
+    <div className="text-muted-foreground grid gap-1 text-sm">
+      <p>Current probability: {probabilityPct ?? "<empty>"}</p>
+    </div>
+  );
+}
+
+function FormTextInputExample() {
   const [submittedValues, setSubmittedValues] =
     useState<ExampleFormValues | null>(null);
 
@@ -75,13 +94,13 @@ function FormInputExample() {
           setSubmittedValues(values);
         }}
       >
-        <FormInput<ExampleFormValues>
-          description="This story shows FormInput wiring FormField and Input to React Hook Form."
+        <FormTextInput<ExampleFormValues>
+          description="This story shows FormTextInput wiring FormField and TextInput to React Hook Form."
           label="Title"
           name="title"
           placeholder="Enter title"
         />
-        <FormInput<ExampleFormValues>
+        <FormTextInput<ExampleFormValues>
           description="Optional fields do not show the required indicator."
           label="Subtitle"
           name="subtitle"
@@ -95,7 +114,7 @@ function FormInputExample() {
           placeholder="Choose priority"
         />
         <FormTextarea<ExampleFormValues>
-          description="Required textarea fields use the same schema-derived indicator as FormInput."
+          description="Required textarea fields use the same schema-derived indicator as FormTextInput."
           label="Summary"
           name="summary"
           placeholder="Enter summary"
@@ -114,8 +133,49 @@ function FormInputExample() {
   );
 }
 
-export const FormInputControl: Story = {
-  render: () => <FormInputExample />
+function FormNumberInputExample() {
+  const [submittedValues, setSubmittedValues] =
+    useState<NumberFormValues | null>(null);
+
+  return (
+    <FormProvider
+      defaultValues={{
+        probabilityPct: 35
+      }}
+      schema={numberFormSchema}
+    >
+      <Form<NumberFormValues>
+        className="grid w-96 gap-4"
+        onSubmit={async (values) => {
+          setSubmittedValues(values);
+        }}
+      >
+        <FormNumberInput<NumberFormValues>
+          description="Optional forecast probability."
+          label="Probability"
+          name="probabilityPct"
+          step={1}
+        />
+        <div className="flex items-center gap-2">
+          <Button type="submit">Submit</Button>
+        </div>
+        <FormNumberValuePreview />
+        {submittedValues ? (
+          <p className="text-sm">
+            Submitted values: {JSON.stringify(submittedValues)}
+          </p>
+        ) : null}
+      </Form>
+    </FormProvider>
+  );
+}
+
+export const FormTextInputControl: Story = {
+  render: () => <FormTextInputExample />
+};
+
+export const FormNumberInputControl: Story = {
+  render: () => <FormNumberInputExample />
 };
 
 export const WithErrorMessage: Story = {
@@ -136,7 +196,7 @@ export const WithErrorMessage: Story = {
         errorTitle="Unable to save topic"
         onSubmit={async () => undefined}
       >
-        <FormInput<ExampleFormValues>
+        <FormTextInput<ExampleFormValues>
           label="Title"
           name="title"
           placeholder="Enter title"

@@ -4,7 +4,7 @@ import {
 } from "@repo/signal-tracker-shared";
 
 import { toDateStart, toOptionalDateStart } from "./date-input";
-import { parseOptionalProbability, splitTextareaLines } from "./field-values";
+import { splitTextareaLines } from "./field-values";
 import type { AssessmentUpdateComposerFormValues } from "./schema";
 
 function createAssessmentUpdateRequest({
@@ -14,7 +14,6 @@ function createAssessmentUpdateRequest({
   topicId: string;
   values: AssessmentUpdateComposerFormValues;
 }): CreateAssessmentUpdateRequest {
-  const probabilityPct = parseOptionalProbability(values.probabilityPct);
   const resolutionCriteria = values.resolutionCriteria.trim();
   const targetResolvesAt = toOptionalDateStart(values.targetResolutionDate);
 
@@ -24,7 +23,9 @@ function createAssessmentUpdateRequest({
     confidenceLabel: values.confidenceLabel,
     assumptions: splitTextareaLines(values.assumptions),
     indicators: splitTextareaLines(values.indicators),
-    ...(probabilityPct === undefined ? {} : { probabilityPct }),
+    ...(values.probabilityPct === undefined
+      ? {}
+      : { probabilityPct: values.probabilityPct }),
     ...(resolutionCriteria === "" ? {} : { resolutionCriteria }),
     ...(targetResolvesAt === undefined ? {} : { targetResolvesAt }),
     sortAt: toDateStart(values.assessmentDate)

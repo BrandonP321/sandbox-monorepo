@@ -29,5 +29,10 @@ export {
   type FormRadioGroupControlProps,
   type FormRadioGroupControlRenderProps
 } from "./components/RadioGroup/FormRadioGroupControl";
+export {
+  type FormSchemaMetadata,
+  type NumericFieldConstraints,
+  useFormSchemaMetadata
+} from "./form/FormSchemaMetadataContext";
 export { type FormFieldName, useFormField } from "./form/useFormField";
 export { useDebouncedValue } from "./hooks/useDebouncedValue";

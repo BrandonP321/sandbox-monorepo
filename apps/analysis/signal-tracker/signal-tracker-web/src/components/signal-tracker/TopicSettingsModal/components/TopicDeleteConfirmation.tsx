@@ -8,7 +8,7 @@ import {
   AlertDialogContent,
   AlertDialogTrigger,
   Button,
-  Input
+  TextInput
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
@@ -60,7 +60,7 @@ function TopicDeleteConfirmation({
             >
               Topic title
             </label>
-            <Input
+            <TextInput
               id={confirmationInputId}
               onChange={(event) => setConfirmationText(event.target.value)}
               value={confirmationText}

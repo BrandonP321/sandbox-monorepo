@@ -9,7 +9,7 @@ const baseValues = {
   confidenceLabel: "medium",
   indicators: " Watch for evacuation orders ",
   judgment: " Escalation risk remains limited. ",
-  probabilityPct: "",
+  probabilityPct: undefined,
   resolutionCriteria: "",
   targetResolutionDate: ""
 } satisfies AssessmentUpdateComposerFormValues;
@@ -21,7 +21,7 @@ describe("createAssessmentUpdateRequest", () => {
         topicId: "topic-1",
         values: {
           ...baseValues,
-          probabilityPct: "35",
+          probabilityPct: 35,
           resolutionCriteria: " Direct military action occurs. ",
           targetResolutionDate: "2026-05-25"
         }
@@ -63,7 +63,7 @@ describe("createAssessmentUpdateRequest", () => {
     expect(() =>
       createAssessmentUpdateRequest({
         topicId: "topic-1",
-        values: { ...baseValues, probabilityPct: "101" }
+        values: { ...baseValues, probabilityPct: 101 }
       })
     ).toThrow();
   });

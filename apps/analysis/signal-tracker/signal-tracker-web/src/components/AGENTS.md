@@ -24,6 +24,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 ## Forms
 
 - Prefer controlled form controls with `value` and `onChange`; avoid uncontrolled `defaultValue` props unless a concrete caller needs uncontrolled behavior.
+- Use `TextInput` and `FormTextInput` as the generic fallback for string-valued input fields that do not yet have a more specific component. Avoid reintroducing ambiguous `Input` or `FormInput` call sites when the value kind is known.
 - Form layout wrappers should allow omitted IDs and generate stable local IDs while still preserving explicit IDs when callers need stable control references.
 - React Hook Form wrappers should reuse behavior-only controls from `@repo/ui-base` and compose them with Signal Tracker-local visual primitives.
 - Prefer schema-derived required state from `@repo/ui-base` for form wrappers, with explicit overrides only when a caller needs to diverge from the schema.

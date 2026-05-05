@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { FormField } from "./FormField";
-import { Input } from "../Input";
+import { TextInput } from "../Input";
 
 const meta = {
   title: "UI/FormField"
@@ -22,7 +22,7 @@ function InputFieldExample() {
         label="Title"
       >
         {(fieldProps) => (
-          <Input
+          <TextInput
             {...fieldProps}
             name="title"
             onChange={(event) => setValue(event.target.value)}
@@ -42,7 +42,7 @@ function InvalidInputFieldExample() {
     <div className="w-96">
       <FormField error="Title is required." id="invalid-title" label="Title">
         {(fieldProps) => (
-          <Input
+          <TextInput
             {...fieldProps}
             name="title"
             onChange={(event) => setValue(event.target.value)}

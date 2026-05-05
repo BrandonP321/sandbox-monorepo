@@ -10,13 +10,13 @@ import { z } from "zod";
 
 import { FormProvider } from "@repo/ui-base";
 
-import { FormInput } from "./FormInput";
+import { FormTextInput } from "./FormTextInput";
 
 type ExampleFormValues = {
   title: string;
 };
 
-function FormInputHarness({ setError = false }: { setError?: boolean }) {
+function FormTextInputHarness({ setError = false }: { setError?: boolean }) {
   const form = useForm<ExampleFormValues>({
     defaultValues: {
       title: "Initial title"
@@ -32,7 +32,7 @@ function FormInputHarness({ setError = false }: { setError?: boolean }) {
 
   return (
     <ReactHookFormProvider {...form}>
-      <FormInput<ExampleFormValues>
+      <FormTextInput<ExampleFormValues>
         description="Use a short title."
         label="Title"
         name="title"
@@ -43,9 +43,9 @@ function FormInputHarness({ setError = false }: { setError?: boolean }) {
   );
 }
 
-describe("FormInput", () => {
-  it("connects a local input to react-hook-form state", () => {
-    render(<FormInputHarness />);
+describe("FormTextInput", () => {
+  it("connects a local text input to react-hook-form state", () => {
+    render(<FormTextInputHarness />);
 
     const input = screen.getByLabelText("Title");
 
@@ -59,7 +59,7 @@ describe("FormInput", () => {
   });
 
   it("renders field errors from react-hook-form", async () => {
-    render(<FormInputHarness setError />);
+    render(<FormTextInputHarness setError />);
 
     const error = await screen.findByText("Title is required.");
     const input = screen.getByLabelText("Title");
@@ -84,13 +84,30 @@ describe("FormInput", () => {
         defaultValues={{ title: "Initial title", subtitle: "" }}
         schema={schema}
       >
-        <FormInput<SchemaFormValues> label="Title" name="title" />
-        <FormInput<SchemaFormValues> label="Subtitle" name="subtitle" />
+        <FormTextInput<SchemaFormValues> label="Title" name="title" />
+        <FormTextInput<SchemaFormValues> label="Subtitle" name="subtitle" />
       </FormProvider>
     );
 
     expect(screen.getByLabelText("Title")).toBeRequired();
     expect(screen.getByText("Required")).toBeInTheDocument();
     expect(screen.getByLabelText("Subtitle")).not.toBeRequired();
+  });
+
+  it("keeps field names scoped to string form values", () => {
+    type StrictFormValues = {
+      probabilityPct?: number;
+      title: string;
+    };
+    type FormTextInputName = Parameters<
+      typeof FormTextInput<StrictFormValues>
+    >[0]["name"];
+
+    const validName = "title" satisfies FormTextInputName;
+    // @ts-expect-error FormTextInput only accepts string-backed field names.
+    const invalidName = "probabilityPct" satisfies FormTextInputName;
+
+    expect(validName).toBe("title");
+    expect(invalidName).toBe("probabilityPct");
   });
 });

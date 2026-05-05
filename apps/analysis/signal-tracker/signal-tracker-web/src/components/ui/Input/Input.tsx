@@ -2,7 +2,7 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-type InputNativeProps = Pick<
+type SharedNativeInputProps = Pick<
   React.ComponentPropsWithRef<"input">,
   | "aria-describedby"
   | "aria-invalid"
@@ -15,11 +15,24 @@ type InputNativeProps = Pick<
   | "placeholder"
   | "ref"
   | "required"
-  | "type"
-  | "value"
 >;
 
-type InputProps = InputNativeProps;
+type NumberInputSpecificProps = Pick<
+  React.ComponentPropsWithRef<"input">,
+  "max" | "min" | "step"
+> & {
+  type: "number";
+  value?: number | "";
+};
+
+type TextInputNativeProps = SharedNativeInputProps & {
+  type?: "date" | "email" | "password" | "search" | "text" | "url";
+  value?: string;
+};
+
+type NumberInputNativeProps = SharedNativeInputProps & NumberInputSpecificProps;
+
+type InputProps = TextInputNativeProps | NumberInputNativeProps;
 
 function Input({ className, type = "text", ...inputProps }: InputProps) {
   return (
@@ -38,4 +51,9 @@ function Input({ className, type = "text", ...inputProps }: InputProps) {
   );
 }
 
-export { Input, type InputProps };
+export {
+  Input,
+  type InputProps,
+  type NumberInputNativeProps,
+  type TextInputNativeProps
+};

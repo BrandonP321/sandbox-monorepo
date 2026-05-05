@@ -8,7 +8,7 @@ import { z } from "zod";
 import {
   Form,
   FormButton,
-  FormInput,
+  FormTextInput,
   FormTextarea,
   SubmitButton
 } from "@/components/ui";
@@ -74,12 +74,12 @@ function TopicForm({
           </>
         }
       >
-        <FormInput<TopicFormValues>
+        <FormTextInput<TopicFormValues>
           label="Title"
           name="title"
           placeholder="Iran strike risk"
         />
-        <FormInput<TopicFormValues>
+        <FormTextInput<TopicFormValues>
           label="Framing question"
           name="framingQuestion"
           placeholder="What changed, and what would change the assessment?"

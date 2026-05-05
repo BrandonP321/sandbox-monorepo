@@ -5,9 +5,10 @@ import {
 import { z } from "zod";
 
 import { getTodayDateInputValue, isDateInputValue } from "./date-input";
-import { isOptionalProbability, splitTextareaLines } from "./field-values";
+import { splitTextareaLines } from "./field-values";
 
 const assessmentDateMessage = "Choose an assessment date.";
+const probabilityMessage = "Enter a whole-number probability from 0 to 100.";
 const targetResolutionDateMessage = "Choose a valid target resolution date.";
 
 const assessmentUpdateComposerSchema = z.object({
@@ -35,9 +36,12 @@ const assessmentUpdateComposerSchema = z.object({
       "Enter at least one indicator."
     ),
   judgment: z.string().trim().min(1, "Enter an assessment judgment."),
-  probabilityPct: z.string().trim().refine(isOptionalProbability, {
-    message: "Enter a whole-number probability from 0 to 100."
-  }),
+  probabilityPct: z
+    .number()
+    .int(probabilityMessage)
+    .min(0, probabilityMessage)
+    .max(100, probabilityMessage)
+    .optional(),
   resolutionCriteria: z.string(),
   targetResolutionDate: z
     .string()
@@ -65,7 +69,7 @@ function createDefaultFormValues(): AssessmentUpdateComposerFormValues {
     confidenceLabel: "",
     indicators: "",
     judgment: "",
-    probabilityPct: "",
+    probabilityPct: undefined,
     resolutionCriteria: "",
     targetResolutionDate: ""
   };

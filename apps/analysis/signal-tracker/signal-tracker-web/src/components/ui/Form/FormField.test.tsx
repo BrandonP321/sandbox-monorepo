@@ -2,13 +2,15 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { FormField } from "./FormField";
-import { Input } from "../Input";
+import { TextInput } from "../Input";
 
 describe("FormField", () => {
   it("connects the label to the rendered control", () => {
     render(
       <FormField label="Title">
-        {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
       </FormField>
     );
 
@@ -22,7 +24,9 @@ describe("FormField", () => {
         error="Title is required."
         label="Title"
       >
-        {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
       </FormField>
     );
 
@@ -37,7 +41,9 @@ describe("FormField", () => {
   it("preserves explicit IDs for stable control references", () => {
     render(
       <FormField id="title" label="Title">
-        {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
       </FormField>
     );
 
@@ -49,7 +55,9 @@ describe("FormField", () => {
   it("shows a required indicator when the field is required", () => {
     render(
       <FormField id="title" label="Title" required>
-        {(fieldProps) => <Input {...fieldProps} onChange={() => {}} value="" />}
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
       </FormField>
     );
 
