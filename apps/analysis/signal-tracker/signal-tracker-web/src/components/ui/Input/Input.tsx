@@ -25,14 +25,27 @@ type NumberInputSpecificProps = Pick<
   value?: number | "";
 };
 
-type TextInputNativeProps = SharedNativeInputProps & {
-  type?: "date" | "email" | "password" | "search" | "text" | "url";
+type DateInputSpecificProps = Pick<
+  React.ComponentPropsWithRef<"input">,
+  "max" | "min"
+> & {
+  type: "date";
   value?: string;
 };
 
+type TextInputNativeProps = SharedNativeInputProps & {
+  type?: "email" | "password" | "search" | "text" | "url";
+  value?: string;
+};
+
+type DateInputNativeProps = SharedNativeInputProps & DateInputSpecificProps;
+
 type NumberInputNativeProps = SharedNativeInputProps & NumberInputSpecificProps;
 
-type InputProps = TextInputNativeProps | NumberInputNativeProps;
+type InputProps =
+  | DateInputNativeProps
+  | NumberInputNativeProps
+  | TextInputNativeProps;
 
 function Input({ className, type = "text", ...inputProps }: InputProps) {
   return (
@@ -53,6 +66,7 @@ function Input({ className, type = "text", ...inputProps }: InputProps) {
 
 export {
   Input,
+  type DateInputNativeProps,
   type InputProps,
   type NumberInputNativeProps,
   type TextInputNativeProps

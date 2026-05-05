@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { Button } from "../Button";
 import { Form } from "./Form";
+import { FormDateInput } from "./FormDateInput";
 import { FormNumberInput } from "./FormNumberInput";
 import { FormSelect } from "./FormSelect";
 import { FormTextInput } from "./FormTextInput";
@@ -27,6 +28,13 @@ const exampleFormSchema = z.object({
 });
 
 type ExampleFormValues = z.input<typeof exampleFormSchema>;
+
+const dateFormSchema = z.object({
+  assessmentDate: z.string().min(1, "Assessment date is required."),
+  targetResolutionDate: z.string().optional()
+});
+
+type DateFormValues = z.input<typeof dateFormSchema>;
 
 const numberFormSchema = z.object({
   probabilityPct: z.number().min(0).max(100).optional()
@@ -70,6 +78,24 @@ function FormNumberValuePreview() {
   return (
     <div className="text-muted-foreground grid gap-1 text-sm">
       <p>Current probability: {probabilityPct ?? "<empty>"}</p>
+    </div>
+  );
+}
+
+function FormDateValuePreview() {
+  const assessmentDate = useWatch<DateFormValues, "assessmentDate">({
+    name: "assessmentDate"
+  });
+  const targetResolutionDate = useWatch<DateFormValues, "targetResolutionDate">(
+    {
+      name: "targetResolutionDate"
+    }
+  );
+
+  return (
+    <div className="text-muted-foreground grid gap-1 text-sm">
+      <p>Current assessment date: {assessmentDate || "<empty>"}</p>
+      <p>Current target date: {targetResolutionDate || "<empty>"}</p>
     </div>
   );
 }
@@ -133,6 +159,51 @@ function FormTextInputExample() {
   );
 }
 
+function FormDateInputExample() {
+  const [submittedValues, setSubmittedValues] = useState<DateFormValues | null>(
+    null
+  );
+
+  return (
+    <FormProvider
+      defaultValues={{
+        assessmentDate: "2026-05-05",
+        targetResolutionDate: ""
+      }}
+      schema={dateFormSchema}
+    >
+      <Form<DateFormValues>
+        className="grid w-96 gap-4"
+        onSubmit={async (values) => {
+          setSubmittedValues(values);
+        }}
+      >
+        <FormDateInput<DateFormValues>
+          description="Date-backed fields use the date input wrapper."
+          label="Assessment date"
+          max="2026-12-31"
+          min="2026-01-01"
+          name="assessmentDate"
+        />
+        <FormDateInput<DateFormValues>
+          description="Optional date fields do not show the required indicator."
+          label="Target resolution date"
+          name="targetResolutionDate"
+        />
+        <div className="flex items-center gap-2">
+          <Button type="submit">Submit</Button>
+        </div>
+        <FormDateValuePreview />
+        {submittedValues ? (
+          <p className="text-sm">
+            Submitted values: {JSON.stringify(submittedValues)}
+          </p>
+        ) : null}
+      </Form>
+    </FormProvider>
+  );
+}
+
 function FormNumberInputExample() {
   const [submittedValues, setSubmittedValues] =
     useState<NumberFormValues | null>(null);
@@ -172,6 +243,10 @@ function FormNumberInputExample() {
 
 export const FormTextInputControl: Story = {
   render: () => <FormTextInputExample />
+};
+
+export const FormDateInputControl: Story = {
+  render: () => <FormDateInputExample />
 };
 
 export const FormNumberInputControl: Story = {

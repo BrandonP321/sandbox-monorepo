@@ -1,14 +1,11 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { TextInput } from "./TextInput";
+import { DateInput } from "./DateInput";
 
 const meta = {
-  title: "UI/TextInput",
-  component: TextInput,
-  args: {
-    placeholder: "Enter text"
-  }
-} satisfies Meta<typeof TextInput>;
+  title: "UI/DateInput",
+  component: DateInput
+} satisfies Meta<typeof DateInput>;
 
 export default meta;
 
@@ -17,7 +14,15 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   render: (args) => (
     <div className="w-80">
-      <TextInput {...args} />
+      <DateInput {...args} />
+    </div>
+  )
+};
+
+export const WithBounds: Story = {
+  render: () => (
+    <div className="w-80">
+      <DateInput max="2026-12-31" min="2026-01-01" />
     </div>
   )
 };
@@ -25,7 +30,7 @@ export const Default: Story = {
 export const Disabled: Story = {
   render: (args) => (
     <div className="w-80">
-      <TextInput {...args} disabled placeholder="Disabled text input" />
+      <DateInput {...args} disabled value="2026-05-05" />
     </div>
   )
 };
@@ -33,7 +38,7 @@ export const Disabled: Story = {
 export const Invalid: Story = {
   render: (args) => (
     <div className="w-80">
-      <TextInput {...args} aria-invalid placeholder="Invalid text input" />
+      <DateInput {...args} aria-invalid value="2026-05-05" />
     </div>
   )
 };

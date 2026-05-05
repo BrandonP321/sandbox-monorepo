@@ -23,19 +23,22 @@ describe("TextInput", () => {
   });
 
   it("supports string-valued input types without allowing number values", () => {
-    const dateProps = {
-      type: "date",
-      value: "2026-05-05"
+    const emailProps = {
+      type: "email",
+      value: "analyst@example.com"
     } satisfies TextInputProps;
     const passwordProps = {
       type: "password",
       value: "draft-password"
     } satisfies TextInputProps;
+    // @ts-expect-error TextInput does not accept date inputs.
+    const invalidDateProps: TextInputProps = { type: "date" };
     // @ts-expect-error TextInput only accepts string values.
     const invalidProps: TextInputProps = { value: 35 };
 
-    expect(dateProps.value).toBe("2026-05-05");
+    expect(emailProps.value).toBe("analyst@example.com");
     expect(passwordProps.value).toBe("draft-password");
+    expect(invalidDateProps.type).toBe("date");
     expect(invalidProps.value).toBe(35);
   });
 });

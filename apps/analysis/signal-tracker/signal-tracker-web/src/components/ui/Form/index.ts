@@ -1,5 +1,6 @@
 export * from "./Form";
 export * from "./FormButton";
+export * from "./FormDateInput";
 export * from "./FormField";
 export * from "./FormNumberInput";
 export * from "./FormSelect";

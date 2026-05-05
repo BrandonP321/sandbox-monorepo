@@ -4,9 +4,9 @@ import { useCreateAssessmentUpdateMutation } from "@/api";
 import {
   Form,
   FormButton,
+  FormDateInput,
   FormNumberInput,
   FormSelect,
-  FormTextInput,
   FormTextarea,
   SubmitButton,
   useDialogContext
@@ -78,10 +78,9 @@ function AssessmentUpdateComposerForm({
             options={confidenceOptions}
             placeholder="Choose confidence"
           />
-          <FormTextInput<AssessmentUpdateComposerFormValues>
+          <FormDateInput<AssessmentUpdateComposerFormValues>
             label="Assessment date"
             name="assessmentDate"
-            type="date"
           />
         </div>
         <div className="grid items-start gap-4 sm:grid-cols-2">
@@ -128,10 +127,9 @@ function AssessmentUpdateOptionalFields() {
           name="probabilityPct"
           step={1}
         />
-        <FormTextInput<AssessmentUpdateComposerFormValues>
+        <FormDateInput<AssessmentUpdateComposerFormValues>
           label="Target resolution date"
           name="targetResolutionDate"
-          type="date"
         />
       </div>
       <FormTextarea<AssessmentUpdateComposerFormValues>

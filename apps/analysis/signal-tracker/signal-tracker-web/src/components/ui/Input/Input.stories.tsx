@@ -37,11 +37,3 @@ export const Invalid: Story = {
     </div>
   )
 };
-
-export const Date: Story = {
-  render: () => (
-    <div className="w-80">
-      <Input type="date" />
-    </div>
-  )
-};
