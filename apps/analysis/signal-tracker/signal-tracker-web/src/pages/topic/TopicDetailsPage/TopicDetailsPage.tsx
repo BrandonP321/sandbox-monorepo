@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Plus } from "lucide-react";
+import { useState } from "react";
 import {
   signalTrackerApiErrorCodes,
   type AssessmentUpdate,
@@ -9,6 +10,7 @@ import {
 import { isApiErrorCode } from "@/api/apiError";
 import { useGetTopicQuery } from "@/api";
 import {
+  AssessmentUpdateComposer,
   CurrentAssessmentPanel,
   TopicSettingsModal
 } from "@/components/signal-tracker";
@@ -69,6 +71,9 @@ function TopicDetailsWorkspace({
   currentAssessment: AssessmentUpdate | null;
   topic: Topic;
 }) {
+  const [isAssessmentComposerOpen, setIsAssessmentComposerOpen] =
+    useState(false);
+
   return (
     <>
       <TopicDetailsHeader topic={topic} />
@@ -78,12 +83,21 @@ function TopicDetailsWorkspace({
           aria-labelledby="current-assessment-heading"
           className="lg:col-start-2 lg:row-start-1"
         >
-          <CurrentAssessmentPanel assessment={currentAssessment} />
+          <CurrentAssessmentPanel
+            assessment={currentAssessment}
+            onAssessmentAction={() => setIsAssessmentComposerOpen(true)}
+          />
         </aside>
         <div className="lg:col-start-1 lg:row-start-1">
           <TimelinePlaceholder />
         </div>
       </div>
+      <AssessmentUpdateComposer
+        hasCurrentAssessment={currentAssessment !== null}
+        onOpenChange={setIsAssessmentComposerOpen}
+        open={isAssessmentComposerOpen}
+        topicId={topic.id}
+      />
     </>
   );
 }

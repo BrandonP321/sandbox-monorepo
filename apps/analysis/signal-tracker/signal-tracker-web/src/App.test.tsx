@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   ArchiveTopicResponse,
   AssessmentUpdate,
+  CreateAssessmentUpdateResponse,
   DeleteTopicResponse,
   GetTopicResponse,
   Topic,
@@ -23,6 +24,7 @@ import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),
+  useCreateAssessmentUpdateMutation: vi.fn(),
   useCreateTopicMutation: vi.fn(),
   useDeleteTopicMutation: vi.fn(),
   useGetTopicQuery: vi.fn(),
@@ -33,6 +35,8 @@ const apiMocks = vi.hoisted(() => ({
 vi.mock("@/api", () => {
   return {
     useArchiveTopicMutation: apiMocks.useArchiveTopicMutation,
+    useCreateAssessmentUpdateMutation:
+      apiMocks.useCreateAssessmentUpdateMutation,
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
     useDeleteTopicMutation: apiMocks.useDeleteTopicMutation,
     useGetTopicQuery: apiMocks.useGetTopicQuery,
@@ -128,10 +132,12 @@ let applyTopicUpdate: (topic: Topic) => void = () => undefined;
 
 describe("App", () => {
   const archiveTopic = vi.fn();
+  const createAssessmentUpdate = vi.fn();
   const createTopic = vi.fn();
   const deleteTopic = vi.fn();
   const updateTopic = vi.fn();
   const unwrapArchiveTopic = vi.fn();
+  const unwrapCreateAssessmentUpdate = vi.fn();
   const unwrapCreateTopic = vi.fn();
   const unwrapDeleteTopic = vi.fn();
   const unwrapUpdateTopic = vi.fn();
@@ -139,21 +145,25 @@ describe("App", () => {
   beforeEach(() => {
     window.history.replaceState(null, "", "/");
     archiveTopic.mockReset();
+    createAssessmentUpdate.mockReset();
     createTopic.mockReset();
     deleteTopic.mockReset();
     updateTopic.mockReset();
     unwrapArchiveTopic.mockReset();
+    unwrapCreateAssessmentUpdate.mockReset();
     unwrapCreateTopic.mockReset();
     unwrapDeleteTopic.mockReset();
     unwrapUpdateTopic.mockReset();
     applyTopicUpdate = () => undefined;
     apiMocks.useArchiveTopicMutation.mockReset();
+    apiMocks.useCreateAssessmentUpdateMutation.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
     apiMocks.useDeleteTopicMutation.mockReset();
     apiMocks.useGetTopicQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
     apiMocks.useUpdateTopicMutation.mockReset();
     mockArchiveTopicMutation();
+    mockCreateAssessmentUpdateMutation();
     mockCreateTopicMutation();
     mockDeleteTopicMutation();
     mockGetTopicQuery();
@@ -500,7 +510,11 @@ describe("App", () => {
     expect(screen.getByText("No assessment yet")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add assessment" })
-    ).toBeDisabled();
+    ).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    expect(
+      await screen.findByRole("dialog", { name: "Add assessment" })
+    ).toBeInTheDocument();
     expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
   });
 
@@ -915,7 +929,39 @@ describe("App", () => {
       within(currentAssessmentRegion).getByRole("button", {
         name: "Update assessment"
       })
-    ).toBeDisabled();
+    ).toBeEnabled();
+  });
+
+  it("submits an assessment update from topic details with the route topic ID", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Add assessment"
+    });
+
+    fillAssessmentComposer(dialog);
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save assessment" })
+    );
+
+    await waitFor(() => {
+      expect(createAssessmentUpdate).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        judgment: "Escalation risk remains limited.",
+        confidenceLabel: "medium",
+        assumptions: ["Diplomatic channels remain open"],
+        indicators: ["Watch for evacuation orders"],
+        sortAt: "2026-04-25T00:00:00.000Z"
+      });
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
   it("omits the compact scope note when the topic has none", async () => {
@@ -1052,6 +1098,39 @@ describe("App", () => {
       )
     ).not.toBeInTheDocument();
   });
+
+  function mockCreateAssessmentUpdateMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapCreateAssessmentUpdate.mockResolvedValue({
+      assessmentUpdate: currentAssessment
+    } satisfies CreateAssessmentUpdateResponse);
+    apiMocks.useCreateAssessmentUpdateMutation.mockImplementation(
+      function useMockCreateAssessmentUpdateMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function createAssessmentUpdateTrigger(request: unknown) {
+          createAssessmentUpdate(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapCreateAssessmentUpdate(request);
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          createAssessmentUpdateTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<CreateAssessmentUpdateResponse>;
+      }
+    );
+  }
 
   function mockCreateTopicMutation({
     isLoading = false
@@ -1268,4 +1347,22 @@ async function openTopicSettingsDialog() {
   fireEvent.click(screen.getByRole("button", { name: "Topic settings" }));
 
   return screen.findByRole("dialog", { name: "Topic settings" });
+}
+
+function fillAssessmentComposer(dialog: HTMLElement) {
+  fireEvent.change(within(dialog).getByLabelText("Judgment"), {
+    target: { value: " Escalation risk remains limited. " }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Confidence"), {
+    target: { value: "medium" }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Assessment date"), {
+    target: { value: "2026-04-25" }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Assumptions"), {
+    target: { value: " Diplomatic channels remain open " }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Indicators"), {
+    target: { value: " Watch for evacuation orders " }
+  });
 }
