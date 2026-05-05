@@ -2,9 +2,9 @@ import {
   createAssessmentUpdateRequestSchema,
   type CreateAssessmentUpdateRequest
 } from "@repo/signal-tracker-shared";
+import { splitTextareaLines } from "@repo/ui-base";
 
 import { toDateStart, toOptionalDateStart } from "./date-input";
-import { splitTextareaLines } from "./field-values";
 import type { AssessmentUpdateComposerFormValues } from "./schema";
 
 function createAssessmentUpdateRequest({

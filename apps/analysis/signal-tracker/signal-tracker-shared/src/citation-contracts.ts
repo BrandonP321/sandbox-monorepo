@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   optionalTrimmedString,
   trimmedRequiredString
-} from "./common-schemas.js";
+} from "@repo/schema-utils";
 import {
   evidenceAnchorSchema,
   evidenceRecordSchema

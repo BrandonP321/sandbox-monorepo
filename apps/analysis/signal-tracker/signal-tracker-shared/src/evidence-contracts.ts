@@ -1,21 +1,15 @@
 import { z } from "zod";
 
-import { trimmedRequiredString } from "./common-schemas.js";
-
-const optionalTrimmedString = z.string().trim().min(1).optional();
-const optionalTrimmedUrl = z.string().trim().url().optional();
+import {
+  createTrimmedHttpUrlString,
+  optionalTrimmedNonEmptyString as optionalTrimmedString,
+  optionalTrimmedUrlString as optionalTrimmedUrl,
+  trimmedRequiredString
+} from "@repo/schema-utils";
 
 const metadataSchema = z.record(z.string(), z.unknown());
 const locatorSchema = z.record(z.string(), z.unknown());
 const positionSchema = z.number().int().min(0);
-
-function isHttpUrl(value: string): boolean {
-  try {
-    return ["http:", "https:"].includes(new URL(value).protocol);
-  } catch {
-    return false;
-  }
-}
 
 export const sourceTypeSchema = z.enum([
   "news",
@@ -92,9 +86,7 @@ export type CreateEvidenceItemResponse = z.infer<
 >;
 
 export const captureEvidenceUrlRequestSchema = z.object({
-  url: z.string().trim().url().refine(isHttpUrl, {
-    message: "URL must use http or https"
-  }),
+  url: createTrimmedHttpUrlString(),
   source: z
     .object({
       canonicalName: optionalTrimmedString,

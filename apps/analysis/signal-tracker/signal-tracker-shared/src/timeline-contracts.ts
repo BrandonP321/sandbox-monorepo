@@ -1,7 +1,7 @@
 import { z } from "zod";
 
+import { trimmedRequiredString } from "@repo/schema-utils";
 import { assessmentUpdateSchema } from "./assessment-contracts.js";
-import { trimmedRequiredString } from "./common-schemas.js";
 import { entrySchema } from "./entry-contracts.js";
 
 export const assessmentTimelineMetadataSchema = assessmentUpdateSchema.omit({

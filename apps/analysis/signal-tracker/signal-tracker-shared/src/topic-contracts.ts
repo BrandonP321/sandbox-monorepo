@@ -1,13 +1,13 @@
 import { z } from "zod";
 
-import { assessmentUpdateSchema } from "./assessment-contracts.js";
 import {
   createOptionalTrimmedString,
   createTrimmedRequiredString,
   optionalClearableTrimmedString,
   optionalTrimmedString,
   trimmedRequiredString
-} from "./common-schemas.js";
+} from "@repo/schema-utils";
+import { assessmentUpdateSchema } from "./assessment-contracts.js";
 
 export const topicStatusSchema = z.enum(["active", "paused", "archived"]);
 export type TopicStatus = z.infer<typeof topicStatusSchema>;

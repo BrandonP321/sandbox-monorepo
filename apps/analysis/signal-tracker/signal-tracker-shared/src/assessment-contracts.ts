@@ -4,7 +4,7 @@ import {
   optionalTrimmedString,
   trimmedRequiredString,
   trimmedRequiredStringArray
-} from "./common-schemas.js";
+} from "@repo/schema-utils";
 import { entrySchema } from "./entry-contracts.js";
 
 export const assessmentConfidenceLabelSchema = z.enum([

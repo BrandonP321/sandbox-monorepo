@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { trimmedRequiredString } from "./common-schemas.js";
+import { trimmedRequiredString } from "@repo/schema-utils";
 
 export const entryKindSchema = z.enum(["event", "assessment", "review"]);
 export type EntryKind = z.infer<typeof entryKindSchema>;

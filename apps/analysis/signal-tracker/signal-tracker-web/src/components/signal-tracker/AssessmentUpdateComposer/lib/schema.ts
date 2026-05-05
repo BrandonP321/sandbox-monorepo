@@ -2,15 +2,18 @@ import {
   assessmentConfidenceLabelSchema,
   type AssessmentConfidenceLabel
 } from "@repo/signal-tracker-shared";
+import {
+  getTodayDateInputValue,
+  isDateInputValue,
+  splitTextareaLines
+} from "@repo/ui-base";
 import { z } from "zod";
-
-import { getTodayDateInputValue, isDateInputValue } from "./date-input";
-import { splitTextareaLines } from "./field-values";
 
 const assessmentDateMessage = "Choose an assessment date.";
 const probabilityMessage = "Enter a whole-number probability from 0 to 100.";
 const targetResolutionDateMessage = "Choose a valid target resolution date.";
 
+// TODO: Can we use schema helpers here?
 const assessmentUpdateComposerSchema = z.object({
   assessmentDate: z
     .string()

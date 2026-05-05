@@ -35,4 +35,9 @@ export {
   useFormSchemaMetadata
 } from "./form/FormSchemaMetadataContext";
 export { type FormFieldName, useFormField } from "./form/useFormField";
+export {
+  getTodayDateInputValue,
+  isDateInputValue
+} from "./form-values/dateInputValue";
+export { splitTextareaLines } from "./form-values/textareaLines";
 export { useDebouncedValue } from "./hooks/useDebouncedValue";

@@ -44,10 +44,10 @@ describe("NumberInput", () => {
 
     expect(
       screen.getByRole("spinbutton", { name: "Minimum only" })
-    ).toHaveAttribute("placeholder", ">= 0");
+    ).toHaveAttribute("placeholder", "\u2265 0");
     expect(
       screen.getByRole("spinbutton", { name: "Maximum only" })
-    ).toHaveAttribute("placeholder", "<= 100");
+    ).toHaveAttribute("placeholder", "\u2264 100");
   });
 
   it("uses an explicit placeholder over numeric constraints", () => {

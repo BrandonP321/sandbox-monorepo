@@ -17,6 +17,7 @@
   frontend-config # shared frontend environment/stage config helpers
   infra-patterns  # reusable CDK constructs and deployment helpers
   postman-sync    # repo-wide Postman collection/environment generation and sync tooling
+  schema-utils    # repo-wide Zod schema helpers and schema-adjacent predicates
   ui-base         # shared UI behavior primitives and form wiring
   ui              # shared UI package: tokens, styles, utilities, and reusable React primitives
   config-eslint   # shared eslint config
@@ -55,6 +56,7 @@ Signal Tracker UI is intentionally different from other app families: it may use
 - API request handling primitives: `packages/api-core`
 - Frontend environment/stage resolution helpers: `packages/frontend-config`
 - Repo-wide shared web/api schemas: `packages/api-contracts`
+- Repo-wide reusable Zod schema helpers: `packages/schema-utils`
 - Postman collection/environment generation: `packages/postman-sync`
 - Project-scoped schemas/routes/types used by multiple project packages: `<project>-shared`
 - Reusable infra constructs/patterns: `packages/infra-patterns`

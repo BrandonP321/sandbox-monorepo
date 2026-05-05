@@ -132,6 +132,9 @@ importers:
 
   apps/analysis/signal-tracker/signal-tracker-shared:
     dependencies:
+      "@repo/schema-utils":
+        specifier: workspace:*
+        version: link:../../../../packages/schema-utils
       zod:
         specifier: ^4.1.12
         version: 4.3.6
@@ -673,6 +676,34 @@ importers:
       tsx:
         specifier: ^4.20.5
         version: 4.21.0
+      zod:
+        specifier: ^4.1.12
+        version: 4.3.6
+    devDependencies:
+      "@repo/config-eslint":
+        specifier: workspace:*
+        version: link:../config-eslint
+      "@repo/config-test":
+        specifier: workspace:*
+        version: link:../config-test
+      "@repo/config-ts":
+        specifier: workspace:*
+        version: link:../config-ts
+      "@types/node":
+        specifier: ^24.1.0
+        version: 24.10.10
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
+
+  packages/schema-utils:
+    dependencies:
       zod:
         specifier: ^4.1.12
         version: 4.3.6
