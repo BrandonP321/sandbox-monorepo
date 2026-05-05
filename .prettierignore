@@ -5,3 +5,4 @@ build
 coverage
 cdk.out
 storybook-static
+pnpm-lock.yaml
