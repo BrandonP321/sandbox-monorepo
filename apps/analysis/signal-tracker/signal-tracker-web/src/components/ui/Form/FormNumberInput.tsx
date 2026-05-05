@@ -7,6 +7,7 @@ import { NumberInput, type NumberInputProps } from "../Input";
 
 type FormNumberInputProps<TFieldValues extends FieldValues> = Pick<
   NumberInputProps,
+  // TODO: Consider removing max and min props since these are derived from schema
   "max" | "min" | "placeholder" | "step"
 > &
   FormInputBaseCommonProps<TFieldValues, number>;
