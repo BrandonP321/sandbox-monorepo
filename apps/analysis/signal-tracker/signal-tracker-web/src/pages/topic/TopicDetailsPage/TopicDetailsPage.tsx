@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, Plus, Settings } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import {
   signalTrackerApiErrorCodes,
   type Topic
@@ -7,6 +7,7 @@ import {
 
 import { isApiErrorCode } from "@/api/apiError";
 import { useGetTopicQuery } from "@/api";
+import { TopicSettingsModal } from "@/components/signal-tracker";
 import {
   Alert,
   Badge,
@@ -106,10 +107,7 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
             <Plus aria-hidden="true" className="size-4" />
             Add entry
           </Button>
-          <Button disabled variant="outline">
-            <Settings aria-hidden="true" className="size-4" />
-            Topic settings
-          </Button>
+          <TopicSettingsModal topic={topic} />
         </div>
       </div>
     </header>

@@ -21,6 +21,8 @@ type AlertDialogContentProps = Omit<
   "description" | "footer" | "role" | "showCloseButton"
 > & {
   cancelText?: string;
+  // TODO: Might not be needed once component is refacctored to use once Dialog is simplified
+  confirmDisabled?: boolean;
   confirmText?: string;
   description: ReactNode;
   loadingText?: string;
@@ -38,6 +40,7 @@ function AlertDialogTrigger(props: AlertDialogTriggerProps) {
 function AlertDialogContent({
   cancelText = "Cancel",
   children,
+  confirmDisabled = false,
   confirmText = "Confirm",
   description,
   loadingText = "Confirming...",
@@ -64,6 +67,7 @@ function AlertDialogContent({
             </Button>
           </DialogClose>
           <Button
+            disabled={confirmDisabled}
             isLoading={isDialogConfirming}
             loadingLabel={loadingText}
             onClick={() => void handleConfirm()}

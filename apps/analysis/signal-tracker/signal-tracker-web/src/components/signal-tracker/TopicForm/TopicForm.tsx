@@ -1,8 +1,7 @@
 import { FormProvider } from "@repo/ui-base";
 import {
-  createTopicRequestSchema,
   topicMetadataSchema,
-  type CreateTopicRequest
+  type TopicMetadata
 } from "@repo/signal-tracker-shared";
 import { z } from "zod";
 
@@ -27,7 +26,9 @@ type TopicFormProps = {
   errorTitle?: string;
   initialValues?: TopicFormInitialValues;
   onCancel: () => void;
-  onSubmit: (request: CreateTopicRequest) => Promise<void>;
+  onSubmit: (metadata: TopicMetadata) => Promise<void>;
+  submitLabel: string;
+  submittingLabel: string;
 };
 
 const defaultTopicFormValues = {
@@ -41,7 +42,9 @@ function TopicForm({
   errorTitle,
   initialValues,
   onCancel,
-  onSubmit
+  onSubmit,
+  submitLabel,
+  submittingLabel
 }: TopicFormProps) {
   const defaultValues = {
     ...defaultTopicFormValues,
@@ -49,12 +52,9 @@ function TopicForm({
   } satisfies TopicFormValues;
 
   async function handleSubmit(values: TopicFormValues) {
-    const request = createTopicRequestSchema.parse({
-      ...values,
-      reviewCadence: "ad_hoc"
-    });
+    const metadata = topicMetadataSchema.parse(values);
 
-    await onSubmit(request);
+    await onSubmit(metadata);
   }
 
   return (
@@ -68,8 +68,8 @@ function TopicForm({
             <FormButton onClick={onCancel} variant="outline">
               Cancel
             </FormButton>
-            <SubmitButton loadingLabel="Creating topic...">
-              Create topic
+            <SubmitButton loadingLabel={submittingLabel}>
+              {submitLabel}
             </SubmitButton>
           </>
         }

@@ -150,6 +150,17 @@ describe("Dialog", () => {
     expect(handleOpenChange).toHaveBeenCalledWith(true);
   });
 
+  it("constrains content to the viewport and allows scrolling", () => {
+    render(<DialogExample />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
+
+    expect(screen.getByRole("dialog")).toHaveClass(
+      "max-h-[calc(100vh-2rem)]",
+      "overflow-y-auto"
+    );
+  });
+
   it("keeps the dialog open while confirmation is running and closes after success", async () => {
     vi.useFakeTimers();
     render(<ConfirmingDialogExample />);

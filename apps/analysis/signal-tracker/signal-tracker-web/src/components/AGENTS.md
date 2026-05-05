@@ -5,6 +5,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 ## Component Interface Model
 
 - Prefer named components over large inline JSX blocks when a render path becomes hard to scan.
+- For multi-section product components, keep the parent component focused on composition and layout. Move section-specific UI and mutation/query hooks into the section component that owns that interaction instead of centralizing all RTK Query hooks in the parent by default.
 - Keep component props narrow and intentional. Start with the props the current UI needs, then expand the component API only when a real caller needs the extra control.
 - Prefer opinionated component APIs for common interaction flows. Put repeated standard actions behind small props or helper components, and leave unusual layouts for explicit custom composition when a real caller needs them.
 - When one primitive is a specialized version of another, compose the existing primitive instead of duplicating state management, async handling, shell markup, or styling. Add narrow extension props to the base primitive when that is enough.

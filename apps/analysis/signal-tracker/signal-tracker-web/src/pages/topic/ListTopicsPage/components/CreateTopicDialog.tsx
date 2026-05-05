@@ -1,5 +1,8 @@
 import { useNavigate } from "@tanstack/react-router";
-import type { CreateTopicRequest } from "@repo/signal-tracker-shared";
+import {
+  createTopicRequestSchema,
+  type TopicMetadata
+} from "@repo/signal-tracker-shared";
 
 import { useCreateTopicMutation } from "@/api";
 import { TopicForm } from "@/components/signal-tracker";
@@ -28,7 +31,11 @@ function CreateTopicDialogContent() {
   const [createTopic, { errorMessage }] = useCreateTopicMutation();
   const { closeDialog, runDialogConfirm } = useDialogContext();
 
-  async function handleSubmit(request: CreateTopicRequest) {
+  async function handleSubmit(metadata: TopicMetadata) {
+    const request = createTopicRequestSchema.parse({
+      ...metadata,
+      reviewCadence: "ad_hoc"
+    });
     const result = await runDialogConfirm(async () =>
       createTopic(request).unwrap()
     );
@@ -51,6 +58,8 @@ function CreateTopicDialogContent() {
         errorTitle="Unable to create topic"
         onCancel={closeDialog}
         onSubmit={handleSubmit}
+        submitLabel="Create topic"
+        submittingLabel="Creating topic..."
       />
     </DialogContent>
   );

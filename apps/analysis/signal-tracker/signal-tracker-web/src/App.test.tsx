@@ -9,22 +9,34 @@ import {
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { GetTopicResponse, Topic } from "@repo/signal-tracker-shared";
+import type {
+  ArchiveTopicResponse,
+  DeleteTopicResponse,
+  GetTopicResponse,
+  Topic,
+  UpdateTopicResponse
+} from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "./api/apiError";
 import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
+  useArchiveTopicMutation: vi.fn(),
   useCreateTopicMutation: vi.fn(),
+  useDeleteTopicMutation: vi.fn(),
   useGetTopicQuery: vi.fn(),
-  useListTopicsQuery: vi.fn()
+  useListTopicsQuery: vi.fn(),
+  useUpdateTopicMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => {
   return {
+    useArchiveTopicMutation: apiMocks.useArchiveTopicMutation,
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
+    useDeleteTopicMutation: apiMocks.useDeleteTopicMutation,
     useGetTopicQuery: apiMocks.useGetTopicQuery,
-    useListTopicsQuery: apiMocks.useListTopicsQuery
+    useListTopicsQuery: apiMocks.useListTopicsQuery,
+    useUpdateTopicMutation: apiMocks.useUpdateTopicMutation
   };
 });
 
@@ -81,25 +93,46 @@ type GetTopicHookResult = {
   refetch: () => void;
 };
 
-type CreateTopicHookResult = [
-  (request: unknown) => { unwrap: () => Promise<unknown> },
+type MutationHookResult<TResult> = [
+  (request: unknown) => { unwrap: () => Promise<TResult> },
   { errorMessage?: string; isLoading: boolean }
 ];
 
+let applyTopicUpdate: (topic: Topic) => void = () => undefined;
+
 describe("App", () => {
+  const archiveTopic = vi.fn();
   const createTopic = vi.fn();
+  const deleteTopic = vi.fn();
+  const updateTopic = vi.fn();
+  const unwrapArchiveTopic = vi.fn();
   const unwrapCreateTopic = vi.fn();
+  const unwrapDeleteTopic = vi.fn();
+  const unwrapUpdateTopic = vi.fn();
 
   beforeEach(() => {
     window.history.replaceState(null, "", "/");
+    archiveTopic.mockReset();
     createTopic.mockReset();
+    deleteTopic.mockReset();
+    updateTopic.mockReset();
+    unwrapArchiveTopic.mockReset();
     unwrapCreateTopic.mockReset();
+    unwrapDeleteTopic.mockReset();
+    unwrapUpdateTopic.mockReset();
+    applyTopicUpdate = () => undefined;
+    apiMocks.useArchiveTopicMutation.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
+    apiMocks.useDeleteTopicMutation.mockReset();
     apiMocks.useGetTopicQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
+    apiMocks.useUpdateTopicMutation.mockReset();
+    mockArchiveTopicMutation();
     mockCreateTopicMutation();
+    mockDeleteTopicMutation();
     mockGetTopicQuery();
     mockListTopicsQuery({ data: { topics: [topic] } });
+    mockUpdateTopicMutation();
   });
 
   afterEach(() => {
@@ -431,7 +464,7 @@ describe("App", () => {
     expect(screen.getByRole("button", { name: "Add entry" })).toBeDisabled();
     expect(
       screen.getByRole("button", { name: "Topic settings" })
-    ).toBeDisabled();
+    ).toBeEnabled();
     expect(
       screen.getByRole("region", { name: "Timeline" })
     ).toBeInTheDocument();
@@ -439,6 +472,362 @@ describe("App", () => {
       screen.getByRole("complementary", { name: "Current assessment" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
+  });
+
+  it("opens and closes topic settings with current metadata pre-filled", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+
+    const dialog = await openTopicSettingsDialog();
+
+    expect(within(dialog).getByRole("textbox", { name: "Title" })).toHaveValue(
+      "Iran strike risk"
+    );
+    expect(
+      within(dialog).getByRole("textbox", { name: "Framing question" })
+    ).toHaveValue("Will the conflict expand over the next month?");
+    expect(
+      within(dialog).getByRole("textbox", { name: "Scope note" })
+    ).toHaveValue("Track official signals and military movements.");
+
+    fireEvent.click(within(dialog).getByRole("button", { name: "Cancel" }));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("validates topic settings before submitting metadata updates", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "" }
+    });
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save changes" })
+    );
+
+    expect(await screen.findByText("Enter a topic title.")).toBeInTheDocument();
+    expect(updateTopic).not.toHaveBeenCalled();
+  });
+
+  it("submits topic settings updates through the shared update shape", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: " Updated topic " }
+    });
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Framing question" }),
+      {
+        target: { value: " What changed materially? " }
+      }
+    );
+    fireEvent.change(
+      within(dialog).getByRole("textbox", { name: "Scope note" }),
+      {
+        target: { value: " Track official sources only. " }
+      }
+    );
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save changes" })
+    );
+
+    await waitFor(() => {
+      expect(updateTopic).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        title: "Updated topic",
+        framingQuestion: "What changed materially?",
+        scopeNote: "Track official sources only."
+      });
+    });
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Updated topic" })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("keeps entered topic settings values after update failure", async () => {
+    unwrapUpdateTopic.mockRejectedValueOnce({
+      status: 400,
+      data: {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Topic title is already in use."
+        }
+      }
+    });
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "Duplicate topic" }
+    });
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save changes" })
+    );
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      "Topic title is already in use."
+    );
+    expect(within(dialog).getByRole("textbox", { name: "Title" })).toHaveValue(
+      "Duplicate topic"
+    );
+  });
+
+  it("archives a topic from settings and returns to active topics", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    expect(
+      within(dialog).getByText(
+        "Archive hides this topic from the active topic flow without deleting its analytical history."
+      )
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Archive topic" })
+    );
+
+    await waitFor(() => {
+      expect(archiveTopic).toHaveBeenCalledWith({ topicId: "topic-1" });
+      expect(window.location.pathname).toBe("/topics");
+    });
+  });
+
+  it("shows archive failures without leaving topic settings", async () => {
+    unwrapArchiveTopic.mockRejectedValueOnce({
+      status: 503,
+      data: {
+        error: {
+          code: "DATABASE_UNAVAILABLE",
+          message: "Archive is temporarily unavailable."
+        }
+      }
+    });
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Archive topic" })
+    );
+
+    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
+      "Archive is temporarily unavailable."
+    );
+    expect(window.location.pathname).toBe("/topics/topic-1");
+  });
+
+  it("requires exact-title confirmation before hard deleting a topic", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    expect(
+      within(dialog).getByText(
+        "Delete permanently removes this topic. Use archive when you only want to remove it from active work."
+      )
+    ).toBeInTheDocument();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Delete topic" })
+    );
+
+    const alertDialog = await screen.findByRole("alertdialog", {
+      name: "Delete topic permanently?"
+    });
+    const confirmButton = within(alertDialog).getByRole("button", {
+      name: "Delete permanently"
+    });
+
+    expect(confirmButton).toBeDisabled();
+    expect(deleteTopic).not.toHaveBeenCalled();
+
+    fireEvent.change(
+      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      {
+        target: { value: "Iran" }
+      }
+    );
+    expect(confirmButton).toBeDisabled();
+
+    fireEvent.change(
+      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      {
+        target: { value: "Iran strike risk" }
+      }
+    );
+    expect(confirmButton).toBeEnabled();
+  });
+
+  it("hard deletes a topic only after confirmation and returns to active topics", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Delete topic" })
+    );
+    const alertDialog = await screen.findByRole("alertdialog", {
+      name: "Delete topic permanently?"
+    });
+    fireEvent.change(
+      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      {
+        target: { value: "Iran strike risk" }
+      }
+    );
+    fireEvent.click(
+      within(alertDialog).getByRole("button", { name: "Delete permanently" })
+    );
+
+    await waitFor(() => {
+      expect(deleteTopic).toHaveBeenCalledWith({ topicId: "topic-1" });
+      expect(window.location.pathname).toBe("/topics");
+    });
+  });
+
+  it("shows delete failures without leaving the confirmation flow", async () => {
+    unwrapDeleteTopic.mockRejectedValueOnce({
+      status: 503,
+      data: {
+        error: {
+          code: "DATABASE_UNAVAILABLE",
+          message: "Delete is temporarily unavailable."
+        }
+      }
+    });
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Delete topic" })
+    );
+    const alertDialog = await screen.findByRole("alertdialog", {
+      name: "Delete topic permanently?"
+    });
+    fireEvent.change(
+      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      {
+        target: { value: "Iran strike risk" }
+      }
+    );
+    fireEvent.click(
+      within(alertDialog).getByRole("button", { name: "Delete permanently" })
+    );
+
+    expect(await within(alertDialog).findByRole("alert")).toHaveTextContent(
+      "Delete is temporarily unavailable."
+    );
+    expect(window.location.pathname).toBe("/topics/topic-1");
+  });
+
+  it("prevents duplicate topic settings actions while mutations are pending", async () => {
+    let resolveUpdate: (value: UpdateTopicResponse) => void = () => undefined;
+    unwrapUpdateTopic.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveUpdate = resolve;
+      })
+    );
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: "Pending update" }
+    });
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save changes" })
+    );
+
+    expect(
+      await within(dialog).findByRole("button", { name: "Saving changes..." })
+    ).toBeDisabled();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Saving changes..." })
+    );
+
+    expect(updateTopic).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveUpdate({ topic: { ...topic, title: "Pending update" } });
+    });
+  });
+
+  it("prevents duplicate archive requests while archive is pending", async () => {
+    let resolveArchive: (value: ArchiveTopicResponse) => void = () => undefined;
+    unwrapArchiveTopic.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveArchive = resolve;
+      })
+    );
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Archive topic" })
+    );
+
+    expect(
+      await within(dialog).findByRole("button", { name: "Archiving topic..." })
+    ).toBeDisabled();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Archiving topic..." })
+    );
+
+    expect(archiveTopic).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveArchive({ topic: archivedTopic });
+    });
+  });
+
+  it("prevents duplicate hard delete requests while delete is pending", async () => {
+    let resolveDelete: (value: DeleteTopicResponse) => void = () => undefined;
+    unwrapDeleteTopic.mockReturnValueOnce(
+      new Promise((resolve) => {
+        resolveDelete = resolve;
+      })
+    );
+    window.history.replaceState(null, "", "/topics/topic-1");
+    renderApp();
+    const dialog = await openTopicSettingsDialog();
+
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Delete topic" })
+    );
+    const alertDialog = await screen.findByRole("alertdialog", {
+      name: "Delete topic permanently?"
+    });
+    fireEvent.change(
+      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      {
+        target: { value: "Iran strike risk" }
+      }
+    );
+    fireEvent.click(
+      within(alertDialog).getByRole("button", { name: "Delete permanently" })
+    );
+
+    expect(
+      await within(alertDialog).findByRole("button", {
+        name: "Deleting topic..."
+      })
+    ).toBeDisabled();
+    fireEvent.click(
+      within(alertDialog).getByRole("button", { name: "Deleting topic..." })
+    );
+
+    expect(deleteTopic).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveDelete({ topic });
+    });
   });
 
   it("renders the topic details route from a direct URL", async () => {
@@ -615,7 +1004,126 @@ describe("App", () => {
         return [
           createTopicTrigger,
           { errorMessage, isLoading }
-        ] satisfies CreateTopicHookResult;
+        ] satisfies MutationHookResult<{ topic: Topic }>;
+      }
+    );
+  }
+
+  function mockArchiveTopicMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapArchiveTopic.mockResolvedValue({
+      topic: archivedTopic
+    } satisfies ArchiveTopicResponse);
+    apiMocks.useArchiveTopicMutation.mockImplementation(
+      function useMockArchiveTopicMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function archiveTopicTrigger(request: unknown) {
+          archiveTopic(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapArchiveTopic();
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          archiveTopicTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<ArchiveTopicResponse>;
+      }
+    );
+  }
+
+  function mockDeleteTopicMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapDeleteTopic.mockResolvedValue({
+      topic
+    } satisfies DeleteTopicResponse);
+    apiMocks.useDeleteTopicMutation.mockImplementation(
+      function useMockDeleteTopicMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function deleteTopicTrigger(request: unknown) {
+          deleteTopic(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapDeleteTopic();
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          deleteTopicTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<DeleteTopicResponse>;
+      }
+    );
+  }
+
+  function mockUpdateTopicMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapUpdateTopic.mockImplementation(async (request: unknown) => {
+      const updateRequest = request as {
+        framingQuestion?: string;
+        scopeNote?: null | string;
+        title?: string;
+      };
+
+      return {
+        topic: {
+          ...topic,
+          title: updateRequest.title ?? topic.title,
+          framingQuestion:
+            updateRequest.framingQuestion ?? topic.framingQuestion,
+          scopeNote:
+            updateRequest.scopeNote === null
+              ? undefined
+              : (updateRequest.scopeNote ?? topic.scopeNote),
+          updatedAt: "2026-01-02T00:00:00.000Z"
+        }
+      } satisfies UpdateTopicResponse;
+    });
+    apiMocks.useUpdateTopicMutation.mockImplementation(
+      function useMockUpdateTopicMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function updateTopicTrigger(request: unknown) {
+          updateTopic(request);
+
+          return {
+            async unwrap() {
+              try {
+                const response = await unwrapUpdateTopic(request);
+                applyTopicUpdate(response.topic);
+                return response;
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          updateTopicTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<UpdateTopicResponse>;
       }
     );
   }
@@ -645,9 +1153,12 @@ function mockGetTopicQuery(
   apiMocks.useGetTopicQuery.mockImplementation(
     ({ topicId }: { topicId: string }) => {
       const resolvedTopic = topicId === createdTopic.id ? createdTopic : topic;
+      const [currentTopic, setCurrentTopic] = useState<Topic>(resolvedTopic);
+
+      applyTopicUpdate = setCurrentTopic;
 
       return {
-        data: { topic: resolvedTopic, currentAssessment: null },
+        data: { topic: currentTopic, currentAssessment: null },
         isError: false,
         isLoading: false,
         refetch,
@@ -673,4 +1184,13 @@ async function openCreateTopicDialog() {
   fireEvent.click(await screen.findByRole("button", { name: "Create topic" }));
 
   return screen.findByRole("dialog", { name: "Create topic" });
+}
+
+async function openTopicSettingsDialog() {
+  expect(
+    await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
+  ).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "Topic settings" }));
+
+  return screen.findByRole("dialog", { name: "Topic settings" });
 }

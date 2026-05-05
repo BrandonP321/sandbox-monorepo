@@ -144,4 +144,30 @@ describe("AlertDialog", () => {
     expect(screen.getByRole("button", { name: "Keep" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Discard" })).toBeInTheDocument();
   });
+
+  it("can disable the confirm action", () => {
+    const handleConfirm = vi.fn();
+
+    render(
+      <AlertDialog>
+        <AlertDialogTrigger>
+          <Button>Open alert dialog</Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent
+          confirmDisabled
+          description="Confirm action is blocked until the caller allows it."
+          onConfirm={handleConfirm}
+          title="Gated alert action"
+        >
+          <p>Gated alert body</p>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open alert dialog" }));
+    fireEvent.click(screen.getByRole("button", { name: "Confirm" }));
+
+    expect(screen.getByRole("button", { name: "Confirm" })).toBeDisabled();
+    expect(handleConfirm).not.toHaveBeenCalled();
+  });
 });
