@@ -64,10 +64,25 @@ See REPO_MAP.md for details.
 2. Run tasks:
    - pnpm dev
    - pnpm dev:hello (web + api only)
+   - pnpm dev:signal-tracker:lan (web + api for another device on the same network)
    - pnpm test
    - pnpm lint
    - pnpm typecheck
    - pnpm build
+
+For local phone/tablet testing, use the LAN dev script for the project. It
+detects this machine's LAN IP, binds the Vite dev server to the network, and
+points the web app at the locally running API through `VITE_API_BASE_URL`:
+
+```bash
+pnpm dev:signal-tracker:lan
+```
+
+If the detected IP is not the one your device can reach, override it:
+
+```bash
+LAN_DEV_IP=192.168.1.50 pnpm dev:signal-tracker:lan
+```
 
 ## How work gets done here
 

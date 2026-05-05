@@ -20,6 +20,7 @@
    - `pnpm build`
 6. For project-scoped workflows:
    - `pnpm dev:project <project>`
+   - `pnpm dev:project:lan <project>` for phone/tablet testing on the same network
    - `pnpm build:project <project>`
    - `pnpm deploy:project <project>`
 
