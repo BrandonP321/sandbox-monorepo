@@ -12,6 +12,7 @@ type SharedNativeInputProps = Pick<
   | "name"
   | "onBlur"
   | "onChange"
+  | "onPaste"
   | "placeholder"
   | "ref"
   | "required"

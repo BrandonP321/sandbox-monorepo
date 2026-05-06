@@ -28,6 +28,7 @@ import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),
+  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateAssessmentUpdateMutation: vi.fn(),
   useCreateEventEntryMutation: vi.fn(),
   useCreateTopicMutation: vi.fn(),
@@ -42,6 +43,7 @@ const apiMocks = vi.hoisted(() => ({
 vi.mock("@/api", () => {
   return {
     useArchiveTopicMutation: apiMocks.useArchiveTopicMutation,
+    useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
     useCreateAssessmentUpdateMutation:
       apiMocks.useCreateAssessmentUpdateMutation,
     useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
@@ -215,6 +217,7 @@ describe("App", () => {
     unwrapUpdateTopic.mockReset();
     applyTopicUpdate = () => undefined;
     apiMocks.useArchiveTopicMutation.mockReset();
+    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
     apiMocks.useCreateAssessmentUpdateMutation.mockReset();
     apiMocks.useCreateEventEntryMutation.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
@@ -225,6 +228,7 @@ describe("App", () => {
     apiMocks.useUpdateEventEntryMutation.mockReset();
     apiMocks.useUpdateTopicMutation.mockReset();
     mockArchiveTopicMutation();
+    mockCaptureEvidenceUrlMutation();
     mockCreateAssessmentUpdateMutation();
     mockCreateEventEntryMutation();
     mockCreateTopicMutation();
@@ -1302,6 +1306,13 @@ describe("App", () => {
         ] satisfies MutationHookResult<CreateAssessmentUpdateResponse>;
       }
     );
+  }
+
+  function mockCaptureEvidenceUrlMutation() {
+    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
+      () => ({ unwrap: () => Promise.resolve({}) }),
+      { errorMessage: undefined, isLoading: false }
+    ]);
   }
 
   function mockCreateEventEntryMutation({

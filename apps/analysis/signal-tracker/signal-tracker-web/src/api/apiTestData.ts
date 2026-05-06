@@ -65,6 +65,7 @@ export const assessmentUpdate = {
 export const source = {
   id: "source-1",
   canonicalName: "Agency",
+  baseUrl: "https://agency.example",
   sourceType: "government",
   createdAt: "2026-01-01T00:00:00.000Z",
   updatedAt: "2026-01-01T00:00:00.000Z"
@@ -84,6 +85,48 @@ export const evidenceItem = {
 export const evidenceRecord = {
   source,
   evidenceItem
+} as const satisfies EvidenceRecord;
+
+export const secondEvidenceRecord = {
+  source: {
+    id: "source-2",
+    canonicalName: "Reuters",
+    baseUrl: "https://www.reuters.com",
+    sourceType: "news",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  evidenceItem: {
+    id: "evidence-2",
+    sourceId: "source-2",
+    canonicalUrl: "https://www.reuters.com/world/example",
+    title: "Reuters source",
+    publishedAt: "2026-01-03T00:00:00.000Z",
+    capturedAt: "2026-01-03T00:00:00.000Z",
+    createdAt: "2026-01-03T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z",
+    metadata: {}
+  }
+} as const satisfies EvidenceRecord;
+
+export const sparseEvidenceRecord = {
+  source: {
+    id: "source-3",
+    canonicalName: "Sparse Source",
+    sourceType: "other",
+    createdAt: "2026-01-01T00:00:00.000Z",
+    updatedAt: "2026-01-01T00:00:00.000Z"
+  },
+  evidenceItem: {
+    id: "evidence-3",
+    sourceId: "source-3",
+    canonicalUrl: undefined,
+    title: "Sparse Source",
+    capturedAt: "2026-01-03T00:00:00.000Z",
+    createdAt: "2026-01-03T00:00:00.000Z",
+    updatedAt: "2026-01-03T00:00:00.000Z",
+    metadata: {}
+  }
 } as const satisfies EvidenceRecord;
 
 export const evidenceAnchor = {

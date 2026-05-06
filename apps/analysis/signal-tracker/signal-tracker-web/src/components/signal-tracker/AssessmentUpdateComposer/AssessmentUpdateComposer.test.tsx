@@ -19,10 +19,12 @@ import { getApiErrorMessage } from "@/api/apiError";
 import { AssessmentUpdateComposer } from "./AssessmentUpdateComposer";
 
 const apiMocks = vi.hoisted(() => ({
+  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateAssessmentUpdateMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
+  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
   useCreateAssessmentUpdateMutation: apiMocks.useCreateAssessmentUpdateMutation
 }));
 
@@ -62,6 +64,8 @@ describe("AssessmentUpdateComposer", () => {
   beforeEach(() => {
     createAssessmentUpdate.mockReset();
     unwrapCreateAssessmentUpdate.mockReset();
+    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
+    mockCaptureEvidenceUrlMutation();
     mockCreateAssessmentUpdateMutation();
   });
 
@@ -93,6 +97,18 @@ describe("AssessmentUpdateComposer", () => {
     expect(
       within(dialog).getByRole("button", { name: "Update assessment" })
     ).toBeInTheDocument();
+  });
+
+  it("renders the entry source URL capture field", async () => {
+    render(<ComposerHarness initialOpen />);
+    const dialog = await screen.findByRole("dialog", {
+      name: "Add assessment"
+    });
+
+    expect(
+      within(dialog).getByRole("heading", { name: "Sources" })
+    ).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Add source URL")).toBeInTheDocument();
   });
 
   it("validates required fields before submitting", async () => {
@@ -335,6 +351,13 @@ describe("AssessmentUpdateComposer", () => {
         ] satisfies MutationHookResult<CreateAssessmentUpdateResponse>;
       }
     );
+  }
+
+  function mockCaptureEvidenceUrlMutation() {
+    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
+      () => ({ unwrap: () => Promise.resolve() }),
+      { errorMessage: undefined, isLoading: false }
+    ]);
   }
 });
 

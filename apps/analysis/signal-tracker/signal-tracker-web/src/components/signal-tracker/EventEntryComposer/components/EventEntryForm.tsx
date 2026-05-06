@@ -5,6 +5,7 @@ import {
   useCreateEventEntryMutation,
   useUpdateEventEntryMutation
 } from "@/api";
+import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
 import {
   Form,
   FormButton,
@@ -102,6 +103,7 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
             placeholder="Choose status"
           />
         </div>
+        <AddSourceUrlField />
       </Form>
     </FormProvider>
   );

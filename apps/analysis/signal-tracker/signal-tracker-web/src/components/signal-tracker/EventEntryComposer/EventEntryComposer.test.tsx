@@ -20,11 +20,13 @@ import { getApiErrorMessage } from "@/api/apiError";
 import { EventEntryComposer } from "./EventEntryComposer";
 
 const apiMocks = vi.hoisted(() => ({
+  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateEventEntryMutation: vi.fn(),
   useUpdateEventEntryMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
+  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
   useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
   useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation
 }));
@@ -109,7 +111,9 @@ describe("EventEntryComposer", () => {
     unwrapCreateEventEntry.mockReset();
     unwrapUpdateEventEntry.mockReset();
     apiMocks.useCreateEventEntryMutation.mockReset();
+    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
     apiMocks.useUpdateEventEntryMutation.mockReset();
+    mockCaptureEvidenceUrlMutation();
     mockCreateEventEntryMutation();
     mockUpdateEventEntryMutation();
   });
@@ -152,6 +156,16 @@ describe("EventEntryComposer", () => {
     expect(
       within(dialog).getByRole("button", { name: "Save event" })
     ).toBeInTheDocument();
+  });
+
+  it("renders the entry source URL capture field", async () => {
+    render(<ComposerHarness initialOpen />);
+    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+
+    expect(
+      within(dialog).getByRole("heading", { name: "Sources" })
+    ).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Add source URL")).toBeInTheDocument();
   });
 
   it("validates required fields before submitting", async () => {
@@ -358,6 +372,13 @@ describe("EventEntryComposer", () => {
         ] satisfies MutationHookResult<UpdateEventEntryResponse>;
       }
     );
+  }
+
+  function mockCaptureEvidenceUrlMutation() {
+    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
+      () => ({ unwrap: () => Promise.resolve() }),
+      { errorMessage: undefined, isLoading: false }
+    ]);
   }
 });
 

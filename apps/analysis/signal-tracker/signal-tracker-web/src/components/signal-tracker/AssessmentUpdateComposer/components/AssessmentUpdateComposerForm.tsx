@@ -1,6 +1,7 @@
 import { FormProvider } from "@repo/ui-base";
 
 import { useCreateAssessmentUpdateMutation } from "@/api";
+import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
 import {
   Form,
   FormButton,
@@ -98,6 +99,7 @@ function AssessmentUpdateComposerForm({
           />
         </div>
         <AssessmentUpdateOptionalFields />
+        <AddSourceUrlField />
       </Form>
     </FormProvider>
   );
