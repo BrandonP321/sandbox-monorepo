@@ -180,7 +180,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml"
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
@@ -241,28 +241,27 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      buildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
-      connectionName: "signal-tracker-prod-source",
+      buildSpecPath: "apps/example/example-infra/buildspec.prod.yml",
+      connectionName: "example-prod-source",
       deployBuildEnvironment: { computeMode: "lambda" },
-      deployStackName: "SignalTrackerStack",
+      deployStackName: "ExampleStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubBranch: "main",
       githubOwner: "BrandonP321",
       githubRepo: "sandbox-monorepo",
-      pipelineName: "signal-tracker-prod",
-      projectName: "signal-tracker-prod-deploy",
+      pipelineName: "example-prod",
+      projectName: "example-prod-deploy",
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml"
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-deploy",
+      Name: "example-prod-deploy",
       Environment: Match.objectLike({
         ComputeType: "BUILD_LAMBDA_4GB",
         Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
@@ -274,7 +273,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       Cache: { Type: "NO_CACHE" }
     });
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate",
+      Name: "example-prod-validate",
       Cache: { Type: "NO_CACHE" },
       Environment: Match.objectLike({
         ComputeType: "BUILD_LAMBDA_4GB",
@@ -284,7 +283,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
       }),
       Source: Match.objectLike({
         BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml",
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
         Type: "CODEPIPELINE"
       })
     });
@@ -295,30 +294,29 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      buildSpecPath:
-        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml",
-      connectionName: "signal-tracker-prod-source",
+      buildSpecPath: "apps/example/example-infra/buildspec.prod.yml",
+      connectionName: "example-prod-source",
       deployBuildEnvironment: { computeMode: "lambda" },
-      deployStackName: "SignalTrackerStack",
+      deployStackName: "ExampleStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubBranch: "main",
       githubOwner: "BrandonP321",
       githubRepo: "sandbox-monorepo",
-      pipelineName: "signal-tracker-prod",
-      projectName: "signal-tracker-prod-deploy",
+      pipelineName: "example-prod",
+      projectName: "example-prod-deploy",
       region: "us-east-1",
       sourceActionName: "Source",
       validationActions: [
         {
           actionName: "Lint",
           buildSpecPath:
-            "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml"
+            "apps/example/example-infra/buildspec.validate.lint.yml"
         },
         {
           actionName: "Typecheck",
           buildSpecPath:
-            "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml"
+            "apps/example/example-infra/buildspec.validate.typecheck.yml"
         }
       ]
     });
@@ -326,17 +324,15 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate-lint",
+      Name: "example-prod-validate-lint",
       Source: Match.objectLike({
-        BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml"
+        BuildSpec: "apps/example/example-infra/buildspec.validate.lint.yml"
       })
     });
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate-typecheck",
+      Name: "example-prod-validate-typecheck",
       Source: Match.objectLike({
-        BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml"
+        BuildSpec: "apps/example/example-infra/buildspec.validate.typecheck.yml"
       })
     });
     template.hasResourceProperties("AWS::CodePipeline::Pipeline", {

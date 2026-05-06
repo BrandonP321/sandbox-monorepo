@@ -38,7 +38,7 @@ describe("SignalTrackerStack", () => {
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "signal-tracker-prod-validate-build",
+      Name: "signal-tracker-prod-validate",
       Cache: { Type: "NO_CACHE" },
       Environment: Match.objectLike({
         ComputeType: "BUILD_LAMBDA_4GB",
@@ -48,7 +48,7 @@ describe("SignalTrackerStack", () => {
       }),
       Source: Match.objectLike({
         BuildSpec:
-          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml",
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
         Type: "CODEPIPELINE"
       })
     });
@@ -61,34 +61,7 @@ describe("SignalTrackerStack", () => {
           Name: "Validate",
           Actions: Match.arrayWith([
             Match.objectLike({
-              Name: "Lint",
-              RunOrder: 1,
-              ActionTypeId: Match.objectLike({
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild"
-              })
-            }),
-            Match.objectLike({
-              Name: "Typecheck",
-              RunOrder: 1,
-              ActionTypeId: Match.objectLike({
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild"
-              })
-            }),
-            Match.objectLike({
-              Name: "Test",
-              RunOrder: 1,
-              ActionTypeId: Match.objectLike({
-                Category: "Build",
-                Owner: "AWS",
-                Provider: "CodeBuild"
-              })
-            }),
-            Match.objectLike({
-              Name: "Build",
+              Name: "Validate",
               RunOrder: 1,
               ActionTypeId: Match.objectLike({
                 Category: "Build",
@@ -109,6 +82,16 @@ describe("SignalTrackerStack", () => {
         })
       ])
     });
+    const pipeline = template.findResources("AWS::CodePipeline::Pipeline", {
+      Properties: { Name: "signal-tracker-prod" }
+    });
+    const pipelineProperties = Object.values(pipeline)[0]?.Properties as {
+      Stages: Array<{ Name: string; Actions: unknown[] }>;
+    };
+    const validateStage = pipelineProperties.Stages.find(
+      (stage) => stage.Name === "Validate"
+    );
+    expect(validateStage?.Actions).toHaveLength(1);
 
     template.hasResourceProperties("AWS::IAM::Role", {
       RoleName: "signal-tracker-prod-starter",

@@ -168,7 +168,8 @@ The validate buildspec executes:
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
-pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run build
+pnpm --filter signal-tracker-web run build
+pnpm -r --workspace-concurrency=1 --filter signal-tracker-api... --filter signal-tracker-infra... run build
 ```
 
 The deploy buildspec executes:
@@ -189,10 +190,7 @@ new migration files.
 
 The buildspecs live at:
 
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml`
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml`
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.test.yml`
-- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml`
+- `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml`
 - `apps/analysis/signal-tracker/signal-tracker-infra/buildspec.prod.yml`
 
 Signal Tracker CodeBuild projects use the AWS-managed Node `24` Lambda compute image.

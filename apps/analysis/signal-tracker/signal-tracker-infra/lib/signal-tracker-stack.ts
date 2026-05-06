@@ -56,28 +56,8 @@ export class SignalTrackerStack extends cdk.Stack {
         projectName: "signal-tracker-prod-deploy",
         region: "us-east-1",
         sourceActionName: "Source",
-        validationActions: [
-          {
-            actionName: "Lint",
-            buildSpecPath:
-              "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.lint.yml"
-          },
-          {
-            actionName: "Typecheck",
-            buildSpecPath:
-              "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.typecheck.yml"
-          },
-          {
-            actionName: "Test",
-            buildSpecPath:
-              "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.test.yml"
-          },
-          {
-            actionName: "Build",
-            buildSpecPath:
-              "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.build.yml"
-          }
-        ]
+        validationBuildSpecPath:
+          "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
       }
     );
 
