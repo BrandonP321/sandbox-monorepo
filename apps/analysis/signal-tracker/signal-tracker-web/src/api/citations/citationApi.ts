@@ -11,6 +11,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { invalidateTagsOnSuccess } from "../cacheTags";
 import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
@@ -22,17 +23,14 @@ export const citationApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("attachEntryCitation", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "EntryCitations", id: request.entryId },
-        ...(result
-          ? [
-              {
-                type: "EntryCitation" as const,
-                id: result.citation.citation.id
-              }
-            ]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EntryCitations", id: request.entryId },
+          {
+            type: "EntryCitation",
+            id: result.citation.citation.id
+          }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("attachEntryCitation", response)
     }),
@@ -42,18 +40,15 @@ export const citationApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("detachEntryCitation", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "EntryCitations", id: request.entryId },
-        { type: "EntryCitation", id: request.citationId },
-        ...(result
-          ? [
-              {
-                type: "EntryCitation" as const,
-                id: result.citation.citation.id
-              }
-            ]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EntryCitations", id: request.entryId },
+          { type: "EntryCitation", id: request.citationId },
+          {
+            type: "EntryCitation",
+            id: result.citation.citation.id
+          }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("detachEntryCitation", response)
     }),

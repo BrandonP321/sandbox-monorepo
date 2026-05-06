@@ -3,6 +3,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { SignalTrackerRouteRequest } from "@repo/signal-tracker-shared";
+import { signalTrackerRouteContracts } from "@repo/signal-tracker-shared";
 
 import { loadRuntimeConfig } from "../../config";
 import { makeStore } from "../../store";
@@ -13,6 +14,7 @@ import {
   stubRouteResponse,
   topic
 } from "../apiTestData";
+import { timelineApi } from "../timeline/timelineApi";
 import { topicApi } from "./topicApi";
 
 vi.mock("../../config", () => ({
@@ -123,6 +125,42 @@ describe("topicApi", () => {
     await expectRouteRequest(fetchMock, "deleteTopic", request);
   });
 
+  it("does not refetch active topic data after a failed delete", async () => {
+    const fetchMock = stubTopicDetailDeleteFailure();
+    const store = makeStore();
+    const topicSubscription = store.dispatch(
+      topicApi.endpoints.getTopic.initiate({ topicId: topic.id })
+    );
+    const timelineSubscription = store.dispatch(
+      timelineApi.endpoints.listTopicTimeline.initiate({ topicId: topic.id })
+    );
+
+    await Promise.all([
+      topicSubscription.unwrap(),
+      timelineSubscription.unwrap()
+    ]);
+    fetchMock.mockClear();
+
+    try {
+      await expect(
+        store
+          .dispatch(
+            topicApi.endpoints.deleteTopic.initiate({ topicId: topic.id })
+          )
+          .unwrap()
+      ).rejects.toMatchObject({ status: 503 });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    } finally {
+      topicSubscription.unsubscribe();
+      timelineSubscription.unsubscribe();
+    }
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(getFetchRequest(fetchMock).url).toBe(
+      `${apiBaseUrl}${signalTrackerRouteContracts.deleteTopic.route.path}`
+    );
+  });
+
   it("rejects topic responses that do not match the shared schema", async () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
@@ -147,4 +185,62 @@ function stubFetch(body: unknown) {
   vi.stubGlobal("fetch", fetchMock);
 
   return fetchMock;
+}
+
+function stubTopicDetailDeleteFailure() {
+  const fetchMock = vi.fn(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = new Request(input, init);
+
+      if (
+        request.url ===
+        `${apiBaseUrl}${signalTrackerRouteContracts.getTopic.route.path}`
+      ) {
+        return createJsonResponse({ topic, currentAssessment: null });
+      }
+
+      if (
+        request.url ===
+        `${apiBaseUrl}${signalTrackerRouteContracts.listTopicTimeline.route.path}`
+      ) {
+        return createJsonResponse({ items: [] });
+      }
+
+      if (
+        request.url ===
+        `${apiBaseUrl}${signalTrackerRouteContracts.deleteTopic.route.path}`
+      ) {
+        return new Response(
+          JSON.stringify({
+            error: {
+              code: "DATABASE_UNAVAILABLE",
+              message: "Delete is temporarily unavailable."
+            }
+          }),
+          {
+            status: 503,
+            headers: {
+              "content-type": "application/json"
+            }
+          }
+        );
+      }
+
+      throw new Error(`Unexpected API request: ${request.url}`);
+    }
+  );
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  return fetchMock;
+}
+
+function getFetchRequest(fetchMock: ReturnType<typeof vi.fn>): Request {
+  const [input, init] = fetchMock.mock.calls[0] ?? [];
+
+  if (input instanceof Request) {
+    return input;
+  }
+
+  return new Request(input as RequestInfo | URL, init as RequestInit);
 }

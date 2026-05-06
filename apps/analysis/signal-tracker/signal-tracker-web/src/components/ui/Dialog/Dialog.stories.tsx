@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 import { Button } from "../Button";
 import {
@@ -105,6 +106,45 @@ function DialogErrorStory() {
   );
 }
 
+function ThrowingConfirmDialogStory() {
+  const [errorMessage, setErrorMessage] = useState<string>();
+
+  async function handleConfirm() {
+    setErrorMessage(undefined);
+    await wait(800);
+    setErrorMessage("The save request failed after confirmation started.");
+    throw new globalThis.Error("Save request failed");
+  }
+
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="outline">Open failing dialog</Button>
+      </DialogTrigger>
+      <DialogContent
+        description="The dialog stays open when the confirmation callback rejects."
+        error={{
+          message: errorMessage,
+          title: "Unable to save changes"
+        }}
+        footer={
+          <DialogConfirmActions
+            confirmText="Save changes"
+            loadingText="Saving..."
+            onConfirm={handleConfirm}
+          />
+        }
+        title="Save changes?"
+      >
+        <p className="text-sm">
+          This story exercises the rejected confirmation path instead of
+          rendering a static error state.
+        </p>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ManualDialogFooter() {
   const { closeDialog, isDialogConfirming, runDialogConfirm } =
     useDialogContext();
@@ -148,4 +188,8 @@ export const ManualFooter: Story = {
 
 export const Error: Story = {
   render: () => <DialogErrorStory />
+};
+
+export const ConfirmThrows: Story = {
+  render: () => <ThrowingConfirmDialogStory />
 };

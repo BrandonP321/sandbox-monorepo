@@ -19,6 +19,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { invalidateTagsOnSuccess } from "../cacheTags";
 import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
@@ -34,12 +35,11 @@ export const evidenceApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("createEvidenceItem", request),
-      invalidatesTags: (result) => [
-        { type: "Evidence", id: "LIST" },
-        ...(result
-          ? [{ type: "EvidenceItem" as const, id: result.evidenceItem.id }]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result) => [
+          { type: "Evidence", id: "LIST" },
+          { type: "EvidenceItem", id: result.evidenceItem.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("createEvidenceItem", response)
     }),
@@ -49,12 +49,11 @@ export const evidenceApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("captureEvidenceUrl", request),
-      invalidatesTags: (result) => [
-        { type: "Evidence", id: "LIST" },
-        ...(result
-          ? [{ type: "EvidenceItem" as const, id: result.evidenceItem.id }]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result) => [
+          { type: "Evidence", id: "LIST" },
+          { type: "EvidenceItem", id: result.evidenceItem.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("captureEvidenceUrl", response)
     }),
@@ -95,12 +94,11 @@ export const evidenceApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("createEvidenceAnchor", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "EvidenceAnchors", id: request.evidenceItemId },
-        ...(result
-          ? [{ type: "EvidenceAnchor" as const, id: result.anchor.id }]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EvidenceAnchors", id: request.evidenceItemId },
+          { type: "EvidenceAnchor", id: result.anchor.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("createEvidenceAnchor", response)
     }),

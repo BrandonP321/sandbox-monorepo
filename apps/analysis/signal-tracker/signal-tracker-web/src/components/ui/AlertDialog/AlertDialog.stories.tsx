@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 import {
   AlertDialog,
@@ -106,6 +107,44 @@ function AlertDialogErrorStory() {
   );
 }
 
+function ThrowingConfirmAlertDialogStory() {
+  const [errorMessage, setErrorMessage] = useState<string>();
+
+  async function handleConfirm() {
+    setErrorMessage(undefined);
+    await wait(800);
+    setErrorMessage("The publish request failed after confirmation started.");
+    throw new globalThis.Error("Publish request failed");
+  }
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger>
+        <Button variant="outline">Open failing alert dialog</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent
+        alert={{
+          content:
+            "Publishing updates the topic summary shown across the workspace.",
+          title: "Confirm the scope"
+        }}
+        confirmButton={{ loadingText: "Publishing...", text: "Publish" }}
+        error={{
+          message: errorMessage,
+          title: "Unable to publish update"
+        }}
+        onConfirm={handleConfirm}
+        title="Publish this update?"
+      >
+        <p className="text-muted-foreground text-sm">
+          This story exercises the rejected confirmation path while keeping the
+          contextual alert with the body content.
+        </p>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export const Basic: Story = {
   render: () => <AlertDialogStory />
 };
@@ -116,4 +155,8 @@ export const CustomText: Story = {
 
 export const Error: Story = {
   render: () => <AlertDialogErrorStory />
+};
+
+export const ConfirmThrows: Story = {
+  render: () => <ThrowingConfirmAlertDialogStory />
 };

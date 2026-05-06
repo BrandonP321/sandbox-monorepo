@@ -7,6 +7,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { invalidateTagsOnSuccess } from "../cacheTags";
 import { getMutation } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
@@ -18,19 +19,16 @@ export const assessmentApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("createAssessmentUpdate", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "Topic", id: request.topicId },
-        { type: "TopicTimeline", id: request.topicId },
-        { type: "EventEntries", id: request.topicId },
-        ...(result
-          ? [
-              {
-                type: "EventEntry" as const,
-                id: result.assessmentUpdate.entry.id
-              }
-            ]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "Topic", id: request.topicId },
+          { type: "TopicTimeline", id: request.topicId },
+          { type: "EventEntries", id: request.topicId },
+          {
+            type: "EventEntry",
+            id: result.assessmentUpdate.entry.id
+          }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("createAssessmentUpdate", response)
     })

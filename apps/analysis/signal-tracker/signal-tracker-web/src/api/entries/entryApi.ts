@@ -13,6 +13,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { invalidateTagsOnSuccess } from "../cacheTags";
 import { getMutation, getQuery } from "../rtkQueryHooks";
 import { signalTrackerApi } from "../signalTrackerApi";
 
@@ -24,13 +25,12 @@ export const entryApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("createEventEntry", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "EventEntries", id: request.topicId },
-        { type: "TopicTimeline", id: request.topicId },
-        ...(result
-          ? [{ type: "EventEntry" as const, id: result.entry.id }]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EventEntries", id: request.topicId },
+          { type: "TopicTimeline", id: request.topicId },
+          { type: "EventEntry", id: result.entry.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("createEventEntry", response)
     }),
@@ -65,15 +65,12 @@ export const entryApi = signalTrackerApi.injectEndpoints({
     >({
       query: (request) =>
         buildSignalTrackerRouteRequest("updateEventEntry", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "EventEntry", id: request.entryId },
-        ...(result
-          ? [
-              { type: "EventEntries" as const, id: result.entry.topicId },
-              { type: "TopicTimeline" as const, id: result.entry.topicId }
-            ]
-          : [])
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EventEntry", id: request.entryId },
+          { type: "EventEntries", id: result.entry.topicId },
+          { type: "TopicTimeline", id: result.entry.topicId }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("updateEventEntry", response)
     })

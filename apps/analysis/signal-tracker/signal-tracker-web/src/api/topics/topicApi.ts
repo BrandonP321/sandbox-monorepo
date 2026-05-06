@@ -17,6 +17,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
+import { invalidateTagsOnSuccess } from "../cacheTags";
 import { signalTrackerApi } from "../signalTrackerApi";
 import { getMutation, getQuery } from "../rtkQueryHooks";
 
@@ -29,7 +30,10 @@ export const topicApi = signalTrackerApi.injectEndpoints({
     createTopic: builder.mutation<CreateTopicResponse, CreateTopicRequest>({
       query: (request) =>
         buildSignalTrackerRouteRequest("createTopic", request),
-      invalidatesTags: [{ type: "Topics", id: "LIST" }],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, () => [
+          { type: "Topics", id: "LIST" }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("createTopic", response)
     }),
@@ -60,33 +64,36 @@ export const topicApi = signalTrackerApi.injectEndpoints({
     updateTopic: builder.mutation<UpdateTopicResponse, UpdateTopicRequest>({
       query: (request) =>
         buildSignalTrackerRouteRequest("updateTopic", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "Topics", id: "LIST" },
-        { type: "Topic", id: request.topicId },
-        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "Topics", id: "LIST" },
+          { type: "Topic", id: request.topicId },
+          { type: "TopicTimeline", id: result.topic.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("updateTopic", response)
     }),
     archiveTopic: builder.mutation<ArchiveTopicResponse, ArchiveTopicRequest>({
       query: (request) =>
         buildSignalTrackerRouteRequest("archiveTopic", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "Topics", id: "LIST" },
-        { type: "Topic", id: request.topicId },
-        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "Topics", id: "LIST" },
+          { type: "Topic", id: request.topicId },
+          { type: "TopicTimeline", id: result.topic.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("archiveTopic", response)
     }),
     deleteTopic: builder.mutation<DeleteTopicResponse, DeleteTopicRequest>({
       query: (request) =>
         buildSignalTrackerRouteRequest("deleteTopic", request),
-      invalidatesTags: (result, _error, request) => [
-        { type: "Topics", id: "LIST" },
-        { type: "Topic", id: request.topicId },
-        { type: "TopicTimeline", id: result?.topic.id ?? request.topicId }
-      ],
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "Topics", id: "LIST" },
+          { type: "Topic", id: request.topicId },
+          { type: "TopicTimeline", id: result.topic.id }
+        ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("deleteTopic", response)
     })

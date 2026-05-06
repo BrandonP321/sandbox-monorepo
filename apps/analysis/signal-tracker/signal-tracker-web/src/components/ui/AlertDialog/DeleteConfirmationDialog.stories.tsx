@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 
 import { Button } from "../Button";
 import {
@@ -123,6 +124,42 @@ function DeleteConfirmationCustomPromptStory() {
   );
 }
 
+function ThrowingConfirmDeleteConfirmationStory() {
+  const [errorMessage, setErrorMessage] = useState<string>();
+
+  async function handleConfirm() {
+    setErrorMessage(undefined);
+    await wait(800);
+    setErrorMessage("The topic could not be deleted after confirmation.");
+    throw new globalThis.Error("Delete request failed");
+  }
+
+  return (
+    <DeleteConfirmationDialog>
+      <DeleteConfirmationDialogTrigger>
+        <Button variant="danger">Delete topic</Button>
+      </DeleteConfirmationDialogTrigger>
+      <DeleteConfirmationDialogContent
+        cancelButton={{ text: "Keep topic" }}
+        confirmationText="Public affairs watchlist"
+        deleteButton={{
+          loadingText: "Deleting topic...",
+          text: "Delete permanently"
+        }}
+        error={{
+          message: errorMessage,
+          title: "Unable to delete topic"
+        }}
+        onConfirm={handleConfirm}
+        title="Delete topic permanently?"
+      >
+        This story exercises a failed delete after the required confirmation
+        text has been entered.
+      </DeleteConfirmationDialogContent>
+    </DeleteConfirmationDialog>
+  );
+}
+
 export const Basic: Story = {
   render: () => <DeleteConfirmationDialogStory />
 };
@@ -137,4 +174,8 @@ export const CustomPrompt: Story = {
 
 export const Error: Story = {
   render: () => <DeleteConfirmationErrorStory />
+};
+
+export const ConfirmThrows: Story = {
+  render: () => <ThrowingConfirmDeleteConfirmationStory />
 };
