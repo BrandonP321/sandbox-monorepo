@@ -1,7 +1,12 @@
 import { useNavigate } from "@tanstack/react-router";
 
 import { useArchiveTopicMutation } from "@/api";
-import { Alert, Button, useDialogContext } from "@/components/ui";
+import {
+  Alert,
+  Button,
+  ContentHeader,
+  useDialogContext
+} from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
 type TopicArchiveSectionProps = {
@@ -24,22 +29,13 @@ function TopicArchiveSection({ topicId }: TopicArchiveSectionProps) {
   }
 
   return (
-    <section
-      aria-labelledby="topic-settings-lifecycle-heading"
-      className="border-border grid gap-3 border-t pt-5"
-    >
-      <div>
-        <h2
-          id="topic-settings-lifecycle-heading"
-          className="text-sm font-semibold"
-        >
-          Lifecycle
-        </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Archive hides this topic from the active topic flow without deleting
-          its analytical history.
-        </p>
-      </div>
+    <section className="border-border grid gap-3 border-t pt-5">
+      <ContentHeader
+        description="Archive hides this topic from the active topic flow without deleting its analytical history."
+        headingLevel={2}
+        headingSize="h5"
+        title="Lifecycle"
+      />
       {errorMessage ? (
         <Alert title="Unable to archive topic" variant="danger">
           {errorMessage}

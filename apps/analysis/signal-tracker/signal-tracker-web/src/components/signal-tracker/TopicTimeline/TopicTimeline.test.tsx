@@ -146,10 +146,10 @@ describe("TopicTimeline", () => {
     render(<TopicTimeline topicId="topic-1" />);
 
     expect(
-      screen.getByRole("article", { name: "Ceasefire talks resume" })
+      screen.getByRole("heading", { name: "Ceasefire talks resume" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("article", { name: "Escalation risk assessment" })
+      screen.getByRole("heading", { name: "Escalation risk assessment" })
     ).toBeInTheDocument();
     expect(screen.queryByText("Weekly review")).not.toBeInTheDocument();
     expect(screen.getByText("Reported")).toBeInTheDocument();

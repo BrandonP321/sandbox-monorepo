@@ -55,3 +55,22 @@ export const SectionHeader: Story = {
     </div>
   )
 };
+
+export const CompactSectionHeader: Story = {
+  args: {
+    description: "Archive hides this topic without deleting its history.",
+    headingLevel: 2,
+    headingSize: "h5",
+    title: "Lifecycle"
+  },
+  render: () => (
+    <div className="w-[28rem]">
+      <ContentHeader
+        description="Archive hides this topic without deleting its history."
+        headingLevel={2}
+        headingSize="h5"
+        title="Lifecycle"
+      />
+    </div>
+  )
+};

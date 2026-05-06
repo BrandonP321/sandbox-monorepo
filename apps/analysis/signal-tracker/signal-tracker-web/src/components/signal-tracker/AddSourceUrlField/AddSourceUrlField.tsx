@@ -5,7 +5,7 @@ import type { EvidenceRecord } from "@repo/signal-tracker-shared";
 
 import { useCaptureEvidenceUrlMutation } from "@/api";
 import { getApiErrorMessage } from "@/api/apiError";
-import { Button, TextInput } from "@/components/ui";
+import { Button, ContentHeader, TextInput } from "@/components/ui";
 
 import { CapturedSourcePreview } from "./components/CapturedSourcePreview";
 import {
@@ -178,18 +178,13 @@ function AddSourceUrlField({
   }
 
   return (
-    <section
-      aria-labelledby={`${inputId}-heading`}
-      className="border-border grid gap-3 border-t pt-4"
-    >
-      <div>
-        <h3 id={`${inputId}-heading`} className="text-sm font-semibold">
-          Sources
-        </h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Paste source URLs for this entry.
-        </p>
-      </div>
+    <section className="border-border grid gap-3 border-t pt-4">
+      <ContentHeader
+        description="Paste source URLs for this entry."
+        headingLevel={3}
+        headingSize="h5"
+        title="Sources"
+      />
 
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
         <div>

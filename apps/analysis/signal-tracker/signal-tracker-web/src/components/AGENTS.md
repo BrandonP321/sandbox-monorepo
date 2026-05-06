@@ -13,6 +13,8 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Spread only the picked native prop subset onto the underlying element. Do not expose the full native element prop surface by default.
 - Avoid generic prop pass-throughs and broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches unless a concrete Signal Tracker caller needs them.
 - Use component variants for repeated styling patterns instead of pasting the same long Tailwind class strings across call sites.
+- Use `ContentHeader` from `src/components/ui/` for page, section, card, dialog, and form-section headings instead of raw `h1`-`h6` markup. Keep semantic `headingLevel` correct, and use `headingSize` values such as `h1`, `h2`, or `h5` when a heading should follow a different visual scale.
+- Do not add `aria-labelledby` wiring around ordinary `ContentHeader` sections for now; keep the markup uncluttered until Signal Tracker takes on a dedicated accessibility pass.
 - Use semantic HTML, labels, keyboard-safe primitives, and accessibility behavior provided by shadcn/ui or Radix. Avoid bespoke exhaustive ARIA APIs by default.
 - Keep React context hooks, shared behavior helpers, and non-component exports in separate files from component modules when exporting them would violate Fast Refresh lint rules.
 - Use PascalCase filenames for React component files that export a component, such as `Button.tsx`. Keep non-component utility filenames lower-case or domain-named.

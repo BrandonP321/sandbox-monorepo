@@ -1,3 +1,5 @@
+import { ContentHeader } from "@/components/ui";
+
 import { TopicDeleteConfirmation } from "./TopicDeleteConfirmation";
 
 type TopicDangerZoneSectionProps = {
@@ -10,22 +12,13 @@ function TopicDangerZoneSection({
   topicTitle
 }: TopicDangerZoneSectionProps) {
   return (
-    <section
-      aria-labelledby="topic-settings-delete-heading"
-      className="border-danger/30 bg-danger/5 grid gap-3 rounded-md border p-4"
-    >
-      <div>
-        <h2
-          id="topic-settings-delete-heading"
-          className="text-sm font-semibold"
-        >
-          Danger zone
-        </h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Delete permanently removes this topic. Use archive when you only want
-          to remove it from active work.
-        </p>
-      </div>
+    <section className="border-danger/30 bg-danger/5 grid gap-3 rounded-md border p-4">
+      <ContentHeader
+        description="Delete permanently removes this topic. Use archive when you only want to remove it from active work."
+        headingLevel={2}
+        headingSize="h5"
+        title="Danger zone"
+      />
       <TopicDeleteConfirmation topicId={topicId} topicTitle={topicTitle} />
     </section>
   );

@@ -36,4 +36,18 @@ describe("ContentHeader", () => {
       screen.getByRole("heading", { level: 3, name: "Container heading" })
     ).toBeInTheDocument();
   });
+
+  it("allows compact visual heading size without changing semantic heading level", () => {
+    render(
+      <ContentHeader
+        headingLevel={2}
+        headingSize="h5"
+        title="Compact section"
+      />
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Compact section" })
+    ).toHaveClass("text-sm");
+  });
 });

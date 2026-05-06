@@ -44,14 +44,14 @@ function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
   }
 
   return (
-    <section aria-labelledby="topic-timeline-heading">
+    <section>
       <Card>
         <CardHeader>
           <ContentHeader
             description="Compact topic history with inline entry details."
             eyebrow="History"
             headingLevel={2}
-            title={<span id="topic-timeline-heading">Timeline</span>}
+            title="Timeline"
           />
         </CardHeader>
         <CardContent>

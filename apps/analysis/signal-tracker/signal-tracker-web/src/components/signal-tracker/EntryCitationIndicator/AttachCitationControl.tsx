@@ -70,14 +70,9 @@ function AttachCitationControl({
   }
 
   return (
-    <section
-      aria-labelledby={`attach-citation-${entryId}`}
-      className="grid gap-3"
-    >
+    <section className="grid gap-3">
       <div>
-        <h4 id={`attach-citation-${entryId}`} className="text-sm font-semibold">
-          Attach source
-        </h4>
+        <h4 className="text-sm font-semibold">Attach source</h4>
         <p className="text-muted-foreground mt-1 text-xs">
           Attach saved evidence or paste a URL for this entry.
         </p>

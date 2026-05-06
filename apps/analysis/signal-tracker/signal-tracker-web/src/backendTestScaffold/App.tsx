@@ -385,7 +385,7 @@ function TopicListScreen({
   }, []);
 
   return (
-    <section className="topic-list" aria-labelledby="topic-list-title">
+    <section className="topic-list">
       <header className="section-heading topic-list__header">
         <div>
           <p className="eyebrow">Topic home</p>
@@ -413,10 +413,7 @@ function TopicListScreen({
 
       {topicListState.status === "success" &&
       topicListState.data.topics.length === 0 ? (
-        <section
-          className="topic-empty-state"
-          aria-labelledby="topic-list-empty-title"
-        >
+        <section className="topic-empty-state">
           <p className="eyebrow">No active topics</p>
           <h3 id="topic-list-empty-title">Create your first topic dossier</h3>
           <p>
@@ -561,7 +558,7 @@ function TopicListCard({
 
 function BackendStatus({ healthState }: { healthState: HealthState }) {
   return (
-    <section className="status-panel" aria-labelledby="backend-status-title">
+    <section className="status-panel">
       <h2 id="backend-status-title">Backend connectivity</h2>
       {healthState.status === "loading" ? (
         <p className="status-text" role="status">
@@ -662,7 +659,6 @@ function TopicCreationScreen({
     <section className="topic-workspace">
       <form
         className="topic-form"
-        aria-labelledby="topic-form-title"
         onSubmit={(event) => void handleTopicSubmit(event)}
       >
         <button
@@ -872,7 +868,7 @@ function TopicDetailScreen({
     topicState.status === "error" && isTopicNotFoundError(topicState.error);
 
   return (
-    <section className="topic-detail" aria-labelledby="topic-detail-title">
+    <section className="topic-detail">
       <div className="topic-detail__actions">
         <button
           className="text-action"
@@ -1623,7 +1619,6 @@ function TopicDossierShell({
     return (
       <form
         className="topic-form topic-edit-form"
-        aria-labelledby="topic-detail-title"
         onSubmit={(event) => void handleTopicUpdateSubmit(event)}
       >
         <div className="section-heading topic-edit-form__header">
@@ -1768,10 +1763,7 @@ function TopicDossierShell({
         onRetryCreate={() => void retryCreateEvent()}
       />
 
-      <section
-        className="topic-lifecycle-panel"
-        aria-labelledby="topic-lifecycle-title"
-      >
+      <section className="topic-lifecycle-panel">
         <div>
           <p className="eyebrow">Lifecycle</p>
           <h3 id="topic-lifecycle-title">Manage topic visibility</h3>
@@ -1820,7 +1812,7 @@ function TopicDossierShell({
         />
       </section>
 
-      <section className="danger-zone" aria-labelledby="topic-delete-title">
+      <section className="danger-zone">
         <p className="eyebrow">Danger zone</p>
         <h3 id="topic-delete-title">Permanently delete topic row</h3>
         <p>
@@ -1917,10 +1909,7 @@ function EvidenceCaptureSection({
     captureState.status === "success" ? captureState.data : null;
 
   return (
-    <section
-      className="evidence-capture"
-      aria-labelledby="evidence-capture-title"
-    >
+    <section className="evidence-capture">
       <div className="evidence-capture__header">
         <div>
           <p className="eyebrow">Evidence</p>
@@ -2509,7 +2498,7 @@ function TopicTimelineSection({
     timelineState.data.items.length > RECENT_TIMELINE_VISIBLE_COUNT;
 
   return (
-    <section className="topic-timeline" aria-labelledby="topic-timeline-title">
+    <section className="topic-timeline">
       <div className="topic-timeline__header">
         <div>
           <p className="eyebrow">Timeline</p>
@@ -2640,7 +2629,7 @@ function ReviewNotesSection({
   onRetryCreate: () => void;
 }) {
   return (
-    <section className="review-notes" aria-labelledby="review-notes-title">
+    <section className="review-notes">
       <div className="review-notes__header">
         <div>
           <p className="eyebrow">Review notes</p>
@@ -2767,7 +2756,7 @@ function EventEntriesSection({
   onRetryCreate: () => void;
 }) {
   return (
-    <section className="event-entries" aria-labelledby="event-entries-title">
+    <section className="event-entries">
       <div className="event-entries__header">
         <div>
           <p className="eyebrow">Events</p>
@@ -2890,10 +2879,7 @@ function CurrentAssessmentSection({
   onRetryCreate: () => void;
 }) {
   return (
-    <section
-      className="current-assessment"
-      aria-labelledby="current-assessment-title"
-    >
+    <section className="current-assessment">
       <div className="current-assessment__header">
         <div>
           <p className="eyebrow">Assessment</p>
@@ -3419,7 +3405,7 @@ function MetadataItem({ label, value }: { label: string; value: string }) {
 
 function TopicNotFound({ topicId }: { topicId: string }) {
   return (
-    <section className="topic-empty-state" aria-labelledby="topic-detail-title">
+    <section className="topic-empty-state">
       <p className="eyebrow">Topic not found</p>
       <h2 id="topic-detail-title">No topic dossier found</h2>
       <p>
@@ -3432,7 +3418,7 @@ function TopicNotFound({ topicId }: { topicId: string }) {
 
 function RouteNotFound({ onNavigateHome }: { onNavigateHome: () => void }) {
   return (
-    <section className="topic-empty-state" aria-labelledby="topic-detail-title">
+    <section className="topic-empty-state">
       <p className="eyebrow">Unknown route</p>
       <h2 id="topic-detail-title">This Signal Tracker page does not exist</h2>
       <p>Open the topic list to choose or create a dossier.</p>

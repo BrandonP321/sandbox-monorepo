@@ -594,14 +594,14 @@ describe("App", () => {
       screen.getByRole("button", { name: "Topic settings" })
     ).toBeEnabled();
     expect(
-      screen.getByRole("region", { name: "Timeline" })
+      screen.getByRole("heading", { name: "Timeline" })
     ).toBeInTheDocument();
     expect(apiMocks.useListTopicTimelineQuery).toHaveBeenLastCalledWith({
       topicId: "topic-1"
     });
     expect(screen.getByText("No timeline entries yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("complementary", { name: "Current assessment" })
+      screen.getByRole("heading", { name: "Current assessment" })
     ).toBeInTheDocument();
     expect(screen.getByText("No assessment yet")).toBeInTheDocument();
     expect(
@@ -650,10 +650,10 @@ describe("App", () => {
       })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("article", { name: "Ceasefire talks resume" })
+      screen.getByRole("heading", { name: "Ceasefire talks resume" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("article", { name: "Strike risk assessment" })
+      screen.getByRole("heading", { name: "Strike risk assessment" })
     ).toBeInTheDocument();
     expect(screen.getByText("Assessment Update")).toBeInTheDocument();
     expect(screen.getByText("55% probability")).toBeInTheDocument();
@@ -1029,34 +1029,22 @@ describe("App", () => {
       await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
     ).toBeInTheDocument();
 
-    const currentAssessmentRegion = screen.getByRole("complementary", {
-      name: "Current assessment"
-    });
-
     expect(
-      within(currentAssessmentRegion).getByText(
+      screen.getByText(
         "Risk is rising but still constrained by diplomatic incentives."
       )
     ).toBeInTheDocument();
+    expect(screen.getByText("Medium")).toBeInTheDocument();
+    expect(screen.getByText("55% probability")).toBeInTheDocument();
+    expect(screen.getByText("May 1, 2026")).toBeInTheDocument();
     expect(
-      within(currentAssessmentRegion).getByText("Medium")
+      screen.getByText("Backchannel talks remain active.")
     ).toBeInTheDocument();
     expect(
-      within(currentAssessmentRegion).getByText("55% probability")
+      screen.getByText("Watch for evacuation orders.")
     ).toBeInTheDocument();
     expect(
-      within(currentAssessmentRegion).getByText("May 1, 2026")
-    ).toBeInTheDocument();
-    expect(
-      within(currentAssessmentRegion).getByText(
-        "Backchannel talks remain active."
-      )
-    ).toBeInTheDocument();
-    expect(
-      within(currentAssessmentRegion).getByText("Watch for evacuation orders.")
-    ).toBeInTheDocument();
-    expect(
-      within(currentAssessmentRegion).getByRole("button", {
+      screen.getByRole("button", {
         name: "Update assessment"
       })
     ).toBeEnabled();
@@ -1130,7 +1118,7 @@ describe("App", () => {
     renderApp();
 
     expect(
-      await screen.findByRole("article", { name: "Ceasefire talks resume" })
+      await screen.findByRole("heading", { name: "Ceasefire talks resume" })
     ).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Edit" }));
 

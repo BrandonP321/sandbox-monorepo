@@ -5,12 +5,11 @@ import {
   Card,
   CardContent,
   CardHeader,
+  ContentHeader,
   EmptyState
 } from "@/components/ui";
 
 import { CurrentAssessmentContent } from "./components/CurrentAssessmentContent";
-
-const currentAssessmentHeadingId = "current-assessment-heading";
 
 type CurrentAssessmentPanelProps = {
   assessment: AssessmentUpdate | null;
@@ -26,30 +25,23 @@ function CurrentAssessmentPanel({
   return (
     <Card className="lg:sticky lg:top-6">
       <CardHeader>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0">
-            <p className="text-muted-foreground text-xs font-medium uppercase">
-              Assessment
-            </p>
-            <h2
-              id={currentAssessmentHeadingId}
-              className="mt-1 text-lg font-semibold"
+        <ContentHeader
+          actions={
+            <Button
+              disabled={!onAssessmentAction}
+              onClick={onAssessmentAction}
+              size="sm"
+              variant="outline"
             >
-              Current assessment
-            </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
-              Latest active assessment update.
-            </p>
-          </div>
-          <Button
-            disabled={!onAssessmentAction}
-            onClick={onAssessmentAction}
-            size="sm"
-            variant="outline"
-          >
-            {actionLabel}
-          </Button>
-        </div>
+              {actionLabel}
+            </Button>
+          }
+          description="Latest active assessment update."
+          eyebrow="Assessment"
+          headingLevel={2}
+          headingSize="h3"
+          title="Current assessment"
+        />
       </CardHeader>
       <CardContent>
         {assessment ? (

@@ -102,10 +102,7 @@ function TopicDetailsWorkspace({
       <TopicDetailsHeader onAddEvent={openCreateEventComposer} topic={topic} />
 
       <div className="grid gap-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <aside
-          aria-labelledby="current-assessment-heading"
-          className="lg:col-start-2 lg:row-start-1"
-        >
+        <aside className="lg:col-start-2 lg:row-start-1">
           <CurrentAssessmentPanel
             assessment={currentAssessment}
             onAssessmentAction={() => setIsAssessmentComposerOpen(true)}

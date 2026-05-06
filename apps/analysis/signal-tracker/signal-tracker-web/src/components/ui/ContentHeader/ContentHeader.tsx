@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 type ContentHeaderNativeProps = Pick<React.ComponentProps<"div">, "className">;
 
 type ContentHeaderHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
+type ContentHeaderHeadingSize = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 
 type ContentHeaderHeadingRenderProps = {
   children: ReactNode;
@@ -23,19 +24,29 @@ type ContentHeaderProps = ContentHeaderNativeProps & {
   description?: ReactNode;
   eyebrow?: ReactNode;
   headingLevel: ContentHeaderHeadingLevel;
+  headingSize?: ContentHeaderHeadingSize;
   renderDescription?: (props: ContentHeaderDescriptionRenderProps) => ReactNode;
   renderHeading?: (props: ContentHeaderHeadingRenderProps) => ReactNode;
   title: ReactNode;
 };
 
-const headingClassNameByLevel = {
-  1: "text-3xl",
-  2: "text-xl",
-  3: "text-lg",
-  4: "text-base",
-  5: "text-sm",
-  6: "text-sm"
-} satisfies Record<ContentHeaderHeadingLevel, string>;
+const defaultHeadingSizeByLevel = {
+  1: "h1",
+  2: "h2",
+  3: "h3",
+  4: "h4",
+  5: "h5",
+  6: "h6"
+} satisfies Record<ContentHeaderHeadingLevel, ContentHeaderHeadingSize>;
+
+const headingClassNameBySize = {
+  h1: "text-3xl",
+  h2: "text-xl",
+  h3: "text-lg",
+  h4: "text-base",
+  h5: "text-sm",
+  h6: "text-sm"
+} satisfies Record<ContentHeaderHeadingSize, string>;
 
 function ContentHeader({
   actions,
@@ -43,6 +54,7 @@ function ContentHeader({
   description,
   eyebrow,
   headingLevel,
+  headingSize = defaultHeadingSizeByLevel[headingLevel],
   renderDescription,
   renderHeading,
   title
@@ -50,7 +62,7 @@ function ContentHeader({
   const headingClassName = cn(
     "font-semibold",
     eyebrow ? "mt-1" : undefined,
-    headingClassNameByLevel[headingLevel]
+    headingClassNameBySize[headingSize]
   );
   const descriptionClassName = "text-muted-foreground mt-1 text-sm";
 
@@ -142,5 +154,6 @@ export {
   type ContentHeaderDescriptionRenderProps,
   type ContentHeaderHeadingRenderProps,
   type ContentHeaderHeadingLevel,
+  type ContentHeaderHeadingSize,
   type ContentHeaderProps
 };

@@ -3,6 +3,7 @@ import { FormProvider } from "@repo/ui-base";
 import { useCreateAssessmentUpdateMutation } from "@/api";
 import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
 import {
+  ContentHeader,
   Form,
   FormButton,
   FormDateInput,
@@ -107,22 +108,13 @@ function AssessmentUpdateComposerForm({
 
 function AssessmentUpdateOptionalFields() {
   return (
-    <section
-      aria-labelledby="assessment-optional-fields-heading"
-      className="border-border grid gap-4 border-t pt-4"
-    >
-      <div>
-        <h3
-          id="assessment-optional-fields-heading"
-          className="text-sm font-semibold"
-        >
-          Optional details
-        </h3>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Add probability and resolution details only when they clarify the
-          assessment.
-        </p>
-      </div>
+    <section className="border-border grid gap-4 border-t pt-4">
+      <ContentHeader
+        description="Add probability and resolution details only when they clarify the assessment."
+        headingLevel={3}
+        headingSize="h5"
+        title="Optional details"
+      />
       <div className="grid items-start gap-4 sm:grid-cols-2">
         <FormNumberInput<AssessmentUpdateComposerFormValues>
           label="Probability"

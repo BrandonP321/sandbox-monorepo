@@ -38,12 +38,10 @@ function TimelineEntryRow({
   sourceIndicatorSlot
 }: TimelineEntryRowProps) {
   const { entry } = item;
-  const titleId = `timeline-entry-${entry.id}-title`;
   const kindLabel = formatTimelineItemKind(item.kind);
 
   return (
     <article
-      aria-labelledby={titleId}
       className={cn(
         "bg-card border-border overflow-hidden rounded-md border border-l-4 shadow-xs",
         item.kind === "assessment"
@@ -69,9 +67,7 @@ function TimelineEntryRow({
           </div>
 
           <div className="min-w-0">
-            <h3 id={titleId} className="text-sm font-semibold">
-              {entry.title}
-            </h3>
+            <h3 className="text-sm font-semibold">{entry.title}</h3>
             {item.kind === "assessment" ? (
               <p className="text-muted-foreground mt-1 text-sm leading-6">
                 {item.assessment.judgment}

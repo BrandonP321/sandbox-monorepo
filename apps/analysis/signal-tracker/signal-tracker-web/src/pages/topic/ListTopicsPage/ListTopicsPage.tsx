@@ -47,7 +47,7 @@ export function ListTopicsPage() {
           />
         </header>
 
-        <section className="py-5" aria-labelledby="list-topics-heading">
+        <section className="py-5">
           <ContentHeader
             actions={
               <div className="w-full md:max-w-sm">
@@ -66,7 +66,7 @@ export function ListTopicsPage() {
             }
             description="Titles, framing questions, and compact scope notes only."
             headingLevel={2}
-            title={<span id="list-topics-heading">Active topics</span>}
+            title="Active topics"
           />
 
           <div className="mt-4">

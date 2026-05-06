@@ -6,7 +6,7 @@ import {
 
 import { useUpdateTopicMutation } from "@/api";
 import { TopicForm } from "@/components/signal-tracker/TopicForm";
-import { useDialogContext } from "@/components/ui";
+import { ContentHeader, useDialogContext } from "@/components/ui";
 
 type TopicMetadataSectionProps = {
   topic: Topic;
@@ -17,6 +17,7 @@ function TopicMetadataSection({ topic }: TopicMetadataSectionProps) {
   const [updateTopic, { errorMessage }] = useUpdateTopicMutation();
 
   async function handleUpdate(metadata: TopicMetadata) {
+    // TODO: What happens if `parse` throws here?  What is the purpose of `parse`?
     const request = updateTopicRequestSchema.parse({
       topicId: topic.id,
       title: metadata.title,
@@ -28,13 +29,8 @@ function TopicMetadataSection({ topic }: TopicMetadataSectionProps) {
   }
 
   return (
-    <section aria-labelledby="topic-settings-metadata-heading">
-      <h2
-        id="topic-settings-metadata-heading"
-        className="text-sm font-semibold"
-      >
-        Metadata
-      </h2>
+    <section>
+      <ContentHeader headingLevel={2} headingSize="h5" title="Metadata" />
       <div className="mt-3">
         <TopicForm
           error={errorMessage}
