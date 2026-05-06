@@ -161,6 +161,7 @@ describe("Dialog", () => {
 
     expect(screen.getByRole("dialog")).toHaveClass(
       "max-h-[calc(100vh-2rem)]",
+      "supports-[height:100dvh]:max-h-[calc(100dvh-2rem)]",
       "overflow-y-auto"
     );
   });

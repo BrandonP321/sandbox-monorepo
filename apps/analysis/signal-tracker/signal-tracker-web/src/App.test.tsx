@@ -227,6 +227,22 @@ describe("App", () => {
 
     await expectListTopicsPage();
     expect(
+      screen.getByRole("heading", { level: 1, name: "Topics" }).closest("main")
+    ).toHaveClass(
+      "h-screen",
+      "overflow-hidden",
+      "supports-[height:100svh]:h-svh"
+    );
+    expect(
+      screen
+        .getByRole("heading", { level: 1, name: "Topics" })
+        .closest("section")
+    ).toHaveClass(
+      "overflow-y-auto",
+      "overscroll-y-contain",
+      "supports-[height:100svh]:h-svh"
+    );
+    expect(
       screen.getByRole("heading", { level: 2, name: "Active topics" })
     ).toBeInTheDocument();
     expect(

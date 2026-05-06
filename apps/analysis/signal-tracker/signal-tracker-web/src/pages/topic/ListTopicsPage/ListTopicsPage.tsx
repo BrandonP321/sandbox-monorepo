@@ -35,8 +35,8 @@ export function ListTopicsPage() {
   }
 
   return (
-    <main className="bg-background text-foreground min-h-screen">
-      <section className="mx-auto flex min-h-screen w-full max-w-5xl flex-col px-4 py-6 sm:px-6 lg:px-8">
+    <main className="bg-background text-foreground h-screen overflow-hidden supports-[height:100svh]:h-svh">
+      <section className="mx-auto h-screen w-full max-w-5xl overflow-y-auto overscroll-y-contain px-4 py-6 supports-[height:100svh]:h-svh sm:px-6 lg:px-8">
         <header className="border-border border-b pb-5">
           <ContentHeader
             actions={<CreateTopicDialog />}
