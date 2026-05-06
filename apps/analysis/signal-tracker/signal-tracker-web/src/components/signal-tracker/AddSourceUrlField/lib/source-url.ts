@@ -1,12 +1,14 @@
 import { captureEvidenceUrlRequestSchema } from "@repo/signal-tracker-shared";
 import type { EvidenceRecord } from "@repo/signal-tracker-shared";
 
+import { getUrlHostname } from "@/lib/url";
+
 const trailingUrlPunctuationPattern = /[),.;:!?]+$/;
 
 type SourceUrlDisplay = {
   canonicalUrl: string | undefined;
-  faviconUrl: string | undefined;
   publishedDateLabel: string | undefined;
+  sourceDomain: string | undefined;
   sourceLabel: string;
   titleLabel: string;
 };
@@ -75,8 +77,8 @@ function getSourceUrlDisplay(record: EvidenceRecord): SourceUrlDisplay {
 
   return {
     canonicalUrl,
-    faviconUrl: getFaviconUrl(record),
     publishedDateLabel: formatPublishedDate(record.evidenceItem.publishedAt),
+    sourceDomain: domain,
     sourceLabel,
     titleLabel
   };
@@ -87,31 +89,6 @@ function getSourceDomain(record: EvidenceRecord) {
     getUrlHostname(record.source.baseUrl) ??
     getUrlHostname(record.evidenceItem.canonicalUrl)
   );
-}
-
-function getFaviconUrl(record: EvidenceRecord) {
-  const url = record.source.baseUrl ?? record.evidenceItem.canonicalUrl;
-  const hostname = getUrlHostname(url);
-
-  if (!hostname) {
-    return undefined;
-  }
-
-  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(
-    hostname
-  )}&sz=32`;
-}
-
-function getUrlHostname(url: string | undefined) {
-  if (!url) {
-    return undefined;
-  }
-
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return undefined;
-  }
 }
 
 function formatPublishedDate(value: string | undefined) {

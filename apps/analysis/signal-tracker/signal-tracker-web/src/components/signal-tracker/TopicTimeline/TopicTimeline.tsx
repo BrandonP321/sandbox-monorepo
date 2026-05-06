@@ -13,6 +13,7 @@ import {
   LoadingState
 } from "@/components/ui";
 
+import { EntryCitationIndicator } from "../EntryCitationIndicator";
 import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
 
 type TopicTimelineProps = {
@@ -98,6 +99,9 @@ function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
                     item={item}
                     onExpandedChange={(isExpanded) =>
                       setEntryExpanded(item.entry.id, isExpanded)
+                    }
+                    sourceIndicatorSlot={
+                      <EntryCitationIndicator entryId={item.entry.id} />
                     }
                   />
                 </li>

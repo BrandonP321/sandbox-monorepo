@@ -9,10 +9,12 @@ import type {
 import { TopicTimeline } from "./TopicTimeline";
 
 const apiMocks = vi.hoisted(() => ({
+  useListEntryCitationsQuery: vi.fn(),
   useListTopicTimelineQuery: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
+  useListEntryCitationsQuery: apiMocks.useListEntryCitationsQuery,
   useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery
 }));
 
@@ -80,7 +82,15 @@ const assessmentTimelineItem = {
 
 describe("TopicTimeline", () => {
   beforeEach(() => {
+    apiMocks.useListEntryCitationsQuery.mockReset();
     apiMocks.useListTopicTimelineQuery.mockReset();
+    apiMocks.useListEntryCitationsQuery.mockReturnValue({
+      data: { citations: [] },
+      errorMessage: undefined,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
     mockTimelineQuery({ data: { items: [] } });
   });
 
@@ -147,6 +157,15 @@ describe("TopicTimeline", () => {
     expect(screen.getAllByText("Assessment Update")).toHaveLength(1);
     expect(screen.getAllByText("Medium")).toHaveLength(1);
     expect(screen.getAllByText("55% probability")).toHaveLength(1);
+    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith({
+      entryId: "assessment-entry-1"
+    });
+    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith({
+      entryId: "event-entry-1"
+    });
+    expect(apiMocks.useListEntryCitationsQuery).not.toHaveBeenCalledWith({
+      entryId: "review-entry-1"
+    });
   });
 
   it("renders an event edit action through the row action slot", () => {

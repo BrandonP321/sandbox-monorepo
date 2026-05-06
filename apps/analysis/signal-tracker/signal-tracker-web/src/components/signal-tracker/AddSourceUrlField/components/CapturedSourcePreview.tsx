@@ -1,9 +1,9 @@
-import { Globe2, RefreshCw, X } from "lucide-react";
-import { useState } from "react";
+import { RefreshCw, X } from "lucide-react";
 
 import type { EvidenceRecord } from "@repo/signal-tracker-shared";
 
-import { Button } from "@/components/ui";
+import { Button, SourceIcon } from "@/components/ui";
+import { getUrlHostname } from "@/lib/url";
 
 import { getSourceUrlDisplay } from "../lib/source-url";
 
@@ -15,7 +15,7 @@ type CapturedSourcePreviewProps = {
   url: string;
   errorMessage?: string;
 };
-// TODO: Opportunities to create reusable UI components and connect URL entries to form schema?
+
 function CapturedSourcePreview({
   errorMessage,
   onRemove,
@@ -24,18 +24,18 @@ function CapturedSourcePreview({
   status,
   url
 }: CapturedSourcePreviewProps) {
-  const [didFaviconFail, setDidFaviconFail] = useState(false);
+  const fallbackSourceLabel = getUrlHostname(url) ?? "Source";
   const display = record
     ? getSourceUrlDisplay(record)
     : {
         canonicalUrl: url,
-        faviconUrl: undefined,
         publishedDateLabel: undefined,
-        sourceLabel: getUrlFallbackLabel(url),
+        sourceDomain: fallbackSourceLabel,
+        sourceLabel: fallbackSourceLabel,
         titleLabel: url
       };
-  const canShowFavicon = Boolean(display.faviconUrl && !didFaviconFail);
   const sourceActionLabel = display.sourceLabel || url;
+  const sourceIconUrl = record?.source.baseUrl ?? display.canonicalUrl;
 
   return (
     <article
@@ -43,18 +43,7 @@ function CapturedSourcePreview({
       className="border-border bg-background grid grid-cols-[2rem_minmax(0,1fr)_auto] items-start gap-3 rounded-md border px-3 py-2"
     >
       <div className="bg-muted text-muted-foreground flex size-8 items-center justify-center overflow-hidden rounded-md">
-        {canShowFavicon ? (
-          <img
-            alt={`${display.sourceLabel} favicon`}
-            className="size-4"
-            onError={() => setDidFaviconFail(true)}
-            src={display.faviconUrl}
-          />
-        ) : (
-          <span aria-label="Source icon" role="img">
-            <Globe2 aria-hidden="true" className="size-4" />
-          </span>
-        )}
+        <SourceIcon url={sourceIconUrl} />
       </div>
 
       <div className="min-w-0">
@@ -110,14 +99,6 @@ function CapturedSourcePreview({
       </div>
     </article>
   );
-}
-
-function getUrlFallbackLabel(url: string) {
-  try {
-    return new URL(url).hostname;
-  } catch {
-    return "Source";
-  }
 }
 
 export { CapturedSourcePreview, type CapturedSourcePreviewProps };

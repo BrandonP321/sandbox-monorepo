@@ -134,7 +134,7 @@ describe("AddSourceUrlField", () => {
 
   it("renders fallback metadata when captured source data is sparse", async () => {
     unwrapCaptureEvidenceUrl.mockResolvedValueOnce(sparseEvidenceRecord);
-    render(<AddSourceUrlField />);
+    const { container } = render(<AddSourceUrlField />);
 
     fireEvent.paste(screen.getByLabelText("Add source URL"), {
       clipboardData: { getData: () => "https://sparse.example/source" }
@@ -143,27 +143,27 @@ describe("AddSourceUrlField", () => {
     await waitFor(() => {
       expect(screen.getAllByText("Sparse Source").length).toBeGreaterThan(0);
     });
-    expect(
-      screen.getByRole("img", { name: "Source icon" })
-    ).toBeInTheDocument();
+    expect(container.querySelector("svg")).toBeInTheDocument();
   });
 
   it("uses a favicon when available and falls back if the image fails", async () => {
-    render(<AddSourceUrlField />);
+    const { container } = render(<AddSourceUrlField />);
 
     fireEvent.paste(screen.getByLabelText("Add source URL"), {
       clipboardData: { getData: () => "https://agency.example/report" }
     });
 
-    const favicon = await screen.findByRole("img", {
-      name: "Agency favicon"
-    });
+    await screen.findByText("Evidence");
+    const favicon = container.querySelector("img");
 
-    fireEvent.error(favicon);
+    expect(favicon).toHaveAttribute(
+      "src",
+      "https://www.google.com/s2/favicons?domain=agency.example&sz=32"
+    );
 
-    expect(
-      screen.getByRole("img", { name: "Source icon" })
-    ).toBeInTheDocument();
+    fireEvent.error(favicon as HTMLImageElement);
+
+    expect(container.querySelector("img")).not.toBeInTheDocument();
   });
 
   it("shows per-URL pending state while capture is in progress", async () => {

@@ -35,10 +35,12 @@ type SourceUrlItem =
 
 type AddSourceUrlFieldProps = {
   onCapturedRecordsChange?: (records: EvidenceRecord[]) => void;
+  onRecordCaptured?: (record: EvidenceRecord) => void;
 };
 // TODO: Perform a deep review of this component to look for better implementation method and/or composition
 function AddSourceUrlField({
-  onCapturedRecordsChange
+  onCapturedRecordsChange,
+  onRecordCaptured
 }: AddSourceUrlFieldProps) {
   const inputId = useId();
   const validationId = `${inputId}-validation`;
@@ -108,6 +110,8 @@ function AddSourceUrlField({
   ) {
     try {
       const record = await captureEvidenceUrl({ url: item.url }).unwrap();
+
+      onRecordCaptured?.(record);
 
       setItems((currentItems) =>
         currentItems.map((currentItem) =>
