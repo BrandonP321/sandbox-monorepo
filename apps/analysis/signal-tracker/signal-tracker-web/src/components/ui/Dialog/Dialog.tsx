@@ -5,6 +5,7 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import { Alert } from "../Alert";
 import { Button } from "../Button";
 import { ContentHeader } from "../ContentHeader";
 import {
@@ -28,9 +29,15 @@ type DialogContentProps = Pick<
   "children" | "className" | "role"
 > & {
   description?: ReactNode;
+  error?: DialogErrorProps;
   footer?: ReactNode;
   showCloseButton?: boolean;
   title: ReactNode;
+};
+
+type DialogErrorProps = {
+  message?: ReactNode;
+  title?: ReactNode;
 };
 
 type DialogCloseProps = Pick<
@@ -128,6 +135,7 @@ function DialogContent({
   children,
   className,
   description,
+  error,
   footer,
   role,
   showCloseButton = true,
@@ -183,6 +191,12 @@ function DialogContent({
         />
 
         {children}
+
+        {error?.message ? (
+          <Alert title={error.title} variant="danger">
+            {error.message}
+          </Alert>
+        ) : null}
 
         {footer ? (
           <div
@@ -261,6 +275,7 @@ export {
   type DialogCloseProps,
   type DialogConfirmActionsProps,
   type DialogContentProps,
+  type DialogErrorProps,
   type DialogProps,
   type DialogTriggerProps
 };

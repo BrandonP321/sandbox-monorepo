@@ -811,7 +811,9 @@ describe("App", () => {
     expect(deleteTopic).not.toHaveBeenCalled();
 
     fireEvent.change(
-      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      within(alertDialog).getByRole("textbox", {
+        name: "Type Iran strike risk to delete."
+      }),
       {
         target: { value: "Iran" }
       }
@@ -819,7 +821,9 @@ describe("App", () => {
     expect(confirmButton).toBeDisabled();
 
     fireEvent.change(
-      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      within(alertDialog).getByRole("textbox", {
+        name: "Type Iran strike risk to delete."
+      }),
       {
         target: { value: "Iran strike risk" }
       }
@@ -839,7 +843,9 @@ describe("App", () => {
       name: "Delete topic permanently?"
     });
     fireEvent.change(
-      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      within(alertDialog).getByRole("textbox", {
+        name: "Type Iran strike risk to delete."
+      }),
       {
         target: { value: "Iran strike risk" }
       }
@@ -875,7 +881,9 @@ describe("App", () => {
       name: "Delete topic permanently?"
     });
     fireEvent.change(
-      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      within(alertDialog).getByRole("textbox", {
+        name: "Type Iran strike risk to delete."
+      }),
       {
         target: { value: "Iran strike risk" }
       }
@@ -969,7 +977,9 @@ describe("App", () => {
       name: "Delete topic permanently?"
     });
     fireEvent.change(
-      within(alertDialog).getByRole("textbox", { name: "Topic title" }),
+      within(alertDialog).getByRole("textbox", {
+        name: "Type Iran strike risk to delete."
+      }),
       {
         target: { value: "Iran strike risk" }
       }

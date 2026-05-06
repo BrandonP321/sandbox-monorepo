@@ -11,13 +11,19 @@ type FormFieldControlProps = {
   id: string;
 };
 
+type FormFieldLabelNativeProps = Pick<
+  React.ComponentProps<"label">,
+  "className"
+>;
+
 type FormFieldProps = {
   children: (controlProps: FormFieldControlProps) => React.ReactNode;
   className?: string;
   description?: string;
   error?: string;
   id?: string;
-  label: string;
+  label: React.ReactNode;
+  labelClassName?: FormFieldLabelNativeProps["className"];
   required?: boolean;
 };
 
@@ -28,6 +34,7 @@ function FormField({
   error,
   id,
   label,
+  labelClassName,
   required = false
 }: FormFieldProps) {
   const generatedIdRef = useRef<string | null>(null);
@@ -45,7 +52,10 @@ function FormField({
   return (
     <div className={cn("grid gap-2", className)} data-slot="form-field">
       <div className="flex items-center gap-2">
-        <label className="text-sm font-medium" htmlFor={controlId}>
+        <label
+          className={cn("text-sm font-medium", labelClassName)}
+          htmlFor={controlId}
+        >
           {label}
         </label>
         {required ? (

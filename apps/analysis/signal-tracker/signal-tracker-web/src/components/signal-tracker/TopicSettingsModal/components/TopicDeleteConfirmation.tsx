@@ -1,14 +1,11 @@
-import { useId, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 
 import { useDeleteTopicMutation } from "@/api";
 import {
-  Alert,
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogTrigger,
   Button,
-  TextInput
+  DeleteConfirmationDialog,
+  DeleteConfirmationDialogContent,
+  DeleteConfirmationDialogTrigger
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
@@ -17,16 +14,12 @@ type TopicDeleteConfirmationProps = {
   topicTitle: string;
 };
 
-// TODO: Refactor once AlertDialog is simplified
 function TopicDeleteConfirmation({
   topicId,
   topicTitle
 }: TopicDeleteConfirmationProps) {
   const navigate = useNavigate();
-  const confirmationInputId = useId();
-  const [confirmationText, setConfirmationText] = useState("");
   const [deleteTopic, { errorMessage }] = useDeleteTopicMutation();
-  const isConfirmed = confirmationText === topicTitle;
 
   async function handleDelete() {
     await deleteTopic({ topicId }).unwrap();
@@ -34,46 +27,28 @@ function TopicDeleteConfirmation({
   }
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger>
+    <DeleteConfirmationDialog>
+      <DeleteConfirmationDialogTrigger>
         <Button variant="danger">Delete topic</Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent
-        cancelText="Keep topic"
-        confirmDisabled={!isConfirmed}
-        confirmText="Delete permanently"
-        description="This permanently removes the topic. Archive is the reversible way to hide a topic without losing history."
-        loadingText="Deleting topic..."
+      </DeleteConfirmationDialogTrigger>
+      <DeleteConfirmationDialogContent
+        cancelButton={{ text: "Keep topic" }}
+        confirmationText={topicTitle}
+        deleteButton={{
+          loadingText: "Deleting topic...",
+          text: "Delete permanently"
+        }}
+        error={{
+          message: errorMessage,
+          title: "Unable to delete topic"
+        }}
         onConfirm={handleDelete}
         title="Delete topic permanently?"
       >
-        <div className="grid gap-3">
-          <p className="text-muted-foreground text-sm">
-            Type{" "}
-            <span className="font-medium text-foreground">{topicTitle}</span> to
-            confirm.
-          </p>
-          <div className="grid gap-2">
-            <label
-              className="text-sm font-medium"
-              htmlFor={confirmationInputId}
-            >
-              Topic title
-            </label>
-            <TextInput
-              id={confirmationInputId}
-              onChange={(event) => setConfirmationText(event.target.value)}
-              value={confirmationText}
-            />
-          </div>
-          {errorMessage ? (
-            <Alert title="Unable to delete topic" variant="danger">
-              {errorMessage}
-            </Alert>
-          ) : null}
-        </div>
-      </AlertDialogContent>
-    </AlertDialog>
+        This permanently removes the topic. Archive is the reversible way to
+        hide a topic without losing history.
+      </DeleteConfirmationDialogContent>
+    </DeleteConfirmationDialog>
   );
 }
 

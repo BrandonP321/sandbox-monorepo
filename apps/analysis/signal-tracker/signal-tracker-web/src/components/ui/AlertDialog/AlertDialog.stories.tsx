@@ -26,18 +26,20 @@ function AlertDialogStory() {
   return (
     <AlertDialog>
       <AlertDialogTrigger>
-        <Button variant="danger">Delete item</Button>
+        <Button>Publish update</Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        confirmText="Delete"
-        description="This action cannot be undone. Confirm only when the user has enough context to understand the impact."
-        loadingText="Deleting..."
+        alert={{
+          content:
+            "This sends the latest assessment to every view that depends on the topic summary."
+        }}
+        confirmButton={{ loadingText: "Publishing...", text: "Publish" }}
         onConfirm={() => wait()}
-        title="Delete this item?"
+        title="Publish this update?"
       >
-        <p className="text-sm">
-          Alert dialogs should be reserved for irreversible or high-consequence
-          choices that need explicit confirmation before continuing.
+        <p className="text-muted-foreground text-sm">
+          Confirm only when the topic summary is ready to become the current
+          shared assessment.
         </p>
       </AlertDialogContent>
     </AlertDialog>
@@ -51,10 +53,12 @@ function CustomTextAlertDialogStory() {
         <Button variant="outline">Discard changes</Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        cancelText="Keep editing"
-        confirmText="Discard"
-        description="Unsaved edits will be lost if you continue."
-        loadingText="Discarding..."
+        cancelButton={{ text: "Keep editing" }}
+        confirmButton={{
+          loadingText: "Discarding...",
+          text: "Discard",
+          variant: "danger"
+        }}
         onConfirm={() => wait(1800)}
         title="Discard changes?"
       >
@@ -73,10 +77,43 @@ function CustomTextAlertDialogStory() {
   );
 }
 
+function AlertDialogErrorStory() {
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger>
+        <Button variant="outline">Retry publish</Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent
+        alert={{
+          content:
+            "Publishing updates the topic summary shown across the workspace.",
+          title: "Confirm the scope"
+        }}
+        confirmButton={{ loadingText: "Retrying...", text: "Retry" }}
+        error={{
+          message: "The publish request failed. The dialog remains open.",
+          title: "Unable to publish update"
+        }}
+        onConfirm={() => wait()}
+        title="Retry publishing?"
+      >
+        <p className="text-muted-foreground text-sm">
+          The contextual alert remains with the body content, while the error
+          sits near the actions that can resolve it.
+        </p>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export const Basic: Story = {
   render: () => <AlertDialogStory />
 };
 
 export const CustomText: Story = {
   render: () => <CustomTextAlertDialogStory />
+};
+
+export const Error: Story = {
+  render: () => <AlertDialogErrorStory />
 };

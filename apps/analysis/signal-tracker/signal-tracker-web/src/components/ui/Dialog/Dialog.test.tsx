@@ -199,6 +199,60 @@ describe("Dialog", () => {
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
+  it("renders dialog errors directly above footer actions", () => {
+    render(
+      <Dialog>
+        <DialogTrigger>
+          <Button>Open dialog</Button>
+        </DialogTrigger>
+        <DialogContent
+          error={{
+            message: "Save failed.",
+            title: "Unable to save"
+          }}
+          footer={<Button>Retry</Button>}
+          title="Dialog with error"
+        >
+          <p>Dialog body</p>
+        </DialogContent>
+      </Dialog>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
+
+    const alert = screen.getByRole("alert");
+    const retryButton = screen.getByRole("button", { name: "Retry" });
+    const footer = retryButton.closest("[data-slot='dialog-footer']");
+
+    expect(alert).toHaveTextContent("Unable to save");
+    expect(alert).toHaveTextContent("Save failed.");
+    expect(alert.nextElementSibling).toBe(footer);
+  });
+
+  it("does not render an error alert when the error message is missing", () => {
+    render(
+      <Dialog>
+        <DialogTrigger>
+          <Button>Open dialog</Button>
+        </DialogTrigger>
+        <DialogContent
+          error={{
+            message: undefined,
+            title: "Unable to save"
+          }}
+          footer={<Button>Retry</Button>}
+          title="Dialog without error message"
+        >
+          <p>Dialog body</p>
+        </DialogContent>
+      </Dialog>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
   it("renders custom confirm action labels", () => {
     render(
       <Dialog>

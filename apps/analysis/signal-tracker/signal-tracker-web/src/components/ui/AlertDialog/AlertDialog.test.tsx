@@ -26,8 +26,11 @@ function AlertDialogExample({
         <Button>Open alert dialog</Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        description="Alert dialog description"
-        onConfirm={() => undefined}
+        alert={{
+          content: "Alert dialog alert content",
+          title: "Alert dialog alert title"
+        }}
+        onConfirm={() => Promise.resolve()}
         title="Alert dialog heading"
       >
         <p>Alert dialog body</p>
@@ -50,9 +53,7 @@ function ConfirmingAlertDialogExample() {
         <Button>Open alert dialog</Button>
       </AlertDialogTrigger>
       <AlertDialogContent
-        confirmText="Delete"
-        description="Confirm before continuing with the async alert action."
-        loadingText="Deleting..."
+        confirmButton={{ loadingText: "Deleting...", text: "Delete" }}
         onConfirm={() => wait()}
         title="Async alert dialog"
       >
@@ -76,8 +77,13 @@ describe("AlertDialog", () => {
     expect(
       screen.getByRole("heading", { name: "Alert dialog heading" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Alert dialog description")).toBeInTheDocument();
     expect(screen.getByText("Alert dialog body")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Alert dialog alert title"
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Alert dialog alert content"
+    );
     expect(screen.getByText("Alert dialog is open")).toBeInTheDocument();
   });
 
@@ -127,11 +133,9 @@ describe("AlertDialog", () => {
           <Button>Open alert dialog</Button>
         </AlertDialogTrigger>
         <AlertDialogContent
-          cancelText="Keep"
-          confirmText="Discard"
-          description="Choose whether to keep or discard the current work."
-          loadingText="Discarding..."
-          onConfirm={() => undefined}
+          cancelButton={{ text: "Keep" }}
+          confirmButton={{ loadingText: "Discarding...", text: "Discard" }}
+          onConfirm={() => Promise.resolve()}
           title="Custom alert actions"
         >
           <p>Custom alert body</p>
@@ -154,8 +158,7 @@ describe("AlertDialog", () => {
           <Button>Open alert dialog</Button>
         </AlertDialogTrigger>
         <AlertDialogContent
-          confirmDisabled
-          description="Confirm action is blocked until the caller allows it."
+          confirmButton={{ disabled: true }}
           onConfirm={handleConfirm}
           title="Gated alert action"
         >

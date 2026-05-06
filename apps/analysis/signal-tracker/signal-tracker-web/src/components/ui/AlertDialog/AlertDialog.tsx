@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 
+import { Alert, type AlertProps } from "../Alert";
 import { Button } from "../Button";
+import type { ButtonProps } from "../Button";
 import {
   Dialog,
   DialogClose,
@@ -16,17 +18,32 @@ type AlertDialogProps = DialogProps;
 
 type AlertDialogTriggerProps = DialogTriggerProps;
 
+type AlertDialogAlertProps = {
+  content: ReactNode;
+  title?: ReactNode;
+  variant?: AlertProps["variant"];
+};
+
+type AlertDialogButtonProps = {
+  text?: string;
+  variant?: ButtonProps["variant"];
+};
+
+type AlertDialogConfirmButtonProps = AlertDialogButtonProps & {
+  disabled?: boolean;
+  loadingText?: string;
+};
+
 type AlertDialogContentProps = Omit<
   DialogContentProps,
-  "description" | "footer" | "role" | "showCloseButton"
+  "children" | "description" | "footer" | "role" | "showCloseButton"
 > & {
-  cancelText?: string;
-  // TODO: Might not be needed once component is refacctored to use once Dialog is simplified
-  confirmDisabled?: boolean;
-  confirmText?: string;
-  description: ReactNode;
-  loadingText?: string;
-  onConfirm: () => Promise<void> | void;
+  alert?: AlertDialogAlertProps;
+  cancelButton?: AlertDialogButtonProps;
+  children: ReactNode;
+  confirmButton?: AlertDialogConfirmButtonProps;
+  contentAfterAlert?: ReactNode;
+  onConfirm: () => Promise<void>;
 };
 
 function AlertDialog(props: AlertDialogProps) {
@@ -38,31 +55,33 @@ function AlertDialogTrigger(props: AlertDialogTriggerProps) {
 }
 
 function AlertDialogContent({
-  cancelText = "Cancel",
+  alert,
+  cancelButton,
   children,
-  confirmDisabled = false,
-  confirmText = "Confirm",
-  description,
-  loadingText = "Confirming...",
+  confirmButton,
+  contentAfterAlert,
   onConfirm,
   ...contentProps
 }: AlertDialogContentProps) {
   const { isDialogConfirming, runDialogConfirm } = useDialogContext();
+  const cancelText = cancelButton?.text ?? "Cancel";
+  const cancelVariant = cancelButton?.variant ?? "outline";
+  const confirmDisabled = confirmButton?.disabled ?? false;
+  const confirmText = confirmButton?.text ?? "Confirm";
+  const confirmVariant = confirmButton?.variant ?? "default";
+  const loadingText = confirmButton?.loadingText ?? "Confirming...";
 
   async function handleConfirm() {
-    await runDialogConfirm(async () => {
-      await onConfirm();
-    });
+    await runDialogConfirm(onConfirm);
   }
 
   return (
     <DialogContent
       {...contentProps}
-      description={description}
       footer={
         <>
           <DialogClose>
-            <Button disabled={isDialogConfirming} variant="outline">
+            <Button disabled={isDialogConfirming} variant={cancelVariant}>
               {cancelText}
             </Button>
           </DialogClose>
@@ -71,7 +90,7 @@ function AlertDialogContent({
             isLoading={isDialogConfirming}
             loadingLabel={loadingText}
             onClick={() => void handleConfirm()}
-            variant="danger"
+            variant={confirmVariant}
           >
             {confirmText}
           </Button>
@@ -80,7 +99,15 @@ function AlertDialogContent({
       role="alertdialog"
       showCloseButton={false}
     >
-      {children}
+      <div className="grid gap-3">
+        <div>{children}</div>
+        {alert ? (
+          <Alert title={alert.title} variant={alert.variant}>
+            {alert.content}
+          </Alert>
+        ) : null}
+        {contentAfterAlert}
+      </div>
     </DialogContent>
   );
 }
@@ -89,7 +116,10 @@ export {
   AlertDialog,
   AlertDialogContent,
   AlertDialogTrigger,
+  type AlertDialogAlertProps,
+  type AlertDialogButtonProps,
   type AlertDialogContentProps,
+  type AlertDialogConfirmButtonProps,
   type AlertDialogProps,
   type AlertDialogTriggerProps
 };

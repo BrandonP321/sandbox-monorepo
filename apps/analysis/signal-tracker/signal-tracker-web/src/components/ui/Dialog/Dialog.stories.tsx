@@ -76,6 +76,35 @@ function ManualDialogStory() {
   );
 }
 
+function DialogErrorStory() {
+  return (
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="outline">Resolve issue</Button>
+      </DialogTrigger>
+      <DialogContent
+        description="The error alert stays near the actions so users can retry without losing context."
+        error={{
+          message: "The request failed. Review the message and try again.",
+          title: "Unable to save changes"
+        }}
+        footer={
+          <DialogConfirmActions
+            loadingText="Retrying..."
+            onConfirm={() => wait()}
+          />
+        }
+        title="Retry save?"
+      >
+        <p className="text-sm">
+          Dialog-level errors should describe failed work that happened inside
+          the dialog and should remain visible above the footer actions.
+        </p>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ManualDialogFooter() {
   const { closeDialog, isDialogConfirming, runDialogConfirm } =
     useDialogContext();
@@ -115,4 +144,8 @@ export const Basic: Story = {
 
 export const ManualFooter: Story = {
   render: () => <ManualDialogStory />
+};
+
+export const Error: Story = {
+  render: () => <DialogErrorStory />
 };

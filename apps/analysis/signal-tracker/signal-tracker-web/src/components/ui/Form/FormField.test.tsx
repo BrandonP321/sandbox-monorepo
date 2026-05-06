@@ -63,4 +63,16 @@ describe("FormField", () => {
 
     expect(screen.getByText("Required")).toBeInTheDocument();
   });
+
+  it("supports label styling overrides", () => {
+    render(
+      <FormField label="Title" labelClassName="font-normal">
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
+      </FormField>
+    );
+
+    expect(screen.getByText("Title")).toHaveClass("font-normal");
+  });
 });
