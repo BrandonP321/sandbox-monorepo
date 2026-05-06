@@ -21,6 +21,7 @@ function FormButtonHarness() {
   return (
     <ReactHookFormProvider {...form}>
       <form onSubmit={form.handleSubmit(() => new Promise(() => undefined))}>
+        <input aria-label="Title" {...form.register("title")} />
         <FormButton>Cancel</FormButton>
         <SubmitButton loadingLabel="Saving...">Save</SubmitButton>
       </form>
@@ -32,6 +33,9 @@ describe("FormButton", () => {
   it("disables non-submit actions during submit without marking them busy", async () => {
     render(<FormButtonHarness />);
 
+    fireEvent.change(screen.getByLabelText("Title"), {
+      target: { value: "Updated title" }
+    });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     const cancelButton = await screen.findByRole("button", { name: "Cancel" });
@@ -43,6 +47,9 @@ describe("FormButton", () => {
   it("shows submit loading text during submit", async () => {
     render(<FormButtonHarness />);
 
+    fireEvent.change(screen.getByLabelText("Title"), {
+      target: { value: "Updated title" }
+    });
     fireEvent.click(screen.getByRole("button", { name: "Save" }));
 
     const submitButton = await screen.findByRole("button", {

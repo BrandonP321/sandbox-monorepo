@@ -13,11 +13,13 @@ import type {
   ArchiveTopicResponse,
   AssessmentUpdate,
   CreateAssessmentUpdateResponse,
+  CreateEventEntryResponse,
   DeleteTopicResponse,
   GetTopicResponse,
   ListTopicTimelineResponse,
   Topic,
   TopicTimelineItem,
+  UpdateEventEntryResponse,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
 
@@ -27,11 +29,13 @@ import App from "./App";
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),
   useCreateAssessmentUpdateMutation: vi.fn(),
+  useCreateEventEntryMutation: vi.fn(),
   useCreateTopicMutation: vi.fn(),
   useDeleteTopicMutation: vi.fn(),
   useGetTopicQuery: vi.fn(),
   useListTopicTimelineQuery: vi.fn(),
   useListTopicsQuery: vi.fn(),
+  useUpdateEventEntryMutation: vi.fn(),
   useUpdateTopicMutation: vi.fn()
 }));
 
@@ -40,11 +44,13 @@ vi.mock("@/api", () => {
     useArchiveTopicMutation: apiMocks.useArchiveTopicMutation,
     useCreateAssessmentUpdateMutation:
       apiMocks.useCreateAssessmentUpdateMutation,
+    useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
     useDeleteTopicMutation: apiMocks.useDeleteTopicMutation,
     useGetTopicQuery: apiMocks.useGetTopicQuery,
     useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery,
     useListTopicsQuery: apiMocks.useListTopicsQuery,
+    useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation,
     useUpdateTopicMutation: apiMocks.useUpdateTopicMutation
   };
 });
@@ -178,43 +184,55 @@ let applyTopicUpdate: (topic: Topic) => void = () => undefined;
 describe("App", () => {
   const archiveTopic = vi.fn();
   const createAssessmentUpdate = vi.fn();
+  const createEventEntry = vi.fn();
   const createTopic = vi.fn();
   const deleteTopic = vi.fn();
+  const updateEventEntry = vi.fn();
   const updateTopic = vi.fn();
   const unwrapArchiveTopic = vi.fn();
   const unwrapCreateAssessmentUpdate = vi.fn();
+  const unwrapCreateEventEntry = vi.fn();
   const unwrapCreateTopic = vi.fn();
   const unwrapDeleteTopic = vi.fn();
+  const unwrapUpdateEventEntry = vi.fn();
   const unwrapUpdateTopic = vi.fn();
 
   beforeEach(() => {
     window.history.replaceState(null, "", "/");
     archiveTopic.mockReset();
     createAssessmentUpdate.mockReset();
+    createEventEntry.mockReset();
     createTopic.mockReset();
     deleteTopic.mockReset();
+    updateEventEntry.mockReset();
     updateTopic.mockReset();
     unwrapArchiveTopic.mockReset();
     unwrapCreateAssessmentUpdate.mockReset();
+    unwrapCreateEventEntry.mockReset();
     unwrapCreateTopic.mockReset();
     unwrapDeleteTopic.mockReset();
+    unwrapUpdateEventEntry.mockReset();
     unwrapUpdateTopic.mockReset();
     applyTopicUpdate = () => undefined;
     apiMocks.useArchiveTopicMutation.mockReset();
     apiMocks.useCreateAssessmentUpdateMutation.mockReset();
+    apiMocks.useCreateEventEntryMutation.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
     apiMocks.useDeleteTopicMutation.mockReset();
     apiMocks.useGetTopicQuery.mockReset();
     apiMocks.useListTopicTimelineQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
+    apiMocks.useUpdateEventEntryMutation.mockReset();
     apiMocks.useUpdateTopicMutation.mockReset();
     mockArchiveTopicMutation();
     mockCreateAssessmentUpdateMutation();
+    mockCreateEventEntryMutation();
     mockCreateTopicMutation();
     mockDeleteTopicMutation();
     mockGetTopicQuery();
     mockListTopicTimelineQuery();
     mockListTopicsQuery({ data: { topics: [topic] } });
+    mockUpdateEventEntryMutation();
     mockUpdateTopicMutation();
   });
 
@@ -274,6 +292,9 @@ describe("App", () => {
     renderApp();
     const dialog = await openCreateTopicDialog();
 
+    fireEvent.change(within(dialog).getByRole("textbox", { name: "Title" }), {
+      target: { value: " " }
+    });
     fireEvent.click(
       within(dialog).getByRole("button", { name: "Create topic" })
     );
@@ -560,7 +581,7 @@ describe("App", () => {
     expect(
       screen.getByRole("link", { name: "Back to topics" })
     ).toHaveAttribute("href", "/topics");
-    expect(screen.getByRole("button", { name: "Add entry" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Add event" })).toBeEnabled();
     expect(
       screen.getByRole("button", { name: "Topic settings" })
     ).toBeEnabled();
@@ -1055,6 +1076,66 @@ describe("App", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("submits a new event from topic details with the route topic ID", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+
+    fillEventComposer(dialog);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
+
+    await waitFor(() => {
+      expect(createEventEntry).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed"
+      });
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("submits an event edit from a timeline row with the event entry ID", async () => {
+    window.history.replaceState(null, "", "/topics/topic-1");
+    mockListTopicTimelineQuery({
+      data: { items: [eventTimelineItem] }
+    });
+
+    renderApp();
+
+    expect(
+      await screen.findByRole("article", { name: "Ceasefire talks resume" })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+
+    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
+
+    expect(within(dialog).getByLabelText("Title")).toHaveValue(
+      "Ceasefire talks resume"
+    );
+    fillEventComposer(dialog);
+    fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
+
+    await waitFor(() => {
+      expect(updateEventEntry).toHaveBeenCalledWith({
+        entryId: "event-entry-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed"
+      });
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
   it("omits the compact scope note when the topic has none", async () => {
     window.history.replaceState(null, "", "/topics/topic-2");
     mockGetTopicQuery({
@@ -1223,6 +1304,39 @@ describe("App", () => {
     );
   }
 
+  function mockCreateEventEntryMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapCreateEventEntry.mockResolvedValue({
+      entry: eventTimelineItem.entry
+    } satisfies CreateEventEntryResponse);
+    apiMocks.useCreateEventEntryMutation.mockImplementation(
+      function useMockCreateEventEntryMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function createEventEntryTrigger(request: unknown) {
+          createEventEntry(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapCreateEventEntry(request);
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          createEventEntryTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<CreateEventEntryResponse>;
+      }
+    );
+  }
+
   function mockCreateTopicMutation({
     isLoading = false
   }: { isLoading?: boolean } = {}) {
@@ -1372,6 +1486,39 @@ describe("App", () => {
       }
     );
   }
+
+  function mockUpdateEventEntryMutation({
+    isLoading = false
+  }: { isLoading?: boolean } = {}) {
+    unwrapUpdateEventEntry.mockResolvedValue({
+      entry: eventTimelineItem.entry
+    } satisfies UpdateEventEntryResponse);
+    apiMocks.useUpdateEventEntryMutation.mockImplementation(
+      function useMockUpdateEventEntryMutation() {
+        const [errorMessage, setErrorMessage] = useState<string>();
+
+        function updateEventEntryTrigger(request: unknown) {
+          updateEventEntry(request);
+
+          return {
+            async unwrap() {
+              try {
+                return await unwrapUpdateEventEntry(request);
+              } catch (error) {
+                setErrorMessage(getApiErrorMessage(error));
+                throw error;
+              }
+            }
+          };
+        }
+
+        return [
+          updateEventEntryTrigger,
+          { errorMessage, isLoading }
+        ] satisfies MutationHookResult<UpdateEventEntryResponse>;
+      }
+    );
+  }
 });
 
 function mockListTopicsQuery(
@@ -1471,5 +1618,20 @@ function fillAssessmentComposer(dialog: HTMLElement) {
   });
   fireEvent.change(within(dialog).getByLabelText("Indicators"), {
     target: { value: " Watch for evacuation orders " }
+  });
+}
+
+function fillEventComposer(dialog: HTMLElement) {
+  fireEvent.change(within(dialog).getByLabelText("Title"), {
+    target: { value: " Court grants injunction " }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Details"), {
+    target: { value: " The court temporarily blocked the rule. " }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Event date"), {
+    target: { value: "2026-04-25" }
+  });
+  fireEvent.change(within(dialog).getByLabelText("Epistemic status"), {
+    target: { value: "observed" }
   });
 }

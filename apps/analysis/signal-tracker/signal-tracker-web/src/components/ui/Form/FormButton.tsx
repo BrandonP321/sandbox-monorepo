@@ -30,7 +30,13 @@ function FormButton({
 }
 
 function SubmitButton(props: SubmitButtonProps) {
-  return <FormButton {...props} loadingOnSubmit type="submit" />;
+  const {
+    formState: { isDirty }
+  } = useFormContext();
+
+  return (
+    <FormButton {...props} disabled={!isDirty} loadingOnSubmit type="submit" />
+  );
 }
 
 export {

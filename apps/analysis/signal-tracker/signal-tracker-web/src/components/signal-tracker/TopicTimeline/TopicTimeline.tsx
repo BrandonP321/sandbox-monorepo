@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { TopicTimelineItem } from "@repo/signal-tracker-shared";
+import type { Entry, TopicTimelineItem } from "@repo/signal-tracker-shared";
 
 import { useListTopicTimelineQuery } from "@/api";
 import {
@@ -16,10 +16,11 @@ import {
 import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
 
 type TopicTimelineProps = {
+  onEditEventEntry?: (entry: Entry) => void;
   topicId: string;
 };
 
-function TopicTimeline({ topicId }: TopicTimelineProps) {
+function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
   const { data, errorMessage, isError, isLoading, refetch } =
     useListTopicTimelineQuery({ topicId });
   const [expandedEntryIds, setExpandedEntryIds] = useState<Set<string>>(
@@ -82,6 +83,17 @@ function TopicTimeline({ topicId }: TopicTimelineProps) {
               {visibleItems.map((item) => (
                 <li key={item.entry.id}>
                   <TimelineEntryRow
+                    actionClusterSlot={
+                      item.kind === "event" && onEditEventEntry ? (
+                        <Button
+                          onClick={() => onEditEventEntry(item.entry)}
+                          size="sm"
+                          variant="ghost"
+                        >
+                          Edit
+                        </Button>
+                      ) : undefined
+                    }
                     isExpanded={expandedEntryIds.has(item.entry.id)}
                     item={item}
                     onExpandedChange={(isExpanded) =>

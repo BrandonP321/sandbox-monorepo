@@ -149,6 +149,38 @@ describe("TopicTimeline", () => {
     expect(screen.getAllByText("55% probability")).toHaveLength(1);
   });
 
+  it("renders an event edit action through the row action slot", () => {
+    const handleEditEventEntry = vi.fn();
+    mockTimelineQuery({
+      data: {
+        items: [assessmentTimelineItem, eventTimelineItem]
+      }
+    });
+
+    render(
+      <TopicTimeline
+        onEditEventEntry={handleEditEventEntry}
+        topicId="topic-1"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+
+    expect(handleEditEventEntry).toHaveBeenCalledWith(eventTimelineItem.entry);
+    expect(handleEditEventEntry).toHaveBeenCalledTimes(1);
+    expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(1);
+  });
+
+  it("does not render edit actions for assessment-only timelines", () => {
+    mockTimelineQuery({ data: { items: [assessmentTimelineItem] } });
+
+    render(<TopicTimeline onEditEventEntry={vi.fn()} topicId="topic-1" />);
+
+    expect(
+      screen.queryByRole("button", { name: "Edit" })
+    ).not.toBeInTheDocument();
+  });
+
   it("expands and collapses an event row inline", () => {
     mockTimelineQuery({ data: { items: [eventTimelineItem] } });
 

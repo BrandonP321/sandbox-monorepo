@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   signalTrackerApiErrorCodes,
   type AssessmentUpdate,
+  type Entry,
   type Topic
 } from "@repo/signal-tracker-shared";
 
@@ -12,6 +13,7 @@ import { useGetTopicQuery } from "@/api";
 import {
   AssessmentUpdateComposer,
   CurrentAssessmentPanel,
+  EventEntryComposer,
   TopicTimeline,
   TopicSettingsModal
 } from "@/components/signal-tracker";
@@ -72,10 +74,32 @@ function TopicDetailsWorkspace({
 }) {
   const [isAssessmentComposerOpen, setIsAssessmentComposerOpen] =
     useState(false);
+  const [isEventComposerOpen, setIsEventComposerOpen] = useState(false);
+  const [editingEventEntry, setEditingEventEntry] = useState<Entry | null>(
+    null
+  );
+
+  function handleEventComposerOpenChange(open: boolean) {
+    setIsEventComposerOpen(open);
+
+    if (!open) {
+      setEditingEventEntry(null);
+    }
+  }
+
+  function openCreateEventComposer() {
+    setEditingEventEntry(null);
+    setIsEventComposerOpen(true);
+  }
+
+  function openEditEventComposer(entry: Entry) {
+    setEditingEventEntry(entry);
+    setIsEventComposerOpen(true);
+  }
 
   return (
     <>
-      <TopicDetailsHeader topic={topic} />
+      <TopicDetailsHeader onAddEvent={openCreateEventComposer} topic={topic} />
 
       <div className="grid gap-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <aside
@@ -88,20 +112,36 @@ function TopicDetailsWorkspace({
           />
         </aside>
         <div className="lg:col-start-1 lg:row-start-1">
-          <TopicTimeline topicId={topic.id} />
+          <TopicTimeline
+            onEditEventEntry={openEditEventComposer}
+            topicId={topic.id}
+          />
         </div>
       </div>
+      {/* TODO: Can we refactor these composers so that we don't have to manage their open state? */}
       <AssessmentUpdateComposer
         hasCurrentAssessment={currentAssessment !== null}
         onOpenChange={setIsAssessmentComposerOpen}
         open={isAssessmentComposerOpen}
         topicId={topic.id}
       />
+      <EventEntryComposer
+        entry={editingEventEntry}
+        onOpenChange={handleEventComposerOpenChange}
+        open={isEventComposerOpen}
+        topicId={topic.id}
+      />
     </>
   );
 }
 
-function TopicDetailsHeader({ topic }: { topic: Topic }) {
+function TopicDetailsHeader({
+  onAddEvent,
+  topic
+}: {
+  onAddEvent: () => void;
+  topic: Topic;
+}) {
   return (
     <header className="border-border border-b pb-5">
       <Link
@@ -135,10 +175,10 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
 
         <div className="flex flex-wrap gap-2 lg:justify-end">
           <Button
-            disabled
             iconLeft={<Plus aria-hidden="true" className="size-4" />}
+            onClick={onAddEvent}
           >
-            Add entry
+            Add event
           </Button>
           <TopicSettingsModal topic={topic} />
         </div>
