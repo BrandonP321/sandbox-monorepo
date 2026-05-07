@@ -6,11 +6,15 @@ import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 import { CurrentAssessmentPanel } from "./CurrentAssessmentPanel";
 
 const apiMocks = vi.hoisted(() => ({
-  useListEntryCitationsQuery: vi.fn()
+  useAttachEntryCitationMutation: vi.fn(),
+  useCaptureEvidenceUrlMutation: vi.fn(),
+  useDetachEntryCitationMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useListEntryCitationsQuery: apiMocks.useListEntryCitationsQuery
+  useAttachEntryCitationMutation: apiMocks.useAttachEntryCitationMutation,
+  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
+  useDetachEntryCitationMutation: apiMocks.useDetachEntryCitationMutation
 }));
 
 const assessment = {
@@ -49,14 +53,21 @@ const assessment = {
 
 describe("CurrentAssessmentPanel", () => {
   beforeEach(() => {
-    apiMocks.useListEntryCitationsQuery.mockReset();
-    apiMocks.useListEntryCitationsQuery.mockReturnValue({
-      data: { citations: [] },
-      errorMessage: undefined,
-      isError: false,
-      isLoading: false,
-      refetch: vi.fn()
-    });
+    apiMocks.useAttachEntryCitationMutation.mockReset();
+    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
+    apiMocks.useDetachEntryCitationMutation.mockReset();
+    apiMocks.useAttachEntryCitationMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
+    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
+    apiMocks.useDetachEntryCitationMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
   });
 
   it("renders an empty state when no assessment exists", () => {

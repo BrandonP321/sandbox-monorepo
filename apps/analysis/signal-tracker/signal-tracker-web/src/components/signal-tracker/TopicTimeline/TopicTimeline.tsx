@@ -16,7 +16,7 @@ import {
   LoadingState
 } from "@/components/ui";
 
-import { EntryCitationIndicator } from "../EntryCitationIndicator";
+import { EntrySourceIndicator } from "../EntrySourceIndicator";
 import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
 
 type TopicTimelineProps = {
@@ -104,7 +104,7 @@ function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
                       setEntryExpanded(item.entry.id, isExpanded)
                     }
                     sourceIndicatorSlot={
-                      <EntryCitationIndicator
+                      <EntrySourceIndicator
                         entryId={item.entry.id}
                         sources={item.entry.sources}
                       />

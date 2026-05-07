@@ -15,8 +15,10 @@ function getUrlHostname(url: string | undefined) {
     return undefined;
   }
 
+  const normalizedUrl = url.match(/^https?:\/\//i) ? url : `https://${url}`;
+
   try {
-    return new URL(url).hostname;
+    return new URL(normalizedUrl).hostname;
   } catch {
     return undefined;
   }

@@ -15,6 +15,15 @@ describe("SourceIcon", () => {
     );
   });
 
+  it("renders a Google favicon for bare source domains", () => {
+    const { container } = render(<SourceIcon url="agency.example" />);
+
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://www.google.com/s2/favicons?domain=agency.example&sz=32"
+    );
+  });
+
   it("renders the default fallback when the URL has no hostname", () => {
     const { container } = render(<SourceIcon url={undefined} />);
 

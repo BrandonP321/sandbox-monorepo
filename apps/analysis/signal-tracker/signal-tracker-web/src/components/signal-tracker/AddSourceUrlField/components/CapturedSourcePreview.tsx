@@ -46,9 +46,7 @@ function CapturedSourcePreview({
         };
   const sourceActionLabel = display.sourceLabel || url;
   const sourceIconUrl =
-    record?.source.baseUrl ??
-    display.canonicalUrl ??
-    (display.sourceDomain ? `https://${display.sourceDomain}` : undefined);
+    record?.source.baseUrl ?? display.canonicalUrl ?? display.sourceDomain;
 
   return (
     <article

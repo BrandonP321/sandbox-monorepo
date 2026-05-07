@@ -2,7 +2,7 @@ import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 
 import { Badge } from "@/components/ui";
 
-import { EntryCitationIndicator } from "../../EntryCitationIndicator";
+import { EntrySourceIndicator } from "../../EntrySourceIndicator";
 import {
   formatAssessmentConfidence,
   formatAssessmentDate
@@ -33,7 +33,7 @@ function CurrentAssessmentContent({
         >
           {formatAssessmentDate(assessment.entry.sortAt)}
         </time>
-        <EntryCitationIndicator
+        <EntrySourceIndicator
           entryId={assessment.entry.id}
           sources={assessment.entry.sources}
         />

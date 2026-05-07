@@ -9,6 +9,7 @@ import type {
 import { useCaptureEvidenceUrlMutation } from "@/api";
 import { getApiErrorMessage } from "@/api/apiError";
 import { Button, ContentHeader, TextInput } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 import { CapturedSourcePreview } from "./components/CapturedSourcePreview";
 import {
@@ -44,6 +45,10 @@ type SourceUrlItem =
     };
 
 type AddSourceUrlFieldProps = {
+  className?: string;
+  dedupeSources?: AttachedSourceSummary[];
+  description?: string;
+  title?: string;
   initialSources?: AttachedSourceSummary[];
   onCapturedRecordsChange?: (records: EvidenceRecord[]) => void;
   onRecordCaptured?: (record: EvidenceRecord) => void;
@@ -51,10 +56,14 @@ type AddSourceUrlFieldProps = {
 };
 // TODO: Perform a deep review of this component to look for better implementation method and/or composition
 function AddSourceUrlField({
+  className,
+  dedupeSources = [],
+  description = "Paste source URLs for this entry.",
   initialSources = [],
   onCapturedRecordsChange,
   onRecordCaptured,
-  onSourceUrlsChange
+  onSourceUrlsChange,
+  title = "Sources"
 }: AddSourceUrlFieldProps) {
   const inputId = useId();
   const validationId = `${inputId}-validation`;
@@ -103,7 +112,10 @@ function AddSourceUrlField({
   }
 
   function addAcceptedSourceUrls(acceptedUrls: string[]) {
-    const newUrls = filterNewSourceUrls(acceptedUrls, getItemUrls(items));
+    const newUrls = filterNewSourceUrls(acceptedUrls, [
+      ...getItemUrls(items),
+      ...getAttachedSourceUrls(dedupeSources)
+    ]);
 
     if (newUrls.length === 0) {
       setValidationMessage("That source URL is already added.");
@@ -195,12 +207,14 @@ function AddSourceUrlField({
   }
 
   return (
-    <section className="border-border grid gap-3 border-t pt-4">
+    <section
+      className={cn("border-border grid gap-3 border-t pt-4", className)}
+    >
       <ContentHeader
-        description="Paste source URLs for this entry."
+        description={description}
         headingLevel={3}
         headingSize="h5"
-        title="Sources"
+        title={title}
       />
 
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
@@ -268,6 +282,14 @@ function getSourceUrls(items: SourceUrlItem[]) {
 
 function getItemUrls(items: SourceUrlItem[]) {
   return items.map((item) => normalizeSourceUrl(item.url));
+}
+
+function getAttachedSourceUrls(sources: AttachedSourceSummary[]) {
+  return sources.flatMap((source) => {
+    const url = getAttachedSourceUrl(source);
+
+    return url ? [url] : [];
+  });
 }
 
 function createAttachedSourceItems(

@@ -2,6 +2,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
+  AttachedSourceSummary,
   ListTopicTimelineResponse,
   TopicTimelineItem
 } from "@repo/signal-tracker-shared";
@@ -9,12 +10,16 @@ import type {
 import { TopicTimeline } from "./TopicTimeline";
 
 const apiMocks = vi.hoisted(() => ({
-  useListEntryCitationsQuery: vi.fn(),
+  useAttachEntryCitationMutation: vi.fn(),
+  useCaptureEvidenceUrlMutation: vi.fn(),
+  useDetachEntryCitationMutation: vi.fn(),
   useListTopicTimelineQuery: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useListEntryCitationsQuery: apiMocks.useListEntryCitationsQuery,
+  useAttachEntryCitationMutation: apiMocks.useAttachEntryCitationMutation,
+  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
+  useDetachEntryCitationMutation: apiMocks.useDetachEntryCitationMutation,
   useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery
 }));
 
@@ -44,6 +49,17 @@ const eventTimelineItem = {
     sources: []
   }
 } as const satisfies TopicTimelineItem;
+
+const sourceSummary = {
+  id: "citation-1",
+  evidenceItemId: "evidence-1",
+  url: "https://agency.example/report",
+  canonicalUrl: "https://agency.example/report",
+  title: "Agency report",
+  sourceName: "Agency",
+  sourceDomain: "agency.example",
+  relationType: "source_for"
+} as const satisfies AttachedSourceSummary;
 
 const reviewTimelineItem = {
   kind: "review",
@@ -83,15 +99,22 @@ const assessmentTimelineItem = {
 
 describe("TopicTimeline", () => {
   beforeEach(() => {
-    apiMocks.useListEntryCitationsQuery.mockReset();
+    apiMocks.useAttachEntryCitationMutation.mockReset();
+    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
+    apiMocks.useDetachEntryCitationMutation.mockReset();
     apiMocks.useListTopicTimelineQuery.mockReset();
-    apiMocks.useListEntryCitationsQuery.mockReturnValue({
-      data: { citations: [] },
-      errorMessage: undefined,
-      isError: false,
-      isLoading: false,
-      refetch: vi.fn()
-    });
+    apiMocks.useAttachEntryCitationMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
+    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
+    apiMocks.useDetachEntryCitationMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
     mockTimelineQuery({ data: { items: [] } });
   });
 
@@ -158,17 +181,33 @@ describe("TopicTimeline", () => {
     expect(screen.getAllByText("Assessment Update")).toHaveLength(1);
     expect(screen.getAllByText("Medium")).toHaveLength(1);
     expect(screen.getAllByText("55% probability")).toHaveLength(1);
-    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith(
-      { entryId: "assessment-entry-1" },
-      { skip: true }
-    );
-    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith(
-      { entryId: "event-entry-1" },
-      { skip: true }
-    );
-    expect(apiMocks.useListEntryCitationsQuery).not.toHaveBeenCalledWith(
-      { entryId: "review-entry-1" },
-      expect.anything()
+    expect(screen.getAllByText("Uncited")).toHaveLength(2);
+  });
+
+  it("renders source indicators from hydrated timeline read models", () => {
+    mockTimelineQuery({
+      data: {
+        items: [
+          {
+            ...eventTimelineItem,
+            entry: {
+              ...eventTimelineItem.entry,
+              sources: [sourceSummary]
+            }
+          }
+        ]
+      }
+    });
+
+    const { container } = render(<TopicTimeline topicId="topic-1" />);
+
+    expect(
+      screen.getByRole("button", { name: "1 source attached" })
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Uncited")).not.toBeInTheDocument();
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
+      "https://www.google.com/s2/favicons?domain=agency.example&sz=32"
     );
   });
 
