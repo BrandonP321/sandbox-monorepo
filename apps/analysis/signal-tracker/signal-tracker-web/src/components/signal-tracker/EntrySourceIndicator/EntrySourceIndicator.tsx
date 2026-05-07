@@ -4,17 +4,9 @@ import { useState } from "react";
 
 import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
 
-import {
-  Badge,
-  Button,
-  IconStack,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  SourceIcon
-} from "@/components/ui";
+import { Badge, Button, IconStack, SourceIcon } from "@/components/ui";
 
-import { EntrySourcePopover } from "./EntrySourcePopover";
+import { EntrySourceManagerDialog } from "./EntrySourceManagerDialog";
 
 type EntrySourceIndicatorProps = {
   entryId: string;
@@ -22,40 +14,47 @@ type EntrySourceIndicatorProps = {
 };
 
 function EntrySourceIndicator({ entryId, sources }: EntrySourceIndicatorProps) {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const triggerLabel = getTriggerLabel(sources.length);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const sourceUrlSources = getSourceUrlSources(sources);
+  const triggerLabel = getTriggerLabel(sourceUrlSources.length);
 
   return (
-    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-      <PopoverTrigger>
-        <Button
-          aria-label={triggerLabel}
-          className="h-7 px-2"
-          size="sm"
-          variant="ghost"
-        >
-          <IndicatorContent sourceCount={sources.length}>
-            <IconStack
-              items={sources.map((source) => ({
-                icon: (
-                  <SourceIcon
-                    size="sm"
-                    url={
-                      source.url ?? source.canonicalUrl ?? source.sourceDomain
-                    }
-                  />
-                )
-              }))}
-            />
-          </IndicatorContent>
-        </Button>
-      </PopoverTrigger>
-      {isPopoverOpen ? (
-        <PopoverContent align="start" className="w-96 max-w-[calc(100vw-2rem)]">
-          <EntrySourcePopover entryId={entryId} sources={sources} />
-        </PopoverContent>
-      ) : null}
-    </Popover>
+    <>
+      <Button
+        aria-label={triggerLabel}
+        className="h-7 px-2"
+        onClick={() => setIsDialogOpen(true)}
+        size="sm"
+        variant="ghost"
+      >
+        <IndicatorContent sourceCount={sourceUrlSources.length}>
+          <IconStack
+            items={sourceUrlSources.map((source) => ({
+              icon: (
+                <SourceIcon
+                  size="sm"
+                  url={source.url ?? source.canonicalUrl ?? source.sourceDomain}
+                />
+              )
+            }))}
+          />
+        </IndicatorContent>
+      </Button>
+      <EntrySourceManagerDialog
+        entryId={entryId}
+        onOpenChange={setIsDialogOpen}
+        open={isDialogOpen}
+        sources={sourceUrlSources}
+      />
+    </>
+  );
+}
+
+function getSourceUrlSources(sources: AttachedSourceSummary[]) {
+  return sources.filter(
+    (source) =>
+      source.relationType === "source_for" &&
+      (source.url !== undefined || source.canonicalUrl !== undefined)
   );
 }
 

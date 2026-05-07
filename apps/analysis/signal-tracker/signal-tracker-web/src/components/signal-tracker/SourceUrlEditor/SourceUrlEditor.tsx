@@ -7,6 +7,7 @@ import {
   useWatch
 } from "react-hook-form";
 
+import { type EntrySourceInput } from "@repo/signal-tracker-shared";
 import { type FormFieldName } from "@repo/ui-base";
 
 import {
@@ -22,9 +23,7 @@ type SourceUrlEditorNativeProps = Pick<
   "className"
 >;
 
-type SourceUrlEditorRow = {
-  url: string;
-};
+type SourceUrlEditorRow = EntrySourceInput;
 
 type SourceUrlEditorFieldName<TFieldValues extends FieldValues> =
   FieldArrayPathByValue<TFieldValues, SourceUrlEditorRow[]>;

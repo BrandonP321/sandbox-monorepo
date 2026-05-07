@@ -102,6 +102,23 @@ describe("entryApi", () => {
     await expectRouteRequest(fetchMock, "updateEventEntry", request);
   });
 
+  it("replaces entry sources through the shared route contract", async () => {
+    const fetchMock = stubRouteResponse("replaceEntrySources", {
+      entry: eventEntry
+    });
+    const request = {
+      entryId: eventEntry.id,
+      sources: [{ url: "https://agency.example/report" }]
+    } satisfies SignalTrackerRouteRequest<"replaceEntrySources">;
+
+    const result = await makeStore()
+      .dispatch(entryApi.endpoints.replaceEntrySources.initiate(request))
+      .unwrap();
+
+    expect(result.entry).toEqual(eventEntry);
+    await expectRouteRequest(fetchMock, "replaceEntrySources", request);
+  });
+
   it("rejects entry responses that do not match the shared schema", async () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")

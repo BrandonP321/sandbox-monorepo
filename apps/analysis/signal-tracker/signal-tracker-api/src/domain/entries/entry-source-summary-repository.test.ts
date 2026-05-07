@@ -91,10 +91,22 @@ describe("entry source summary repositories", () => {
         createdAt: "2026-04-25T00:00:00.000Z"
       }),
       buildSummaryRows({
+        citationId: "citation-supporting",
+        entryId: "entry-1",
+        evidenceItemId: "evidence-supporting",
+        relationType: "supports"
+      }),
+      buildSummaryRows({
         citationId: "citation-other",
         entryId: "entry-2",
         evidenceItemId: "evidence-other",
         createdAt: "2026-04-25T00:00:00.000Z"
+      }),
+      buildSummaryRows({
+        citationId: "citation-anchored",
+        entryId: "entry-2",
+        evidenceAnchorId: "anchor-1",
+        evidenceItemId: "evidence-anchored"
       })
     ];
     const repository = new PostgresEntrySourceSummaryRepository({
@@ -121,13 +133,17 @@ describe("entry source summary repositories", () => {
 function buildSummaryRows({
   citationId,
   createdAt,
+  evidenceAnchorId,
   entryId,
-  evidenceItemId
+  evidenceItemId,
+  relationType
 }: {
   citationId: string;
-  createdAt: string;
+  createdAt?: string;
+  evidenceAnchorId?: string;
   entryId: string;
   evidenceItemId: string;
+  relationType?: "supports" | "contradicts" | "contextualizes" | "source_for";
 }): EntrySourceSummaryRows {
   const source = buildSourceFixture({ id: `source-${evidenceItemId}` });
   const evidence = buildEvidenceRecordFixture({
@@ -145,7 +161,9 @@ function buildSummaryRows({
         id: citationId,
         entryId,
         evidenceItemId,
-        createdAt
+        ...(createdAt ? { createdAt } : {}),
+        ...(evidenceAnchorId ? { evidenceAnchorId } : {}),
+        relationType: relationType ?? "source_for"
       })
     ),
     evidenceItem: evidenceItemToRow(evidence.evidenceItem),

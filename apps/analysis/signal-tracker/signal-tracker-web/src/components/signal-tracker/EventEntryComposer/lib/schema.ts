@@ -1,11 +1,13 @@
 import {
   entryEpistemicStatusSchema,
-  type Entry,
+  entrySourceInputSchema,
+  type EntryReadModel,
   type EntryEpistemicStatus
 } from "@repo/signal-tracker-shared";
 import { getTodayDateInputValue, isDateInputValue } from "@repo/ui-base";
 import { z } from "zod";
 
+import { createSourceUrlRowsFromAttachedSources } from "../../SourceUrlEditor/lib/source-url-rows";
 import { toDateInputValue } from "./date-input";
 
 const eventDateMessage = "Choose an event date.";
@@ -23,6 +25,7 @@ const eventEntryFormSchema = z.object({
     .trim()
     .min(1, eventDateMessage)
     .refine(isDateInputValue, eventDateMessage),
+  sources: z.array(entrySourceInputSchema),
   title: z.string().trim().min(1, "Enter an event title.")
 });
 
@@ -40,15 +43,17 @@ function createDefaultFormValues(): EventEntryFormValues {
     bodyMd: "",
     epistemicStatus: "",
     eventDate: getTodayDateInputValue(),
+    sources: [],
     title: ""
   };
 }
 
-function createEditFormValues(entry: Entry): EventEntryFormValues {
+function createEditFormValues(entry: EntryReadModel): EventEntryFormValues {
   return {
     bodyMd: entry.bodyMd,
     epistemicStatus: entry.epistemicStatus,
     eventDate: toDateInputValue(entry.sortAt),
+    sources: createSourceUrlRowsFromAttachedSources(entry.sources),
     title: entry.title
   };
 }

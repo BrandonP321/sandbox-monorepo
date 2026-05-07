@@ -20,6 +20,7 @@ import { createGetEvidenceItemHandler } from "../routes/evidence/get-evidence-it
 import { createListEvidenceAnchorsForItemHandler } from "../routes/evidence/list-evidence-anchors-for-item";
 import { createListEvidenceItemsHandler } from "../routes/evidence/list-evidence-items";
 import { createCreateEventEntryHandler } from "../routes/event-entries/create-event-entry";
+import { createReplaceEntrySourcesHandler } from "../routes/entries/replace-entry-sources";
 import { createGetEventEntryHandler } from "../routes/event-entries/get-event-entry";
 import { createListEventEntriesHandler } from "../routes/event-entries/list-event-entries";
 import { createUpdateEventEntryHandler } from "../routes/event-entries/update-event-entry";
@@ -96,6 +97,14 @@ function createRouteHandlers(
       entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     updateEventEntry: createUpdateEventEntryHandler({
+      entryRepository: dependencies.entryRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      entryCitationRepository: dependencies.entryCitationRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now,
+      runInTransaction: dependencies.runInTransaction
+    }),
+    replaceEntrySources: createReplaceEntrySourcesHandler({
       entryRepository: dependencies.entryRepository,
       evidenceRepository: dependencies.evidenceRepository,
       entryCitationRepository: dependencies.entryCitationRepository,

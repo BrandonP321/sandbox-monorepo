@@ -6,15 +6,11 @@ import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 import { CurrentAssessmentPanel } from "./CurrentAssessmentPanel";
 
 const apiMocks = vi.hoisted(() => ({
-  useAttachEntryCitationMutation: vi.fn(),
-  useCaptureEvidenceUrlMutation: vi.fn(),
-  useDetachEntryCitationMutation: vi.fn()
+  useReplaceEntrySourcesMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useAttachEntryCitationMutation: apiMocks.useAttachEntryCitationMutation,
-  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
-  useDetachEntryCitationMutation: apiMocks.useDetachEntryCitationMutation
+  useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation
 }));
 
 const assessment = {
@@ -53,18 +49,8 @@ const assessment = {
 
 describe("CurrentAssessmentPanel", () => {
   beforeEach(() => {
-    apiMocks.useAttachEntryCitationMutation.mockReset();
-    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
-    apiMocks.useDetachEntryCitationMutation.mockReset();
-    apiMocks.useAttachEntryCitationMutation.mockReturnValue([
-      vi.fn(),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      vi.fn(),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-    apiMocks.useDetachEntryCitationMutation.mockReturnValue([
+    apiMocks.useReplaceEntrySourcesMutation.mockReset();
+    apiMocks.useReplaceEntrySourcesMutation.mockReturnValue([
       vi.fn(),
       { errorMessage: undefined, isLoading: false }
     ]);

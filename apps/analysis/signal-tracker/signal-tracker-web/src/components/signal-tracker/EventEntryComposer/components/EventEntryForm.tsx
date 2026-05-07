@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import type { EntryReadModel } from "@repo/signal-tracker-shared";
 import { FormProvider } from "@repo/ui-base";
 
@@ -7,8 +5,9 @@ import {
   useCreateEventEntryMutation,
   useUpdateEventEntryMutation
 } from "@/api";
-import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
+import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
 import {
+  ContentHeader,
   Form,
   FormButton,
   FormDateInput,
@@ -46,15 +45,11 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
   const defaultValues = isEditing
     ? createEditFormValues(entry)
     : createDefaultFormValues();
-  const [sourceUrls, setSourceUrls] = useState<string[]>(() =>
-    getInitialSourceUrls(entry)
-  );
 
   async function handleSubmit(values: EventEntryFormValues) {
     if (isEditing) {
       const request = createUpdateEventEntryRequest({
         entryId: entry.id,
-        sourceUrls,
         values
       });
 
@@ -62,7 +57,7 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
       return;
     }
 
-    const request = createEventEntryRequest({ sourceUrls, topicId, values });
+    const request = createEventEntryRequest({ topicId, values });
 
     await runDialogConfirm(async () => createEventEntry(request).unwrap());
   }
@@ -109,22 +104,23 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
             placeholder="Choose status"
           />
         </div>
-        <AddSourceUrlField
-          initialSources={entry?.sources ?? []}
-          onSourceUrlsChange={setSourceUrls}
-        />
+        <EventSourceFields />
       </Form>
     </FormProvider>
   );
 }
 
-function getInitialSourceUrls(entry: EntryReadModel | null | undefined) {
+function EventSourceFields() {
   return (
-    entry?.sources.flatMap((source) => {
-      const url = source.url ?? source.canonicalUrl;
-
-      return url ? [url] : [];
-    }) ?? []
+    <section className="border-border grid gap-3 border-t pt-4">
+      <ContentHeader
+        description="URLs attached to this event."
+        headingLevel={3}
+        headingSize="h5"
+        title="Sources"
+      />
+      <SourceUrlEditor<EventEntryFormValues> name="sources" />
+    </section>
   );
 }
 

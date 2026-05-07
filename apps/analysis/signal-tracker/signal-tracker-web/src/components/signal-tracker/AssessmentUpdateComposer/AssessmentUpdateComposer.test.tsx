@@ -15,17 +15,14 @@ import type {
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
-import { evidenceRecord } from "@/api/apiTestData";
 
 import { AssessmentUpdateComposer } from "./AssessmentUpdateComposer";
 
 const apiMocks = vi.hoisted(() => ({
-  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateAssessmentUpdateMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
   useCreateAssessmentUpdateMutation: apiMocks.useCreateAssessmentUpdateMutation
 }));
 
@@ -65,8 +62,6 @@ describe("AssessmentUpdateComposer", () => {
   beforeEach(() => {
     createAssessmentUpdate.mockReset();
     unwrapCreateAssessmentUpdate.mockReset();
-    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
-    mockCaptureEvidenceUrlMutation();
     mockCreateAssessmentUpdateMutation();
   });
 
@@ -100,7 +95,7 @@ describe("AssessmentUpdateComposer", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the entry source URL capture field", async () => {
+  it("renders the entry source URL editor", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", {
       name: "Add assessment"
@@ -109,7 +104,9 @@ describe("AssessmentUpdateComposer", () => {
     expect(
       within(dialog).getByRole("heading", { name: "Sources" })
     ).toBeInTheDocument();
-    expect(within(dialog).getByLabelText("Add source URL")).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("button", { name: "Add source" })
+    ).toBeInTheDocument();
   });
 
   it("validates required fields before submitting", async () => {
@@ -200,19 +197,14 @@ describe("AssessmentUpdateComposer", () => {
     });
   });
 
-  it("submits captured source URLs through the assessment update contract", async () => {
+  it("submits source URLs through the assessment update contract", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", {
       name: "Add assessment"
     });
 
     fillRequiredFields(dialog);
-    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
-      clipboardData: {
-        getData: () => "https://agency.example/report"
-      }
-    });
-    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
+    addSourceUrl(dialog, "https://agency.example/report");
     fireEvent.click(
       within(dialog).getByRole("button", { name: "Save assessment" })
     );
@@ -383,13 +375,6 @@ describe("AssessmentUpdateComposer", () => {
       }
     );
   }
-
-  function mockCaptureEvidenceUrlMutation() {
-    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      () => ({ unwrap: () => Promise.resolve(evidenceRecord) }),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-  }
 });
 
 function fillRequiredFields(dialog: HTMLElement) {
@@ -410,4 +395,17 @@ function fillRequiredFields(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Indicators"), {
     target: { value: " Watch for evacuation orders " }
   });
+}
+
+function addSourceUrl(dialog: HTMLElement, url: string) {
+  const sourceCount =
+    within(dialog).queryAllByLabelText(/Source URL \d+/u).length;
+
+  fireEvent.click(within(dialog).getByRole("button", { name: "Add source" }));
+  fireEvent.change(
+    within(dialog).getByLabelText(`Source URL ${sourceCount + 1}`),
+    {
+      target: { value: url }
+    }
+  );
 }

@@ -1,5 +1,6 @@
 import {
   assessmentConfidenceLabelSchema,
+  entrySourceInputSchema,
   type AssessmentConfidenceLabel
 } from "@repo/signal-tracker-shared";
 import {
@@ -46,6 +47,7 @@ const assessmentUpdateComposerSchema = z.object({
     .max(100, probabilityMessage)
     .optional(),
   resolutionCriteria: z.string(),
+  sources: z.array(entrySourceInputSchema),
   targetResolutionDate: z
     .string()
     .trim()
@@ -74,6 +76,7 @@ function createDefaultFormValues(): AssessmentUpdateComposerFormValues {
     judgment: "",
     probabilityPct: undefined,
     resolutionCriteria: "",
+    sources: [],
     targetResolutionDate: ""
   };
 }

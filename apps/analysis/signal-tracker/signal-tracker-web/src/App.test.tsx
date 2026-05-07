@@ -29,16 +29,14 @@ import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),
-  useAttachEntryCitationMutation: vi.fn(),
-  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateAssessmentUpdateMutation: vi.fn(),
   useCreateEventEntryMutation: vi.fn(),
   useCreateTopicMutation: vi.fn(),
   useDeleteTopicMutation: vi.fn(),
-  useDetachEntryCitationMutation: vi.fn(),
   useGetTopicQuery: vi.fn(),
   useListTopicTimelineQuery: vi.fn(),
   useListTopicsQuery: vi.fn(),
+  useReplaceEntrySourcesMutation: vi.fn(),
   useUpdateEventEntryMutation: vi.fn(),
   useUpdateTopicMutation: vi.fn()
 }));
@@ -46,17 +44,15 @@ const apiMocks = vi.hoisted(() => ({
 vi.mock("@/api", () => {
   return {
     useArchiveTopicMutation: apiMocks.useArchiveTopicMutation,
-    useAttachEntryCitationMutation: apiMocks.useAttachEntryCitationMutation,
-    useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
     useCreateAssessmentUpdateMutation:
       apiMocks.useCreateAssessmentUpdateMutation,
     useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
     useCreateTopicMutation: apiMocks.useCreateTopicMutation,
     useDeleteTopicMutation: apiMocks.useDeleteTopicMutation,
-    useDetachEntryCitationMutation: apiMocks.useDetachEntryCitationMutation,
     useGetTopicQuery: apiMocks.useGetTopicQuery,
     useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery,
     useListTopicsQuery: apiMocks.useListTopicsQuery,
+    useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation,
     useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation,
     useUpdateTopicMutation: apiMocks.useUpdateTopicMutation
   };
@@ -232,29 +228,25 @@ describe("App", () => {
     unwrapUpdateTopic.mockReset();
     applyTopicUpdate = () => undefined;
     apiMocks.useArchiveTopicMutation.mockReset();
-    apiMocks.useAttachEntryCitationMutation.mockReset();
-    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
     apiMocks.useCreateAssessmentUpdateMutation.mockReset();
     apiMocks.useCreateEventEntryMutation.mockReset();
     apiMocks.useCreateTopicMutation.mockReset();
     apiMocks.useDeleteTopicMutation.mockReset();
-    apiMocks.useDetachEntryCitationMutation.mockReset();
     apiMocks.useGetTopicQuery.mockReset();
     apiMocks.useListTopicTimelineQuery.mockReset();
     apiMocks.useListTopicsQuery.mockReset();
+    apiMocks.useReplaceEntrySourcesMutation.mockReset();
     apiMocks.useUpdateEventEntryMutation.mockReset();
     apiMocks.useUpdateTopicMutation.mockReset();
     mockArchiveTopicMutation();
-    mockAttachEntryCitationMutation();
-    mockCaptureEvidenceUrlMutation();
     mockCreateAssessmentUpdateMutation();
     mockCreateEventEntryMutation();
     mockCreateTopicMutation();
     mockDeleteTopicMutation();
-    mockDetachEntryCitationMutation();
     mockGetTopicQuery();
     mockListTopicTimelineQuery();
     mockListTopicsQuery({ data: { topics: [topic] } });
+    mockReplaceEntrySourcesMutation();
     mockUpdateEventEntryMutation();
     mockUpdateTopicMutation();
   });
@@ -1326,22 +1318,8 @@ describe("App", () => {
     );
   }
 
-  function mockCaptureEvidenceUrlMutation() {
-    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      () => ({ unwrap: () => Promise.resolve({}) }),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-  }
-
-  function mockAttachEntryCitationMutation() {
-    apiMocks.useAttachEntryCitationMutation.mockReturnValue([
-      () => ({ unwrap: () => Promise.resolve({}) }),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-  }
-
-  function mockDetachEntryCitationMutation() {
-    apiMocks.useDetachEntryCitationMutation.mockReturnValue([
+  function mockReplaceEntrySourcesMutation() {
+    apiMocks.useReplaceEntrySourcesMutation.mockReturnValue([
       () => ({ unwrap: () => Promise.resolve({}) }),
       { errorMessage: undefined, isLoading: false }
     ]);

@@ -10,17 +10,13 @@ import type {
 import { TopicTimeline } from "./TopicTimeline";
 
 const apiMocks = vi.hoisted(() => ({
-  useAttachEntryCitationMutation: vi.fn(),
-  useCaptureEvidenceUrlMutation: vi.fn(),
-  useDetachEntryCitationMutation: vi.fn(),
-  useListTopicTimelineQuery: vi.fn()
+  useListTopicTimelineQuery: vi.fn(),
+  useReplaceEntrySourcesMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useAttachEntryCitationMutation: apiMocks.useAttachEntryCitationMutation,
-  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
-  useDetachEntryCitationMutation: apiMocks.useDetachEntryCitationMutation,
-  useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery
+  useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery,
+  useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation
 }));
 
 type TimelineHookResult = {
@@ -99,19 +95,9 @@ const assessmentTimelineItem = {
 
 describe("TopicTimeline", () => {
   beforeEach(() => {
-    apiMocks.useAttachEntryCitationMutation.mockReset();
-    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
-    apiMocks.useDetachEntryCitationMutation.mockReset();
     apiMocks.useListTopicTimelineQuery.mockReset();
-    apiMocks.useAttachEntryCitationMutation.mockReturnValue([
-      vi.fn(),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      vi.fn(),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-    apiMocks.useDetachEntryCitationMutation.mockReturnValue([
+    apiMocks.useReplaceEntrySourcesMutation.mockReset();
+    apiMocks.useReplaceEntrySourcesMutation.mockReturnValue([
       vi.fn(),
       { errorMessage: undefined, isLoading: false }
     ]);

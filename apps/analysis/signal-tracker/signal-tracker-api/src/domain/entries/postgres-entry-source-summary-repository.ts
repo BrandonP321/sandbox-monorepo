@@ -1,6 +1,9 @@
-import { asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, isNull } from "drizzle-orm";
 
-import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  EntryCitation
+} from "@repo/signal-tracker-shared";
 
 import { getRuntimeDatabase, type SignalTrackerDb } from "../../db/client";
 import { entryCitations, evidenceItems, sources } from "../../db/schema";
@@ -53,7 +56,13 @@ export class DrizzleEntrySourceSummaryRowStore implements EntrySourceSummaryRowS
         eq(entryCitations.evidenceItemId, evidenceItems.id)
       )
       .innerJoin(sources, eq(evidenceItems.sourceId, sources.id))
-      .where(inArray(entryCitations.entryId, entryIds))
+      .where(
+        and(
+          inArray(entryCitations.entryId, entryIds),
+          eq(entryCitations.relationType, "source_for"),
+          isNull(entryCitations.evidenceAnchorId)
+        )
+      )
       .orderBy(
         asc(entryCitations.entryId),
         desc(entryCitations.createdAt),
@@ -79,6 +88,11 @@ export class PostgresEntrySourceSummaryRepository implements EntrySourceSummaryR
 
     for (const row of rows) {
       const citation = mapEntryCitationRow(row.citation);
+
+      if (!isEntrySourceCitation(citation)) {
+        continue;
+      }
+
       const evidence = mapEvidenceRows({
         source: row.source,
         evidenceItem: row.evidenceItem
@@ -91,4 +105,11 @@ export class PostgresEntrySourceSummaryRepository implements EntrySourceSummaryR
 
     return summariesByEntryId;
   }
+}
+
+function isEntrySourceCitation(citation: EntryCitation): boolean {
+  return (
+    citation.relationType === "source_for" &&
+    citation.evidenceAnchorId === undefined
+  );
 }

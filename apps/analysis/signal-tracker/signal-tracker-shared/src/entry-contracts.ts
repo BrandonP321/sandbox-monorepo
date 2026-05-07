@@ -200,3 +200,20 @@ export const updateEventEntryResponseSchema = z.object({
 export type UpdateEventEntryResponse = z.infer<
   typeof updateEventEntryResponseSchema
 >;
+
+export const replaceEntrySourcesRequestSchema = z.object({
+  entryId: trimmedRequiredString,
+  sources: entrySourcesInputSchema
+});
+
+export type ReplaceEntrySourcesRequest = z.infer<
+  typeof replaceEntrySourcesRequestSchema
+>;
+
+export const replaceEntrySourcesResponseSchema = z.object({
+  entry: entrySchema
+});
+
+export type ReplaceEntrySourcesResponse = z.infer<
+  typeof replaceEntrySourcesResponseSchema
+>;

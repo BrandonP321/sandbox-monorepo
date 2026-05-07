@@ -5,6 +5,8 @@ import {
   type GetEventEntryResponse,
   type ListEventEntriesRequest,
   type ListEventEntriesResponse,
+  type ReplaceEntrySourcesRequest,
+  type ReplaceEntrySourcesResponse,
   type UpdateEventEntryRequest,
   type UpdateEventEntryResponse
 } from "@repo/signal-tracker-shared";
@@ -73,6 +75,23 @@ export const entryApi = signalTrackerApi.injectEndpoints({
         ]),
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("updateEventEntry", response)
+    }),
+    replaceEntrySources: builder.mutation<
+      ReplaceEntrySourcesResponse,
+      ReplaceEntrySourcesRequest
+    >({
+      query: (request) =>
+        buildSignalTrackerRouteRequest("replaceEntrySources", request),
+      invalidatesTags: (result, error, request) =>
+        invalidateTagsOnSuccess(result, error, request, (result, request) => [
+          { type: "EntryCitations", id: request.entryId },
+          { type: "EventEntry", id: request.entryId },
+          { type: "EventEntries", id: result.entry.topicId },
+          { type: "Topic", id: result.entry.topicId },
+          { type: "TopicTimeline", id: result.entry.topicId }
+        ]),
+      transformResponse: (response: unknown) =>
+        parseSignalTrackerRouteResponse("replaceEntrySources", response)
     })
   })
 });
@@ -83,6 +102,9 @@ export const useCreateEventEntryMutation = getMutation(
 export const useGetEventEntryQuery = getQuery(entryApi.useGetEventEntryQuery);
 export const useListEventEntriesQuery = getQuery(
   entryApi.useListEventEntriesQuery
+);
+export const useReplaceEntrySourcesMutation = getMutation(
+  entryApi.useReplaceEntrySourcesMutation
 );
 export const useUpdateEventEntryMutation = getMutation(
   entryApi.useUpdateEventEntryMutation

@@ -25,6 +25,8 @@ import {
   listEventEntriesResponseSchema,
   listReviewNotesRequestSchema,
   listReviewNotesResponseSchema,
+  replaceEntrySourcesRequestSchema,
+  replaceEntrySourcesResponseSchema,
   updateEventEntryRequestSchema,
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
@@ -116,6 +118,10 @@ export const signalTrackerRoutes = {
   updateEventEntry: {
     method: "POST",
     path: "/update-event-entry"
+  },
+  replaceEntrySources: {
+    method: "POST",
+    path: "/replace-entry-sources"
   },
   getReviewNote: {
     method: "POST",
@@ -260,6 +266,11 @@ export const signalTrackerRouteContracts = {
     route: signalTrackerRoutes.updateEventEntry,
     requestSchema: updateEventEntryRequestSchema,
     responseSchema: updateEventEntryResponseSchema
+  },
+  replaceEntrySources: {
+    route: signalTrackerRoutes.replaceEntrySources,
+    requestSchema: replaceEntrySourcesRequestSchema,
+    responseSchema: replaceEntrySourcesResponseSchema
   },
   getReviewNote: {
     route: signalTrackerRoutes.getReviewNote,

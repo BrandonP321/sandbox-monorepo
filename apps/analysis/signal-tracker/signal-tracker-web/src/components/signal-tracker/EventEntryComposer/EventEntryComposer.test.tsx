@@ -16,22 +16,16 @@ import type {
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
-import {
-  attachedSourceSummary,
-  evidenceRecord,
-  secondEvidenceRecord
-} from "@/api/apiTestData";
+import { attachedSourceSummary } from "@/api/apiTestData";
 
 import { EventEntryComposer } from "./EventEntryComposer";
 
 const apiMocks = vi.hoisted(() => ({
-  useCaptureEvidenceUrlMutation: vi.fn(),
   useCreateEventEntryMutation: vi.fn(),
   useUpdateEventEntryMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
-  useCaptureEvidenceUrlMutation: apiMocks.useCaptureEvidenceUrlMutation,
   useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
   useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation
 }));
@@ -119,9 +113,7 @@ describe("EventEntryComposer", () => {
     unwrapCreateEventEntry.mockReset();
     unwrapUpdateEventEntry.mockReset();
     apiMocks.useCreateEventEntryMutation.mockReset();
-    apiMocks.useCaptureEvidenceUrlMutation.mockReset();
     apiMocks.useUpdateEventEntryMutation.mockReset();
-    mockCaptureEvidenceUrlMutation();
     mockCreateEventEntryMutation();
     mockUpdateEventEntryMutation();
   });
@@ -161,21 +153,27 @@ describe("EventEntryComposer", () => {
     expect(within(dialog).getByLabelText("Epistemic status")).toHaveValue(
       "reported"
     );
-    expect(within(dialog).getByText("Evidence")).toBeInTheDocument();
-    expect(within(dialog).getByText("Agency")).toBeInTheDocument();
+    expect(within(dialog).getByLabelText("Source URL 1")).toHaveValue(
+      "https://agency.example/report"
+    );
+    expect(
+      within(dialog).getByLabelText("Source preview for agency.example")
+    ).toBeInTheDocument();
     expect(
       within(dialog).getByRole("button", { name: "Save event" })
     ).toBeInTheDocument();
   });
 
-  it("renders the entry source URL capture field", async () => {
+  it("renders the entry source URL editor", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", { name: "Add event" });
 
     expect(
       within(dialog).getByRole("heading", { name: "Sources" })
     ).toBeInTheDocument();
-    expect(within(dialog).getByLabelText("Add source URL")).toBeInTheDocument();
+    expect(
+      within(dialog).getByRole("button", { name: "Add source" })
+    ).toBeInTheDocument();
   });
 
   it("validates required fields before submitting", async () => {
@@ -222,17 +220,12 @@ describe("EventEntryComposer", () => {
     expect(updateEventEntry).not.toHaveBeenCalled();
   });
 
-  it("submits create requests with one captured source URL", async () => {
+  it("submits create requests with one source URL", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", { name: "Add event" });
 
     fillEventForm(dialog);
-    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
-      clipboardData: {
-        getData: () => "https://agency.example/report"
-      }
-    });
-    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
+    addSourceUrl(dialog, "https://agency.example/report");
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
 
     await waitFor(() => {
@@ -247,21 +240,13 @@ describe("EventEntryComposer", () => {
     });
   });
 
-  it("submits create requests with multiple captured source URLs", async () => {
+  it("submits create requests with multiple source URLs", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", { name: "Add event" });
 
     fillEventForm(dialog);
-    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
-      clipboardData: {
-        getData: () =>
-          "https://agency.example/report https://www.reuters.com/world/example"
-      }
-    });
-    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
-    expect(
-      await within(dialog).findByText("Reuters source")
-    ).toBeInTheDocument();
+    addSourceUrl(dialog, "https://agency.example/report");
+    addSourceUrl(dialog, "https://www.reuters.com/world/example");
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
 
     await waitFor(() => {
@@ -304,14 +289,7 @@ describe("EventEntryComposer", () => {
     const dialog = await screen.findByRole("dialog", { name: "Edit event" });
 
     fillEventForm(dialog);
-    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
-      clipboardData: {
-        getData: () => "https://www.reuters.com/world/example"
-      }
-    });
-    expect(
-      await within(dialog).findByText("Reuters source")
-    ).toBeInTheDocument();
+    addSourceUrl(dialog, "https://www.reuters.com/world/example");
     fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
 
     await waitFor(() => {
@@ -334,9 +312,7 @@ describe("EventEntryComposer", () => {
     const dialog = await screen.findByRole("dialog", { name: "Edit event" });
 
     fillEventForm(dialog);
-    fireEvent.click(
-      within(dialog).getByRole("button", { name: "Remove source Agency" })
-    );
+    fireEvent.click(within(dialog).getByRole("button", { name: "Remove" }));
     fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
 
     await waitFor(() => {
@@ -493,27 +469,7 @@ describe("EventEntryComposer", () => {
       }
     );
   }
-
-  function mockCaptureEvidenceUrlMutation() {
-    apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      (request: unknown) => ({
-        unwrap: () => Promise.resolve(getCaptureResponse(request))
-      }),
-      { errorMessage: undefined, isLoading: false }
-    ]);
-  }
 });
-
-function getCaptureResponse(request: unknown) {
-  const url =
-    typeof request === "object" && request !== null && "url" in request
-      ? request.url
-      : undefined;
-
-  return url === "https://www.reuters.com/world/example"
-    ? secondEvidenceRecord
-    : evidenceRecord;
-}
 
 function fillEventForm(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Title"), {
@@ -528,4 +484,17 @@ function fillEventForm(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Epistemic status"), {
     target: { value: "observed" }
   });
+}
+
+function addSourceUrl(dialog: HTMLElement, url: string) {
+  const sourceCount =
+    within(dialog).queryAllByLabelText(/Source URL \d+/u).length;
+
+  fireEvent.click(within(dialog).getByRole("button", { name: "Add source" }));
+  fireEvent.change(
+    within(dialog).getByLabelText(`Source URL ${sourceCount + 1}`),
+    {
+      target: { value: url }
+    }
+  );
 }

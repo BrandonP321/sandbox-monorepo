@@ -11,6 +11,7 @@ const baseValues = {
   judgment: " Escalation risk remains limited. ",
   probabilityPct: undefined,
   resolutionCriteria: "",
+  sources: [],
   targetResolutionDate: ""
 } satisfies AssessmentUpdateComposerFormValues;
 
@@ -18,7 +19,6 @@ describe("createAssessmentUpdateRequest", () => {
   it("trims and converts form fields into the shared request shape", () => {
     expect(
       createAssessmentUpdateRequest({
-        sourceUrls: [],
         topicId: "topic-1",
         values: {
           ...baseValues,
@@ -42,7 +42,6 @@ describe("createAssessmentUpdateRequest", () => {
 
   it("omits blank optional fields", () => {
     const request = createAssessmentUpdateRequest({
-      sourceUrls: [],
       topicId: "topic-1",
       values: baseValues
     });
@@ -65,12 +64,14 @@ describe("createAssessmentUpdateRequest", () => {
   it("includes captured source URLs", () => {
     expect(
       createAssessmentUpdateRequest({
-        sourceUrls: [
-          "https://agency.example/report",
-          "https://www.reuters.com/world/example"
-        ],
         topicId: "topic-1",
-        values: baseValues
+        values: {
+          ...baseValues,
+          sources: [
+            { url: "https://agency.example/report" },
+            { url: "https://www.reuters.com/world/example" }
+          ]
+        }
       })
     ).toMatchObject({
       sources: [
@@ -83,7 +84,6 @@ describe("createAssessmentUpdateRequest", () => {
   it("rejects invalid values through the shared schema", () => {
     expect(() =>
       createAssessmentUpdateRequest({
-        sourceUrls: [],
         topicId: "topic-1",
         values: { ...baseValues, probabilityPct: 101 }
       })

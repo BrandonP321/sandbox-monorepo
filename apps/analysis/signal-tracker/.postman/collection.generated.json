@@ -128,6 +128,39 @@
       ]
     },
     {
+      "name": "Entries",
+      "item": [
+        {
+          "name": "Replace Entry Sources",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/replace-entry-sources",
+              "host": ["{{baseUrl}}"],
+              "path": ["replace-entry-sources"]
+            },
+            "description": "Replaces the managed source URL list for an existing entry.",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"entryId\": \"entry-1\",\n  \"sources\": [\n    {\n      \"url\": \"https://www.reuters.com/world/updated-example\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Event Entries",
       "item": [
         {

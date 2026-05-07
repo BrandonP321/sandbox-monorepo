@@ -1,7 +1,6 @@
 import {
   createAssessmentUpdateRequestSchema,
-  type CreateAssessmentUpdateRequest,
-  type EntrySourceInput
+  type CreateAssessmentUpdateRequest
 } from "@repo/signal-tracker-shared";
 import { splitTextareaLines } from "@repo/ui-base";
 
@@ -9,17 +8,14 @@ import { toDateStart, toOptionalDateStart } from "./date-input";
 import type { AssessmentUpdateComposerFormValues } from "./schema";
 
 function createAssessmentUpdateRequest({
-  sourceUrls,
   topicId,
   values
 }: {
-  sourceUrls: string[];
   topicId: string;
   values: AssessmentUpdateComposerFormValues;
 }): CreateAssessmentUpdateRequest {
   const resolutionCriteria = values.resolutionCriteria.trim();
   const targetResolvesAt = toOptionalDateStart(values.targetResolutionDate);
-  const sources = createSourceInputs(sourceUrls);
 
   return createAssessmentUpdateRequestSchema.parse({
     topicId,
@@ -33,12 +29,8 @@ function createAssessmentUpdateRequest({
     ...(resolutionCriteria === "" ? {} : { resolutionCriteria }),
     ...(targetResolvesAt === undefined ? {} : { targetResolvesAt }),
     sortAt: toDateStart(values.assessmentDate),
-    ...(sources.length === 0 ? {} : { sources })
+    ...(values.sources.length === 0 ? {} : { sources: values.sources })
   });
-}
-
-function createSourceInputs(sourceUrls: string[]): EntrySourceInput[] {
-  return sourceUrls.map((url) => ({ url }));
 }
 
 export { createAssessmentUpdateRequest };

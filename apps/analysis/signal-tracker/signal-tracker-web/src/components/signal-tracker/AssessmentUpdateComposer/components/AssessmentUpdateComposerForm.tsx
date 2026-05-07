@@ -1,8 +1,7 @@
 import { FormProvider } from "@repo/ui-base";
-import { useState } from "react";
 
 import { useCreateAssessmentUpdateMutation } from "@/api";
-import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
+import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
 import {
   ContentHeader,
   Form,
@@ -35,7 +34,6 @@ function AssessmentUpdateComposerForm({
   const { closeDialog, runDialogConfirm } = useDialogContext();
   const [createAssessmentUpdate, { errorMessage }] =
     useCreateAssessmentUpdateMutation();
-  const [sourceUrls, setSourceUrls] = useState<string[]>([]);
 
   const submitLabel = hasCurrentAssessment
     ? "Update assessment"
@@ -43,7 +41,6 @@ function AssessmentUpdateComposerForm({
 
   async function handleSubmit(values: AssessmentUpdateComposerFormValues) {
     const request = createAssessmentUpdateRequest({
-      sourceUrls,
       topicId,
       values
     });
@@ -106,7 +103,7 @@ function AssessmentUpdateComposerForm({
           />
         </div>
         <AssessmentUpdateOptionalFields />
-        <AddSourceUrlField onSourceUrlsChange={setSourceUrls} />
+        <AssessmentSourceFields />
       </Form>
     </FormProvider>
   );
@@ -138,6 +135,20 @@ function AssessmentUpdateOptionalFields() {
         placeholder="What would resolve or falsify this assessment?"
         rows={3}
       />
+    </section>
+  );
+}
+
+function AssessmentSourceFields() {
+  return (
+    <section className="border-border grid gap-3 border-t pt-4">
+      <ContentHeader
+        description="URLs attached to this assessment."
+        headingLevel={3}
+        headingSize="h5"
+        title="Sources"
+      />
+      <SourceUrlEditor<AssessmentUpdateComposerFormValues> name="sources" />
     </section>
   );
 }

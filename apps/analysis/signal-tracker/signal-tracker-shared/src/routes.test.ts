@@ -59,6 +59,10 @@ describe("signalTrackerRoutes", () => {
       method: "POST",
       path: "/update-event-entry"
     });
+    expect(signalTrackerRoutes.replaceEntrySources).toEqual({
+      method: "POST",
+      path: "/replace-entry-sources"
+    });
     expect(signalTrackerRoutes.getReviewNote).toEqual({
       method: "POST",
       path: "/get-review-note"
@@ -135,6 +139,7 @@ describe("signalTrackerRoutes", () => {
       "getEventEntry",
       "listEventEntries",
       "updateEventEntry",
+      "replaceEntrySources",
       "getReviewNote",
       "listReviewNotes",
       "listTopicTimeline",
@@ -163,6 +168,7 @@ describe("signalTrackerRoutes", () => {
       signalTrackerRoutes.getEventEntry,
       signalTrackerRoutes.listEventEntries,
       signalTrackerRoutes.updateEventEntry,
+      signalTrackerRoutes.replaceEntrySources,
       signalTrackerRoutes.getReviewNote,
       signalTrackerRoutes.listReviewNotes,
       signalTrackerRoutes.listTopicTimeline,
@@ -235,6 +241,15 @@ describe("signalTrackerRoutes", () => {
       entryId: "entry-1",
       evidenceItemId: "evidence-1",
       relationType: "supports"
+    });
+    expect(
+      signalTrackerRouteContracts.replaceEntrySources.requestSchema.parse({
+        entryId: " entry-1 ",
+        sources: [{ url: " https://www.reuters.com/world/example " }]
+      })
+    ).toEqual({
+      entryId: "entry-1",
+      sources: [{ url: "https://www.reuters.com/world/example" }]
     });
     expect(
       signalTrackerRouteContracts.getHealth.responseSchema.parse({ ok: true })

@@ -1,26 +1,20 @@
-import { X } from "lucide-react";
-
 import type {
   AttachedSourceSummary,
   EntryCitationRelationType
 } from "@repo/signal-tracker-shared";
 
-import { Button, SourceIcon } from "@/components/ui";
+import { SourceIcon } from "@/components/ui";
 
 import {
   getAttachedSourceUrl,
   getAttachedSourceUrlDisplay
-} from "../AddSourceUrlField/lib/source-url";
+} from "./source-display";
 
 type AttachedSourceSummaryListProps = {
-  onRemoveSource?: (source: AttachedSourceSummary) => void;
-  pendingRemoveSourceId?: string | null;
   sources: AttachedSourceSummary[];
 };
 
 function AttachedSourceSummaryList({
-  onRemoveSource,
-  pendingRemoveSourceId,
   sources
 }: AttachedSourceSummaryListProps) {
   if (sources.length === 0) {
@@ -32,26 +26,15 @@ function AttachedSourceSummaryList({
   return (
     <ul className="grid gap-2">
       {sources.map((source) => (
-        <AttachedSourceSummaryListItem
-          isRemoving={pendingRemoveSourceId === source.id}
-          key={source.id}
-          onRemoveSource={
-            onRemoveSource ? () => onRemoveSource(source) : undefined
-          }
-          source={source}
-        />
+        <AttachedSourceSummaryListItem key={source.id} source={source} />
       ))}
     </ul>
   );
 }
 
 function AttachedSourceSummaryListItem({
-  isRemoving,
-  onRemoveSource,
   source
 }: {
-  isRemoving: boolean;
-  onRemoveSource?: () => void;
   source: AttachedSourceSummary;
 }) {
   const display = getAttachedSourceUrlDisplay(source);
@@ -60,31 +43,17 @@ function AttachedSourceSummaryListItem({
 
   return (
     <li className="border-border bg-background/80 grid gap-2 rounded-md border p-3">
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
-        <div className="flex min-w-0 items-start gap-2">
-          <SourceIcon className="mt-0.5" size="sm" url={sourceIconUrl} />
-          <div className="min-w-0">
-            <p className="text-sm font-medium break-words">
-              {display.titleLabel}
-            </p>
-            <p className="text-muted-foreground mt-1 text-xs">
-              {display.sourceLabel}
-              {sourceDetail !== display.sourceLabel ? ` / ${sourceDetail}` : ""}
-            </p>
-          </div>
+      <div className="flex min-w-0 items-start gap-2">
+        <SourceIcon className="mt-0.5" size="sm" url={sourceIconUrl} />
+        <div className="min-w-0">
+          <p className="text-sm font-medium break-words">
+            {display.titleLabel}
+          </p>
+          <p className="text-muted-foreground mt-1 text-xs">
+            {display.sourceLabel}
+            {sourceDetail !== display.sourceLabel ? ` / ${sourceDetail}` : ""}
+          </p>
         </div>
-        {onRemoveSource ? (
-          <Button
-            aria-label={`Remove source ${display.titleLabel}`}
-            disabled={isRemoving}
-            iconLeft={<X aria-hidden="true" className="size-3.5" />}
-            onClick={onRemoveSource}
-            size="sm"
-            variant="ghost"
-          >
-            {isRemoving ? "Removing..." : "Remove"}
-          </Button>
-        ) : null}
       </div>
 
       <dl className="grid gap-1 text-xs">

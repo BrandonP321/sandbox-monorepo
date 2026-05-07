@@ -21,6 +21,8 @@ import {
   listEventEntriesResponseSchema,
   listReviewNotesRequestSchema,
   listReviewNotesResponseSchema,
+  replaceEntrySourcesRequestSchema,
+  replaceEntrySourcesResponseSchema,
   updateEventEntryRequestSchema,
   updateEventEntryResponseSchema
 } from "./entry-contracts.js";
@@ -320,6 +322,28 @@ describe("entry contracts", () => {
         epistemicStatus: "rumored"
       })
     ).toThrow();
+
+    expect(
+      replaceEntrySourcesRequestSchema.parse({
+        entryId: " entry-1 ",
+        sources: [{ url: " https://www.reuters.com/world/example " }]
+      })
+    ).toEqual({
+      entryId: "entry-1",
+      sources: [{ url: "https://www.reuters.com/world/example" }]
+    });
+    expect(
+      replaceEntrySourcesRequestSchema.parse({
+        entryId: "entry-1",
+        sources: []
+      })
+    ).toEqual({ entryId: "entry-1", sources: [] });
+    expect(() =>
+      replaceEntrySourcesRequestSchema.parse({
+        entryId: "entry-1",
+        sources: [{ url: "not a url" }]
+      })
+    ).toThrow();
   });
 
   it("validates review note read and list requests", () => {
@@ -351,6 +375,9 @@ describe("entry contracts", () => {
       entries: [entry]
     });
     expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({
+      entry: domainEntry
+    });
+    expect(replaceEntrySourcesResponseSchema.parse({ entry })).toEqual({
       entry: domainEntry
     });
   });
