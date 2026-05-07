@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 import {
   entryCitationSchema,
   type EntryCitation,
-  type EntrySourceInput
+  type EntrySourceInput,
+  type EvidenceRecord
 } from "@repo/signal-tracker-shared";
 
 import type { EntryCitationRepository } from "../citations/entry-citation-repository";
@@ -29,9 +30,11 @@ export async function replaceEntrySourceAttachments(
   dependencies: EntrySourceAttachmentDependencies
 ): Promise<EntryCitation[]> {
   const sourceUrls = getUniqueCanonicalSourceUrls(sources);
-  const evidenceRecords = await Promise.all(
-    sourceUrls.map((url) =>
-      captureEvidenceUrlRecord(
+  const evidenceRecords: EvidenceRecord[] = [];
+
+  for (const url of sourceUrls) {
+    evidenceRecords.push(
+      await captureEvidenceUrlRecord(
         { url },
         {
           repository: dependencies.evidenceRepository,
@@ -39,39 +42,41 @@ export async function replaceEntrySourceAttachments(
           now: dependencies.now
         }
       )
-    )
-  );
+    );
+  }
+
   const desiredEvidenceItemIds = new Set(
     evidenceRecords.map((record) => record.evidenceItem.id)
   );
   const existingCitations =
     await dependencies.entryCitationRepository.listByEntry(entryId);
 
-  await Promise.all(
-    existingCitations
-      .filter(isManagedSourceCitation)
-      .filter(
-        (citation) => !desiredEvidenceItemIds.has(citation.evidenceItemId)
-      )
-      .map((citation) =>
-        dependencies.entryCitationRepository.deleteForEntry(
-          entryId,
-          citation.id
-        )
-      )
-  );
+  for (const citation of existingCitations
+    .filter(isManagedSourceCitation)
+    .filter(
+      (citation) => !desiredEvidenceItemIds.has(citation.evidenceItemId)
+    )) {
+    await dependencies.entryCitationRepository.deleteForEntry(
+      entryId,
+      citation.id
+    );
+  }
 
-  return await Promise.all(
-    evidenceRecords.map((record) =>
-      dependencies.entryCitationRepository.createOrFind(
+  const attachedCitations: EntryCitation[] = [];
+
+  for (const record of evidenceRecords) {
+    attachedCitations.push(
+      await dependencies.entryCitationRepository.createOrFind(
         createManagedSourceCitation(
           entryId,
           record.evidenceItem.id,
           dependencies
         )
       )
-    )
-  );
+    );
+  }
+
+  return attachedCitations;
 }
 
 function getUniqueCanonicalSourceUrls(sources: EntrySourceInput[]): string[] {

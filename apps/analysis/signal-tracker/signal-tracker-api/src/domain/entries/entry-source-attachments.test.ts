@@ -1,7 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { InMemoryEntryCitationRepository } from "../citations/entry-citation-repository";
-import { InMemoryEvidenceRepository } from "../evidence/evidence-repository";
+import type {
+  EntryCitation,
+  EvidenceRecord
+} from "@repo/signal-tracker-shared";
+
+import {
+  InMemoryEntryCitationRepository,
+  type EntryCitationRepository
+} from "../citations/entry-citation-repository";
+import {
+  InMemoryEvidenceRepository,
+  type EvidenceRepository
+} from "../evidence/evidence-repository";
 import {
   buildEntryCitationFixture,
   buildEvidenceAnchorFixture,
@@ -144,4 +155,75 @@ describe("replaceEntrySourceAttachments", () => {
       }
     ]);
   });
+
+  it("serializes repository calls for transaction-backed persistence", async () => {
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const entryCitationRepository = new InMemoryEntryCitationRepository();
+    const guardedRepositories = guardConcurrentRepositoryCalls(
+      evidenceRepository,
+      entryCitationRepository
+    );
+
+    await replaceEntrySourceAttachments(
+      "entry-1",
+      [
+        { url: "https://www.reuters.com/world/example" },
+        { url: "https://agency.example/report" }
+      ],
+      {
+        evidenceRepository: guardedRepositories.evidenceRepository,
+        entryCitationRepository: guardedRepositories.entryCitationRepository,
+        generateId: vi
+          .fn(() => "unused")
+          .mockReturnValueOnce("source-1")
+          .mockReturnValueOnce("evidence-1")
+          .mockReturnValueOnce("source-2")
+          .mockReturnValueOnce("evidence-2")
+          .mockReturnValueOnce("citation-1")
+          .mockReturnValueOnce("citation-2"),
+        now: () => new Date("2026-04-25T00:00:00.000Z")
+      }
+    );
+
+    expect(guardedRepositories.maxActiveCalls()).toBe(1);
+  });
 });
+
+function guardConcurrentRepositoryCalls(
+  evidenceRepository: EvidenceRepository,
+  entryCitationRepository: EntryCitationRepository
+) {
+  let activeCalls = 0;
+  let maxActiveCalls = 0;
+
+  async function runGuarded<T>(operation: () => Promise<T>): Promise<T> {
+    activeCalls += 1;
+    maxActiveCalls = Math.max(maxActiveCalls, activeCalls);
+
+    try {
+      await new Promise<void>((resolve) => setTimeout(resolve, 0));
+
+      return await operation();
+    } finally {
+      activeCalls -= 1;
+    }
+  }
+
+  return {
+    evidenceRepository: {
+      create: (record: EvidenceRecord) =>
+        runGuarded(() => evidenceRepository.create(record))
+    },
+    entryCitationRepository: {
+      createOrFind: (citation: EntryCitation) =>
+        runGuarded(() => entryCitationRepository.createOrFind(citation)),
+      deleteForEntry: (entryId: string, citationId: string) =>
+        runGuarded(() =>
+          entryCitationRepository.deleteForEntry(entryId, citationId)
+        ),
+      listByEntry: (entryId: string) =>
+        runGuarded(() => entryCitationRepository.listByEntry(entryId))
+    },
+    maxActiveCalls: () => maxActiveCalls
+  };
+}
