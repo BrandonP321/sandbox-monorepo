@@ -18,6 +18,7 @@ describe("createAssessmentUpdateRequest", () => {
   it("trims and converts form fields into the shared request shape", () => {
     expect(
       createAssessmentUpdateRequest({
+        sourceUrls: [],
         topicId: "topic-1",
         values: {
           ...baseValues,
@@ -41,6 +42,7 @@ describe("createAssessmentUpdateRequest", () => {
 
   it("omits blank optional fields", () => {
     const request = createAssessmentUpdateRequest({
+      sourceUrls: [],
       topicId: "topic-1",
       values: baseValues
     });
@@ -57,11 +59,31 @@ describe("createAssessmentUpdateRequest", () => {
     expect(request).not.toHaveProperty("resolutionCriteria");
     expect(request).not.toHaveProperty("targetResolvesAt");
     expect(request).not.toHaveProperty("title");
+    expect(request).not.toHaveProperty("sources");
+  });
+
+  it("includes captured source URLs", () => {
+    expect(
+      createAssessmentUpdateRequest({
+        sourceUrls: [
+          "https://agency.example/report",
+          "https://www.reuters.com/world/example"
+        ],
+        topicId: "topic-1",
+        values: baseValues
+      })
+    ).toMatchObject({
+      sources: [
+        { url: "https://agency.example/report" },
+        { url: "https://www.reuters.com/world/example" }
+      ]
+    });
   });
 
   it("rejects invalid values through the shared schema", () => {
     expect(() =>
       createAssessmentUpdateRequest({
+        sourceUrls: [],
         topicId: "topic-1",
         values: { ...baseValues, probabilityPct: 101 }
       })

@@ -1,7 +1,10 @@
 import type { ClipboardEvent } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
-import type { EvidenceRecord } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  EvidenceRecord
+} from "@repo/signal-tracker-shared";
 
 import { useCaptureEvidenceUrlMutation } from "@/api";
 import { getApiErrorMessage } from "@/api/apiError";
@@ -11,10 +14,17 @@ import { CapturedSourcePreview } from "./components/CapturedSourcePreview";
 import {
   filterNewSourceUrls,
   getAcceptedSourceUrls,
+  getAttachedSourceUrl,
   normalizeSourceUrl
 } from "./lib/source-url";
 
 type SourceUrlItem =
+  | {
+      id: string;
+      source: AttachedSourceSummary;
+      status: "attached";
+      url: string;
+    }
   | {
       id: string;
       status: "capturing";
@@ -34,25 +44,32 @@ type SourceUrlItem =
     };
 
 type AddSourceUrlFieldProps = {
+  initialSources?: AttachedSourceSummary[];
   onCapturedRecordsChange?: (records: EvidenceRecord[]) => void;
   onRecordCaptured?: (record: EvidenceRecord) => void;
+  onSourceUrlsChange?: (sourceUrls: string[]) => void;
 };
 // TODO: Perform a deep review of this component to look for better implementation method and/or composition
 function AddSourceUrlField({
+  initialSources = [],
   onCapturedRecordsChange,
-  onRecordCaptured
+  onRecordCaptured,
+  onSourceUrlsChange
 }: AddSourceUrlFieldProps) {
   const inputId = useId();
   const validationId = `${inputId}-validation`;
   const itemId = useRef(0);
   const [captureEvidenceUrl] = useCaptureEvidenceUrlMutation();
-  const [items, setItems] = useState<SourceUrlItem[]>([]);
+  const [items, setItems] = useState<SourceUrlItem[]>(() =>
+    createAttachedSourceItems(initialSources)
+  );
   const [sourceUrlInput, setSourceUrlInput] = useState("");
   const [validationMessage, setValidationMessage] = useState<string>();
 
   useEffect(() => {
     onCapturedRecordsChange?.(getCapturedRecords(items));
-  }, [items, onCapturedRecordsChange]);
+    onSourceUrlsChange?.(getSourceUrls(items));
+  }, [items, onCapturedRecordsChange, onSourceUrlsChange]);
 
   function handleAddSourceUrl() {
     addSourceUrls(sourceUrlInput);
@@ -228,6 +245,7 @@ function AddSourceUrlField({
                   : undefined
               }
               record={item.status === "captured" ? item.record : undefined}
+              source={item.status === "attached" ? item.source : undefined}
               status={item.status}
               url={item.url}
             />
@@ -244,8 +262,31 @@ function getCapturedRecords(items: SourceUrlItem[]) {
   );
 }
 
+function getSourceUrls(items: SourceUrlItem[]) {
+  return items.map((item) => item.url);
+}
+
 function getItemUrls(items: SourceUrlItem[]) {
   return items.map((item) => normalizeSourceUrl(item.url));
+}
+
+function createAttachedSourceItems(
+  sources: AttachedSourceSummary[]
+): SourceUrlItem[] {
+  return sources.flatMap((source) => {
+    const url = getAttachedSourceUrl(source);
+
+    return url
+      ? [
+          {
+            id: `attached-source-${source.id}`,
+            source,
+            status: "attached" as const,
+            url
+          }
+        ]
+      : [];
+  });
 }
 
 export { AddSourceUrlField, type AddSourceUrlFieldProps };

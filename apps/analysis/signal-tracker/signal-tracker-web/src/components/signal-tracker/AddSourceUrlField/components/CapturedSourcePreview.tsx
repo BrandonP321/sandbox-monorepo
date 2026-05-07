@@ -1,17 +1,24 @@
 import { RefreshCw, X } from "lucide-react";
 
-import type { EvidenceRecord } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  EvidenceRecord
+} from "@repo/signal-tracker-shared";
 
 import { Button, SourceIcon } from "@/components/ui";
 import { getUrlHostname } from "@/lib/url";
 
-import { getSourceUrlDisplay } from "../lib/source-url";
+import {
+  getAttachedSourceUrlDisplay,
+  getSourceUrlDisplay
+} from "../lib/source-url";
 
 type CapturedSourcePreviewProps = {
   onRemove: () => void;
   onRetry?: () => void;
   record?: EvidenceRecord;
-  status: "captured" | "capturing" | "failed";
+  source?: AttachedSourceSummary;
+  status: "attached" | "captured" | "capturing" | "failed";
   url: string;
   errorMessage?: string;
 };
@@ -21,21 +28,27 @@ function CapturedSourcePreview({
   onRemove,
   onRetry,
   record,
+  source,
   status,
   url
 }: CapturedSourcePreviewProps) {
   const fallbackSourceLabel = getUrlHostname(url) ?? "Source";
-  const display = record
-    ? getSourceUrlDisplay(record)
-    : {
-        canonicalUrl: url,
-        publishedDateLabel: undefined,
-        sourceDomain: fallbackSourceLabel,
-        sourceLabel: fallbackSourceLabel,
-        titleLabel: url
-      };
+  const display = source
+    ? getAttachedSourceUrlDisplay(source)
+    : record
+      ? getSourceUrlDisplay(record)
+      : {
+          canonicalUrl: url,
+          publishedDateLabel: undefined,
+          sourceDomain: fallbackSourceLabel,
+          sourceLabel: fallbackSourceLabel,
+          titleLabel: url
+        };
   const sourceActionLabel = display.sourceLabel || url;
-  const sourceIconUrl = record?.source.baseUrl ?? display.canonicalUrl;
+  const sourceIconUrl =
+    record?.source.baseUrl ??
+    display.canonicalUrl ??
+    (display.sourceDomain ? `https://${display.sourceDomain}` : undefined);
 
   return (
     <article

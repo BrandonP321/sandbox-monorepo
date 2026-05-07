@@ -4,7 +4,7 @@ import { useState } from "react";
 import {
   signalTrackerApiErrorCodes,
   type AssessmentUpdateReadModel,
-  type Entry,
+  type EntryReadModel,
   type Topic
 } from "@repo/signal-tracker-shared";
 
@@ -75,9 +75,8 @@ function TopicDetailsWorkspace({
   const [isAssessmentComposerOpen, setIsAssessmentComposerOpen] =
     useState(false);
   const [isEventComposerOpen, setIsEventComposerOpen] = useState(false);
-  const [editingEventEntry, setEditingEventEntry] = useState<Entry | null>(
-    null
-  );
+  const [editingEventEntry, setEditingEventEntry] =
+    useState<EntryReadModel | null>(null);
 
   function handleEventComposerOpenChange(open: boolean) {
     setIsEventComposerOpen(open);
@@ -92,7 +91,7 @@ function TopicDetailsWorkspace({
     setIsEventComposerOpen(true);
   }
 
-  function openEditEventComposer(entry: Entry) {
+  function openEditEventComposer(entry: EntryReadModel) {
     setEditingEventEntry(entry);
     setIsEventComposerOpen(true);
   }

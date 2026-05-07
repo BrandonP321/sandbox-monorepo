@@ -1,4 +1,5 @@
 import { FormProvider } from "@repo/ui-base";
+import { useState } from "react";
 
 import { useCreateAssessmentUpdateMutation } from "@/api";
 import { AddSourceUrlField } from "@/components/signal-tracker/AddSourceUrlField";
@@ -34,13 +35,18 @@ function AssessmentUpdateComposerForm({
   const { closeDialog, runDialogConfirm } = useDialogContext();
   const [createAssessmentUpdate, { errorMessage }] =
     useCreateAssessmentUpdateMutation();
+  const [sourceUrls, setSourceUrls] = useState<string[]>([]);
 
   const submitLabel = hasCurrentAssessment
     ? "Update assessment"
     : "Save assessment";
 
   async function handleSubmit(values: AssessmentUpdateComposerFormValues) {
-    const request = createAssessmentUpdateRequest({ topicId, values });
+    const request = createAssessmentUpdateRequest({
+      sourceUrls,
+      topicId,
+      values
+    });
 
     await runDialogConfirm(async () =>
       createAssessmentUpdate(request).unwrap()
@@ -100,7 +106,7 @@ function AssessmentUpdateComposerForm({
           />
         </div>
         <AssessmentUpdateOptionalFields />
-        <AddSourceUrlField />
+        <AddSourceUrlField onSourceUrlsChange={setSourceUrls} />
       </Form>
     </FormProvider>
   );

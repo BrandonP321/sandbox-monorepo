@@ -1,11 +1,11 @@
-import type { Entry } from "@repo/signal-tracker-shared";
+import type { EntryReadModel } from "@repo/signal-tracker-shared";
 
 import { Dialog, DialogContent } from "@/components/ui";
 
 import { EventEntryForm } from "./components/EventEntryForm";
 
 type EventEntryComposerProps = {
-  entry?: Entry | null;
+  entry?: EntryReadModel | null;
   onOpenChange: (open: boolean) => void;
   open: boolean;
   topicId: string;

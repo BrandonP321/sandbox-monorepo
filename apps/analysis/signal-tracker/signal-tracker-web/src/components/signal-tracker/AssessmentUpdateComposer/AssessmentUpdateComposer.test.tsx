@@ -15,6 +15,7 @@ import type {
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
+import { evidenceRecord } from "@/api/apiTestData";
 
 import { AssessmentUpdateComposer } from "./AssessmentUpdateComposer";
 
@@ -199,6 +200,36 @@ describe("AssessmentUpdateComposer", () => {
     });
   });
 
+  it("submits captured source URLs through the assessment update contract", async () => {
+    render(<ComposerHarness initialOpen />);
+    const dialog = await screen.findByRole("dialog", {
+      name: "Add assessment"
+    });
+
+    fillRequiredFields(dialog);
+    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
+      clipboardData: {
+        getData: () => "https://agency.example/report"
+      }
+    });
+    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Save assessment" })
+    );
+
+    await waitFor(() => {
+      expect(createAssessmentUpdate).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        judgment: "Escalation risk remains limited.",
+        confidenceLabel: "medium",
+        assumptions: ["Diplomatic channels remain open", "No direct strike"],
+        indicators: ["Watch for evacuation orders"],
+        sortAt: "2026-04-25T00:00:00.000Z",
+        sources: [{ url: "https://agency.example/report" }]
+      });
+    });
+  });
+
   it("omits optional fields when they are left blank", async () => {
     render(<ComposerHarness initialOpen />);
     const dialog = await screen.findByRole("dialog", {
@@ -355,7 +386,7 @@ describe("AssessmentUpdateComposer", () => {
 
   function mockCaptureEvidenceUrlMutation() {
     apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      () => ({ unwrap: () => Promise.resolve() }),
+      () => ({ unwrap: () => Promise.resolve(evidenceRecord) }),
       { errorMessage: undefined, isLoading: false }
     ]);
   }

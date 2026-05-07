@@ -11,11 +11,16 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   CreateEventEntryResponse,
-  Entry,
+  EntryReadModel,
   UpdateEventEntryResponse
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
+import {
+  attachedSourceSummary,
+  evidenceRecord,
+  secondEvidenceRecord
+} from "@/api/apiTestData";
 
 import { EventEntryComposer } from "./EventEntryComposer";
 
@@ -43,8 +48,9 @@ const eventEntry = {
   originType: "manual",
   status: "active",
   createdAt: "2026-05-02T00:00:00.000Z",
-  updatedAt: "2026-05-02T00:00:00.000Z"
-} as const satisfies Entry;
+  updatedAt: "2026-05-02T00:00:00.000Z",
+  sources: [attachedSourceSummary]
+} as const satisfies EntryReadModel;
 
 type MutationHookResult<TResult> = [
   (request: unknown) => { unwrap: () => Promise<TResult> },
@@ -55,11 +61,13 @@ function ComposerHarness({
   entry = null,
   initialOpen = false
 }: {
-  entry?: Entry | null;
+  entry?: EntryReadModel | null;
   initialOpen?: boolean;
 }) {
   const [open, setOpen] = useState(initialOpen);
-  const [editingEntry, setEditingEntry] = useState<Entry | null>(entry);
+  const [editingEntry, setEditingEntry] = useState<EntryReadModel | null>(
+    entry
+  );
 
   function handleOpenChange(nextOpen: boolean) {
     setOpen(nextOpen);
@@ -153,6 +161,8 @@ describe("EventEntryComposer", () => {
     expect(within(dialog).getByLabelText("Epistemic status")).toHaveValue(
       "reported"
     );
+    expect(within(dialog).getByText("Evidence")).toBeInTheDocument();
+    expect(within(dialog).getByText("Agency")).toBeInTheDocument();
     expect(
       within(dialog).getByRole("button", { name: "Save event" })
     ).toBeInTheDocument();
@@ -212,6 +222,63 @@ describe("EventEntryComposer", () => {
     expect(updateEventEntry).not.toHaveBeenCalled();
   });
 
+  it("submits create requests with one captured source URL", async () => {
+    render(<ComposerHarness initialOpen />);
+    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+
+    fillEventForm(dialog);
+    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
+      clipboardData: {
+        getData: () => "https://agency.example/report"
+      }
+    });
+    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
+
+    await waitFor(() => {
+      expect(createEventEntry).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed",
+        sources: [{ url: "https://agency.example/report" }]
+      });
+    });
+  });
+
+  it("submits create requests with multiple captured source URLs", async () => {
+    render(<ComposerHarness initialOpen />);
+    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+
+    fillEventForm(dialog);
+    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
+      clipboardData: {
+        getData: () =>
+          "https://agency.example/report https://www.reuters.com/world/example"
+      }
+    });
+    expect(await within(dialog).findByText("Evidence")).toBeInTheDocument();
+    expect(
+      await within(dialog).findByText("Reuters source")
+    ).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
+
+    await waitFor(() => {
+      expect(createEventEntry).toHaveBeenCalledWith({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed",
+        sources: [
+          { url: "https://agency.example/report" },
+          { url: "https://www.reuters.com/world/example" }
+        ]
+      });
+    });
+  });
+
   it("submits edit requests through the event entry update contract", async () => {
     render(<ComposerHarness entry={eventEntry} initialOpen />);
     const dialog = await screen.findByRole("dialog", { name: "Edit event" });
@@ -225,10 +292,63 @@ describe("EventEntryComposer", () => {
         title: "Court grants injunction",
         bodyMd: "The court temporarily blocked the rule.",
         sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed"
+        epistemicStatus: "observed",
+        sources: [{ url: "https://agency.example/report" }]
       });
     });
     expect(createEventEntry).not.toHaveBeenCalled();
+  });
+
+  it("submits edit requests with added source URLs", async () => {
+    render(<ComposerHarness entry={eventEntry} initialOpen />);
+    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
+
+    fillEventForm(dialog);
+    fireEvent.paste(within(dialog).getByLabelText("Add source URL"), {
+      clipboardData: {
+        getData: () => "https://www.reuters.com/world/example"
+      }
+    });
+    expect(
+      await within(dialog).findByText("Reuters source")
+    ).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
+
+    await waitFor(() => {
+      expect(updateEventEntry).toHaveBeenCalledWith({
+        entryId: "event-entry-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed",
+        sources: [
+          { url: "https://agency.example/report" },
+          { url: "https://www.reuters.com/world/example" }
+        ]
+      });
+    });
+  });
+
+  it("submits edit requests after removing an attached source", async () => {
+    render(<ComposerHarness entry={eventEntry} initialOpen />);
+    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
+
+    fillEventForm(dialog);
+    fireEvent.click(
+      within(dialog).getByRole("button", { name: "Remove source Agency" })
+    );
+    fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
+
+    await waitFor(() => {
+      expect(updateEventEntry).toHaveBeenCalledWith({
+        entryId: "event-entry-1",
+        title: "Court grants injunction",
+        bodyMd: "The court temporarily blocked the rule.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "observed",
+        sources: []
+      });
+    });
   });
 
   it("keeps entered text visible after an API failure", async () => {
@@ -376,11 +496,24 @@ describe("EventEntryComposer", () => {
 
   function mockCaptureEvidenceUrlMutation() {
     apiMocks.useCaptureEvidenceUrlMutation.mockReturnValue([
-      () => ({ unwrap: () => Promise.resolve() }),
+      (request: unknown) => ({
+        unwrap: () => Promise.resolve(getCaptureResponse(request))
+      }),
       { errorMessage: undefined, isLoading: false }
     ]);
   }
 });
+
+function getCaptureResponse(request: unknown) {
+  const url =
+    typeof request === "object" && request !== null && "url" in request
+      ? request.url
+      : undefined;
+
+  return url === "https://www.reuters.com/world/example"
+    ? secondEvidenceRecord
+    : evidenceRecord;
+}
 
 function fillEventForm(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Title"), {

@@ -1147,7 +1147,8 @@ describe("App", () => {
         title: "Court grants injunction",
         bodyMd: "The court temporarily blocked the rule.",
         sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed"
+        epistemicStatus: "observed",
+        sources: []
       });
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();

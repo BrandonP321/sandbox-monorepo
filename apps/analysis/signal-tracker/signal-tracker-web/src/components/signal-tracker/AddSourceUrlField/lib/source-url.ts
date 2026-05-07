@@ -1,5 +1,8 @@
 import { captureEvidenceUrlRequestSchema } from "@repo/signal-tracker-shared";
-import type { EvidenceRecord } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  EvidenceRecord
+} from "@repo/signal-tracker-shared";
 
 import { getUrlHostname } from "@/lib/url";
 
@@ -84,6 +87,24 @@ function getSourceUrlDisplay(record: EvidenceRecord): SourceUrlDisplay {
   };
 }
 
+function getAttachedSourceUrl(source: AttachedSourceSummary) {
+  return source.url ?? source.canonicalUrl;
+}
+
+function getAttachedSourceUrlDisplay(
+  source: AttachedSourceSummary
+): SourceUrlDisplay {
+  const canonicalUrl = getAttachedSourceUrl(source);
+
+  return {
+    canonicalUrl,
+    publishedDateLabel: formatPublishedDate(source.publishedAt),
+    sourceDomain: source.sourceDomain,
+    sourceLabel: source.sourceName,
+    titleLabel: source.title
+  };
+}
+
 function getSourceDomain(record: EvidenceRecord) {
   return (
     getUrlHostname(record.source.baseUrl) ??
@@ -112,6 +133,8 @@ function formatPublishedDate(value: string | undefined) {
 export {
   filterNewSourceUrls,
   getAcceptedSourceUrls,
+  getAttachedSourceUrl,
+  getAttachedSourceUrlDisplay,
   getSourceUrlDisplay,
   normalizeSourceUrl,
   type SourceUrlDisplay

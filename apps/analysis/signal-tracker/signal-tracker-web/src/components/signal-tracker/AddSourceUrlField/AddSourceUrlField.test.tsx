@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CaptureEvidenceUrlResponse } from "@repo/signal-tracker-shared";
 
 import {
+  attachedSourceSummary,
   evidenceRecord,
   secondEvidenceRecord,
   sparseEvidenceRecord
@@ -132,6 +133,56 @@ describe("AddSourceUrlField", () => {
     expect(captureEvidenceUrl).toHaveBeenCalledTimes(1);
   });
 
+  it("renders initial attached sources without recapturing them", async () => {
+    const handleSourceUrlsChange = vi.fn();
+    render(
+      <AddSourceUrlField
+        initialSources={[attachedSourceSummary]}
+        onSourceUrlsChange={handleSourceUrlsChange}
+      />
+    );
+
+    expect(screen.getByText("Evidence")).toBeInTheDocument();
+    expect(screen.getByText("Agency")).toBeInTheDocument();
+    expect(captureEvidenceUrl).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(handleSourceUrlsChange).toHaveBeenLastCalledWith([
+        "https://agency.example/report"
+      ]);
+    });
+  });
+
+  it("prevents duplicate source URLs against initial attached sources", async () => {
+    render(<AddSourceUrlField initialSources={[attachedSourceSummary]} />);
+
+    fireEvent.paste(screen.getByLabelText("Add source URL"), {
+      clipboardData: { getData: () => "https://agency.example/report" }
+    });
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "That source URL is already added."
+    );
+    expect(captureEvidenceUrl).not.toHaveBeenCalled();
+  });
+
+  it("notifies the parent when an initial attached source is removed", async () => {
+    const handleSourceUrlsChange = vi.fn();
+    render(
+      <AddSourceUrlField
+        initialSources={[attachedSourceSummary]}
+        onSourceUrlsChange={handleSourceUrlsChange}
+      />
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Remove source Agency" })
+    );
+
+    await waitFor(() => {
+      expect(handleSourceUrlsChange).toHaveBeenLastCalledWith([]);
+    });
+  });
+
   it("renders fallback metadata when captured source data is sparse", async () => {
     unwrapCaptureEvidenceUrl.mockResolvedValueOnce(sparseEvidenceRecord);
     const { container } = render(<AddSourceUrlField />);
@@ -243,6 +294,29 @@ describe("AddSourceUrlField", () => {
 
     await waitFor(() => {
       expect(handleCapturedRecordsChange).toHaveBeenLastCalledWith([]);
+    });
+  });
+
+  it("notifies the parent when source URLs change", async () => {
+    const handleSourceUrlsChange = vi.fn();
+    render(<AddSourceUrlField onSourceUrlsChange={handleSourceUrlsChange} />);
+
+    fireEvent.paste(screen.getByLabelText("Add source URL"), {
+      clipboardData: { getData: () => "https://agency.example/report" }
+    });
+
+    await waitFor(() => {
+      expect(handleSourceUrlsChange).toHaveBeenLastCalledWith([
+        "https://agency.example/report"
+      ]);
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Remove source Agency" })
+    );
+
+    await waitFor(() => {
+      expect(handleSourceUrlsChange).toHaveBeenLastCalledWith([]);
     });
   });
 });

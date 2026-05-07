@@ -1,4 +1,6 @@
-import type { Entry } from "@repo/signal-tracker-shared";
+import { useState } from "react";
+
+import type { EntryReadModel } from "@repo/signal-tracker-shared";
 import { FormProvider } from "@repo/ui-base";
 
 import {
@@ -30,7 +32,7 @@ import {
 } from "../lib/schema";
 
 type EventEntryFormProps = {
-  entry?: Entry | null;
+  entry?: EntryReadModel | null;
   topicId: string;
 };
 
@@ -44,11 +46,15 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
   const defaultValues = isEditing
     ? createEditFormValues(entry)
     : createDefaultFormValues();
+  const [sourceUrls, setSourceUrls] = useState<string[]>(() =>
+    getInitialSourceUrls(entry)
+  );
 
   async function handleSubmit(values: EventEntryFormValues) {
     if (isEditing) {
       const request = createUpdateEventEntryRequest({
         entryId: entry.id,
+        sourceUrls,
         values
       });
 
@@ -56,7 +62,7 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
       return;
     }
 
-    const request = createEventEntryRequest({ topicId, values });
+    const request = createEventEntryRequest({ sourceUrls, topicId, values });
 
     await runDialogConfirm(async () => createEventEntry(request).unwrap());
   }
@@ -103,9 +109,22 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
             placeholder="Choose status"
           />
         </div>
-        <AddSourceUrlField />
+        <AddSourceUrlField
+          initialSources={entry?.sources ?? []}
+          onSourceUrlsChange={setSourceUrls}
+        />
       </Form>
     </FormProvider>
+  );
+}
+
+function getInitialSourceUrls(entry: EntryReadModel | null | undefined) {
+  return (
+    entry?.sources.flatMap((source) => {
+      const url = source.url ?? source.canonicalUrl;
+
+      return url ? [url] : [];
+    }) ?? []
   );
 }
 

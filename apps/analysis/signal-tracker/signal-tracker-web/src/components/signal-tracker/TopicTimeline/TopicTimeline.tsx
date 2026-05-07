@@ -1,5 +1,8 @@
 import { useState } from "react";
-import type { Entry, TopicTimelineItem } from "@repo/signal-tracker-shared";
+import type {
+  EntryReadModel,
+  TopicTimelineItem
+} from "@repo/signal-tracker-shared";
 
 import { useListTopicTimelineQuery } from "@/api";
 import {
@@ -17,7 +20,7 @@ import { EntryCitationIndicator } from "../EntryCitationIndicator";
 import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
 
 type TopicTimelineProps = {
-  onEditEventEntry?: (entry: Entry) => void;
+  onEditEventEntry?: (entry: EntryReadModel) => void;
   topicId: string;
 };
 
