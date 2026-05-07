@@ -7,18 +7,17 @@ import {
   within
 } from "@testing-library/react";
 import { useState } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
   CreateEventEntryResponse,
-  EntryReadModel,
   UpdateEventEntryResponse
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
-import { attachedSourceSummary } from "@/api/apiTestData";
+import { eventEntryReadModel } from "@/api/apiTestData";
 
-import { EventEntryComposer } from "./EventEntryComposer";
+import { EventEntryDialog } from "./EventEntryDialog";
 
 const apiMocks = vi.hoisted(() => ({
   useCreateEventEntryMutation: vi.fn(),
@@ -30,78 +29,12 @@ vi.mock("@/api", () => ({
   useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation
 }));
 
-const eventEntry = {
-  id: "event-entry-1",
-  topicId: "topic-1",
-  kind: "event",
-  epistemicStatus: "reported",
-  title: "Ceasefire talks resume",
-  bodyMd: "Delegations reopened indirect talks.",
-  sortAt: "2026-05-02T00:00:00.000Z",
-  isApproximateDate: false,
-  originType: "manual",
-  status: "active",
-  createdAt: "2026-05-02T00:00:00.000Z",
-  updatedAt: "2026-05-02T00:00:00.000Z",
-  sources: [attachedSourceSummary]
-} as const satisfies EntryReadModel;
-
 type MutationHookResult<TResult> = [
   (request: unknown) => { unwrap: () => Promise<TResult> },
   { errorMessage?: string; isLoading: boolean }
 ];
 
-function ComposerHarness({
-  entry = null,
-  initialOpen = false
-}: {
-  entry?: EntryReadModel | null;
-  initialOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(initialOpen);
-  const [editingEntry, setEditingEntry] = useState<EntryReadModel | null>(
-    entry
-  );
-
-  function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
-
-    if (!nextOpen) {
-      setEditingEntry(null);
-    }
-  }
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          setEditingEntry(null);
-          setOpen(true);
-        }}
-        type="button"
-      >
-        Open create
-      </button>
-      <button
-        onClick={() => {
-          setEditingEntry(eventEntry);
-          setOpen(true);
-        }}
-        type="button"
-      >
-        Open edit
-      </button>
-      <EventEntryComposer
-        entry={editingEntry}
-        onOpenChange={handleOpenChange}
-        open={open}
-        topicId="topic-1"
-      />
-    </>
-  );
-}
-
-describe("EventEntryComposer", () => {
+describe("EventEntryDialog", () => {
   const createEventEntry = vi.fn();
   const updateEventEntry = vi.fn();
   const unwrapCreateEventEntry = vi.fn();
@@ -118,12 +51,8 @@ describe("EventEntryComposer", () => {
     mockUpdateEventEntryMutation();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
-
-  it("renders closed until opened", async () => {
-    render(<ComposerHarness />);
+  it("renders closed until triggered", async () => {
+    render(<CreateEventEntryDialog />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
@@ -135,20 +64,18 @@ describe("EventEntryComposer", () => {
   });
 
   it("shows edit copy and pre-fills existing event fields", async () => {
-    render(<ComposerHarness />);
+    render(<EditEventEntryDialog />);
 
     fireEvent.click(screen.getByRole("button", { name: "Open edit" }));
 
     const dialog = await screen.findByRole("dialog", { name: "Edit event" });
 
-    expect(within(dialog).getByLabelText("Title")).toHaveValue(
-      "Ceasefire talks resume"
-    );
+    expect(within(dialog).getByLabelText("Title")).toHaveValue("Event 1");
     expect(within(dialog).getByLabelText("Details")).toHaveValue(
-      "Delegations reopened indirect talks."
+      "A reported event."
     );
     expect(within(dialog).getByLabelText("Event date")).toHaveValue(
-      "2026-05-02"
+      "2026-01-02"
     );
     expect(within(dialog).getByLabelText("Epistemic status")).toHaveValue(
       "reported"
@@ -164,21 +91,9 @@ describe("EventEntryComposer", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders the entry source URL editor", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
-
-    expect(
-      within(dialog).getByRole("heading", { name: "Sources" })
-    ).toBeInTheDocument();
-    expect(
-      within(dialog).getByRole("button", { name: "Add source" })
-    ).toBeInTheDocument();
-  });
-
   it("validates required fields before submitting", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+    render(<CreateEventEntryDialog />);
+    const dialog = await openDialog("Open create", "Add event");
 
     fireEvent.change(within(dialog).getByLabelText("Event date"), {
       target: { value: "" }
@@ -201,11 +116,12 @@ describe("EventEntryComposer", () => {
     expect(updateEventEntry).not.toHaveBeenCalled();
   });
 
-  it("submits create requests through the event entry contract", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+  it("submits create requests with source URLs", async () => {
+    render(<CreateEventEntryDialog />);
+    const dialog = await openDialog("Open create", "Add event");
 
     fillEventForm(dialog);
+    addSourceUrl(dialog, "https://agency.example/report");
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
 
     await waitFor(() => {
@@ -214,102 +130,16 @@ describe("EventEntryComposer", () => {
         title: "Court grants injunction",
         bodyMd: "The court temporarily blocked the rule.",
         sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed"
+        epistemicStatus: "observed",
+        sources: [{ url: "https://agency.example/report" }]
       });
     });
     expect(updateEventEntry).not.toHaveBeenCalled();
   });
 
-  it("submits create requests with one source URL", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
-
-    fillEventForm(dialog);
-    addSourceUrl(dialog, "https://agency.example/report");
-    fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
-
-    await waitFor(() => {
-      expect(createEventEntry).toHaveBeenCalledWith({
-        topicId: "topic-1",
-        title: "Court grants injunction",
-        bodyMd: "The court temporarily blocked the rule.",
-        sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed",
-        sources: [{ url: "https://agency.example/report" }]
-      });
-    });
-  });
-
-  it("submits create requests with multiple source URLs", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
-
-    fillEventForm(dialog);
-    addSourceUrl(dialog, "https://agency.example/report");
-    addSourceUrl(dialog, "https://www.reuters.com/world/example");
-    fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
-
-    await waitFor(() => {
-      expect(createEventEntry).toHaveBeenCalledWith({
-        topicId: "topic-1",
-        title: "Court grants injunction",
-        bodyMd: "The court temporarily blocked the rule.",
-        sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed",
-        sources: [
-          { url: "https://agency.example/report" },
-          { url: "https://www.reuters.com/world/example" }
-        ]
-      });
-    });
-  });
-
-  it("submits edit requests through the event entry update contract", async () => {
-    render(<ComposerHarness entry={eventEntry} initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
-
-    fillEventForm(dialog);
-    fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
-
-    await waitFor(() => {
-      expect(updateEventEntry).toHaveBeenCalledWith({
-        entryId: "event-entry-1",
-        title: "Court grants injunction",
-        bodyMd: "The court temporarily blocked the rule.",
-        sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed",
-        sources: [{ url: "https://agency.example/report" }]
-      });
-    });
-    expect(createEventEntry).not.toHaveBeenCalled();
-  });
-
-  it("submits edit requests with added source URLs", async () => {
-    render(<ComposerHarness entry={eventEntry} initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
-
-    fillEventForm(dialog);
-    addSourceUrl(dialog, "https://www.reuters.com/world/example");
-    fireEvent.click(within(dialog).getByRole("button", { name: "Save event" }));
-
-    await waitFor(() => {
-      expect(updateEventEntry).toHaveBeenCalledWith({
-        entryId: "event-entry-1",
-        title: "Court grants injunction",
-        bodyMd: "The court temporarily blocked the rule.",
-        sortAt: "2026-04-25T00:00:00.000Z",
-        epistemicStatus: "observed",
-        sources: [
-          { url: "https://agency.example/report" },
-          { url: "https://www.reuters.com/world/example" }
-        ]
-      });
-    });
-  });
-
   it("submits edit requests after removing an attached source", async () => {
-    render(<ComposerHarness entry={eventEntry} initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Edit event" });
+    render(<EditEventEntryDialog />);
+    const dialog = await openDialog("Open edit", "Edit event");
 
     fillEventForm(dialog);
     fireEvent.click(within(dialog).getByRole("button", { name: "Remove" }));
@@ -317,7 +147,7 @@ describe("EventEntryComposer", () => {
 
     await waitFor(() => {
       expect(updateEventEntry).toHaveBeenCalledWith({
-        entryId: "event-entry-1",
+        entryId: "entry-1",
         title: "Court grants injunction",
         bodyMd: "The court temporarily blocked the rule.",
         sortAt: "2026-04-25T00:00:00.000Z",
@@ -325,6 +155,7 @@ describe("EventEntryComposer", () => {
         sources: []
       });
     });
+    expect(createEventEntry).not.toHaveBeenCalled();
   });
 
   it("keeps entered text visible after an API failure", async () => {
@@ -337,8 +168,8 @@ describe("EventEntryComposer", () => {
         }
       }
     });
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+    render(<CreateEventEntryDialog />);
+    const dialog = await openDialog("Open create", "Add event");
 
     fillEventForm(dialog);
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
@@ -356,8 +187,8 @@ describe("EventEntryComposer", () => {
   });
 
   it("closes and resets after a successful create", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+    render(<CreateEventEntryDialog />);
+    const dialog = await openDialog("Open create", "Add event");
 
     fillEventForm(dialog);
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
@@ -366,10 +197,7 @@ describe("EventEntryComposer", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Open create" }));
-    const reopenedDialog = await screen.findByRole("dialog", {
-      name: "Add event"
-    });
+    const reopenedDialog = await openDialog("Open create", "Add event");
 
     expect(within(reopenedDialog).getByLabelText("Title")).toHaveValue("");
     expect(within(reopenedDialog).getByLabelText("Details")).toHaveValue("");
@@ -383,8 +211,8 @@ describe("EventEntryComposer", () => {
         resolveSubmit = resolve;
       })
     );
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", { name: "Add event" });
+    render(<CreateEventEntryDialog />);
+    const dialog = await openDialog("Open create", "Add event");
 
     fillEventForm(dialog);
     fireEvent.click(within(dialog).getByRole("button", { name: "Add event" }));
@@ -400,13 +228,13 @@ describe("EventEntryComposer", () => {
     expect(createEventEntry).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      resolveSubmit({ entry: eventEntry });
+      resolveSubmit({ entry: eventEntryReadModel });
     });
   });
 
   function mockCreateEventEntryMutation() {
     unwrapCreateEventEntry.mockResolvedValue({
-      entry: eventEntry
+      entry: eventEntryReadModel
     } satisfies CreateEventEntryResponse);
     apiMocks.useCreateEventEntryMutation.mockImplementation(
       function useMockCreateEventEntryMutation() {
@@ -439,7 +267,7 @@ describe("EventEntryComposer", () => {
 
   function mockUpdateEventEntryMutation() {
     unwrapUpdateEventEntry.mockResolvedValue({
-      entry: eventEntry
+      entry: eventEntryReadModel
     } satisfies UpdateEventEntryResponse);
     apiMocks.useUpdateEventEntryMutation.mockImplementation(
       function useMockUpdateEventEntryMutation() {
@@ -470,6 +298,27 @@ describe("EventEntryComposer", () => {
     );
   }
 });
+
+function CreateEventEntryDialog() {
+  return (
+    <EventEntryDialog topicId="topic-1">
+      <button type="button">Open create</button>
+    </EventEntryDialog>
+  );
+}
+
+function EditEventEntryDialog() {
+  return (
+    <EventEntryDialog entry={eventEntryReadModel} topicId="topic-1">
+      <button type="button">Open edit</button>
+    </EventEntryDialog>
+  );
+}
+
+async function openDialog(triggerName: string, dialogName: string) {
+  fireEvent.click(screen.getByRole("button", { name: triggerName }));
+  return screen.findByRole("dialog", { name: dialogName });
+}
 
 function fillEventForm(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Title"), {

@@ -5,14 +5,14 @@ import {
 import { splitTextareaLines } from "@repo/ui-base";
 
 import { toDateStart, toOptionalDateStart } from "./date-input";
-import type { AssessmentUpdateComposerFormValues } from "./schema";
+import type { AssessmentUpdateFormValues } from "./schema";
 
 function createAssessmentUpdateRequest({
   topicId,
   values
 }: {
   topicId: string;
-  values: AssessmentUpdateComposerFormValues;
+  values: AssessmentUpdateFormValues;
 }): CreateAssessmentUpdateRequest {
   const resolutionCriteria = values.resolutionCriteria.trim();
   const targetResolvesAt = toOptionalDateStart(values.targetResolutionDate);

@@ -14,23 +14,23 @@ import {
   useDialogContext
 } from "@/components/ui";
 
-import { createAssessmentUpdateRequest } from "../lib/request";
+import { createAssessmentUpdateRequest } from "./lib/request";
 import {
-  assessmentUpdateComposerSchema,
+  assessmentUpdateFormSchema,
   confidenceOptions,
   createDefaultFormValues,
-  type AssessmentUpdateComposerFormValues
-} from "../lib/schema";
+  type AssessmentUpdateFormValues
+} from "./lib/schema";
 
-type AssessmentUpdateComposerFormProps = {
+type AssessmentUpdateFormProps = {
   hasCurrentAssessment: boolean;
   topicId: string;
 };
 
-function AssessmentUpdateComposerForm({
+function AssessmentUpdateForm({
   hasCurrentAssessment,
   topicId
-}: AssessmentUpdateComposerFormProps) {
+}: AssessmentUpdateFormProps) {
   const { closeDialog, runDialogConfirm } = useDialogContext();
   const [createAssessmentUpdate, { errorMessage }] =
     useCreateAssessmentUpdateMutation();
@@ -39,7 +39,7 @@ function AssessmentUpdateComposerForm({
     ? "Update assessment"
     : "Save assessment";
 
-  async function handleSubmit(values: AssessmentUpdateComposerFormValues) {
+  async function handleSubmit(values: AssessmentUpdateFormValues) {
     const request = createAssessmentUpdateRequest({
       topicId,
       values
@@ -53,9 +53,9 @@ function AssessmentUpdateComposerForm({
   return (
     <FormProvider
       defaultValues={createDefaultFormValues()}
-      schema={assessmentUpdateComposerSchema}
+      schema={assessmentUpdateFormSchema}
     >
-      <Form<AssessmentUpdateComposerFormValues>
+      <Form<AssessmentUpdateFormValues>
         actions={
           <>
             <FormButton onClick={closeDialog} variant="outline">
@@ -70,32 +70,32 @@ function AssessmentUpdateComposerForm({
         errorTitle="Unable to save assessment"
         onSubmit={handleSubmit}
       >
-        <FormTextarea<AssessmentUpdateComposerFormValues>
+        <FormTextarea<AssessmentUpdateFormValues>
           label="Judgment"
           name="judgment"
           placeholder="What do you currently think, and why?"
           rows={5}
         />
         <div className="grid items-start gap-4 sm:grid-cols-2">
-          <FormSelect<AssessmentUpdateComposerFormValues>
+          <FormSelect<AssessmentUpdateFormValues>
             label="Confidence"
             name="confidenceLabel"
             options={confidenceOptions}
             placeholder="Choose confidence"
           />
-          <FormDateInput<AssessmentUpdateComposerFormValues>
+          <FormDateInput<AssessmentUpdateFormValues>
             label="Assessment date"
             name="assessmentDate"
           />
         </div>
         <div className="grid items-start gap-4 sm:grid-cols-2">
-          <FormTextarea<AssessmentUpdateComposerFormValues>
+          <FormTextarea<AssessmentUpdateFormValues>
             description="One assumption per line."
             label="Assumptions"
             name="assumptions"
             rows={4}
           />
-          <FormTextarea<AssessmentUpdateComposerFormValues>
+          <FormTextarea<AssessmentUpdateFormValues>
             description="One indicator per line."
             label="Indicators"
             name="indicators"
@@ -119,17 +119,17 @@ function AssessmentUpdateOptionalFields() {
         title="Optional details"
       />
       <div className="grid items-start gap-4 sm:grid-cols-2">
-        <FormNumberInput<AssessmentUpdateComposerFormValues>
+        <FormNumberInput<AssessmentUpdateFormValues>
           label="Probability"
           name="probabilityPct"
           step={1}
         />
-        <FormDateInput<AssessmentUpdateComposerFormValues>
+        <FormDateInput<AssessmentUpdateFormValues>
           label="Target resolution date"
           name="targetResolutionDate"
         />
       </div>
-      <FormTextarea<AssessmentUpdateComposerFormValues>
+      <FormTextarea<AssessmentUpdateFormValues>
         label="Resolution criteria"
         name="resolutionCriteria"
         placeholder="What would resolve or falsify this assessment?"
@@ -148,9 +148,9 @@ function AssessmentSourceFields() {
         headingSize="h5"
         title="Sources"
       />
-      <SourceUrlEditor<AssessmentUpdateComposerFormValues> name="sources" />
+      <SourceUrlEditor<AssessmentUpdateFormValues> name="sources" />
     </section>
   );
 }
 
-export { AssessmentUpdateComposerForm };
+export { AssessmentUpdateForm, type AssessmentUpdateFormProps };

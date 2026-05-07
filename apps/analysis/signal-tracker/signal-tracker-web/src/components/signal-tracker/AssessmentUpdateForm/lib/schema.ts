@@ -14,8 +14,7 @@ const assessmentDateMessage = "Choose an assessment date.";
 const probabilityMessage = "Enter a whole-number probability from 0 to 100.";
 const targetResolutionDateMessage = "Choose a valid target resolution date.";
 
-// TODO: Can we use schema helpers here?
-const assessmentUpdateComposerSchema = z.object({
+const assessmentUpdateFormSchema = z.object({
   assessmentDate: z
     .string()
     .trim()
@@ -57,9 +56,7 @@ const assessmentUpdateComposerSchema = z.object({
     )
 });
 
-type AssessmentUpdateComposerFormValues = z.input<
-  typeof assessmentUpdateComposerSchema
->;
+type AssessmentUpdateFormValues = z.input<typeof assessmentUpdateFormSchema>;
 
 const confidenceOptions = [
   { label: "Low", value: "low" },
@@ -67,7 +64,7 @@ const confidenceOptions = [
   { label: "High", value: "high" }
 ] satisfies Array<{ label: string; value: AssessmentConfidenceLabel }>;
 
-function createDefaultFormValues(): AssessmentUpdateComposerFormValues {
+function createDefaultFormValues(): AssessmentUpdateFormValues {
   return {
     assessmentDate: getTodayDateInputValue(),
     assumptions: "",
@@ -82,8 +79,8 @@ function createDefaultFormValues(): AssessmentUpdateComposerFormValues {
 }
 
 export {
-  assessmentUpdateComposerSchema,
+  assessmentUpdateFormSchema,
   confidenceOptions,
   createDefaultFormValues,
-  type AssessmentUpdateComposerFormValues
+  type AssessmentUpdateFormValues
 };

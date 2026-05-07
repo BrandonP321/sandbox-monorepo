@@ -16,7 +16,7 @@ import type {
 
 import { getApiErrorMessage } from "@/api/apiError";
 
-import { AssessmentUpdateComposer } from "./AssessmentUpdateComposer";
+import { AssessmentUpdateDialog } from "./AssessmentUpdateDialog";
 
 const apiMocks = vi.hoisted(() => ({
   useCreateAssessmentUpdateMutation: vi.fn()
@@ -31,31 +31,22 @@ type MutationHookResult<TResult> = [
   { errorMessage?: string; isLoading: boolean }
 ];
 
-function ComposerHarness({
-  hasCurrentAssessment = false,
-  initialOpen = false
+function DialogHarness({
+  hasCurrentAssessment = false
 }: {
   hasCurrentAssessment?: boolean;
-  initialOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(initialOpen);
-
   return (
-    <>
-      <button onClick={() => setOpen(true)} type="button">
-        Open composer
-      </button>
-      <AssessmentUpdateComposer
-        hasCurrentAssessment={hasCurrentAssessment}
-        onOpenChange={setOpen}
-        open={open}
-        topicId="topic-1"
-      />
-    </>
+    <AssessmentUpdateDialog
+      hasCurrentAssessment={hasCurrentAssessment}
+      topicId="topic-1"
+    >
+      <button type="button">Open assessment</button>
+    </AssessmentUpdateDialog>
   );
 }
 
-describe("AssessmentUpdateComposer", () => {
+describe("AssessmentUpdateDialog", () => {
   const createAssessmentUpdate = vi.fn();
   const unwrapCreateAssessmentUpdate = vi.fn();
 
@@ -70,11 +61,11 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("renders closed until opened", async () => {
-    render(<ComposerHarness />);
+    render(<DialogHarness />);
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "Open composer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open assessment" }));
 
     expect(
       await screen.findByRole("dialog", { name: "Add assessment" })
@@ -82,9 +73,9 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("shows update copy when a current assessment exists", async () => {
-    render(<ComposerHarness hasCurrentAssessment />);
+    render(<DialogHarness hasCurrentAssessment />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Open composer" }));
+    fireEvent.click(screen.getByRole("button", { name: "Open assessment" }));
 
     const dialog = await screen.findByRole("dialog", {
       name: "Update assessment"
@@ -96,10 +87,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("renders the entry source URL editor", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     expect(
       within(dialog).getByRole("heading", { name: "Sources" })
@@ -110,10 +99,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("validates required fields before submitting", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fireEvent.change(within(dialog).getByLabelText("Assessment date"), {
       target: { value: "" }
@@ -141,10 +128,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("validates optional probability before submitting", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.change(within(dialog).getByLabelText("Probability"), {
@@ -163,10 +148,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("submits trimmed fields through the assessment update contract", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.change(within(dialog).getByLabelText("Probability"), {
@@ -198,10 +181,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("submits source URLs through the assessment update contract", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     addSourceUrl(dialog, "https://agency.example/report");
@@ -223,10 +204,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("omits optional fields when they are left blank", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.click(
@@ -263,10 +242,8 @@ describe("AssessmentUpdateComposer", () => {
         }
       }
     });
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.click(
@@ -286,10 +263,8 @@ describe("AssessmentUpdateComposer", () => {
   });
 
   it("closes and resets after a successful submit", async () => {
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.click(
@@ -300,10 +275,7 @@ describe("AssessmentUpdateComposer", () => {
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Open composer" }));
-    const reopenedDialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    const reopenedDialog = await openDialog("Add assessment");
 
     expect(within(reopenedDialog).getByLabelText("Judgment")).toHaveValue("");
   });
@@ -316,10 +288,8 @@ describe("AssessmentUpdateComposer", () => {
         resolveSubmit = resolve;
       })
     );
-    render(<ComposerHarness initialOpen />);
-    const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
-    });
+    render(<DialogHarness />);
+    const dialog = await openDialog("Add assessment");
 
     fillRequiredFields(dialog);
     fireEvent.click(
@@ -376,6 +346,11 @@ describe("AssessmentUpdateComposer", () => {
     );
   }
 });
+
+async function openDialog(dialogName: string) {
+  fireEvent.click(screen.getByRole("button", { name: "Open assessment" }));
+  return screen.findByRole("dialog", { name: dialogName });
+}
 
 function fillRequiredFields(dialog: HTMLElement) {
   fireEvent.change(within(dialog).getByLabelText("Judgment"), {

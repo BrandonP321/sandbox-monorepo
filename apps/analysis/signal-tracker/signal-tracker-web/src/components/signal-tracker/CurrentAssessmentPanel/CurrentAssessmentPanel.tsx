@@ -9,16 +9,17 @@ import {
   EmptyState
 } from "@/components/ui";
 
+import { AssessmentUpdateDialog } from "../AssessmentUpdateDialog";
 import { CurrentAssessmentContent } from "./components/CurrentAssessmentContent";
 
 type CurrentAssessmentPanelProps = {
   assessment: AssessmentUpdateReadModel | null;
-  onAssessmentAction?: () => void;
+  topicId: string;
 };
 
 function CurrentAssessmentPanel({
   assessment,
-  onAssessmentAction
+  topicId
 }: CurrentAssessmentPanelProps) {
   const actionLabel = assessment ? "Update assessment" : "Add assessment";
 
@@ -27,14 +28,14 @@ function CurrentAssessmentPanel({
       <CardHeader>
         <ContentHeader
           actions={
-            <Button
-              disabled={!onAssessmentAction}
-              onClick={onAssessmentAction}
-              size="sm"
-              variant="outline"
+            <AssessmentUpdateDialog
+              hasCurrentAssessment={assessment !== null}
+              topicId={topicId}
             >
-              {actionLabel}
-            </Button>
+              <Button size="sm" variant="outline">
+                {actionLabel}
+              </Button>
+            </AssessmentUpdateDialog>
           }
           description="Latest active assessment update."
           eyebrow="Assessment"
@@ -48,11 +49,6 @@ function CurrentAssessmentPanel({
           <CurrentAssessmentContent assessment={assessment} />
         ) : (
           <EmptyState
-            action={
-              <span className="text-muted-foreground text-xs">
-                Assessment composer coming in the next workflow.
-              </span>
-            }
             className="items-start px-0 py-2 text-left"
             description="Add an assessment update to record the current judgment, confidence, assumptions, and indicators for this dossier."
             title="No assessment yet"

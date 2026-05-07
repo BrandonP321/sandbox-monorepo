@@ -6,10 +6,12 @@ import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 import { CurrentAssessmentPanel } from "./CurrentAssessmentPanel";
 
 const apiMocks = vi.hoisted(() => ({
+  useCreateAssessmentUpdateMutation: vi.fn(),
   useReplaceEntrySourcesMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
+  useCreateAssessmentUpdateMutation: apiMocks.useCreateAssessmentUpdateMutation,
   useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation
 }));
 
@@ -49,6 +51,11 @@ const assessment = {
 
 describe("CurrentAssessmentPanel", () => {
   beforeEach(() => {
+    apiMocks.useCreateAssessmentUpdateMutation.mockReset();
+    apiMocks.useCreateAssessmentUpdateMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
     apiMocks.useReplaceEntrySourcesMutation.mockReset();
     apiMocks.useReplaceEntrySourcesMutation.mockReturnValue([
       vi.fn(),
@@ -57,7 +64,7 @@ describe("CurrentAssessmentPanel", () => {
   });
 
   it("renders an empty state when no assessment exists", () => {
-    render(<CurrentAssessmentPanel assessment={null} />);
+    render(<CurrentAssessmentPanel assessment={null} topicId="topic-1" />);
 
     expect(
       screen.getByRole("heading", { name: "Current assessment" })
@@ -65,11 +72,13 @@ describe("CurrentAssessmentPanel", () => {
     expect(screen.getByText("No assessment yet")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add assessment" })
-    ).toBeDisabled();
+    ).toBeEnabled();
   });
 
   it("renders populated assessment details compactly", () => {
-    render(<CurrentAssessmentPanel assessment={assessment} />);
+    render(
+      <CurrentAssessmentPanel assessment={assessment} topicId="topic-1" />
+    );
 
     const currentAssessment = screen.getByRole("article", {
       name: "Current assessment"
@@ -100,6 +109,7 @@ describe("CurrentAssessmentPanel", () => {
     render(
       <CurrentAssessmentPanel
         assessment={{ ...assessment, probabilityPct: undefined }}
+        topicId="topic-1"
       />
     );
 
@@ -107,7 +117,9 @@ describe("CurrentAssessmentPanel", () => {
   });
 
   it("summarizes assumptions and indicators with a hidden count", () => {
-    render(<CurrentAssessmentPanel assessment={assessment} />);
+    render(
+      <CurrentAssessmentPanel assessment={assessment} topicId="topic-1" />
+    );
 
     const assumptions = screen.getByRole("region", { name: "Assumptions" });
     const indicators = screen.getByRole("region", { name: "Indicators" });
@@ -129,18 +141,15 @@ describe("CurrentAssessmentPanel", () => {
     expect(within(indicators).getByText("+1 more")).toBeInTheDocument();
   });
 
-  it("enables the assessment action when a callback is provided", () => {
-    const onAssessmentAction = vi.fn();
-
+  it("opens the assessment update dialog from the header action", async () => {
     render(
-      <CurrentAssessmentPanel
-        assessment={assessment}
-        onAssessmentAction={onAssessmentAction}
-      />
+      <CurrentAssessmentPanel assessment={assessment} topicId="topic-1" />
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Update assessment" }));
 
-    expect(onAssessmentAction).toHaveBeenCalledTimes(1);
+    expect(
+      await screen.findByRole("dialog", { name: "Update assessment" })
+    ).toBeInTheDocument();
   });
 });

@@ -1,26 +1,22 @@
 import type { EntryReadModel } from "@repo/signal-tracker-shared";
+import type { ReactElement } from "react";
 
-import { Dialog, DialogContent } from "@/components/ui";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui";
 
-import { EventEntryForm } from "./components/EventEntryForm";
+import { EventEntryForm } from "../EventEntryForm";
 
-type EventEntryComposerProps = {
+type EventEntryDialogProps = {
+  children: ReactElement;
   entry?: EntryReadModel | null;
-  onOpenChange: (open: boolean) => void;
-  open: boolean;
   topicId: string;
 };
 
-function EventEntryComposer({
-  entry,
-  onOpenChange,
-  open,
-  topicId
-}: EventEntryComposerProps) {
+function EventEntryDialog({ children, entry, topicId }: EventEntryDialogProps) {
   const isEditing = entry !== undefined && entry !== null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog>
+      <DialogTrigger>{children}</DialogTrigger>
       <DialogContent
         className="max-w-2xl"
         description="Record what happened, when it happened, and how directly the claim is known."
@@ -36,4 +32,4 @@ function EventEntryComposer({
   );
 }
 
-export { EventEntryComposer, type EventEntryComposerProps };
+export { EventEntryDialog };

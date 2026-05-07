@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { createAssessmentUpdateRequest } from "./request";
-import type { AssessmentUpdateComposerFormValues } from "./schema";
+import type { AssessmentUpdateFormValues } from "./schema";
 
 const baseValues = {
   assessmentDate: "2026-04-25",
@@ -13,7 +13,7 @@ const baseValues = {
   resolutionCriteria: "",
   sources: [],
   targetResolutionDate: ""
-} satisfies AssessmentUpdateComposerFormValues;
+} satisfies AssessmentUpdateFormValues;
 
 describe("createAssessmentUpdateRequest", () => {
   it("trims and converts form fields into the shared request shape", () => {

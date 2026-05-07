@@ -1,8 +1,5 @@
 import { useState } from "react";
-import type {
-  EntryReadModel,
-  TopicTimelineItem
-} from "@repo/signal-tracker-shared";
+import type { TopicTimelineItem } from "@repo/signal-tracker-shared";
 
 import { useListTopicTimelineQuery } from "@/api";
 import {
@@ -17,14 +14,14 @@ import {
 } from "@/components/ui";
 
 import { EntrySourceIndicator } from "../EntrySourceIndicator";
+import { EventEntryDialog } from "../EventEntryDialog";
 import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
 
 type TopicTimelineProps = {
-  onEditEventEntry?: (entry: EntryReadModel) => void;
   topicId: string;
 };
 
-function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
+function TopicTimeline({ topicId }: TopicTimelineProps) {
   const { data, errorMessage, isError, isLoading, refetch } =
     useListTopicTimelineQuery({ topicId });
   const [expandedEntryIds, setExpandedEntryIds] = useState<Set<string>>(
@@ -88,14 +85,12 @@ function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
                 <li key={item.entry.id}>
                   <TimelineEntryRow
                     actionClusterSlot={
-                      item.kind === "event" && onEditEventEntry ? (
-                        <Button
-                          onClick={() => onEditEventEntry(item.entry)}
-                          size="sm"
-                          variant="ghost"
-                        >
-                          Edit
-                        </Button>
+                      item.kind === "event" ? (
+                        <EventEntryDialog entry={item.entry} topicId={topicId}>
+                          <Button size="sm" variant="ghost">
+                            Edit
+                          </Button>
+                        </EventEntryDialog>
                       ) : undefined
                     }
                     isExpanded={expandedEntryIds.has(item.entry.id)}

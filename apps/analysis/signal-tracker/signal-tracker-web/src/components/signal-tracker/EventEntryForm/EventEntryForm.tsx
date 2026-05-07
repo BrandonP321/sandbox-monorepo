@@ -21,14 +21,14 @@ import {
 import {
   createEventEntryRequest,
   createUpdateEventEntryRequest
-} from "../lib/request";
+} from "./lib/request";
 import {
   createDefaultFormValues,
   createEditFormValues,
   epistemicStatusOptions,
   eventEntryFormSchema,
   type EventEntryFormValues
-} from "../lib/schema";
+} from "./lib/schema";
 
 type EventEntryFormProps = {
   entry?: EntryReadModel | null;
@@ -37,10 +37,13 @@ type EventEntryFormProps = {
 
 function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
   const { closeDialog, runDialogConfirm } = useDialogContext();
+
   const [createEventEntry, { errorMessage: createErrorMessage }] =
     useCreateEventEntryMutation();
+
   const [updateEventEntry, { errorMessage: updateErrorMessage }] =
     useUpdateEventEntryMutation();
+
   const isEditing = entry !== undefined && entry !== null;
   const defaultValues = isEditing
     ? createEditFormValues(entry)

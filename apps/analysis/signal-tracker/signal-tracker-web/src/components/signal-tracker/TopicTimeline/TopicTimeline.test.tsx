@@ -197,32 +197,22 @@ describe("TopicTimeline", () => {
     );
   });
 
-  it("renders an event edit action through the row action slot", () => {
-    const handleEditEventEntry = vi.fn();
+  it("renders one event edit action through the row action slot", () => {
     mockTimelineQuery({
       data: {
         items: [assessmentTimelineItem, eventTimelineItem]
       }
     });
 
-    render(
-      <TopicTimeline
-        onEditEventEntry={handleEditEventEntry}
-        topicId="topic-1"
-      />
-    );
+    render(<TopicTimeline topicId="topic-1" />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
-
-    expect(handleEditEventEntry).toHaveBeenCalledWith(eventTimelineItem.entry);
-    expect(handleEditEventEntry).toHaveBeenCalledTimes(1);
     expect(screen.getAllByRole("button", { name: "Edit" })).toHaveLength(1);
   });
 
   it("does not render edit actions for assessment-only timelines", () => {
     mockTimelineQuery({ data: { items: [assessmentTimelineItem] } });
 
-    render(<TopicTimeline onEditEventEntry={vi.fn()} topicId="topic-1" />);
+    render(<TopicTimeline topicId="topic-1" />);
 
     expect(
       screen.queryByRole("button", { name: "Edit" })
