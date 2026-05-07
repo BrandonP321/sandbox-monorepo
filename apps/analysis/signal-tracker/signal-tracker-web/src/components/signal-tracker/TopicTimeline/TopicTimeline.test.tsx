@@ -40,7 +40,8 @@ const eventTimelineItem = {
     originType: "manual",
     status: "active",
     createdAt: "2026-05-01T00:00:00.000Z",
-    updatedAt: "2026-05-01T00:00:00.000Z"
+    updatedAt: "2026-05-01T00:00:00.000Z",
+    sources: []
   }
 } as const satisfies TopicTimelineItem;
 
@@ -157,15 +158,18 @@ describe("TopicTimeline", () => {
     expect(screen.getAllByText("Assessment Update")).toHaveLength(1);
     expect(screen.getAllByText("Medium")).toHaveLength(1);
     expect(screen.getAllByText("55% probability")).toHaveLength(1);
-    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith({
-      entryId: "assessment-entry-1"
-    });
-    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith({
-      entryId: "event-entry-1"
-    });
-    expect(apiMocks.useListEntryCitationsQuery).not.toHaveBeenCalledWith({
-      entryId: "review-entry-1"
-    });
+    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith(
+      { entryId: "assessment-entry-1" },
+      { skip: true }
+    );
+    expect(apiMocks.useListEntryCitationsQuery).toHaveBeenCalledWith(
+      { entryId: "event-entry-1" },
+      { skip: true }
+    );
+    expect(apiMocks.useListEntryCitationsQuery).not.toHaveBeenCalledWith(
+      { entryId: "review-entry-1" },
+      expect.anything()
+    );
   });
 
   it("renders an event edit action through the row action slot", () => {

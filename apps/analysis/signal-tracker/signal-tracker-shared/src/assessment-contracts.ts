@@ -5,7 +5,11 @@ import {
   trimmedRequiredString,
   trimmedRequiredStringArray
 } from "@repo/schema-utils";
-import { entrySchema, entrySourceInputSchema } from "./entry-contracts.js";
+import {
+  entryReadModelSchema,
+  entrySchema,
+  entrySourceInputSchema
+} from "./entry-contracts.js";
 
 export const assessmentConfidenceLabelSchema = z.enum([
   "low",
@@ -29,6 +33,14 @@ export const assessmentUpdateSchema = z.object({
 });
 
 export type AssessmentUpdate = z.infer<typeof assessmentUpdateSchema>;
+
+export const assessmentUpdateReadModelSchema = assessmentUpdateSchema.extend({
+  entry: entryReadModelSchema
+});
+
+export type AssessmentUpdateReadModel = z.infer<
+  typeof assessmentUpdateReadModelSchema
+>;
 
 export const createAssessmentUpdateRequestSchema = z.object({
   topicId: trimmedRequiredString,

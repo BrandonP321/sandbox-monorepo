@@ -4,6 +4,7 @@ import {
   createTrimmedHttpUrlString,
   trimmedRequiredString
 } from "@repo/schema-utils";
+import { entryCitationRelationTypeSchema } from "./citation-contracts.js";
 
 export const entryKindSchema = z.enum(["event", "assessment", "review"]);
 export type EntryKind = z.infer<typeof entryKindSchema>;
@@ -44,6 +45,26 @@ export const entrySchema = z.object({
 });
 
 export type Entry = z.infer<typeof entrySchema>;
+
+export const attachedSourceSummarySchema = z.object({
+  id: trimmedRequiredString,
+  evidenceItemId: trimmedRequiredString,
+  url: createTrimmedHttpUrlString().optional(),
+  canonicalUrl: createTrimmedHttpUrlString().optional(),
+  title: trimmedRequiredString,
+  sourceName: trimmedRequiredString,
+  sourceDomain: trimmedRequiredString.optional(),
+  publishedAt: trimmedRequiredString.optional(),
+  relationType: entryCitationRelationTypeSchema
+});
+
+export type AttachedSourceSummary = z.infer<typeof attachedSourceSummarySchema>;
+
+export const entryReadModelSchema = entrySchema.extend({
+  sources: z.array(attachedSourceSummarySchema).default([])
+});
+
+export type EntryReadModel = z.infer<typeof entryReadModelSchema>;
 
 export const entrySourceInputSchema = z.object({
   url: createTrimmedHttpUrlString()
@@ -100,7 +121,7 @@ export const getEventEntryRequestSchema = z.object({
 export type GetEventEntryRequest = z.infer<typeof getEventEntryRequestSchema>;
 
 export const getEventEntryResponseSchema = z.object({
-  entry: entrySchema
+  entry: entryReadModelSchema
 });
 
 export type GetEventEntryResponse = z.infer<typeof getEventEntryResponseSchema>;
@@ -114,7 +135,7 @@ export type ListEventEntriesRequest = z.infer<
 >;
 
 export const listEventEntriesResponseSchema = z.object({
-  entries: z.array(entrySchema)
+  entries: z.array(entryReadModelSchema)
 });
 
 export type ListEventEntriesResponse = z.infer<
@@ -128,7 +149,7 @@ export const getReviewNoteRequestSchema = z.object({
 export type GetReviewNoteRequest = z.infer<typeof getReviewNoteRequestSchema>;
 
 export const getReviewNoteResponseSchema = z.object({
-  entry: entrySchema
+  entry: entryReadModelSchema
 });
 
 export type GetReviewNoteResponse = z.infer<typeof getReviewNoteResponseSchema>;
@@ -142,7 +163,7 @@ export type ListReviewNotesRequest = z.infer<
 >;
 
 export const listReviewNotesResponseSchema = z.object({
-  entries: z.array(entrySchema)
+  entries: z.array(entryReadModelSchema)
 });
 
 export type ListReviewNotesResponse = z.infer<

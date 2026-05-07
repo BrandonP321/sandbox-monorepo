@@ -1,7 +1,8 @@
-import type { AssessmentUpdate } from "@repo/signal-tracker-shared";
+import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 
 import { Badge } from "@/components/ui";
 
+import { EntryCitationIndicator } from "../../EntryCitationIndicator";
 import {
   formatAssessmentConfidence,
   formatAssessmentDate
@@ -9,7 +10,7 @@ import {
 import { AssessmentPreviewList } from "./AssessmentPreviewList";
 
 type CurrentAssessmentContentProps = {
-  assessment: AssessmentUpdate;
+  assessment: AssessmentUpdateReadModel;
 };
 
 function CurrentAssessmentContent({
@@ -32,6 +33,10 @@ function CurrentAssessmentContent({
         >
           {formatAssessmentDate(assessment.entry.sortAt)}
         </time>
+        <EntryCitationIndicator
+          entryId={assessment.entry.id}
+          sources={assessment.entry.sources}
+        />
       </div>
 
       <div className="space-y-1">

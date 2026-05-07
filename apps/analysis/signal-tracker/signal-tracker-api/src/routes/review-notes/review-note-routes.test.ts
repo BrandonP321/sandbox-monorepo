@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Entry, Topic } from "@repo/signal-tracker-shared";
 
 import { InMemoryEntryRepository } from "../../domain/entries/entry-repository";
+import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { createCreateReviewNoteHandler } from "./create-review-note";
 import { createGetReviewNoteHandler } from "./get-review-note";
@@ -153,7 +154,10 @@ describe("review note routes", () => {
   it("reads a review note by ID", async () => {
     const entryRepository = new InMemoryEntryRepository();
     await entryRepository.create(reviewNoteFixture);
-    const handler = createGetReviewNoteHandler({ entryRepository });
+    const handler = createGetReviewNoteHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
+    });
 
     const result = await handler({
       method: "POST",
@@ -162,13 +166,18 @@ describe("review note routes", () => {
     });
 
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body)).toEqual({ entry: reviewNoteFixture });
+    expect(JSON.parse(result.body)).toEqual({
+      entry: { ...reviewNoteFixture, sources: [] }
+    });
   });
 
   it("rejects missing and non-review entries on review note reads", async () => {
     const entryRepository = new InMemoryEntryRepository();
     await entryRepository.create(eventEntryFixture);
-    const handler = createGetReviewNoteHandler({ entryRepository });
+    const handler = createGetReviewNoteHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
+    });
 
     await expect(
       handler({
@@ -225,7 +234,10 @@ describe("review note routes", () => {
       status: "archived",
       archivedAt: "2026-04-27T00:00:00.000Z"
     });
-    const handler = createListReviewNotesHandler({ entryRepository });
+    const handler = createListReviewNotesHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
+    });
 
     const result = await handler({
       method: "POST",
@@ -235,13 +247,17 @@ describe("review note routes", () => {
 
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
-      entries: [newerReviewNote, olderReviewNote]
+      entries: [
+        { ...newerReviewNote, sources: [] },
+        { ...olderReviewNote, sources: [] }
+      ]
     });
   });
 
   it("rejects invalid review note list requests", async () => {
     const handler = createListReviewNotesHandler({
-      entryRepository: new InMemoryEntryRepository()
+      entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     for (const body of [{}, { topicId: " " }]) {
@@ -282,7 +298,10 @@ describe("review note routes", () => {
     };
 
     await expect(
-      createGetReviewNoteHandler({ entryRepository })({
+      createGetReviewNoteHandler({
+        entryRepository,
+        entrySourceSummaryRepository: createSourceSummaryRepository()
+      })({
         method: "POST",
         path: "/get-review-note",
         body: JSON.stringify({ entryId: "review-1" })
@@ -293,7 +312,10 @@ describe("review note routes", () => {
     });
 
     await expect(
-      createListReviewNotesHandler({ entryRepository })({
+      createListReviewNotesHandler({
+        entryRepository,
+        entrySourceSummaryRepository: createSourceSummaryRepository()
+      })({
         method: "POST",
         path: "/list-review-notes",
         body: JSON.stringify({ topicId: "topic-1" })
@@ -311,6 +333,10 @@ async function createRepositories() {
   await topicRepository.create(topicFixture);
 
   return { entryRepository, topicRepository };
+}
+
+function createSourceSummaryRepository() {
+  return new InMemoryEntrySourceSummaryRepository();
 }
 
 const createReviewNoteRequestFixture = {

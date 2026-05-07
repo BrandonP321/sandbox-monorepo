@@ -11,12 +11,30 @@ import {
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
+import { hydrateEntryReadModels } from "../../domain/entries/entry-read-models";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
+import type { EntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 
 type ListTopicTimelineHandlerDependencies = {
   entryRepository: Pick<EntryRepository, "listByTopic">;
   assessmentRepository: Pick<AssessmentRepository, "listActiveByTopic">;
+  entrySourceSummaryRepository: EntrySourceSummaryRepository;
 };
+
+type UnhydratedTopicTimelineItem =
+  | {
+      kind: "event";
+      entry: Entry & { kind: "event" };
+    }
+  | {
+      kind: "review";
+      entry: Entry & { kind: "review" };
+    }
+  | {
+      kind: "assessment";
+      entry: Entry & { kind: "assessment" };
+      assessment: Omit<AssessmentUpdate, "entry">;
+    };
 
 export function createListTopicTimelineHandler(
   dependencies: ListTopicTimelineHandlerDependencies
@@ -26,19 +44,18 @@ export function createListTopicTimelineHandler(
     handle: async (request) => {
       const items = await listActiveTopicTimelineItems(
         request.topicId,
+        request.limit,
         dependencies
       );
 
-      return {
-        items:
-          request.limit === undefined ? items : items.slice(0, request.limit)
-      };
+      return { items };
     }
   });
 }
 
 async function listActiveTopicTimelineItems(
   topicId: string,
+  limit: number | undefined,
   dependencies: ListTopicTimelineHandlerDependencies
 ): Promise<TopicTimelineItem[]> {
   return withPersistenceErrorMapping(async () => {
@@ -47,14 +64,18 @@ async function listActiveTopicTimelineItems(
       dependencies.assessmentRepository.listActiveByTopic(topicId)
     ]);
 
-    return [
+    const unhydratedItems = [
       ...entries.flatMap(entryToTimelineItem),
       ...assessmentUpdates.map(assessmentUpdateToTimelineItem)
     ].sort(compareTimelineItems);
+    const limitedItems =
+      limit === undefined ? unhydratedItems : unhydratedItems.slice(0, limit);
+
+    return await hydrateTimelineItems(limitedItems, dependencies);
   });
 }
 
-function entryToTimelineItem(entry: Entry): TopicTimelineItem[] {
+function entryToTimelineItem(entry: Entry): UnhydratedTopicTimelineItem[] {
   if (entry.kind === "event") {
     return [{ kind: "event", entry: { ...entry, kind: "event" } }];
   }
@@ -68,7 +89,7 @@ function entryToTimelineItem(entry: Entry): TopicTimelineItem[] {
 
 function assessmentUpdateToTimelineItem(
   assessmentUpdate: AssessmentUpdate
-): TopicTimelineItem {
+): UnhydratedTopicTimelineItem {
   const { entry, ...assessment } = assessmentUpdate;
 
   return {
@@ -78,9 +99,48 @@ function assessmentUpdateToTimelineItem(
   };
 }
 
+async function hydrateTimelineItems(
+  items: UnhydratedTopicTimelineItem[],
+  dependencies: ListTopicTimelineHandlerDependencies
+): Promise<TopicTimelineItem[]> {
+  const entries = await hydrateEntryReadModels(
+    items.map((item) => item.entry),
+    dependencies.entrySourceSummaryRepository
+  );
+  const entriesById = new Map(entries.map((entry) => [entry.id, entry]));
+
+  return items.map((item) => {
+    const entry = entriesById.get(item.entry.id);
+
+    if (!entry) {
+      throw new Error("Timeline entry hydration did not return an entry");
+    }
+
+    if (item.kind === "event") {
+      return {
+        kind: "event",
+        entry: { ...entry, kind: "event" }
+      };
+    }
+
+    if (item.kind === "review") {
+      return {
+        kind: "review",
+        entry: { ...entry, kind: "review" }
+      };
+    }
+
+    return {
+      kind: "assessment",
+      entry: { ...entry, kind: "assessment" },
+      assessment: item.assessment
+    };
+  });
+}
+
 function compareTimelineItems(
-  left: TopicTimelineItem,
-  right: TopicTimelineItem
+  left: Pick<UnhydratedTopicTimelineItem, "entry">,
+  right: Pick<UnhydratedTopicTimelineItem, "entry">
 ): number {
   const sortAtComparison = right.entry.sortAt.localeCompare(left.entry.sortAt);
 

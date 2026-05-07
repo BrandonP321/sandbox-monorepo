@@ -1,9 +1,17 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { AssessmentUpdate } from "@repo/signal-tracker-shared";
+import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 
 import { CurrentAssessmentPanel } from "./CurrentAssessmentPanel";
+
+const apiMocks = vi.hoisted(() => ({
+  useListEntryCitationsQuery: vi.fn()
+}));
+
+vi.mock("@/api", () => ({
+  useListEntryCitationsQuery: apiMocks.useListEntryCitationsQuery
+}));
 
 const assessment = {
   entry: {
@@ -18,7 +26,8 @@ const assessment = {
     originType: "manual",
     status: "active",
     createdAt: "2026-05-01T00:00:00.000Z",
-    updatedAt: "2026-05-01T00:00:00.000Z"
+    updatedAt: "2026-05-01T00:00:00.000Z",
+    sources: []
   },
   judgment: "Risk is rising but still constrained by diplomatic incentives.",
   confidenceLabel: "medium",
@@ -36,9 +45,20 @@ const assessment = {
   resolutionCriteria: "Direct strike occurs.",
   targetResolvesAt: "2026-06-01T00:00:00.000Z",
   previousAssessmentEntryId: undefined
-} satisfies AssessmentUpdate;
+} satisfies AssessmentUpdateReadModel;
 
 describe("CurrentAssessmentPanel", () => {
+  beforeEach(() => {
+    apiMocks.useListEntryCitationsQuery.mockReset();
+    apiMocks.useListEntryCitationsQuery.mockReturnValue({
+      data: { citations: [] },
+      errorMessage: undefined,
+      isError: false,
+      isLoading: false,
+      refetch: vi.fn()
+    });
+  });
+
   it("renders an empty state when no assessment exists", () => {
     render(<CurrentAssessmentPanel assessment={null} />);
 

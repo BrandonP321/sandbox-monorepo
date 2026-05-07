@@ -1,6 +1,7 @@
 import {
   signalTrackerRouteContracts,
-  type Entry
+  type Entry,
+  type EntryReadModel
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
 
@@ -10,9 +11,12 @@ import {
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
+import { hydrateEntryReadModel } from "../../domain/entries/entry-read-models";
+import type { EntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 
 type GetReviewNoteHandlerDependencies = {
   entryRepository: Pick<EntryRepository, "findById">;
+  entrySourceSummaryRepository: EntrySourceSummaryRepository;
 };
 
 export function createGetReviewNoteHandler(
@@ -31,14 +35,16 @@ export function createGetReviewNoteHandler(
 async function findReviewNote(
   entryId: string,
   dependencies: GetReviewNoteHandlerDependencies
-): Promise<Entry> {
+): Promise<EntryReadModel> {
   const entry = await findEntryById(entryId, dependencies);
 
   if (!entry || entry.kind !== "review") {
     throw createReviewNoteNotFoundError();
   }
 
-  return entry;
+  return withPersistenceErrorMapping(() =>
+    hydrateEntryReadModel(entry, dependencies.entrySourceSummaryRepository)
+  );
 }
 
 async function findEntryById(

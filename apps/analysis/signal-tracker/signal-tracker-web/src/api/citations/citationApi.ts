@@ -26,6 +26,7 @@ export const citationApi = signalTrackerApi.injectEndpoints({
       invalidatesTags: (result, error, request) =>
         invalidateTagsOnSuccess(result, error, request, (result, request) => [
           { type: "EntryCitations", id: request.entryId },
+          { type: "EventEntry", id: request.entryId },
           {
             type: "EntryCitation",
             id: result.citation.citation.id
@@ -43,6 +44,7 @@ export const citationApi = signalTrackerApi.injectEndpoints({
       invalidatesTags: (result, error, request) =>
         invalidateTagsOnSuccess(result, error, request, (result, request) => [
           { type: "EntryCitations", id: request.entryId },
+          { type: "EventEntry", id: request.entryId },
           { type: "EntryCitation", id: request.citationId },
           {
             type: "EntryCitation",

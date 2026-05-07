@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { trimmedRequiredString } from "@repo/schema-utils";
 import { assessmentUpdateSchema } from "./assessment-contracts.js";
-import { entrySchema } from "./entry-contracts.js";
+import { entryReadModelSchema } from "./entry-contracts.js";
 
 export const assessmentTimelineMetadataSchema = assessmentUpdateSchema.omit({
   entry: true
@@ -11,15 +11,15 @@ export type AssessmentTimelineMetadata = z.infer<
   typeof assessmentTimelineMetadataSchema
 >;
 
-const eventTimelineEntrySchema = entrySchema.extend({
+const eventTimelineEntrySchema = entryReadModelSchema.extend({
   kind: z.literal("event")
 });
 
-const reviewTimelineEntrySchema = entrySchema.extend({
+const reviewTimelineEntrySchema = entryReadModelSchema.extend({
   kind: z.literal("review")
 });
 
-const assessmentTimelineEntrySchema = entrySchema.extend({
+const assessmentTimelineEntrySchema = entryReadModelSchema.extend({
   kind: z.literal("assessment")
 });
 

@@ -10,6 +10,7 @@ import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
+  AttachedSourceSummary,
   AttachEntryCitationResponse,
   DetachEntryCitationResponse,
   EntryCitationRecord,
@@ -104,6 +105,7 @@ const citationRecord = createCitationRecord({
   quoteText: "Important source text",
   relationType: "source_for"
 });
+const sourceSummary = createSourceSummary(citationRecord);
 
 describe("EntryCitationIndicator", () => {
   const attachEntryCitation = vi.fn();
@@ -136,7 +138,7 @@ describe("EntryCitationIndicator", () => {
   });
 
   it("renders an uncited row state", () => {
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
     expect(
       screen.getByRole("button", { name: "No citation sources attached" })
@@ -147,11 +149,12 @@ describe("EntryCitationIndicator", () => {
   it("renders citation loading state", () => {
     mockListEntryCitationsQuery({ isLoading: true });
 
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
-    expect(
-      screen.getByRole("button", { name: "Citation sources loading" })
-    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "No citation sources attached" })
+    );
+
     expect(screen.getByRole("status")).toHaveTextContent("Loading citations");
   });
 
@@ -163,10 +166,10 @@ describe("EntryCitationIndicator", () => {
       refetch
     });
 
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Citation sources unavailable" })
+      screen.getByRole("button", { name: "No citation sources attached" })
     );
 
     expect(screen.getByRole("alert")).toHaveTextContent(
@@ -181,7 +184,9 @@ describe("EntryCitationIndicator", () => {
   it("renders one citation source indicator", () => {
     mockListEntryCitationsQuery({ citations: [citationRecord] });
 
-    const { container } = render(<EntryCitationIndicator entryId="entry-1" />);
+    const { container } = render(
+      <EntryCitationIndicator entryId="entry-1" sources={[sourceSummary]} />
+    );
 
     expect(
       screen.getByRole("button", { name: "1 citation source attached" })
@@ -193,32 +198,36 @@ describe("EntryCitationIndicator", () => {
   });
 
   it("renders a compact stack for multiple citations", () => {
-    mockListEntryCitationsQuery({
-      citations: [
-        citationRecord,
-        createCitationRecord({
-          evidence: secondEvidenceRecord,
-          id: "citation-2"
-        }),
-        createCitationRecord({
-          evidence: sparseEvidenceRecord,
-          id: "citation-3"
-        }),
-        createCitationRecord({
-          evidence: {
-            ...secondEvidenceRecord,
-            evidenceItem: {
-              ...secondEvidenceRecord.evidenceItem,
-              id: "evidence-4",
-              title: "Second Reuters source"
-            }
-          },
-          id: "citation-4"
-        })
-      ]
-    });
+    const citations = [
+      citationRecord,
+      createCitationRecord({
+        evidence: secondEvidenceRecord,
+        id: "citation-2"
+      }),
+      createCitationRecord({
+        evidence: sparseEvidenceRecord,
+        id: "citation-3"
+      }),
+      createCitationRecord({
+        evidence: {
+          ...secondEvidenceRecord,
+          evidenceItem: {
+            ...secondEvidenceRecord.evidenceItem,
+            id: "evidence-4",
+            title: "Second Reuters source"
+          }
+        },
+        id: "citation-4"
+      })
+    ];
+    mockListEntryCitationsQuery({ citations });
 
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(
+      <EntryCitationIndicator
+        entryId="entry-1"
+        sources={citations.map(createSourceSummary)}
+      />
+    );
 
     expect(
       screen.getByRole("button", { name: "4 citation sources attached" })
@@ -227,16 +236,18 @@ describe("EntryCitationIndicator", () => {
   });
 
   it("renders a fallback source icon when favicon display is unavailable", () => {
-    mockListEntryCitationsQuery({
-      citations: [
-        createCitationRecord({
-          evidence: sparseEvidenceRecord,
-          id: "citation-3"
-        })
-      ]
+    const sparseCitation = createCitationRecord({
+      evidence: sparseEvidenceRecord,
+      id: "citation-3"
     });
+    mockListEntryCitationsQuery({ citations: [sparseCitation] });
 
-    const { container } = render(<EntryCitationIndicator entryId="entry-1" />);
+    const { container } = render(
+      <EntryCitationIndicator
+        entryId="entry-1"
+        sources={[createSourceSummary(sparseCitation)]}
+      />
+    );
 
     expect(container.querySelector("img")).not.toBeInTheDocument();
     expect(container.querySelector("svg")).toBeInTheDocument();
@@ -245,7 +256,9 @@ describe("EntryCitationIndicator", () => {
   it("shows citation details in the source popover", () => {
     mockListEntryCitationsQuery({ citations: [citationRecord] });
 
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(
+      <EntryCitationIndicator entryId="entry-1" sources={[sourceSummary]} />
+    );
 
     fireEvent.click(
       screen.getByRole("button", { name: "1 citation source attached" })
@@ -272,7 +285,7 @@ describe("EntryCitationIndicator", () => {
   });
 
   it("attaches existing saved evidence with the default relation", async () => {
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
     fireEvent.click(
       screen.getByRole("button", { name: "No citation sources attached" })
@@ -294,7 +307,7 @@ describe("EntryCitationIndicator", () => {
 
   it("attaches captured URL evidence after capture succeeds", async () => {
     unwrapCaptureEvidenceUrl.mockResolvedValueOnce(evidenceRecord);
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
     fireEvent.click(
       screen.getByRole("button", { name: "No citation sources attached" })
@@ -321,7 +334,7 @@ describe("EntryCitationIndicator", () => {
     unwrapAttachEntryCitation.mockRejectedValueOnce(
       createApiError("Citation could not be attached.")
     );
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(<EntryCitationIndicator entryId="entry-1" sources={[]} />);
 
     fireEvent.click(
       screen.getByRole("button", { name: "No citation sources attached" })
@@ -345,7 +358,9 @@ describe("EntryCitationIndicator", () => {
       })
     );
     mockListEntryCitationsQuery({ citations: [citationRecord] });
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(
+      <EntryCitationIndicator entryId="entry-1" sources={[sourceSummary]} />
+    );
 
     fireEvent.click(
       screen.getByRole("button", { name: "1 citation source attached" })
@@ -373,7 +388,9 @@ describe("EntryCitationIndicator", () => {
       createApiError("Citation could not be detached.")
     );
     mockListEntryCitationsQuery({ citations: [citationRecord] });
-    render(<EntryCitationIndicator entryId="entry-1" />);
+    render(
+      <EntryCitationIndicator entryId="entry-1" sources={[sourceSummary]} />
+    );
 
     fireEvent.click(
       screen.getByRole("button", { name: "1 citation source attached" })
@@ -537,6 +554,28 @@ function createCitationRecord({
         }
       : null
   } satisfies EntryCitationRecord;
+}
+
+function createSourceSummary(
+  citationRecord: EntryCitationRecord
+): AttachedSourceSummary {
+  const url =
+    citationRecord.evidence.evidenceItem.canonicalUrl ??
+    citationRecord.evidence.source.baseUrl;
+  const sourceDomain = url ? new URL(url).hostname : undefined;
+
+  return {
+    id: citationRecord.citation.id,
+    evidenceItemId: citationRecord.citation.evidenceItemId,
+    ...(url ? { url } : {}),
+    ...(citationRecord.evidence.evidenceItem.canonicalUrl
+      ? { canonicalUrl: citationRecord.evidence.evidenceItem.canonicalUrl }
+      : {}),
+    title: citationRecord.evidence.evidenceItem.title,
+    sourceName: citationRecord.evidence.source.canonicalName,
+    ...(sourceDomain ? { sourceDomain } : {}),
+    relationType: citationRecord.citation.relationType
+  };
 }
 
 function createApiError(message: string) {

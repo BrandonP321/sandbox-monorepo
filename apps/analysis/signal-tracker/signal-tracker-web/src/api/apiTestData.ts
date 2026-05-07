@@ -3,7 +3,10 @@ import { expect, vi, type Mock } from "vitest";
 import {
   signalTrackerRouteContracts,
   type AssessmentUpdate,
+  type AssessmentUpdateReadModel,
+  type AttachedSourceSummary,
   type Entry,
+  type EntryReadModel,
   type EntryCitationRecord,
   type EvidenceAnchor,
   type EvidenceItem,
@@ -43,12 +46,34 @@ export const eventEntry = {
   updatedAt: "2026-01-02T00:00:00.000Z"
 } as const satisfies Entry;
 
+export const attachedSourceSummary = {
+  id: "citation-1",
+  evidenceItemId: "evidence-1",
+  url: "https://agency.example/report",
+  canonicalUrl: "https://agency.example/report",
+  title: "Evidence",
+  sourceName: "Agency",
+  sourceDomain: "agency.example",
+  publishedAt: "2026-01-01T00:00:00.000Z",
+  relationType: "source_for"
+} as const satisfies AttachedSourceSummary;
+
+export const eventEntryReadModel = {
+  ...eventEntry,
+  sources: [attachedSourceSummary]
+} as const satisfies EntryReadModel;
+
 export const assessmentEntry = {
   ...eventEntry,
   id: "assessment-entry-1",
   kind: "assessment",
   title: "Assessment 1"
 } as const satisfies Entry;
+
+export const assessmentEntryReadModel = {
+  ...assessmentEntry,
+  sources: [attachedSourceSummary]
+} as const satisfies EntryReadModel;
 
 export const assessmentUpdate = {
   entry: assessmentEntry,
@@ -61,6 +86,11 @@ export const assessmentUpdate = {
   targetResolvesAt: "2026-06-01T00:00:00.000Z",
   previousAssessmentEntryId: undefined
 } satisfies AssessmentUpdate;
+
+export const assessmentUpdateReadModel = {
+  ...assessmentUpdate,
+  entry: assessmentEntryReadModel
+} satisfies AssessmentUpdateReadModel;
 
 export const source = {
   id: "source-1",

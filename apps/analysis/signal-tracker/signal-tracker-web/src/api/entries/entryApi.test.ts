@@ -10,6 +10,7 @@ import {
   apiBaseUrl,
   createJsonResponse,
   eventEntry,
+  eventEntryReadModel,
   expectRouteRequest,
   stubRouteResponse,
   topic
@@ -54,7 +55,7 @@ describe("entryApi", () => {
 
   it("gets event entries through the shared route contract", async () => {
     const fetchMock = stubRouteResponse("getEventEntry", {
-      entry: eventEntry
+      entry: eventEntryReadModel
     });
     const request = {
       entryId: eventEntry.id
@@ -64,13 +65,13 @@ describe("entryApi", () => {
       .dispatch(entryApi.endpoints.getEventEntry.initiate(request))
       .unwrap();
 
-    expect(result.entry).toEqual(eventEntry);
+    expect(result.entry).toEqual(eventEntryReadModel);
     await expectRouteRequest(fetchMock, "getEventEntry", request);
   });
 
   it("lists event entries through the shared route contract", async () => {
     const fetchMock = stubRouteResponse("listEventEntries", {
-      entries: [eventEntry]
+      entries: [eventEntryReadModel]
     });
     const request = {
       topicId: topic.id
@@ -80,7 +81,7 @@ describe("entryApi", () => {
       .dispatch(entryApi.endpoints.listEventEntries.initiate(request))
       .unwrap();
 
-    expect(result.entries).toEqual([eventEntry]);
+    expect(result.entries).toEqual([eventEntryReadModel]);
     await expectRouteRequest(fetchMock, "listEventEntries", request);
   });
 

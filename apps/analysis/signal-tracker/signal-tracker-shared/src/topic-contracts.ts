@@ -7,7 +7,7 @@ import {
   optionalTrimmedString,
   trimmedRequiredString
 } from "@repo/schema-utils";
-import { assessmentUpdateSchema } from "./assessment-contracts.js";
+import { assessmentUpdateReadModelSchema } from "./assessment-contracts.js";
 
 export const topicStatusSchema = z.enum(["active", "paused", "archived"]);
 export type TopicStatus = z.infer<typeof topicStatusSchema>;
@@ -82,7 +82,7 @@ export type GetTopicRequest = z.infer<typeof getTopicRequestSchema>;
 
 export const getTopicResponseSchema = z.object({
   topic: topicSchema,
-  currentAssessment: assessmentUpdateSchema.nullable()
+  currentAssessment: assessmentUpdateReadModelSchema.nullable()
 });
 
 export type GetTopicResponse = z.infer<typeof getTopicResponseSchema>;

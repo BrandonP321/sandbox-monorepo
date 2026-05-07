@@ -101,7 +101,10 @@ function TopicTimeline({ onEditEventEntry, topicId }: TopicTimelineProps) {
                       setEntryExpanded(item.entry.id, isExpanded)
                     }
                     sourceIndicatorSlot={
-                      <EntryCitationIndicator entryId={item.entry.id} />
+                      <EntryCitationIndicator
+                        entryId={item.entry.id}
+                        sources={item.entry.sources}
+                      />
                     }
                   />
                 </li>

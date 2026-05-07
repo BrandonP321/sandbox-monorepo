@@ -1,5 +1,6 @@
 import type {
   AssessmentUpdate,
+  AssessmentUpdateReadModel,
   ArchiveTopicResponse,
   AttachEntryCitationResponse,
   CaptureEvidenceUrlResponse,
@@ -235,6 +236,11 @@ const eventEntryResponse: CreateEventEntryResponse = {
   entry: eventEntryFixture
 };
 
+const eventEntryReadFixture = {
+  ...eventEntryFixture,
+  sources: []
+};
+
 const listEventEntriesResponse: ListEventEntriesResponse = {
   entries: []
 };
@@ -256,6 +262,11 @@ const reviewNoteFixture: Entry = {
 
 const reviewNoteResponse: CreateReviewNoteResponse = {
   entry: reviewNoteFixture
+};
+
+const reviewNoteReadFixture = {
+  ...reviewNoteFixture,
+  sources: []
 };
 
 const listReviewNotesResponse: ListReviewNotesResponse = {
@@ -291,10 +302,18 @@ const assessmentUpdateResponse: CreateAssessmentUpdateResponse = {
   assessmentUpdate: assessmentUpdateFixture
 };
 
+const assessmentUpdateReadFixture = {
+  ...assessmentUpdateFixture,
+  entry: {
+    ...assessmentUpdateFixture.entry,
+    sources: []
+  }
+} satisfies AssessmentUpdateReadModel;
+
 const eventTimelineItem: TopicTimelineItem = {
   kind: "event",
   entry: {
-    ...eventEntryFixture,
+    ...eventEntryReadFixture,
     kind: "event"
   }
 };
@@ -302,7 +321,7 @@ const eventTimelineItem: TopicTimelineItem = {
 const reviewTimelineItem: TopicTimelineItem = {
   kind: "review",
   entry: {
-    ...reviewNoteFixture,
+    ...reviewNoteReadFixture,
     kind: "review"
   }
 };
@@ -310,7 +329,7 @@ const reviewTimelineItem: TopicTimelineItem = {
 const assessmentTimelineItem: TopicTimelineItem = {
   kind: "assessment",
   entry: {
-    ...assessmentUpdateFixture.entry,
+    ...assessmentUpdateReadFixture.entry,
     kind: "assessment"
   },
   assessment: {
@@ -1020,7 +1039,7 @@ describe("App", () => {
   it("renders persisted event entries with epistemic and uncited state", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listEventEntriesMock.mockResolvedValue({
-      entries: [eventEntryFixture]
+      entries: [eventEntryReadFixture]
     });
 
     render(<App />);
@@ -1047,7 +1066,7 @@ describe("App", () => {
   it("renders existing entry citations and removes a citation", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listEventEntriesMock.mockResolvedValue({
-      entries: [eventEntryFixture]
+      entries: [eventEntryReadFixture]
     });
     listEntryCitationsMock.mockResolvedValue(listCitationResponse);
 
@@ -1090,7 +1109,7 @@ describe("App", () => {
   it("attaches saved evidence to an entry citation", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listEventEntriesMock.mockResolvedValue({
-      entries: [eventEntryFixture]
+      entries: [eventEntryReadFixture]
     });
 
     render(<App />);
@@ -1158,7 +1177,7 @@ describe("App", () => {
   it("shows no saved evidence state", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listEventEntriesMock.mockResolvedValue({
-      entries: [eventEntryFixture]
+      entries: [eventEntryReadFixture]
     });
     listEvidenceItemsMock.mockResolvedValue({ evidence: [] });
 
@@ -1184,7 +1203,7 @@ describe("App", () => {
   it("shows a citation API error state with retry", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listEventEntriesMock.mockResolvedValue({
-      entries: [eventEntryFixture]
+      entries: [eventEntryReadFixture]
     });
     listEntryCitationsMock.mockRejectedValueOnce(
       new Error("database unavailable")
@@ -1414,7 +1433,7 @@ describe("App", () => {
   it("renders persisted review notes with epistemic and uncited state", async () => {
     window.history.pushState({}, "", "/topics/topic-1");
     listReviewNotesMock.mockResolvedValue({
-      entries: [reviewNoteFixture]
+      entries: [reviewNoteReadFixture]
     });
 
     render(<App />);
@@ -1652,7 +1671,7 @@ describe("App", () => {
     window.history.pushState({}, "", "/topics/topic-1");
     getTopicMock.mockResolvedValue({
       topic: topicFixture,
-      currentAssessment: assessmentUpdateFixture
+      currentAssessment: assessmentUpdateReadFixture
     });
 
     render(<App />);
@@ -2527,7 +2546,7 @@ function buildTimelineItems(count: number): TopicTimelineItem[] {
     return {
       kind: "event",
       entry: {
-        ...eventEntryFixture,
+        ...eventEntryReadFixture,
         kind: "event",
         id: `timeline-event-${itemNumber}`,
         title: `Timeline item ${itemNumber}`,

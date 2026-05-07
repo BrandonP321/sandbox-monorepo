@@ -3,7 +3,7 @@ import { ArrowLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import {
   signalTrackerApiErrorCodes,
-  type AssessmentUpdate,
+  type AssessmentUpdateReadModel,
   type Entry,
   type Topic
 } from "@repo/signal-tracker-shared";
@@ -69,7 +69,7 @@ function TopicDetailsWorkspace({
   currentAssessment,
   topic
 }: {
-  currentAssessment: AssessmentUpdate | null;
+  currentAssessment: AssessmentUpdateReadModel | null;
   topic: Topic;
 }) {
   const [isAssessmentComposerOpen, setIsAssessmentComposerOpen] =

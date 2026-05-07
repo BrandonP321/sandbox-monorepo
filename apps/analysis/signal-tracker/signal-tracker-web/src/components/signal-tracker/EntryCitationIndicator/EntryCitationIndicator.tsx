@@ -2,6 +2,8 @@ import { AlertCircle, Link2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
+
 import { useListEntryCitationsQuery } from "@/api";
 import {
   Badge,
@@ -12,22 +14,26 @@ import {
   PopoverTrigger
 } from "@/components/ui";
 
-import { CitationSourceIcon } from "./CitationSourceIcon";
 import { EntryCitationPopover } from "./EntryCitationPopover";
+import { HydratedSourceIcon } from "./HydratedSourceIcon";
 
 type EntryCitationIndicatorProps = {
   entryId: string;
+  sources: AttachedSourceSummary[];
 };
 // TODO: Can be better composed
-function EntryCitationIndicator({ entryId }: EntryCitationIndicatorProps) {
+function EntryCitationIndicator({
+  entryId,
+  sources
+}: EntryCitationIndicatorProps) {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const { data, errorMessage, isError, isLoading, refetch } =
-    useListEntryCitationsQuery({ entryId });
+    useListEntryCitationsQuery({ entryId }, { skip: !isPopoverOpen });
   const citations = data?.citations ?? [];
   const triggerLabel = getTriggerLabel({
-    citationCount: citations.length,
-    isError,
-    isLoading
+    citationCount: sources.length,
+    isError: false,
+    isLoading: false
   });
 
   return (
@@ -40,13 +46,13 @@ function EntryCitationIndicator({ entryId }: EntryCitationIndicatorProps) {
           variant="ghost"
         >
           <IndicatorContent
-            citationCount={citations.length}
-            isError={isError}
-            isLoading={isLoading}
+            citationCount={sources.length}
+            isError={false}
+            isLoading={false}
           >
             <IconStack
-              items={citations.map((record) => ({
-                icon: <CitationSourceIcon record={record.evidence} />
+              items={sources.map((source) => ({
+                icon: <HydratedSourceIcon source={source} />
               }))}
             />
           </IndicatorContent>

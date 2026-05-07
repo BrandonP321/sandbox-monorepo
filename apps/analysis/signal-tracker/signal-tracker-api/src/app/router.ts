@@ -46,7 +46,8 @@ function createRouteHandlers(
     }),
     getTopic: createGetTopicHandler({
       repository: dependencies.topicRepository,
-      assessmentRepository: dependencies.assessmentRepository
+      assessmentRepository: dependencies.assessmentRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     listTopics: createListTopicsHandler({
       repository: dependencies.topicRepository
@@ -87,10 +88,12 @@ function createRouteHandlers(
       now: dependencies.now
     }),
     getEventEntry: createGetEventEntryHandler({
-      entryRepository: dependencies.entryRepository
+      entryRepository: dependencies.entryRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     listEventEntries: createListEventEntriesHandler({
-      entryRepository: dependencies.entryRepository
+      entryRepository: dependencies.entryRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     updateEventEntry: createUpdateEventEntryHandler({
       entryRepository: dependencies.entryRepository,
@@ -101,14 +104,17 @@ function createRouteHandlers(
       runInTransaction: dependencies.runInTransaction
     }),
     getReviewNote: createGetReviewNoteHandler({
-      entryRepository: dependencies.entryRepository
+      entryRepository: dependencies.entryRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     listReviewNotes: createListReviewNotesHandler({
-      entryRepository: dependencies.entryRepository
+      entryRepository: dependencies.entryRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     listTopicTimeline: createListTopicTimelineHandler({
       entryRepository: dependencies.entryRepository,
-      assessmentRepository: dependencies.assessmentRepository
+      assessmentRepository: dependencies.assessmentRepository,
+      entrySourceSummaryRepository: dependencies.entrySourceSummaryRepository
     }),
     createEvidenceItem: createCreateEvidenceItemHandler({
       evidenceRepository: dependencies.evidenceRepository,

@@ -12,6 +12,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type {
   ArchiveTopicResponse,
   AssessmentUpdate,
+  AssessmentUpdateReadModel,
   CreateAssessmentUpdateResponse,
   CreateEventEntryResponse,
   DeleteTopicResponse,
@@ -120,6 +121,14 @@ const currentAssessment = {
   previousAssessmentEntryId: undefined
 } as const satisfies AssessmentUpdate;
 
+const currentAssessmentReadModel = {
+  ...currentAssessment,
+  entry: {
+    ...currentAssessment.entry,
+    sources: []
+  }
+} as const satisfies AssessmentUpdateReadModel;
+
 const eventTimelineItem = {
   kind: "event",
   entry: {
@@ -134,22 +143,24 @@ const eventTimelineItem = {
     originType: "manual",
     status: "active",
     createdAt: "2026-05-02T00:00:00.000Z",
-    updatedAt: "2026-05-02T00:00:00.000Z"
+    updatedAt: "2026-05-02T00:00:00.000Z",
+    sources: []
   }
 } as const satisfies TopicTimelineItem;
 
 const assessmentTimelineItem = {
   kind: "assessment",
-  entry: currentAssessment.entry,
+  entry: currentAssessmentReadModel.entry,
   assessment: {
-    judgment: currentAssessment.judgment,
-    confidenceLabel: currentAssessment.confidenceLabel,
-    probabilityPct: currentAssessment.probabilityPct,
-    assumptions: currentAssessment.assumptions,
-    indicators: currentAssessment.indicators,
-    resolutionCriteria: currentAssessment.resolutionCriteria,
-    targetResolvesAt: currentAssessment.targetResolvesAt,
-    previousAssessmentEntryId: currentAssessment.previousAssessmentEntryId
+    judgment: currentAssessmentReadModel.judgment,
+    confidenceLabel: currentAssessmentReadModel.confidenceLabel,
+    probabilityPct: currentAssessmentReadModel.probabilityPct,
+    assumptions: currentAssessmentReadModel.assumptions,
+    indicators: currentAssessmentReadModel.indicators,
+    resolutionCriteria: currentAssessmentReadModel.resolutionCriteria,
+    targetResolvesAt: currentAssessmentReadModel.targetResolvesAt,
+    previousAssessmentEntryId:
+      currentAssessmentReadModel.previousAssessmentEntryId
   }
 } as const satisfies TopicTimelineItem;
 
@@ -1020,7 +1031,7 @@ describe("App", () => {
   it("renders the current assessment returned by the topic details query", async () => {
     window.history.replaceState(null, "", "/topics/topic-1");
     mockGetTopicQuery({
-      data: { topic, currentAssessment }
+      data: { topic, currentAssessment: currentAssessmentReadModel }
     });
 
     renderApp();

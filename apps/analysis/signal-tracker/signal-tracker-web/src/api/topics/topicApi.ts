@@ -39,8 +39,16 @@ export const topicApi = signalTrackerApi.injectEndpoints({
     }),
     getTopic: builder.query<GetTopicResponse, GetTopicRequest>({
       query: (request) => buildSignalTrackerRouteRequest("getTopic", request),
-      providesTags: (_result, _error, request) => [
-        { type: "Topic", id: request.topicId }
+      providesTags: (result, _error, request) => [
+        { type: "Topic", id: request.topicId },
+        ...(result?.currentAssessment
+          ? [
+              {
+                type: "EventEntry" as const,
+                id: result.currentAssessment.entry.id
+              }
+            ]
+          : [])
       ],
       transformResponse: (response: unknown) =>
         parseSignalTrackerRouteResponse("getTopic", response)

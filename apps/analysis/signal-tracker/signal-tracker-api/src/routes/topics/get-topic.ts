@@ -1,6 +1,6 @@
 import {
   signalTrackerRouteContracts,
-  type AssessmentUpdate,
+  type AssessmentUpdateReadModel,
   type Topic
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
@@ -11,11 +11,14 @@ import {
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { AssessmentRepository } from "../../domain/assessments/assessment-repository";
+import { hydrateAssessmentUpdateReadModel } from "../../domain/entries/entry-read-models";
+import type { EntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import type { TopicRepository } from "../../domain/topics/topic-repository";
 
 type GetTopicHandlerDependencies = {
   repository: Pick<TopicRepository, "findById">;
   assessmentRepository: Pick<AssessmentRepository, "findLatestActiveByTopic">;
+  entrySourceSummaryRepository: EntrySourceSummaryRepository;
 };
 
 export function createGetTopicHandler(
@@ -41,11 +44,20 @@ export function createGetTopicHandler(
 async function findCurrentAssessment(
   topicId: string,
   dependencies: GetTopicHandlerDependencies
-): Promise<AssessmentUpdate | null> {
-  return (
-    (await withPersistenceErrorMapping(() =>
-      dependencies.assessmentRepository.findLatestActiveByTopic(topicId)
-    )) ?? null
+): Promise<AssessmentUpdateReadModel | null> {
+  const assessmentUpdate = await withPersistenceErrorMapping(() =>
+    dependencies.assessmentRepository.findLatestActiveByTopic(topicId)
+  );
+
+  if (!assessmentUpdate) {
+    return null;
+  }
+
+  return withPersistenceErrorMapping(() =>
+    hydrateAssessmentUpdateReadModel(
+      assessmentUpdate,
+      dependencies.entrySourceSummaryRepository
+    )
   );
 }
 

@@ -1,6 +1,6 @@
 import {
   signalTrackerRouteContracts,
-  type Entry
+  type EntryReadModel
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
 
@@ -9,9 +9,12 @@ import {
   withPersistenceErrorMapping
 } from "../../app/route-helpers";
 import type { EntryRepository } from "../../domain/entries/entry-repository";
+import { hydrateEntryReadModels } from "../../domain/entries/entry-read-models";
+import type { EntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 
 type ListReviewNotesHandlerDependencies = {
   entryRepository: Pick<EntryRepository, "listByTopic">;
+  entrySourceSummaryRepository: EntrySourceSummaryRepository;
 };
 
 export function createListReviewNotesHandler(
@@ -33,10 +36,13 @@ export function createListReviewNotesHandler(
 async function listActiveReviewNotes(
   topicId: string,
   dependencies: ListReviewNotesHandlerDependencies
-): Promise<Entry[]> {
+): Promise<EntryReadModel[]> {
   return withPersistenceErrorMapping(async () => {
     const entries = await dependencies.entryRepository.listByTopic(topicId);
 
-    return entries.filter((entry) => entry.kind === "review");
+    return await hydrateEntryReadModels(
+      entries.filter((entry) => entry.kind === "review"),
+      dependencies.entrySourceSummaryRepository
+    );
   });
 }

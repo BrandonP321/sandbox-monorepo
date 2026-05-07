@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { Entry, Topic } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  Entry,
+  Topic
+} from "@repo/signal-tracker-shared";
 
 import { InMemoryEntryCitationRepository } from "../../domain/citations/entry-citation-repository";
 import { InMemoryEntryRepository } from "../../domain/entries/entry-repository";
+import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import { InMemoryEvidenceRepository } from "../../domain/evidence/evidence-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { buildEntryCitationFixture } from "../../domain/test-fixtures";
@@ -213,7 +218,10 @@ describe("event entry routes", () => {
   it("reads an event entry by ID", async () => {
     const entryRepository = new InMemoryEntryRepository();
     await entryRepository.create(eventEntryFixture);
-    const handler = createGetEventEntryHandler({ entryRepository });
+    const handler = createGetEventEntryHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
+    });
 
     const result = await handler({
       method: "POST",
@@ -222,13 +230,40 @@ describe("event entry routes", () => {
     });
 
     expect(result.statusCode).toBe(200);
-    expect(JSON.parse(result.body)).toEqual({ entry: eventEntryFixture });
+    expect(JSON.parse(result.body)).toEqual({
+      entry: { ...eventEntryFixture, sources: [] }
+    });
+  });
+
+  it("hydrates event entry source summaries on read", async () => {
+    const entryRepository = new InMemoryEntryRepository();
+    await entryRepository.create(eventEntryFixture);
+    const sourceSummary = buildSourceSummaryFixture();
+    const handler = createGetEventEntryHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository({
+        "entry-1": [sourceSummary]
+      })
+    });
+
+    const result = await handler({
+      method: "POST",
+      path: "/get-event-entry",
+      body: JSON.stringify({ entryId: "entry-1" })
+    });
+
+    expect(JSON.parse(result.body)).toEqual({
+      entry: { ...eventEntryFixture, sources: [sourceSummary] }
+    });
   });
 
   it("rejects missing and non-event entries on event reads", async () => {
     const entryRepository = new InMemoryEntryRepository();
     await entryRepository.create(reviewEntryFixture);
-    const handler = createGetEventEntryHandler({ entryRepository });
+    const handler = createGetEventEntryHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
+    });
 
     await expect(
       handler({
@@ -285,7 +320,12 @@ describe("event entry routes", () => {
       status: "archived",
       archivedAt: "2026-04-27T00:00:00.000Z"
     });
-    const handler = createListEventEntriesHandler({ entryRepository });
+    const handler = createListEventEntriesHandler({
+      entryRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository({
+        "entry-newer": [buildSourceSummaryFixture()]
+      })
+    });
 
     const result = await handler({
       method: "POST",
@@ -295,13 +335,17 @@ describe("event entry routes", () => {
 
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
-      entries: [newerEntry, olderEntry]
+      entries: [
+        { ...newerEntry, sources: [buildSourceSummaryFixture()] },
+        { ...olderEntry, sources: [] }
+      ]
     });
   });
 
   it("rejects invalid event entry list requests", async () => {
     const handler = createListEventEntriesHandler({
-      entryRepository: new InMemoryEntryRepository()
+      entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     for (const body of [{}, { topicId: " " }]) {
@@ -512,7 +556,10 @@ describe("event entry routes", () => {
     };
 
     await expect(
-      createGetEventEntryHandler({ entryRepository })({
+      createGetEventEntryHandler({
+        entryRepository,
+        entrySourceSummaryRepository: createSourceSummaryRepository()
+      })({
         method: "POST",
         path: "/get-event-entry",
         body: JSON.stringify({ entryId: "entry-1" })
@@ -523,7 +570,10 @@ describe("event entry routes", () => {
     });
 
     await expect(
-      createListEventEntriesHandler({ entryRepository })({
+      createListEventEntriesHandler({
+        entryRepository,
+        entrySourceSummaryRepository: createSourceSummaryRepository()
+      })({
         method: "POST",
         path: "/list-event-entries",
         body: JSON.stringify({ topicId: "topic-1" })
@@ -552,6 +602,35 @@ async function createRepositories() {
   await topicRepository.create(topicFixture);
 
   return { entryRepository, topicRepository };
+}
+
+function createSourceSummaryRepository(
+  summariesByEntryId: Record<string, AttachedSourceSummary[]> = {}
+) {
+  const repository = new InMemoryEntrySourceSummaryRepository();
+
+  for (const [entryId, sources] of Object.entries(summariesByEntryId)) {
+    repository.setSources(entryId, sources);
+  }
+
+  return repository;
+}
+
+function buildSourceSummaryFixture(
+  overrides: Partial<AttachedSourceSummary> = {}
+): AttachedSourceSummary {
+  return {
+    id: "citation-1",
+    evidenceItemId: "evidence-1",
+    url: "https://www.reuters.com/world/example",
+    canonicalUrl: "https://www.reuters.com/world/example",
+    title: "Reuters report",
+    sourceName: "Reuters",
+    sourceDomain: "www.reuters.com",
+    publishedAt: "2026-04-24T00:00:00.000Z",
+    relationType: "source_for",
+    ...overrides
+  };
 }
 
 const createEventRequestFixture = {

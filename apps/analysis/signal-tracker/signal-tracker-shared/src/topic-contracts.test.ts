@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { assessmentUpdateSchema } from "./assessment-contracts.js";
+import { assessmentUpdateReadModelSchema } from "./assessment-contracts.js";
 import {
   archiveTopicRequestSchema,
   archiveTopicResponseSchema,
@@ -147,7 +147,7 @@ describe("topic contracts", () => {
       updatedAt: "2026-04-25T00:00:00.000Z",
       reviewCadence: "weekly"
     });
-    const currentAssessment = assessmentUpdateSchema.parse({
+    const currentAssessment = assessmentUpdateReadModelSchema.parse({
       entry: {
         id: "assessment-1",
         topicId: "topic-1",
@@ -160,7 +160,8 @@ describe("topic contracts", () => {
         originType: "manual",
         status: "active",
         createdAt: "2026-04-25T01:00:00.000Z",
-        updatedAt: "2026-04-25T01:00:00.000Z"
+        updatedAt: "2026-04-25T01:00:00.000Z",
+        sources: []
       },
       judgment: "Escalation risk remains limited.",
       confidenceLabel: "medium",

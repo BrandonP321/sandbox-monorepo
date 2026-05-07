@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  attachedSourceSummarySchema,
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
   entrySourceInputSchema,
@@ -8,6 +9,7 @@ import {
   createReviewNoteResponseSchema,
   entryEpistemicStatusSchema,
   entryKindSchema,
+  entryReadModelSchema,
   entryOriginTypeSchema,
   entrySchema,
   entryStatusSchema,
@@ -73,6 +75,29 @@ describe("entry contracts", () => {
       status: "active",
       createdAt: "2026-04-25T01:00:00.000Z",
       updatedAt: "2026-04-25T01:00:00.000Z"
+    });
+  });
+
+  it("validates hydrated entry read models with attached source summaries", () => {
+    const source = attachedSourceSummarySchema.parse({
+      id: "citation-1",
+      evidenceItemId: "evidence-1",
+      url: " https://www.reuters.com/world/example ",
+      canonicalUrl: " https://www.reuters.com/world/example ",
+      title: " Reuters report ",
+      sourceName: " Reuters ",
+      sourceDomain: " www.reuters.com ",
+      publishedAt: "2026-04-24T00:00:00.000Z",
+      relationType: "source_for"
+    });
+    const entry = buildEntryReadModel({ sources: [source] });
+
+    expect(entryReadModelSchema.parse(entry)).toEqual(entry);
+    expect(
+      entryReadModelSchema.parse({ ...entry, sources: undefined })
+    ).toEqual({
+      ...entry,
+      sources: []
     });
   });
 
@@ -315,31 +340,23 @@ describe("entry contracts", () => {
   });
 
   it("validates event entry response shapes", () => {
-    const entry = entrySchema.parse({
-      id: "entry-1",
-      topicId: "topic-1",
-      kind: "event",
-      epistemicStatus: "reported",
-      title: "Court grants injunction",
-      bodyMd: "A federal court granted an injunction.",
-      sortAt: "2026-04-25T00:00:00.000Z",
-      isApproximateDate: false,
-      originType: "manual",
-      status: "active",
-      createdAt: "2026-04-25T01:00:00.000Z",
-      updatedAt: "2026-04-25T01:00:00.000Z"
-    });
+    const entry = buildEntryReadModel({ kind: "event" });
+    const domainEntry = toDomainEntry(entry);
 
-    expect(createEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(createEventEntryResponseSchema.parse({ entry })).toEqual({
+      entry: domainEntry
+    });
     expect(getEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
     expect(listEventEntriesResponseSchema.parse({ entries: [entry] })).toEqual({
       entries: [entry]
     });
-    expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(updateEventEntryResponseSchema.parse({ entry })).toEqual({
+      entry: domainEntry
+    });
   });
 
   it("validates review note response shapes", () => {
-    const entry = entrySchema.parse({
+    const entry = entryReadModelSchema.parse({
       id: "review-1",
       topicId: "topic-1",
       kind: "review",
@@ -351,13 +368,45 @@ describe("entry contracts", () => {
       originType: "manual",
       status: "active",
       createdAt: "2026-04-25T01:00:00.000Z",
-      updatedAt: "2026-04-25T01:00:00.000Z"
+      updatedAt: "2026-04-25T01:00:00.000Z",
+      sources: []
     });
+    const domainEntry = toDomainEntry(entry);
 
-    expect(createReviewNoteResponseSchema.parse({ entry })).toEqual({ entry });
+    expect(createReviewNoteResponseSchema.parse({ entry })).toEqual({
+      entry: domainEntry
+    });
     expect(getReviewNoteResponseSchema.parse({ entry })).toEqual({ entry });
     expect(listReviewNotesResponseSchema.parse({ entries: [entry] })).toEqual({
       entries: [entry]
     });
   });
 });
+
+function toDomainEntry(entry: ReturnType<typeof entryReadModelSchema.parse>) {
+  const { sources, ...domainEntry } = entry;
+  void sources;
+
+  return domainEntry;
+}
+
+function buildEntryReadModel(
+  overrides: Partial<ReturnType<typeof entryReadModelSchema.parse>> = {}
+) {
+  return entryReadModelSchema.parse({
+    id: "entry-1",
+    topicId: "topic-1",
+    kind: "event",
+    epistemicStatus: "reported",
+    title: "Court grants injunction",
+    bodyMd: "A federal court granted an injunction.",
+    sortAt: "2026-04-25T00:00:00.000Z",
+    isApproximateDate: false,
+    originType: "manual",
+    status: "active",
+    createdAt: "2026-04-25T01:00:00.000Z",
+    updatedAt: "2026-04-25T01:00:00.000Z",
+    sources: [],
+    ...overrides
+  });
+}

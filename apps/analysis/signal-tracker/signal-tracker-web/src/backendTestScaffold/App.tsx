@@ -25,6 +25,7 @@ import {
   type Entry,
   type EntryCitationRecord,
   type EntryEpistemicStatus,
+  type EntryReadModel,
   type EvidenceAnchor,
   type EvidenceRecord,
   type GetTopicResponse,
@@ -1399,11 +1400,12 @@ function TopicDossierShell({
 
       setCreateEventState({ status: "success", data: response });
       setEventForm(defaultEventEntryFormValues);
+      const entryReadModel = withEmptySources(response.entry);
       setEventListState((currentState) => {
         if (currentState.status !== "success") {
           return {
             status: "success",
-            data: { entries: [response.entry] }
+            data: { entries: [entryReadModel] }
           };
         }
 
@@ -1411,7 +1413,7 @@ function TopicDossierShell({
           status: "success",
           data: {
             entries: sortEntries([
-              response.entry,
+              entryReadModel,
               ...currentState.data.entries.filter(
                 (entry) => entry.id !== response.entry.id
               )
@@ -1471,11 +1473,12 @@ function TopicDossierShell({
 
       setCreateReviewNoteState({ status: "success", data: response });
       setReviewNoteForm(defaultReviewNoteFormValues);
+      const entryReadModel = withEmptySources(response.entry);
       setReviewNoteListState((currentState) => {
         if (currentState.status !== "success") {
           return {
             status: "success",
-            data: { entries: [response.entry] }
+            data: { entries: [entryReadModel] }
           };
         }
 
@@ -1483,7 +1486,7 @@ function TopicDossierShell({
           status: "success",
           data: {
             entries: sortEntries([
-              response.entry,
+              entryReadModel,
               ...currentState.data.entries.filter(
                 (entry) => entry.id !== response.entry.id
               )
@@ -3729,7 +3732,13 @@ function parseTextareaLines(value: string): string[] {
     .filter((line) => line.length > 0);
 }
 
-function sortEntries(entries: Entry[]): Entry[] {
+function withEmptySources(entry: Entry): EntryReadModel {
+  return { ...entry, sources: [] };
+}
+
+function sortEntries<T extends Pick<Entry, "id" | "sortAt" | "createdAt">>(
+  entries: T[]
+): T[] {
   return [...entries].sort((left, right) => {
     const sortAtComparison = right.sortAt.localeCompare(left.sortAt);
 

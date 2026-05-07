@@ -1,6 +1,10 @@
-import type { TopicTimelineItem } from "@repo/signal-tracker-shared";
+import type {
+  AttachedSourceSummary,
+  EntryCitationRelationType,
+  TopicTimelineItem
+} from "@repo/signal-tracker-shared";
 
-import { Badge } from "@/components/ui";
+import { Badge, SourceIcon } from "@/components/ui";
 
 import {
   formatAssessmentConfidence,
@@ -50,6 +54,8 @@ function ExpandedEventEntry({
         </p>
         <p className="text-sm leading-6 whitespace-pre-wrap">{entry.bodyMd}</p>
       </div>
+
+      <SourceSummaryList sources={entry.sources} />
     </div>
   );
 }
@@ -116,8 +122,71 @@ function ExpandedAssessmentEntry({
           </time>
         </div>
       ) : null}
+
+      <SourceSummaryList sources={entry.sources} />
     </div>
   );
+}
+
+function SourceSummaryList({ sources }: { sources: AttachedSourceSummary[] }) {
+  return (
+    <section aria-label="Sources" className="grid gap-2">
+      <p className="text-muted-foreground text-xs font-medium uppercase">
+        Sources
+      </p>
+      {sources.length === 0 ? (
+        <p className="text-muted-foreground text-xs">No sources attached.</p>
+      ) : (
+        <ul className="grid gap-2">
+          {sources.map((source) => (
+            <li
+              className="border-border bg-background/80 grid gap-1 rounded-md border p-3"
+              key={source.id}
+            >
+              <div className="flex min-w-0 items-start gap-2">
+                <SourceIcon
+                  className="mt-0.5"
+                  size="sm"
+                  url={
+                    source.url ??
+                    source.canonicalUrl ??
+                    getSourceDomainUrl(source)
+                  }
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium break-words">
+                    {source.title}
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs">
+                    {source.sourceName}
+                    {source.sourceDomain ? ` / ${source.sourceDomain}` : ""}
+                  </p>
+                </div>
+              </div>
+              <p className="text-muted-foreground text-xs">
+                {formatRelationType(source.relationType)}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+function getSourceDomainUrl(source: AttachedSourceSummary) {
+  return source.sourceDomain ? `https://${source.sourceDomain}` : undefined;
+}
+
+function formatRelationType(relationType: EntryCitationRelationType) {
+  const relationLabels = {
+    contradicts: "Contradicts",
+    contextualizes: "Contextualizes",
+    source_for: "Source for",
+    supports: "Supports"
+  } satisfies Record<EntryCitationRelationType, string>;
+
+  return relationLabels[relationType];
 }
 
 function AssessmentDetailList({

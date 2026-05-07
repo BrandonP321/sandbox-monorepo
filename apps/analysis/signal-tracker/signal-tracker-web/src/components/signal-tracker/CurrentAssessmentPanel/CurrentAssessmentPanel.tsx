@@ -1,4 +1,4 @@
-import type { AssessmentUpdate } from "@repo/signal-tracker-shared";
+import type { AssessmentUpdateReadModel } from "@repo/signal-tracker-shared";
 
 import {
   Button,
@@ -12,7 +12,7 @@ import {
 import { CurrentAssessmentContent } from "./components/CurrentAssessmentContent";
 
 type CurrentAssessmentPanelProps = {
-  assessment: AssessmentUpdate | null;
+  assessment: AssessmentUpdateReadModel | null;
   onAssessmentAction?: () => void;
 };
 

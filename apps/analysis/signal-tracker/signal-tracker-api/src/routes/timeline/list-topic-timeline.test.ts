@@ -2,19 +2,22 @@ import { describe, expect, it, vi } from "vitest";
 
 import type {
   AssessmentUpdate,
+  AttachedSourceSummary,
   Entry,
   TopicTimelineItem
 } from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../../domain/assessments/assessment-repository";
 import { InMemoryEntryRepository } from "../../domain/entries/entry-repository";
+import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import { createListTopicTimelineHandler } from "./list-topic-timeline";
 
 describe("list topic timeline route", () => {
   it("returns an empty timeline for topics without active entries", async () => {
     const handler = createListTopicTimelineHandler({
       entryRepository: new InMemoryEntryRepository(),
-      assessmentRepository: new InMemoryAssessmentRepository()
+      assessmentRepository: new InMemoryAssessmentRepository(),
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     const result = await handler({
@@ -71,7 +74,18 @@ describe("list topic timeline route", () => {
 
     const handler = createListTopicTimelineHandler({
       entryRepository,
-      assessmentRepository
+      assessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository({
+        "event-older": [sourceSummaryFixture],
+        "assessment-middle": [
+          {
+            ...sourceSummaryFixture,
+            id: "citation-2",
+            evidenceItemId: "evidence-2",
+            relationType: "contextualizes"
+          }
+        ]
+      })
     });
     const result = await handler({
       method: "POST",
@@ -82,9 +96,19 @@ describe("list topic timeline route", () => {
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
       items: [
-        { kind: "review", entry: newerReview },
-        assessmentUpdateToTimelineItem(assessment),
-        { kind: "event", entry: olderEvent }
+        { kind: "review", entry: { ...newerReview, sources: [] } },
+        assessmentUpdateToTimelineItem(assessment, [
+          {
+            ...sourceSummaryFixture,
+            id: "citation-2",
+            evidenceItemId: "evidence-2",
+            relationType: "contextualizes"
+          }
+        ]),
+        {
+          kind: "event",
+          entry: { ...olderEvent, sources: [sourceSummaryFixture] }
+        }
       ]
     });
   });
@@ -115,7 +139,8 @@ describe("list topic timeline route", () => {
 
     const handler = createListTopicTimelineHandler({
       entryRepository,
-      assessmentRepository
+      assessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
     const result = await handler({
       method: "POST",
@@ -125,9 +150,9 @@ describe("list topic timeline route", () => {
 
     expect(JSON.parse(result.body)).toEqual({
       items: [
-        { kind: "event", entry: createdLater },
-        { kind: "event", entry: idFirst },
-        { kind: "event", entry: idSecond }
+        { kind: "event", entry: { ...createdLater, sources: [] } },
+        { kind: "event", entry: { ...idFirst, sources: [] } },
+        { kind: "event", entry: { ...idSecond, sources: [] } }
       ]
     });
   });
@@ -149,7 +174,10 @@ describe("list topic timeline route", () => {
     await entryRepository.create(newerEvent);
     const handler = createListTopicTimelineHandler({
       entryRepository,
-      assessmentRepository
+      assessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository({
+        "event-newer": [sourceSummaryFixture]
+      })
     });
 
     const result = await handler({
@@ -159,14 +187,20 @@ describe("list topic timeline route", () => {
     });
 
     expect(JSON.parse(result.body)).toEqual({
-      items: [{ kind: "event", entry: newerEvent }]
+      items: [
+        {
+          kind: "event",
+          entry: { ...newerEvent, sources: [sourceSummaryFixture] }
+        }
+      ]
     });
   });
 
   it("rejects invalid timeline requests", async () => {
     const handler = createListTopicTimelineHandler({
       entryRepository: new InMemoryEntryRepository(),
-      assessmentRepository: new InMemoryAssessmentRepository()
+      assessmentRepository: new InMemoryAssessmentRepository(),
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     for (const body of [
@@ -196,7 +230,8 @@ describe("list topic timeline route", () => {
       },
       assessmentRepository: {
         listActiveByTopic: vi.fn(async (): Promise<AssessmentUpdate[]> => [])
-      }
+      },
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -260,13 +295,38 @@ function buildAssessmentUpdate(
 }
 
 function assessmentUpdateToTimelineItem(
-  assessmentUpdate: AssessmentUpdate
+  assessmentUpdate: AssessmentUpdate,
+  sources: AttachedSourceSummary[] = []
 ): TopicTimelineItem {
   const { entry, ...assessment } = assessmentUpdate;
 
   return {
     kind: "assessment",
-    entry: { ...entry, kind: "assessment" },
+    entry: { ...entry, kind: "assessment", sources },
     assessment
   };
 }
+
+function createSourceSummaryRepository(
+  summariesByEntryId: Record<string, AttachedSourceSummary[]> = {}
+) {
+  const repository = new InMemoryEntrySourceSummaryRepository();
+
+  for (const [entryId, sources] of Object.entries(summariesByEntryId)) {
+    repository.setSources(entryId, sources);
+  }
+
+  return repository;
+}
+
+const sourceSummaryFixture: AttachedSourceSummary = {
+  id: "citation-1",
+  evidenceItemId: "evidence-1",
+  url: "https://www.reuters.com/world/example",
+  canonicalUrl: "https://www.reuters.com/world/example",
+  title: "Reuters report",
+  sourceName: "Reuters",
+  sourceDomain: "www.reuters.com",
+  publishedAt: "2026-04-24T00:00:00.000Z",
+  relationType: "source_for"
+};

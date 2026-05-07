@@ -103,6 +103,7 @@ function buildEntry(overrides: {
     originType: "manual",
     status: "active",
     createdAt: "2026-04-25T01:00:00.000Z",
-    updatedAt: "2026-04-25T01:00:00.000Z"
+    updatedAt: "2026-04-25T01:00:00.000Z",
+    sources: []
   };
 }

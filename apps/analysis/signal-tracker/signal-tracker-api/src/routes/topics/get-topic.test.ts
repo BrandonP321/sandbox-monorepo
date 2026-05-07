@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { AssessmentUpdate, Topic } from "@repo/signal-tracker-shared";
+import type {
+  AssessmentUpdate,
+  AttachedSourceSummary,
+  Topic
+} from "@repo/signal-tracker-shared";
 
+import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import { createGetTopicHandler } from "./get-topic";
 
 describe("getTopic route", () => {
@@ -15,7 +20,10 @@ describe("getTopic route", () => {
           async (): Promise<AssessmentUpdate | undefined> =>
             assessmentUpdateFixture
         )
-      }
+      },
+      entrySourceSummaryRepository: createSourceSummaryRepository({
+        "assessment-1": [sourceSummaryFixture]
+      })
     });
 
     const result = await handler({
@@ -27,7 +35,13 @@ describe("getTopic route", () => {
     expect(result.statusCode).toBe(200);
     expect(JSON.parse(result.body)).toEqual({
       topic: topicFixture,
-      currentAssessment: assessmentUpdateFixture
+      currentAssessment: {
+        ...assessmentUpdateFixture,
+        entry: {
+          ...assessmentUpdateFixture.entry,
+          sources: [sourceSummaryFixture]
+        }
+      }
     });
   });
 
@@ -36,7 +50,8 @@ describe("getTopic route", () => {
       repository: {
         findById: vi.fn(async (): Promise<Topic | undefined> => topicFixture)
       },
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     const result = await handler({
@@ -55,7 +70,8 @@ describe("getTopic route", () => {
   it("returns a validation error for invalid JSON", async () => {
     const handler = createGetTopicHandler({
       repository: emptyRepository,
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -73,7 +89,8 @@ describe("getTopic route", () => {
   it("returns a validation error for missing topic ID", async () => {
     const handler = createGetTopicHandler({
       repository: emptyRepository,
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -91,7 +108,8 @@ describe("getTopic route", () => {
   it("returns a validation error for blank topic ID", async () => {
     const handler = createGetTopicHandler({
       repository: emptyRepository,
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -109,7 +127,8 @@ describe("getTopic route", () => {
   it("returns a not found error when the topic does not exist", async () => {
     const handler = createGetTopicHandler({
       repository: emptyRepository,
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -131,7 +150,8 @@ describe("getTopic route", () => {
           throw new Error("database unavailable");
         })
       },
-      assessmentRepository: emptyAssessmentRepository
+      assessmentRepository: emptyAssessmentRepository,
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -155,7 +175,8 @@ describe("getTopic route", () => {
         findLatestActiveByTopic: vi.fn(async () => {
           throw new Error("database unavailable");
         })
-      }
+      },
+      entrySourceSummaryRepository: createSourceSummaryRepository()
     });
 
     await expect(
@@ -216,3 +237,27 @@ const assessmentUpdateFixture: AssessmentUpdate = {
   targetResolvesAt: undefined,
   previousAssessmentEntryId: undefined
 };
+
+const sourceSummaryFixture: AttachedSourceSummary = {
+  id: "citation-1",
+  evidenceItemId: "evidence-1",
+  url: "https://www.reuters.com/world/example",
+  canonicalUrl: "https://www.reuters.com/world/example",
+  title: "Reuters report",
+  sourceName: "Reuters",
+  sourceDomain: "www.reuters.com",
+  publishedAt: "2026-04-24T00:00:00.000Z",
+  relationType: "source_for"
+};
+
+function createSourceSummaryRepository(
+  summariesByEntryId: Record<string, AttachedSourceSummary[]> = {}
+) {
+  const repository = new InMemoryEntrySourceSummaryRepository();
+
+  for (const [entryId, sources] of Object.entries(summariesByEntryId)) {
+    repository.setSources(entryId, sources);
+  }
+
+  return repository;
+}

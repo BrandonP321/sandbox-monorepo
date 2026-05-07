@@ -5,6 +5,7 @@ import { signalTrackerRoutes } from "@repo/signal-tracker-shared";
 import { InMemoryAssessmentRepository } from "../domain/assessments/assessment-repository";
 import { InMemoryEntryCitationRepository } from "../domain/citations/entry-citation-repository";
 import { InMemoryEntryRepository } from "../domain/entries/entry-repository";
+import { InMemoryEntrySourceSummaryRepository } from "../domain/entries/entry-source-summary-repository";
 import { InMemoryEvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
 import { InMemoryEvidenceRepository } from "../domain/evidence/evidence-repository";
 import { InMemoryTopicRepository } from "../domain/topics/topic-repository";
@@ -15,6 +16,7 @@ describe("createAppRouter", () => {
     const router = createAppRouter({
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
       entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
@@ -61,6 +63,7 @@ describe("createAppRouter", () => {
     const router = createAppRouter({
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
       entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository,
@@ -125,6 +128,7 @@ describe("createAppRouter", () => {
     const router = createAppRouter({
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository(),
       assessmentRepository,
       entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
@@ -164,7 +168,9 @@ describe("createAppRouter", () => {
     });
 
     expect(getResult.statusCode).toBe(200);
-    expect(JSON.parse(getResult.body)).toEqual(JSON.parse(createResult.body));
+    expect(JSON.parse(getResult.body)).toEqual({
+      entry: withHydratedSources(JSON.parse(createResult.body).entry)
+    });
 
     const listResult = await router({
       method: signalTrackerRoutes.listReviewNotes.method,
@@ -174,7 +180,7 @@ describe("createAppRouter", () => {
 
     expect(listResult.statusCode).toBe(200);
     expect(JSON.parse(listResult.body)).toEqual({
-      entries: [JSON.parse(createResult.body).entry]
+      entries: [withHydratedSources(JSON.parse(createResult.body).entry)]
     });
     expect(findLatestActiveByTopic).not.toHaveBeenCalled();
   });
@@ -183,6 +189,7 @@ describe("createAppRouter", () => {
     const router = createAppRouter({
       topicRepository: new InMemoryTopicRepository(),
       entryRepository: new InMemoryEntryRepository(),
+      entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository(),
       assessmentRepository: new InMemoryAssessmentRepository(),
       entryCitationRepository: new InMemoryEntryCitationRepository(),
       evidenceRepository: new InMemoryEvidenceRepository(),
@@ -238,7 +245,9 @@ describe("createAppRouter", () => {
       items: [
         {
           kind: "assessment",
-          entry: JSON.parse(assessmentResult.body).assessmentUpdate.entry,
+          entry: withHydratedSources(
+            JSON.parse(assessmentResult.body).assessmentUpdate.entry
+          ),
           assessment: {
             judgment: "Escalation risk remains limited.",
             confidenceLabel: "medium",
@@ -246,8 +255,15 @@ describe("createAppRouter", () => {
             indicators: ["Watch for evacuation orders"]
           }
         },
-        { kind: "event", entry: JSON.parse(eventResult.body).entry }
+        {
+          kind: "event",
+          entry: withHydratedSources(JSON.parse(eventResult.body).entry)
+        }
       ]
     });
   });
 });
+
+function withHydratedSources<T extends object>(entry: T) {
+  return { ...entry, sources: [] };
+}

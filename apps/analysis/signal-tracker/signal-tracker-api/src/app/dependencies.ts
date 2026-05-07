@@ -9,10 +9,15 @@ import {
   PostgresEntryCitationRepository
 } from "../domain/citations/postgres-entry-citation-repository";
 import type { EntryRepository } from "../domain/entries/entry-repository";
+import type { EntrySourceSummaryRepository } from "../domain/entries/entry-source-summary-repository";
 import {
   DrizzleEntryRowStore,
   PostgresEntryRepository
 } from "../domain/entries/postgres-entry-repository";
+import {
+  DrizzleEntrySourceSummaryRowStore,
+  PostgresEntrySourceSummaryRepository
+} from "../domain/entries/postgres-entry-source-summary-repository";
 import type { EvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
 import type { EvidenceRepository } from "../domain/evidence/evidence-repository";
 import {
@@ -33,6 +38,7 @@ import { getRuntimeDatabase, type SignalTrackerDb } from "../db/client";
 export type SignalTrackerApiDependencies = {
   topicRepository: TopicRepository;
   entryRepository: EntryRepository;
+  entrySourceSummaryRepository: EntrySourceSummaryRepository;
   assessmentRepository: AssessmentRepository;
   entryCitationRepository: EntryCitationRepository;
   evidenceRepository: EvidenceRepository;
@@ -68,6 +74,9 @@ function createPostgresDependenciesForDatabase(
     ),
     entryRepository: new PostgresEntryRepository(
       new DrizzleEntryRowStore(getDatabase)
+    ),
+    entrySourceSummaryRepository: new PostgresEntrySourceSummaryRepository(
+      new DrizzleEntrySourceSummaryRowStore(getDatabase)
     ),
     assessmentRepository: new PostgresAssessmentRepository(
       new DrizzleAssessmentRowStore(getDatabase)

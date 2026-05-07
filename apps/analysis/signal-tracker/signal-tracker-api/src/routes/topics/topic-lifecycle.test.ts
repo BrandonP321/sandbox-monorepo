@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { Topic } from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../../domain/assessments/assessment-repository";
+import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { createArchiveTopicHandler } from "./archive-topic";
 import { createDeleteTopicHandler } from "./delete-topic";
@@ -105,7 +106,8 @@ describe("topic lifecycle routes", () => {
 
     const getResult = await createGetTopicHandler({
       repository,
-      assessmentRepository: new InMemoryAssessmentRepository()
+      assessmentRepository: new InMemoryAssessmentRepository(),
+      entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository()
     })({
       method: "POST",
       path: "/get-topic",
@@ -143,7 +145,8 @@ describe("topic lifecycle routes", () => {
     await expect(
       createGetTopicHandler({
         repository,
-        assessmentRepository: new InMemoryAssessmentRepository()
+        assessmentRepository: new InMemoryAssessmentRepository(),
+        entrySourceSummaryRepository: new InMemoryEntrySourceSummaryRepository()
       })({
         method: "POST",
         path: "/get-topic",

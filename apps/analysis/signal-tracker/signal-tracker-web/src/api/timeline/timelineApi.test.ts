@@ -11,9 +11,9 @@ import { loadRuntimeConfig } from "../../config";
 import { makeStore } from "../../store";
 import {
   apiBaseUrl,
-  assessmentUpdate,
+  assessmentUpdateReadModel,
   createJsonResponse,
-  eventEntry,
+  eventEntryReadModel,
   expectRouteRequest,
   stubRouteResponse,
   topic
@@ -39,20 +39,20 @@ describe("timelineApi", () => {
   it("lists topic timeline items through the shared route contract", async () => {
     const response = {
       items: [
-        { kind: "event" as const, entry: eventEntry },
+        { kind: "event" as const, entry: eventEntryReadModel },
         {
           kind: "assessment" as const,
-          entry: assessmentUpdate.entry,
+          entry: assessmentUpdateReadModel.entry,
           assessment: {
-            judgment: assessmentUpdate.judgment,
-            confidenceLabel: assessmentUpdate.confidenceLabel,
-            probabilityPct: assessmentUpdate.probabilityPct,
-            assumptions: assessmentUpdate.assumptions,
-            indicators: assessmentUpdate.indicators,
-            resolutionCriteria: assessmentUpdate.resolutionCriteria,
-            targetResolvesAt: assessmentUpdate.targetResolvesAt,
+            judgment: assessmentUpdateReadModel.judgment,
+            confidenceLabel: assessmentUpdateReadModel.confidenceLabel,
+            probabilityPct: assessmentUpdateReadModel.probabilityPct,
+            assumptions: assessmentUpdateReadModel.assumptions,
+            indicators: assessmentUpdateReadModel.indicators,
+            resolutionCriteria: assessmentUpdateReadModel.resolutionCriteria,
+            targetResolvesAt: assessmentUpdateReadModel.targetResolvesAt,
             previousAssessmentEntryId:
-              assessmentUpdate.previousAssessmentEntryId
+              assessmentUpdateReadModel.previousAssessmentEntryId
           }
         }
       ]
@@ -75,7 +75,7 @@ describe("timelineApi", () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
       .mockImplementation(() => undefined);
-    stubFetch({ items: [{ kind: "unknown", entry: eventEntry }] });
+    stubFetch({ items: [{ kind: "unknown", entry: eventEntryReadModel }] });
 
     try {
       await expect(

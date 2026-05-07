@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   assessmentConfidenceLabelSchema,
+  assessmentUpdateReadModelSchema,
   assessmentUpdateSchema,
   createAssessmentUpdateRequestSchema,
   createAssessmentUpdateResponseSchema
@@ -15,6 +16,43 @@ describe("assessment contracts", () => {
       "medium",
       "high"
     ]);
+  });
+
+  it("validates assessment update read models with entry sources", () => {
+    const assessmentUpdate = assessmentUpdateReadModelSchema.parse({
+      entry: {
+        id: "entry-1",
+        topicId: "topic-1",
+        kind: "assessment",
+        epistemicStatus: "forecast",
+        title: "Assessment update - 2026-04-25",
+        bodyMd: "Escalation risk remains limited.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        isApproximateDate: false,
+        originType: "manual",
+        status: "active",
+        createdAt: "2026-04-25T01:00:00.000Z",
+        updatedAt: "2026-04-25T01:00:00.000Z",
+        sources: [
+          {
+            id: "citation-1",
+            evidenceItemId: "evidence-1",
+            url: "https://www.reuters.com/world/example",
+            canonicalUrl: "https://www.reuters.com/world/example",
+            title: "Reuters report",
+            sourceName: "Reuters",
+            sourceDomain: "www.reuters.com",
+            relationType: "source_for"
+          }
+        ]
+      },
+      judgment: "Escalation risk remains limited.",
+      confidenceLabel: "medium",
+      assumptions: ["No direct strike"],
+      indicators: ["Evacuation orders"]
+    });
+
+    expect(assessmentUpdate.entry.sources).toHaveLength(1);
   });
 
   it("validates assessment update creation requests", () => {

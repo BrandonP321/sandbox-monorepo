@@ -8,12 +8,16 @@ import { signalTrackerRouteContracts } from "@repo/signal-tracker-shared";
 import { loadRuntimeConfig } from "../../config";
 import { makeStore } from "../../store";
 import {
+  assessmentUpdateReadModel,
   apiBaseUrl,
+  citationRecord,
   createJsonResponse,
+  evidenceItem,
   expectRouteRequest,
   stubRouteResponse,
   topic
 } from "../apiTestData";
+import { citationApi } from "../citations/citationApi";
 import { timelineApi } from "../timeline/timelineApi";
 import { topicApi } from "./topicApi";
 
@@ -65,6 +69,48 @@ describe("topicApi", () => {
 
     expect(result.topic).toEqual(topic);
     await expectRouteRequest(fetchMock, "getTopic", request);
+  });
+
+  it("refetches topic detail current assessment after attached sources change", async () => {
+    const fetchMock = stubTopicDetailCurrentAssessmentCitationFlow();
+    const store = makeStore();
+    const topicSubscription = store.dispatch(
+      topicApi.endpoints.getTopic.initiate({ topicId: topic.id })
+    );
+
+    try {
+      await topicSubscription.unwrap();
+      fetchMock.mockClear();
+
+      await store
+        .dispatch(
+          citationApi.endpoints.attachEntryCitation.initiate({
+            entryId: assessmentUpdateReadModel.entry.id,
+            evidenceItemId: evidenceItem.id,
+            relationType: "supports",
+            note: undefined
+          })
+        )
+        .unwrap();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    } finally {
+      topicSubscription.unsubscribe();
+    }
+
+    expect(
+      fetchMock.mock.calls.filter((call) => {
+        const [input, init] = call;
+        const request =
+          input instanceof Request
+            ? input
+            : new Request(input as RequestInfo | URL, init as RequestInit);
+
+        return (
+          request.url ===
+          `${apiBaseUrl}${signalTrackerRouteContracts.getTopic.route.path}`
+        );
+      })
+    ).toHaveLength(1);
   });
 
   it("lists topics through the shared route contract", async () => {
@@ -224,6 +270,37 @@ function stubTopicDetailDeleteFailure() {
             }
           }
         );
+      }
+
+      throw new Error(`Unexpected API request: ${request.url}`);
+    }
+  );
+
+  vi.stubGlobal("fetch", fetchMock);
+
+  return fetchMock;
+}
+
+function stubTopicDetailCurrentAssessmentCitationFlow() {
+  const fetchMock = vi.fn(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const request = new Request(input, init);
+
+      if (
+        request.url ===
+        `${apiBaseUrl}${signalTrackerRouteContracts.getTopic.route.path}`
+      ) {
+        return createJsonResponse({
+          topic,
+          currentAssessment: assessmentUpdateReadModel
+        });
+      }
+
+      if (
+        request.url ===
+        `${apiBaseUrl}${signalTrackerRouteContracts.attachEntryCitation.route.path}`
+      ) {
+        return createJsonResponse({ citation: citationRecord });
       }
 
       throw new Error(`Unexpected API request: ${request.url}`);
