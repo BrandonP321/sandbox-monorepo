@@ -14,6 +14,7 @@ export default defineSignalTrackerPostmanRequest("createAssessmentUpdate", {
     indicators: ["Watch for evacuation orders"],
     resolutionCriteria: "Direct military action occurs.",
     targetResolvesAt: "2026-05-25T00:00:00.000Z",
-    sortAt: "2026-04-25T00:00:00.000Z"
+    sortAt: "2026-04-25T00:00:00.000Z",
+    sources: [{ url: "https://www.reuters.com/world/example" }]
   }
 });

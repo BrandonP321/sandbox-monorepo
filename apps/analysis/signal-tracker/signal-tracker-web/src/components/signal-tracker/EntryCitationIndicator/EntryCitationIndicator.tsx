@@ -109,6 +109,7 @@ function IndicatorContent({
   return children;
 }
 
+// TODO: Can be removed since this is only for an aria-label
 function getTriggerLabel({
   citationCount,
   isError,

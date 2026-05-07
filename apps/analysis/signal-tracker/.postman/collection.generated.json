@@ -26,7 +26,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"judgment\": \"Escalation risk remains limited.\",\n  \"confidenceLabel\": \"medium\",\n  \"probabilityPct\": 35,\n  \"assumptions\": [\n    \"Diplomatic channels remain open\"\n  ],\n  \"indicators\": [\n    \"Watch for evacuation orders\"\n  ],\n  \"resolutionCriteria\": \"Direct military action occurs.\",\n  \"targetResolvesAt\": \"2026-05-25T00:00:00.000Z\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\"\n}",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"judgment\": \"Escalation risk remains limited.\",\n  \"confidenceLabel\": \"medium\",\n  \"probabilityPct\": 35,\n  \"assumptions\": [\n    \"Diplomatic channels remain open\"\n  ],\n  \"indicators\": [\n    \"Watch for evacuation orders\"\n  ],\n  \"resolutionCriteria\": \"Direct military action occurs.\",\n  \"targetResolvesAt\": \"2026-05-25T00:00:00.000Z\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\",\n  \"sources\": [\n    {\n      \"url\": \"https://www.reuters.com/world/example\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -148,7 +148,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"title\": \"Court grants injunction\",\n  \"bodyMd\": \"A federal court granted an injunction.\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\",\n  \"epistemicStatus\": \"reported\"\n}",
+              "raw": "{\n  \"topicId\": \"topic-1\",\n  \"title\": \"Court grants injunction\",\n  \"bodyMd\": \"A federal court granted an injunction.\",\n  \"sortAt\": \"2026-04-25T00:00:00.000Z\",\n  \"epistemicStatus\": \"reported\",\n  \"sources\": [\n    {\n      \"url\": \"https://www.reuters.com/world/example\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -232,7 +232,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"entryId\": \"entry-1\",\n  \"title\": \"Updated court injunction\",\n  \"bodyMd\": \"The injunction remains active after the latest court order.\",\n  \"sortAt\": \"2026-04-26T00:00:00.000Z\",\n  \"epistemicStatus\": \"observed\"\n}",
+              "raw": "{\n  \"entryId\": \"entry-1\",\n  \"title\": \"Updated court injunction\",\n  \"bodyMd\": \"The injunction remains active after the latest court order.\",\n  \"sortAt\": \"2026-04-26T00:00:00.000Z\",\n  \"epistemicStatus\": \"observed\",\n  \"sources\": [\n    {\n      \"url\": \"https://www.reuters.com/world/updated-example\"\n    }\n  ]\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -65,14 +65,20 @@ function createRouteHandlers(
     createEventEntry: createCreateEventEntryHandler({
       entryRepository: dependencies.entryRepository,
       topicRepository: dependencies.topicRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      entryCitationRepository: dependencies.entryCitationRepository,
       generateId: dependencies.generateId,
-      now: dependencies.now
+      now: dependencies.now,
+      runInTransaction: dependencies.runInTransaction
     }),
     createAssessmentUpdate: createCreateAssessmentUpdateHandler({
       assessmentRepository: dependencies.assessmentRepository,
       topicRepository: dependencies.topicRepository,
+      evidenceRepository: dependencies.evidenceRepository,
+      entryCitationRepository: dependencies.entryCitationRepository,
       generateId: dependencies.generateId,
-      now: dependencies.now
+      now: dependencies.now,
+      runInTransaction: dependencies.runInTransaction
     }),
     createReviewNote: createCreateReviewNoteHandler({
       entryRepository: dependencies.entryRepository,
@@ -88,7 +94,11 @@ function createRouteHandlers(
     }),
     updateEventEntry: createUpdateEventEntryHandler({
       entryRepository: dependencies.entryRepository,
-      now: dependencies.now
+      evidenceRepository: dependencies.evidenceRepository,
+      entryCitationRepository: dependencies.entryCitationRepository,
+      generateId: dependencies.generateId,
+      now: dependencies.now,
+      runInTransaction: dependencies.runInTransaction
     }),
     getReviewNote: createGetReviewNoteHandler({
       entryRepository: dependencies.entryRepository

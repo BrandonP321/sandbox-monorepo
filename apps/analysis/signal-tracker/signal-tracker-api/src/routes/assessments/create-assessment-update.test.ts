@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import type { AssessmentUpdate, Topic } from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../../domain/assessments/assessment-repository";
+import { InMemoryEntryCitationRepository } from "../../domain/citations/entry-citation-repository";
+import { InMemoryEvidenceRepository } from "../../domain/evidence/evidence-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
 import { createCreateAssessmentUpdateHandler } from "./create-assessment-update";
 
@@ -65,6 +67,55 @@ describe("create assessment update route", () => {
     ).resolves.toEqual(expectedAssessmentUpdate);
   });
 
+  it("creates an assessment update with attached source URLs", async () => {
+    const { assessmentRepository, topicRepository } =
+      await createRepositories();
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const entryCitationRepository = new InMemoryEntryCitationRepository();
+    const handler = createCreateAssessmentUpdateHandler({
+      assessmentRepository,
+      topicRepository,
+      evidenceRepository,
+      entryCitationRepository,
+      generateId: vi
+        .fn(() => "unused")
+        .mockReturnValueOnce("assessment-1")
+        .mockReturnValueOnce("source-1")
+        .mockReturnValueOnce("evidence-1")
+        .mockReturnValueOnce("citation-1"),
+      now: () => new Date("2026-04-25T01:00:00.000Z")
+    });
+
+    const result = await handler({
+      method: "POST",
+      path: "/create-assessment-update",
+      body: JSON.stringify({
+        ...createAssessmentRequestFixture,
+        sources: [{ url: "https://www.reuters.com/world/example" }]
+      })
+    });
+
+    expect(result.statusCode).toBe(200);
+    await expect(
+      entryCitationRepository.listByEntry("assessment-1")
+    ).resolves.toEqual([
+      {
+        id: "citation-1",
+        entryId: "assessment-1",
+        evidenceItemId: "evidence-1",
+        relationType: "source_for",
+        createdAt: "2026-04-25T01:00:00.000Z"
+      }
+    ]);
+    await expect(
+      evidenceRepository.findById("evidence-1")
+    ).resolves.toMatchObject({
+      evidenceItem: {
+        canonicalUrl: "https://www.reuters.com/world/example"
+      }
+    });
+  });
+
   it("honors caller titles and auto-links to the latest prior assessment", async () => {
     const { assessmentRepository, topicRepository } =
       await createRepositories();
@@ -115,7 +166,11 @@ describe("create assessment update route", () => {
       { ...createAssessmentRequestFixture, probabilityPct: 101 },
       { ...createAssessmentRequestFixture, probabilityPct: 35.5 },
       { ...createAssessmentRequestFixture, assumptions: [] },
-      { ...createAssessmentRequestFixture, indicators: [" "] }
+      { ...createAssessmentRequestFixture, indicators: [" "] },
+      {
+        ...createAssessmentRequestFixture,
+        sources: [{ url: "ftp://example.com/file" }]
+      }
     ]) {
       await expect(
         handler({

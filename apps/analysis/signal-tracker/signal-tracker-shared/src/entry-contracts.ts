@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-import { trimmedRequiredString } from "@repo/schema-utils";
+import {
+  createTrimmedHttpUrlString,
+  trimmedRequiredString
+} from "@repo/schema-utils";
 
 export const entryKindSchema = z.enum(["event", "assessment", "review"]);
 export type EntryKind = z.infer<typeof entryKindSchema>;
@@ -42,12 +45,20 @@ export const entrySchema = z.object({
 
 export type Entry = z.infer<typeof entrySchema>;
 
+export const entrySourceInputSchema = z.object({
+  url: createTrimmedHttpUrlString()
+});
+export type EntrySourceInput = z.infer<typeof entrySourceInputSchema>;
+
+const entrySourcesInputSchema = z.array(entrySourceInputSchema);
+
 export const createEventEntryRequestSchema = z.object({
   topicId: trimmedRequiredString,
   title: trimmedRequiredString,
   bodyMd: trimmedRequiredString,
   sortAt: trimmedRequiredString,
-  epistemicStatus: entryEpistemicStatusSchema
+  epistemicStatus: entryEpistemicStatusSchema,
+  sources: entrySourcesInputSchema.optional()
 });
 
 export type CreateEventEntryRequest = z.infer<
@@ -144,14 +155,16 @@ export const updateEventEntryRequestSchema = z
     title: trimmedRequiredString.optional(),
     bodyMd: trimmedRequiredString.optional(),
     sortAt: trimmedRequiredString.optional(),
-    epistemicStatus: entryEpistemicStatusSchema.optional()
+    epistemicStatus: entryEpistemicStatusSchema.optional(),
+    sources: entrySourcesInputSchema.optional()
   })
   .refine(
-    ({ title, bodyMd, sortAt, epistemicStatus }) =>
+    ({ title, bodyMd, sortAt, epistemicStatus, sources }) =>
       title !== undefined ||
       bodyMd !== undefined ||
       sortAt !== undefined ||
-      epistemicStatus !== undefined,
+      epistemicStatus !== undefined ||
+      sources !== undefined,
     "At least one editable event entry field is required"
   );
 

@@ -32,7 +32,8 @@ describe("assessment contracts", () => {
         indicators: [" Carrier movement ", " Evacuation orders "],
         resolutionCriteria: " Direct military action occurs. ",
         targetResolvesAt: " 2026-05-25T00:00:00.000Z ",
-        sortAt: " 2026-04-25T00:00:00.000Z "
+        sortAt: " 2026-04-25T00:00:00.000Z ",
+        sources: [{ url: " https://www.reuters.com/world/example " }]
       })
     ).toEqual({
       topicId: "topic-1",
@@ -44,7 +45,8 @@ describe("assessment contracts", () => {
       indicators: ["Carrier movement", "Evacuation orders"],
       resolutionCriteria: "Direct military action occurs.",
       targetResolvesAt: "2026-05-25T00:00:00.000Z",
-      sortAt: "2026-04-25T00:00:00.000Z"
+      sortAt: "2026-04-25T00:00:00.000Z",
+      sources: [{ url: "https://www.reuters.com/world/example" }]
     });
 
     expect(
@@ -110,6 +112,12 @@ describe("assessment contracts", () => {
       createAssessmentUpdateRequestSchema.parse({
         ...baseRequest,
         indicators: [" "]
+      })
+    ).toThrow();
+    expect(() =>
+      createAssessmentUpdateRequestSchema.parse({
+        ...baseRequest,
+        sources: [{ url: "ftp://example.com/file" }]
       })
     ).toThrow();
   });

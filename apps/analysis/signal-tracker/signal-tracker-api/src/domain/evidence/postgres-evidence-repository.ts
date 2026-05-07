@@ -47,7 +47,7 @@ export class DrizzleEvidenceRowStore implements EvidenceRowStore {
     source: NewSourceRow,
     evidenceItem: NewEvidenceItemRow
   ): Promise<EvidenceRows> {
-    return await this.getDatabase().transaction(async (tx) => {
+    return await runInTransactionOrDirect(this.getDatabase(), async (tx) => {
       if (evidenceItem.canonicalUrl) {
         const [existingEvidenceRows] = await tx
           .select({
@@ -153,6 +153,29 @@ export class PostgresEvidenceRepository implements EvidenceRepository {
 
     return rows.map(mapEvidenceRows);
   }
+}
+
+type SignalTrackerTransaction = Parameters<
+  Parameters<SignalTrackerDb["transaction"]>[0]
+>[0];
+
+async function runInTransactionOrDirect<T>(
+  database: SignalTrackerDb,
+  operation: (tx: SignalTrackerTransaction) => Promise<T>
+): Promise<T> {
+  if (hasTransaction(database)) {
+    return await database.transaction(operation);
+  }
+
+  return await operation(database as unknown as SignalTrackerTransaction);
+}
+
+function hasTransaction(
+  database: SignalTrackerDb
+): database is SignalTrackerDb & {
+  transaction: SignalTrackerDb["transaction"];
+} {
+  return typeof database.transaction === "function";
 }
 
 export function mapEvidenceRows(rows: EvidenceRows): EvidenceRecord {

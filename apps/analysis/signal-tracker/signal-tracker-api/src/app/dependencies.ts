@@ -1,15 +1,34 @@
 import type { AssessmentRepository } from "../domain/assessments/assessment-repository";
-import { PostgresAssessmentRepository } from "../domain/assessments/postgres-assessment-repository";
+import {
+  DrizzleAssessmentRowStore,
+  PostgresAssessmentRepository
+} from "../domain/assessments/postgres-assessment-repository";
 import type { EntryCitationRepository } from "../domain/citations/entry-citation-repository";
-import { PostgresEntryCitationRepository } from "../domain/citations/postgres-entry-citation-repository";
+import {
+  DrizzleEntryCitationRowStore,
+  PostgresEntryCitationRepository
+} from "../domain/citations/postgres-entry-citation-repository";
 import type { EntryRepository } from "../domain/entries/entry-repository";
-import { PostgresEntryRepository } from "../domain/entries/postgres-entry-repository";
+import {
+  DrizzleEntryRowStore,
+  PostgresEntryRepository
+} from "../domain/entries/postgres-entry-repository";
 import type { EvidenceAnchorRepository } from "../domain/evidence/evidence-anchor-repository";
 import type { EvidenceRepository } from "../domain/evidence/evidence-repository";
-import { PostgresEvidenceAnchorRepository } from "../domain/evidence/postgres-evidence-anchor-repository";
-import { PostgresEvidenceRepository } from "../domain/evidence/postgres-evidence-repository";
-import { PostgresTopicRepository } from "../domain/topics/postgres-topic-repository";
+import {
+  DrizzleEvidenceAnchorRowStore,
+  PostgresEvidenceAnchorRepository
+} from "../domain/evidence/postgres-evidence-anchor-repository";
+import {
+  DrizzleEvidenceRowStore,
+  PostgresEvidenceRepository
+} from "../domain/evidence/postgres-evidence-repository";
+import {
+  DrizzleTopicRowStore,
+  PostgresTopicRepository
+} from "../domain/topics/postgres-topic-repository";
 import type { TopicRepository } from "../domain/topics/topic-repository";
+import { getRuntimeDatabase, type SignalTrackerDb } from "../db/client";
 
 export type SignalTrackerApiDependencies = {
   topicRepository: TopicRepository;
@@ -21,17 +40,47 @@ export type SignalTrackerApiDependencies = {
   createId?: () => string;
   generateId?: () => string;
   now?: () => Date;
+  runInTransaction?: <T>(
+    operation: (dependencies: SignalTrackerApiDependencies) => Promise<T>
+  ) => Promise<T>;
 };
 
 export function createSignalTrackerApiDependencies(): SignalTrackerApiDependencies {
-  const topicRepository = new PostgresTopicRepository();
+  return createPostgresDependenciesForDatabase(getRuntimeDatabase, {
+    runInTransaction: async (operation) =>
+      getRuntimeDatabase().transaction(async (tx) =>
+        operation(
+          createPostgresDependenciesForDatabase(
+            () => tx as unknown as SignalTrackerDb
+          )
+        )
+      )
+  });
+}
 
+function createPostgresDependenciesForDatabase(
+  getDatabase: () => SignalTrackerDb,
+  extras: Pick<SignalTrackerApiDependencies, "runInTransaction"> = {}
+): SignalTrackerApiDependencies {
   return {
-    topicRepository,
-    entryRepository: new PostgresEntryRepository(),
-    assessmentRepository: new PostgresAssessmentRepository(),
-    entryCitationRepository: new PostgresEntryCitationRepository(),
-    evidenceRepository: new PostgresEvidenceRepository(),
-    evidenceAnchorRepository: new PostgresEvidenceAnchorRepository()
+    topicRepository: new PostgresTopicRepository(
+      new DrizzleTopicRowStore(getDatabase)
+    ),
+    entryRepository: new PostgresEntryRepository(
+      new DrizzleEntryRowStore(getDatabase)
+    ),
+    assessmentRepository: new PostgresAssessmentRepository(
+      new DrizzleAssessmentRowStore(getDatabase)
+    ),
+    entryCitationRepository: new PostgresEntryCitationRepository(
+      new DrizzleEntryCitationRowStore(getDatabase)
+    ),
+    evidenceRepository: new PostgresEvidenceRepository(
+      new DrizzleEvidenceRowStore(getDatabase)
+    ),
+    evidenceAnchorRepository: new PostgresEvidenceAnchorRepository(
+      new DrizzleEvidenceAnchorRowStore(getDatabase)
+    ),
+    ...extras
   };
 }

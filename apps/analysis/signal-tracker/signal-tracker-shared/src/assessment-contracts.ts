@@ -5,7 +5,7 @@ import {
   trimmedRequiredString,
   trimmedRequiredStringArray
 } from "@repo/schema-utils";
-import { entrySchema } from "./entry-contracts.js";
+import { entrySchema, entrySourceInputSchema } from "./entry-contracts.js";
 
 export const assessmentConfidenceLabelSchema = z.enum([
   "low",
@@ -40,7 +40,8 @@ export const createAssessmentUpdateRequestSchema = z.object({
   indicators: trimmedRequiredStringArray,
   resolutionCriteria: optionalTrimmedString,
   targetResolvesAt: optionalTrimmedString,
-  sortAt: trimmedRequiredString
+  sortAt: trimmedRequiredString,
+  sources: z.array(entrySourceInputSchema).optional()
 });
 
 export type CreateAssessmentUpdateRequest = z.infer<

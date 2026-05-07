@@ -9,6 +9,7 @@ export default defineSignalTrackerPostmanRequest("createEventEntry", {
     title: "Court grants injunction",
     bodyMd: "A federal court granted an injunction.",
     sortAt: "2026-04-25T00:00:00.000Z",
-    epistemicStatus: "reported"
+    epistemicStatus: "reported",
+    sources: [{ url: "https://www.reuters.com/world/example" }]
   }
 });

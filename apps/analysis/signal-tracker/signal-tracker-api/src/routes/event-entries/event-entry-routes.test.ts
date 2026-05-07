@@ -2,8 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { Entry, Topic } from "@repo/signal-tracker-shared";
 
+import { InMemoryEntryCitationRepository } from "../../domain/citations/entry-citation-repository";
 import { InMemoryEntryRepository } from "../../domain/entries/entry-repository";
+import { InMemoryEvidenceRepository } from "../../domain/evidence/evidence-repository";
 import { InMemoryTopicRepository } from "../../domain/topics/topic-repository";
+import { buildEntryCitationFixture } from "../../domain/test-fixtures";
 import { createCreateEventEntryHandler } from "./create-event-entry";
 import { createGetEventEntryHandler } from "./get-event-entry";
 import { createListEventEntriesHandler } from "./list-event-entries";
@@ -52,6 +55,58 @@ describe("event entry routes", () => {
     );
   });
 
+  it("creates an event entry with attached source URLs", async () => {
+    const { entryRepository, topicRepository } = await createRepositories();
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const entryCitationRepository = new InMemoryEntryCitationRepository();
+    const handler = createCreateEventEntryHandler({
+      entryRepository,
+      topicRepository,
+      evidenceRepository,
+      entryCitationRepository,
+      generateId: vi
+        .fn(() => "unused")
+        .mockReturnValueOnce("entry-1")
+        .mockReturnValueOnce("source-1")
+        .mockReturnValueOnce("evidence-1")
+        .mockReturnValueOnce("citation-1"),
+      now: () => new Date("2026-04-25T01:00:00.000Z")
+    });
+
+    const result = await handler({
+      method: "POST",
+      path: "/create-event-entry",
+      body: JSON.stringify({
+        ...createEventRequestFixture,
+        sources: [
+          {
+            url: "https://www.reuters.com/world/example?utm_source=newsletter"
+          }
+        ]
+      })
+    });
+
+    expect(result.statusCode).toBe(200);
+    await expect(
+      entryCitationRepository.listByEntry("entry-1")
+    ).resolves.toEqual([
+      {
+        id: "citation-1",
+        entryId: "entry-1",
+        evidenceItemId: "evidence-1",
+        relationType: "source_for",
+        createdAt: "2026-04-25T01:00:00.000Z"
+      }
+    ]);
+    await expect(
+      evidenceRepository.findById("evidence-1")
+    ).resolves.toMatchObject({
+      evidenceItem: {
+        canonicalUrl: "https://www.reuters.com/world/example"
+      }
+    });
+  });
+
   it("rejects invalid event entry creation requests", async () => {
     const { entryRepository, topicRepository } = await createRepositories();
     const handler = createCreateEventEntryHandler({
@@ -81,6 +136,10 @@ describe("event entry routes", () => {
         bodyMd: "A federal court granted an injunction.",
         sortAt: "2026-04-25T00:00:00.000Z",
         epistemicStatus: "rumored"
+      },
+      {
+        ...createEventRequestFixture,
+        sources: [{ url: "ftp://example.com/file" }]
       }
     ]) {
       await expect(
@@ -303,6 +362,99 @@ describe("event entry routes", () => {
     });
   });
 
+  it("replaces event entry source URLs on update", async () => {
+    const entryRepository = new InMemoryEntryRepository();
+    const evidenceRepository = new InMemoryEvidenceRepository();
+    const entryCitationRepository = new InMemoryEntryCitationRepository();
+    await entryRepository.create(eventEntryFixture);
+    await entryCitationRepository.createOrFind(
+      buildEntryCitationFixture({
+        id: "old-managed-source",
+        relationType: "source_for"
+      })
+    );
+    await entryCitationRepository.createOrFind(
+      buildEntryCitationFixture({
+        id: "supporting-citation",
+        evidenceItemId: "evidence-support",
+        relationType: "supports"
+      })
+    );
+    const handler = createUpdateEventEntryHandler({
+      entryRepository,
+      evidenceRepository,
+      entryCitationRepository,
+      generateId: vi
+        .fn(() => "unused")
+        .mockReturnValueOnce("source-2")
+        .mockReturnValueOnce("evidence-2")
+        .mockReturnValueOnce("new-source-citation"),
+      now: () => new Date("2026-04-26T01:00:00.000Z")
+    });
+
+    const result = await handler({
+      method: "POST",
+      path: "/update-event-entry",
+      body: JSON.stringify({
+        entryId: "entry-1",
+        sources: [{ url: "https://www.reuters.com/world/updated" }]
+      })
+    });
+
+    expect(result.statusCode).toBe(200);
+    expect(JSON.parse(result.body).entry).toMatchObject({
+      id: "entry-1",
+      updatedAt: "2026-04-26T01:00:00.000Z"
+    });
+    await expect(
+      entryCitationRepository.listByEntry("entry-1")
+    ).resolves.toEqual([
+      {
+        id: "new-source-citation",
+        entryId: "entry-1",
+        evidenceItemId: "evidence-2",
+        relationType: "source_for",
+        createdAt: "2026-04-26T01:00:00.000Z"
+      },
+      buildEntryCitationFixture({
+        id: "supporting-citation",
+        evidenceItemId: "evidence-support",
+        relationType: "supports"
+      })
+    ]);
+  });
+
+  it("clears event entry source URLs on update", async () => {
+    const entryRepository = new InMemoryEntryRepository();
+    const entryCitationRepository = new InMemoryEntryCitationRepository();
+    await entryRepository.create(eventEntryFixture);
+    await entryCitationRepository.createOrFind(
+      buildEntryCitationFixture({
+        id: "old-managed-source",
+        relationType: "source_for"
+      })
+    );
+    const handler = createUpdateEventEntryHandler({
+      entryRepository,
+      evidenceRepository: new InMemoryEvidenceRepository(),
+      entryCitationRepository,
+      now: () => new Date("2026-04-26T01:00:00.000Z")
+    });
+
+    await handler({
+      method: "POST",
+      path: "/update-event-entry",
+      body: JSON.stringify({
+        entryId: "entry-1",
+        sources: []
+      })
+    });
+
+    await expect(
+      entryCitationRepository.listByEntry("entry-1")
+    ).resolves.toEqual([]);
+  });
+
   it("rejects invalid event update requests", async () => {
     const handler = createUpdateEventEntryHandler({
       entryRepository: new InMemoryEntryRepository()
@@ -312,7 +464,8 @@ describe("event entry routes", () => {
       { entryId: "entry-1" },
       { entryId: " " },
       { entryId: "entry-1", title: " " },
-      { entryId: "entry-1", epistemicStatus: "rumored" }
+      { entryId: "entry-1", epistemicStatus: "rumored" },
+      { entryId: "entry-1", sources: [{ url: "not a url" }] }
     ]) {
       await expect(
         handler({

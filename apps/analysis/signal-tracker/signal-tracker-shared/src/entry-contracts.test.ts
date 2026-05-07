@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   createEventEntryRequestSchema,
   createEventEntryResponseSchema,
+  entrySourceInputSchema,
   createReviewNoteRequestSchema,
   createReviewNoteResponseSchema,
   entryEpistemicStatusSchema,
@@ -135,14 +136,16 @@ describe("entry contracts", () => {
         title: " Court grants injunction ",
         bodyMd: " A federal court granted an injunction. ",
         sortAt: " 2026-04-25T00:00:00.000Z ",
-        epistemicStatus: "reported"
+        epistemicStatus: "reported",
+        sources: [{ url: " https://www.reuters.com/world/example " }]
       })
     ).toEqual({
       topicId: "topic-1",
       title: "Court grants injunction",
       bodyMd: "A federal court granted an injunction.",
       sortAt: "2026-04-25T00:00:00.000Z",
-      epistemicStatus: "reported"
+      epistemicStatus: "reported",
+      sources: [{ url: "https://www.reuters.com/world/example" }]
     });
 
     expect(() =>
@@ -172,6 +175,31 @@ describe("entry contracts", () => {
         epistemicStatus: "rumored"
       })
     ).toThrow();
+    expect(() =>
+      createEventEntryRequestSchema.parse({
+        topicId: "topic-1",
+        title: "Court grants injunction",
+        bodyMd: "A federal court granted an injunction.",
+        sortAt: "2026-04-25T00:00:00.000Z",
+        epistemicStatus: "reported",
+        sources: [{ url: "ftp://example.com/file" }]
+      })
+    ).toThrow();
+  });
+
+  it("validates entry source URL inputs", () => {
+    expect(
+      entrySourceInputSchema.parse({
+        url: " https://example.com/source "
+      })
+    ).toEqual({
+      url: "https://example.com/source"
+    });
+
+    expect(() =>
+      entrySourceInputSchema.parse({ url: "ftp://example.com/file" })
+    ).toThrow();
+    expect(() => entrySourceInputSchema.parse({ url: "not a url" })).toThrow();
   });
 
   it("validates review note creation requests", () => {
@@ -240,16 +268,24 @@ describe("entry contracts", () => {
         title: " Updated event ",
         bodyMd: " Updated description. ",
         sortAt: " 2026-04-26T00:00:00.000Z ",
-        epistemicStatus: "observed"
+        epistemicStatus: "observed",
+        sources: [{ url: " https://www.reuters.com/world/example " }]
       })
     ).toEqual({
       entryId: "entry-1",
       title: "Updated event",
       bodyMd: "Updated description.",
       sortAt: "2026-04-26T00:00:00.000Z",
-      epistemicStatus: "observed"
+      epistemicStatus: "observed",
+      sources: [{ url: "https://www.reuters.com/world/example" }]
     });
 
+    expect(
+      updateEventEntryRequestSchema.parse({
+        entryId: "entry-1",
+        sources: []
+      })
+    ).toEqual({ entryId: "entry-1", sources: [] });
     expect(() =>
       updateEventEntryRequestSchema.parse({ entryId: "entry-1" })
     ).toThrow();

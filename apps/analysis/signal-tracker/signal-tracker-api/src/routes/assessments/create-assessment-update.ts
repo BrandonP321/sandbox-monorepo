@@ -1,5 +1,6 @@
 import {
   signalTrackerRouteContracts,
+  type AssessmentUpdate,
   type CreateAssessmentUpdateRequest
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
@@ -14,9 +15,20 @@ import {
   createAssessmentUpdateRecord,
   type CreateAssessmentUpdateDependencies
 } from "../../domain/assessments/create-assessment-update";
+import type { SignalTrackerApiDependencies } from "../../app/dependencies";
+import type { EntryCitationRepository } from "../../domain/citations/entry-citation-repository";
+import { replaceEntrySourceAttachments } from "../../domain/entries/entry-source-attachments";
+import type { EvidenceRepository } from "../../domain/evidence/evidence-repository";
 
 type CreateAssessmentUpdateHandlerDependencies =
-  CreateAssessmentUpdateDependencies;
+  CreateAssessmentUpdateDependencies & {
+    evidenceRepository?: Pick<EvidenceRepository, "create">;
+    entryCitationRepository?: Pick<
+      EntryCitationRepository,
+      "createOrFind" | "listByEntry" | "deleteForEntry"
+    >;
+    runInTransaction?: SignalTrackerApiDependencies["runInTransaction"];
+  };
 
 export function createCreateAssessmentUpdateHandler(
   dependencies: CreateAssessmentUpdateHandlerDependencies
@@ -37,9 +49,9 @@ export function createCreateAssessmentUpdateHandler(
 async function persistAssessmentUpdate(
   input: CreateAssessmentUpdateRequest,
   dependencies: CreateAssessmentUpdateHandlerDependencies
-) {
+): Promise<AssessmentUpdate> {
   return withPersistenceErrorMapping(
-    () => createAssessmentUpdateRecord(input, dependencies),
+    () => runAssessmentUpdateWrite(input, dependencies),
     {
       mapDomainError: (error) =>
         error instanceof EntryTopicNotFoundError
@@ -47,4 +59,60 @@ async function persistAssessmentUpdate(
           : undefined
     }
   );
+}
+
+async function runAssessmentUpdateWrite(
+  input: CreateAssessmentUpdateRequest,
+  dependencies: CreateAssessmentUpdateHandlerDependencies
+): Promise<AssessmentUpdate> {
+  if (dependencies.runInTransaction) {
+    return await dependencies.runInTransaction((transactionDependencies) =>
+      persistAssessmentUpdateWithDependencies(input, {
+        ...transactionDependencies,
+        generateId: dependencies.generateId,
+        now: dependencies.now
+      })
+    );
+  }
+
+  return await persistAssessmentUpdateWithDependencies(input, dependencies);
+}
+
+async function persistAssessmentUpdateWithDependencies(
+  input: CreateAssessmentUpdateRequest,
+  dependencies: CreateAssessmentUpdateHandlerDependencies
+): Promise<AssessmentUpdate> {
+  const { sources, ...assessmentInput } = input;
+  const assessmentUpdate = await createAssessmentUpdateRecord(
+    assessmentInput,
+    dependencies
+  );
+
+  if (sources !== undefined) {
+    await replaceEntrySourceAttachments(
+      assessmentUpdate.entry.id,
+      sources,
+      getSourceAttachmentDependencies(dependencies)
+    );
+  }
+
+  return assessmentUpdate;
+}
+
+function getSourceAttachmentDependencies(
+  dependencies: CreateAssessmentUpdateHandlerDependencies
+) {
+  if (
+    !dependencies.evidenceRepository ||
+    !dependencies.entryCitationRepository
+  ) {
+    throw new Error("Source attachment dependencies are not configured");
+  }
+
+  return {
+    evidenceRepository: dependencies.evidenceRepository,
+    entryCitationRepository: dependencies.entryCitationRepository,
+    generateId: dependencies.generateId,
+    now: dependencies.now
+  };
 }

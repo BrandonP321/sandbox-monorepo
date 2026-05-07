@@ -48,7 +48,7 @@ export class DrizzleAssessmentRowStore implements AssessmentRowStore {
     entry: NewEntryRow,
     assessment: NewEntryAssessmentRow
   ): Promise<AssessmentUpdateRows> {
-    return await this.getDatabase().transaction(async (tx) => {
+    return await runInTransactionOrDirect(this.getDatabase(), async (tx) => {
       const [entryRow] = await tx.insert(entries).values(entry).returning();
 
       if (!entryRow) {
@@ -141,6 +141,30 @@ export class PostgresAssessmentRepository implements AssessmentRepository {
 
     return rows.map(mapAssessmentUpdateRows);
   }
+}
+
+type SignalTrackerTransaction = Parameters<
+  Parameters<SignalTrackerDb["transaction"]>[0]
+>[0];
+
+// TODO: Might not be needed given assumption we will always connect to Aurora DB.  Run analysis with documented assumptions.
+async function runInTransactionOrDirect<T>(
+  database: SignalTrackerDb,
+  operation: (tx: SignalTrackerTransaction) => Promise<T>
+): Promise<T> {
+  if (hasTransaction(database)) {
+    return await database.transaction(operation);
+  }
+
+  return await operation(database as unknown as SignalTrackerTransaction);
+}
+
+function hasTransaction(
+  database: SignalTrackerDb
+): database is SignalTrackerDb & {
+  transaction: SignalTrackerDb["transaction"];
+} {
+  return typeof database.transaction === "function";
 }
 
 export function mapAssessmentUpdateRows(
