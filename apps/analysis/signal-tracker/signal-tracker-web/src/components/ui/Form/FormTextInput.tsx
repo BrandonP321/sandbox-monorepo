@@ -6,11 +6,12 @@ import { TextInput, type TextInputProps } from "../Input";
 
 type FormTextInputProps<TFieldValues extends FieldValues> = Pick<
   TextInputProps,
-  "placeholder" | "type"
+  "aria-label" | "placeholder" | "type"
 > &
   FormInputBaseCommonProps<TFieldValues, string>;
 
 function FormTextInput<TFieldValues extends FieldValues>({
+  "aria-label": ariaLabel,
   placeholder,
   type = "text",
   ...formInputProps
@@ -22,7 +23,12 @@ function FormTextInput<TFieldValues extends FieldValues>({
       parseValue={parseTextInputValue}
     >
       {(inputProps) => (
-        <TextInput {...inputProps} placeholder={placeholder} type={type} />
+        <TextInput
+          {...inputProps}
+          aria-label={ariaLabel}
+          placeholder={placeholder}
+          type={type}
+        />
       )}
     </FormInputBase>
   );

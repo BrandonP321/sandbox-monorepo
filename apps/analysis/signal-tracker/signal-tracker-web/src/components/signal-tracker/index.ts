@@ -3,6 +3,7 @@ export * from "./AssessmentUpdateComposer";
 export * from "./CurrentAssessmentPanel";
 export * from "./EntrySourceIndicator";
 export * from "./EventEntryComposer";
+export * from "./SourceUrlEditor";
 export * from "./TopicForm";
 export * from "./TopicTimeline";
 export * from "./TopicSettingsModal";

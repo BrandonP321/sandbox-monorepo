@@ -4,6 +4,7 @@ import type { FieldValues } from "react-hook-form";
 import { FormField } from "./FormField";
 import { Select, type SelectOption, type SelectProps } from "../Select";
 
+// TODO: Why is this not extending the shared props from FormField like other form components?
 type FormSelectProps<TFieldValues extends FieldValues> = Pick<
   SelectProps,
   "placeholder" | "required"
@@ -12,7 +13,8 @@ type FormSelectProps<TFieldValues extends FieldValues> = Pick<
   description?: string;
   disabled?: boolean;
   id?: string;
-  label: string;
+  label?: string;
+  labelClassName?: string;
   name: FormFieldName<TFieldValues, string>;
   options: SelectOption[];
   selectClassName?: string;
@@ -24,6 +26,7 @@ function FormSelect<TFieldValues extends FieldValues>({
   disabled = false,
   id,
   label,
+  labelClassName,
   name,
   options,
   placeholder,
@@ -39,6 +42,7 @@ function FormSelect<TFieldValues extends FieldValues>({
           error={error}
           id={controlProps.id}
           label={label}
+          labelClassName={labelClassName}
           required={required ?? controlProps.required}
         >
           {(fieldProps) => (

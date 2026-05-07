@@ -10,7 +10,10 @@ const dirname =
     : path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
-  stories: ["../src/components/ui/**/*.stories.@(ts|tsx)"],
+  stories: [
+    "../src/components/ui/**/*.stories.@(ts|tsx)",
+    "../src/components/signal-tracker/**/*.stories.@(ts|tsx)"
+  ],
   addons: ["@storybook/addon-docs"],
   framework: {
     name: "@storybook/react-vite",

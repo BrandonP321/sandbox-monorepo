@@ -22,7 +22,7 @@ type FormFieldProps = {
   description?: string;
   error?: string;
   id?: string;
-  label: React.ReactNode;
+  label?: React.ReactNode;
   labelClassName?: FormFieldLabelNativeProps["className"];
   required?: boolean;
 };
@@ -51,19 +51,21 @@ function FormField({
 
   return (
     <div className={cn("grid gap-2", className)} data-slot="form-field">
-      <div className="flex items-center gap-2">
-        <label
-          className={cn("text-sm font-medium", labelClassName)}
-          htmlFor={controlId}
-        >
-          {label}
-        </label>
-        {required ? (
-          <span className="text-muted-foreground text-xs font-medium">
-            Required
-          </span>
-        ) : null}
-      </div>
+      {label ? (
+        <div className="flex items-center gap-2">
+          <label
+            className={cn("text-sm font-medium", labelClassName)}
+            htmlFor={controlId}
+          >
+            {label}
+          </label>
+          {required ? (
+            <span className="text-muted-foreground text-xs font-medium">
+              Required
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       {children({
         id: controlId,
         "aria-describedby": describedBy || undefined,

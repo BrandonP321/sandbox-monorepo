@@ -13,7 +13,8 @@ type FormInputBaseCommonProps<TFieldValues extends FieldValues, TValue> = {
   disabled?: boolean;
   id?: string;
   inputClassName?: string;
-  label: string;
+  label?: string;
+  labelClassName?: string;
   name: FormFieldName<TFieldValues, TValue>;
   required?: boolean;
 };
@@ -54,6 +55,7 @@ function FormInputBase<
   id,
   inputClassName,
   label,
+  labelClassName,
   name,
   parseValue,
   required
@@ -83,6 +85,7 @@ function FormInputBase<
       error={error}
       id={inputId}
       label={label}
+      labelClassName={labelClassName}
       required={isFieldRequired}
     >
       {(fieldProps) =>

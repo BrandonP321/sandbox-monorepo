@@ -10,6 +10,7 @@ type SelectOption = {
 
 type SelectNativeProps = Pick<
   React.ComponentPropsWithRef<"select">,
+  | "aria-label"
   | "aria-describedby"
   | "aria-invalid"
   | "className"

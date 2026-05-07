@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 
 type SharedNativeInputProps = Pick<
   React.ComponentPropsWithRef<"input">,
+  | "aria-label"
   | "aria-describedby"
   | "aria-invalid"
   | "className"
