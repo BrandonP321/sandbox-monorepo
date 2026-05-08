@@ -35,75 +35,73 @@ export function ListTopicsPage() {
   }
 
   return (
-    <main className="bg-background text-foreground h-screen overflow-hidden supports-[height:100svh]:h-svh">
-      <section className="mx-auto h-screen w-full max-w-5xl overflow-y-auto overscroll-y-contain px-4 py-6 supports-[height:100svh]:h-svh sm:px-6 lg:px-8">
-        <header className="border-border border-b pb-5">
-          <ContentHeader
-            actions={<CreateTopicDialog />}
-            description="Scan active dossiers and open one topic workspace at a time."
-            eyebrow="Signal Tracker"
-            headingLevel={1}
-            title="Topics"
-          />
-        </header>
+    <section className="mx-auto w-full max-w-5xl">
+      <header className="border-border border-b pb-5">
+        <ContentHeader
+          actions={<CreateTopicDialog />}
+          description="Scan active dossiers and open one topic workspace at a time."
+          eyebrow="Signal Tracker"
+          headingLevel={1}
+          title="Topics"
+        />
+      </header>
 
-        <section className="py-5">
-          <ContentHeader
-            actions={
-              <div className="w-full md:max-w-sm">
-                <label className="text-sm font-medium" htmlFor="topic-search">
-                  Search topics
-                </label>
-                <Input
-                  className="mt-2"
-                  id="topic-search"
-                  name="topic-search"
-                  onChange={handleSearchChange}
-                  placeholder="Filter by title or framing question"
-                  value={query}
-                />
-              </div>
-            }
-            description="Titles, framing questions, and compact scope notes only."
-            headingLevel={2}
-            title="Active topics"
-          />
+      <section className="py-5">
+        <ContentHeader
+          actions={
+            <div className="w-full md:max-w-sm">
+              <label className="text-sm font-medium" htmlFor="topic-search">
+                Search topics
+              </label>
+              <Input
+                className="mt-2"
+                id="topic-search"
+                name="topic-search"
+                onChange={handleSearchChange}
+                placeholder="Filter by title or framing question"
+                value={query}
+              />
+            </div>
+          }
+          description="Titles, framing questions, and compact scope notes only."
+          headingLevel={2}
+          title="Active topics"
+        />
 
-          <div className="mt-4">
-            {isLoading ? <LoadingState label="Loading active topics" /> : null}
+        <div className="mt-4">
+          {isLoading ? <LoadingState label="Loading active topics" /> : null}
 
-            {!isLoading && isError ? (
-              <Alert
-                actions={
-                  <Button onClick={refetch} variant="outline">
-                    Retry
-                  </Button>
-                }
-                title="Topics could not be loaded."
-                variant="danger"
-              >
-                {errorMessage ?? "Retry the request without leaving the page."}
-              </Alert>
-            ) : null}
+          {!isLoading && isError ? (
+            <Alert
+              actions={
+                <Button onClick={refetch} variant="outline">
+                  Retry
+                </Button>
+              }
+              title="Topics could not be loaded."
+              variant="danger"
+            >
+              {errorMessage ?? "Retry the request without leaving the page."}
+            </Alert>
+          ) : null}
 
-            {!isLoading && !isError && topics.length === 0 ? (
-              <TopicListEmptyState hasQuery={hasQuery} />
-            ) : null}
+          {!isLoading && !isError && topics.length === 0 ? (
+            <TopicListEmptyState hasQuery={hasQuery} />
+          ) : null}
 
-            {!isLoading && !isError && topics.length > 0 ? (
-              <ul
-                className="m-0 grid list-none gap-3 p-0"
-                aria-label="Active topics"
-              >
-                {topics.map((topic) => (
-                  <TopicListItem key={topic.id} topic={topic} />
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        </section>
+          {!isLoading && !isError && topics.length > 0 ? (
+            <ul
+              className="m-0 grid list-none gap-3 p-0"
+              aria-label="Active topics"
+            >
+              {topics.map((topic) => (
+                <TopicListItem key={topic.id} topic={topic} />
+              ))}
+            </ul>
+          ) : null}
+        </div>
       </section>
-    </main>
+    </section>
   );
 }
 

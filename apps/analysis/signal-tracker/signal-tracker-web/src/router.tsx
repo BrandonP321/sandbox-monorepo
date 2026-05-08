@@ -1,16 +1,16 @@
 import {
   createRootRoute,
   createRoute,
-  createRouter,
-  Outlet
+  createRouter
 } from "@tanstack/react-router";
 
+import { SignalTrackerAppShell } from "./components/signal-tracker";
 import { ListTopicsPage } from "./pages/topic/ListTopicsPage";
 import { TopicDetailsPage } from "./pages/topic/TopicDetailsPage";
 import { appRoutes } from "./routeRegistry";
 
 const rootRoute = createRootRoute({
-  component: () => <Outlet />
+  component: SignalTrackerAppShell
 });
 
 const indexRoute = createRoute({

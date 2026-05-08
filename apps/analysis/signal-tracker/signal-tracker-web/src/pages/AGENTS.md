@@ -18,4 +18,5 @@ Also follow `../../AGENTS.md` for Signal Tracker web routing, UI stack, and vali
 - Use TanStack Router for page routing.
 - Add route paths to the typed route registry in `src/routeRegistry.ts`, and reuse those registry values in router definitions, `Link` targets, and route hooks such as `useParams`.
 - Prefer anchor-style navigation through TanStack `Link` for user-visible page navigation. Use imperative navigation only for flows that are not naturally represented as links, such as post-submit redirects.
-- Page routes should render page content directly for now; do not introduce an `AppShell` until multiple pages need shared persistent navigation or layout chrome.
+- Page routes render inside the parent/root `SignalTrackerAppShell` configured in the TanStack Router tree. The shell owns the viewport, sidebar, header, and main scroll region; page components should render content sections rather than duplicating viewport-level `<main>`, page scroll wrappers, or per-page shell instances.
+- Do not wire sidebar navigation from page components. Add or change shell nav entries in `src/components/signal-tracker/SignalTrackerAppShell/routes.ts`, where visibility and active-state rules live with the route node data.

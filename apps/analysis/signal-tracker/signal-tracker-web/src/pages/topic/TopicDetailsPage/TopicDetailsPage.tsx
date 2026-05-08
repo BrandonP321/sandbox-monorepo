@@ -36,29 +36,24 @@ export function TopicDetailsPage() {
   );
 
   return (
-    <main className="bg-background text-foreground min-h-screen supports-[height:100svh]:min-h-svh">
-      <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6 supports-[height:100svh]:min-h-svh sm:px-6 lg:px-8">
-        {isLoading ? <LoadingState label="Loading topic details" /> : null}
+    <section className="mx-auto flex w-full max-w-6xl flex-col">
+      {isLoading ? <LoadingState label="Loading topic details" /> : null}
 
-        {!isLoading && isError && isTopicNotFound ? (
-          <TopicDetailsNotFoundState topicId={topicId} />
-        ) : null}
+      {!isLoading && isError && isTopicNotFound ? (
+        <TopicDetailsNotFoundState topicId={topicId} />
+      ) : null}
 
-        {!isLoading && isError && !isTopicNotFound ? (
-          <TopicDetailsErrorState
-            errorMessage={errorMessage}
-            onRetry={refetch}
-          />
-        ) : null}
+      {!isLoading && isError && !isTopicNotFound ? (
+        <TopicDetailsErrorState errorMessage={errorMessage} onRetry={refetch} />
+      ) : null}
 
-        {!isLoading && !isError && data ? (
-          <TopicDetailsWorkspace
-            currentAssessment={data.currentAssessment}
-            topic={data.topic}
-          />
-        ) : null}
-      </section>
-    </main>
+      {!isLoading && !isError && data ? (
+        <TopicDetailsWorkspace
+          currentAssessment={data.currentAssessment}
+          topic={data.topic}
+        />
+      ) : null}
+    </section>
   );
 }
 

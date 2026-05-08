@@ -1,5 +1,6 @@
 export * from "./Alert";
 export * from "./AlertDialog";
+export * from "./AppShell";
 export * from "./AttributeEditor";
 export * from "./Badge";
 export * from "./Button";

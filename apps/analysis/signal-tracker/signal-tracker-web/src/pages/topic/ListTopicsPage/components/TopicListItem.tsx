@@ -12,7 +12,7 @@ export function TopicListItem({ topic }: TopicListItemProps) {
     <li className="min-w-0">
       <Link
         className="border-border bg-background text-foreground hover:bg-accent hover:text-accent-foreground focus-visible:border-ring focus-visible:ring-ring/50 block w-full rounded-md border p-3 text-left transition-colors outline-none focus-visible:ring-[3px]"
-        params={{ topicId: topic.id }}
+        params={{ topicId: topic.id, topicTitle: topic.title }}
         to={appRoutes.topicDetails.path}
       >
         <span className="block text-sm font-semibold">{topic.title}</span>

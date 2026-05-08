@@ -41,9 +41,11 @@ function CreateTopicDialogContent() {
     );
 
     if (result.ok) {
+      const { topic } = result.data;
+
       await navigate({
         to: appRoutes.topicDetails.path,
-        params: { topicId: result.data.topic.id }
+        params: { topicId: topic.id, topicTitle: topic.title }
       });
     }
   }

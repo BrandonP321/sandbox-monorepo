@@ -260,20 +260,15 @@ describe("App", () => {
 
     await expectListTopicsPage();
     expect(
-      screen.getByRole("heading", { level: 1, name: "Topics" }).closest("main")
+      screen.getByRole("main").closest("[data-slot='app-shell']")
     ).toHaveClass(
       "h-screen",
       "overflow-hidden",
       "supports-[height:100svh]:h-svh"
     );
-    expect(
-      screen
-        .getByRole("heading", { level: 1, name: "Topics" })
-        .closest("section")
-    ).toHaveClass(
+    expect(screen.getByRole("main")).toHaveClass(
       "overflow-y-auto",
-      "overscroll-y-contain",
-      "supports-[height:100svh]:h-svh"
+      "overscroll-y-contain"
     );
     expect(
       screen.getByRole("heading", { level: 2, name: "Active topics" })
@@ -348,7 +343,7 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "New topic" })
     ).toBeInTheDocument();
-    expect(window.location.pathname).toBe("/topics/topic-created");
+    expect(window.location.pathname).toBe("/topics/topic-created/New%20topic");
   });
 
   it("sends the optional scope note when provided", async () => {
@@ -583,10 +578,19 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
     ).toBeInTheDocument();
-    expect(window.location.pathname).toBe("/topics/topic-1");
+    expect(window.location.pathname).toBe(
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     expect(apiMocks.useGetTopicQuery).toHaveBeenLastCalledWith({
       topicId: "topic-1"
     });
+    expect(screen.getByRole("link", { name: "Topics" })).toHaveAttribute(
+      "href",
+      "/topics"
+    );
+    expect(
+      screen.getByRole("link", { name: "Iran strike risk" })
+    ).toHaveAttribute("href", "/topics/topic-1/Iran%20strike%20risk");
     expect(
       screen.getByText("Will the conflict expand over the next month?")
     ).toBeInTheDocument();
@@ -621,8 +625,45 @@ describe("App", () => {
     expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
   });
 
+  it("keeps the same app shell mounted across topic navigation", async () => {
+    renderApp();
+    await expectListTopicsPage();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Collapse navigation" })
+    );
+    expect(
+      screen.queryByRole("complementary", {
+        name: "Signal Tracker navigation"
+      })
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      await screen.findByRole("link", { name: /Iran strike risk/ })
+    );
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Iran strike risk"
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("complementary", {
+        name: "Signal Tracker navigation"
+      })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Expand navigation" })
+    ).toBeInTheDocument();
+  });
+
   it("opens and closes topic settings with current metadata pre-filled", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
 
     const dialog = await openTopicSettingsDialog();
@@ -646,7 +687,11 @@ describe("App", () => {
     mockListTopicTimelineQuery({
       data: { items: [assessmentTimelineItem, eventTimelineItem] }
     });
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
 
     renderApp();
 
@@ -667,7 +712,11 @@ describe("App", () => {
   });
 
   it("validates topic settings before submitting metadata updates", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -683,7 +732,11 @@ describe("App", () => {
   });
 
   it("submits topic settings updates through the shared update shape", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -730,7 +783,11 @@ describe("App", () => {
         }
       }
     });
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -750,7 +807,11 @@ describe("App", () => {
   });
 
   it("archives a topic from settings and returns to active topics", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -779,7 +840,11 @@ describe("App", () => {
         }
       }
     });
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -790,11 +855,17 @@ describe("App", () => {
     expect(await within(dialog).findByRole("alert")).toHaveTextContent(
       "Archive is temporarily unavailable."
     );
-    expect(window.location.pathname).toBe("/topics/topic-1");
+    expect(window.location.pathname).toBe(
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
   });
 
   it("requires exact-title confirmation before hard deleting a topic", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -839,7 +910,11 @@ describe("App", () => {
   });
 
   it("hard deletes a topic only after confirmation and returns to active topics", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -877,7 +952,11 @@ describe("App", () => {
         }
       }
     });
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -902,7 +981,9 @@ describe("App", () => {
     expect(await within(alertDialog).findByRole("alert")).toHaveTextContent(
       "Delete is temporarily unavailable."
     );
-    expect(window.location.pathname).toBe("/topics/topic-1");
+    expect(window.location.pathname).toBe(
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
   });
 
   it("prevents duplicate topic settings actions while mutations are pending", async () => {
@@ -912,7 +993,11 @@ describe("App", () => {
         resolveUpdate = resolve;
       })
     );
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -944,7 +1029,11 @@ describe("App", () => {
         resolveArchive = resolve;
       })
     );
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -973,7 +1062,11 @@ describe("App", () => {
         resolveDelete = resolve;
       })
     );
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     renderApp();
     const dialog = await openTopicSettingsDialog();
 
@@ -1012,7 +1105,11 @@ describe("App", () => {
   });
 
   it("renders the topic details route from a direct URL", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
 
     renderApp();
 
@@ -1025,7 +1122,11 @@ describe("App", () => {
   });
 
   it("renders the current assessment returned by the topic details query", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     mockGetTopicQuery({
       data: { topic, currentAssessment: currentAssessmentReadModel }
     });
@@ -1058,7 +1159,11 @@ describe("App", () => {
   });
 
   it("submits an assessment update from topic details with the route topic ID", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
 
     renderApp();
 
@@ -1090,7 +1195,11 @@ describe("App", () => {
   });
 
   it("submits a new event from topic details with the route topic ID", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
 
     renderApp();
 
@@ -1117,7 +1226,11 @@ describe("App", () => {
   });
 
   it("submits an event edit from a timeline row with the event entry ID", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     mockListTopicTimelineQuery({
       data: { items: [eventTimelineItem] }
     });
@@ -1151,7 +1264,11 @@ describe("App", () => {
   });
 
   it("omits the compact scope note when the topic has none", async () => {
-    window.history.replaceState(null, "", "/topics/topic-2");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-2/AI%20copyright%20litigation"
+    );
     mockGetTopicQuery({
       data: { topic: topicWithoutScopeNote, currentAssessment: null }
     });
@@ -1170,7 +1287,11 @@ describe("App", () => {
   });
 
   it("shows archived status only when a direct archived topic URL is opened", async () => {
-    window.history.replaceState(null, "", "/topics/topic-archived");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-archived/archived-topic"
+    );
     mockGetTopicQuery({
       data: { topic: archivedTopic, currentAssessment: null }
     });
@@ -1184,7 +1305,11 @@ describe("App", () => {
   });
 
   it("renders a structured loading state for topic details", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     mockGetTopicQuery({ data: undefined, isLoading: true });
 
     renderApp();
@@ -1198,7 +1323,11 @@ describe("App", () => {
   });
 
   it("renders a topic details error state with retry behavior", async () => {
-    window.history.replaceState(null, "", "/topics/topic-1");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-1/Iran%20strike%20risk"
+    );
     const retry = mockGetTopicQuery({
       data: undefined,
       error: {
@@ -1229,7 +1358,11 @@ describe("App", () => {
   });
 
   it("renders topic not found without the generic retry error", async () => {
-    window.history.replaceState(null, "", "/topics/topic-missing");
+    window.history.replaceState(
+      null,
+      "",
+      "/topics/topic-missing/missing-topic"
+    );
     mockGetTopicQuery({
       data: undefined,
       error: {
@@ -1607,6 +1740,17 @@ async function expectListTopicsPage() {
   expect(
     await screen.findByRole("heading", { level: 1, name: "Topics" })
   ).toBeInTheDocument();
+
+  const navigation = screen.getByRole("complementary", {
+    name: "Signal Tracker navigation"
+  });
+
+  expect(
+    within(navigation).getByRole("link", { name: "Topics" })
+  ).toHaveAttribute("aria-current", "page");
+  expect(
+    within(navigation).queryByRole("link", { name: /Iran strike risk/ })
+  ).not.toBeInTheDocument();
 }
 
 async function openCreateTopicDialog() {

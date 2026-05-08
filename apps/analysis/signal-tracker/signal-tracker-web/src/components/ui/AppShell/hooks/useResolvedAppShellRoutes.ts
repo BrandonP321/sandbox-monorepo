@@ -1,0 +1,138 @@
+import { useMemo } from "react";
+import { useRouterState } from "@tanstack/react-router";
+
+import type {
+  AnyAppShellRoute,
+  AppShellResolvedRoute,
+  AppShellRouteContext,
+  AppShellRouteParams
+} from "../types";
+
+type UseResolvedAppShellRoutesOptions = {
+  routes: readonly AnyAppShellRoute[];
+};
+
+function useResolvedAppShellRoutes({
+  routes
+}: UseResolvedAppShellRoutesOptions) {
+  const activeRouterMatch = useRouterState({
+    select: (state) => {
+      const activeMatch = state.matches.at(-1);
+
+      return {
+        activePath: activeMatch?.fullPath,
+        params: (activeMatch?.params ?? {}) as AppShellRouteParams
+      };
+    }
+  });
+  const routeContext = useMemo<AppShellRouteContext>(
+    () => ({
+      activePath: activeRouterMatch.activePath,
+      params: activeRouterMatch.params
+    }),
+    [activeRouterMatch]
+  );
+  const resolvedRoutes = useMemo(
+    () => resolveAppShellRoutes(routes, routeContext),
+    [routeContext, routes]
+  );
+  const activeRoute =
+    findActiveAppShellRoute(resolvedRoutes, activeRouterMatch.activePath) ??
+    resolvedRoutes[0];
+
+  return {
+    activeRoute,
+    routes: resolvedRoutes
+  };
+}
+
+function resolveAppShellRoutes(
+  routes: readonly AnyAppShellRoute[],
+  context: AppShellRouteContext
+): AppShellResolvedRoute[] {
+  return routes.flatMap((route) => {
+    if (!isVisibleAppShellRoute(route, context)) {
+      return [];
+    }
+
+    const children = resolveAppShellRoutes(route.children ?? [], context);
+
+    return [
+      {
+        children: children.length > 0 ? children : undefined,
+        icon: route.icon,
+        id: route.id ?? route.path,
+        params: route.params
+          ? resolveRouteValue(route.params, context)
+          : undefined,
+        path: route.path,
+        title: resolveRouteValue(route.title, context),
+        to: resolveRouteValue(route.to ?? route.path, context)
+      }
+    ];
+  });
+}
+
+function findActiveAppShellRoute(
+  routes: readonly AppShellResolvedRoute[],
+  activePath: string | undefined
+): AppShellResolvedRoute | undefined {
+  if (!activePath) {
+    return undefined;
+  }
+
+  for (const route of routes) {
+    if (route.path === activePath) {
+      return route;
+    }
+
+    const childRoute = findActiveAppShellRoute(
+      route.children ?? [],
+      activePath
+    );
+
+    if (childRoute) {
+      return childRoute;
+    }
+  }
+
+  return undefined;
+}
+
+function isVisibleAppShellRoute(
+  route: AnyAppShellRoute,
+  context: AppShellRouteContext
+) {
+  if (route.visibleWhen !== "activeBranch") {
+    return true;
+  }
+
+  return isRouteInActiveBranch(route, context.activePath);
+}
+
+function isRouteInActiveBranch(
+  route: AnyAppShellRoute,
+  activePath: string | undefined
+): boolean {
+  if (!activePath) {
+    return false;
+  }
+
+  return (
+    route.path === activePath ||
+    (route.children ?? []).some((childRoute) =>
+      isRouteInActiveBranch(childRoute, activePath)
+    )
+  );
+}
+
+function resolveRouteValue<TValue>(
+  value: TValue | ((context: AppShellRouteContext) => TValue),
+  context: AppShellRouteContext
+) {
+  return typeof value === "function"
+    ? (value as (context: AppShellRouteContext) => TValue)(context)
+    : value;
+}
+
+export { useResolvedAppShellRoutes };

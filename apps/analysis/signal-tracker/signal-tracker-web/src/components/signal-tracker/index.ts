@@ -3,6 +3,7 @@ export * from "./CurrentAssessmentPanel";
 export * from "./EntrySourceIndicator";
 export * from "./EventEntryDialog";
 export * from "./SourceUrlEditor";
+export * from "./SignalTrackerAppShell";
 export * from "./TopicForm";
 export * from "./TopicTimeline";
 export * from "./TopicSettingsModal";

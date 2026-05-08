@@ -16,7 +16,7 @@ export const appRoutes = defineAppRoutes({
     path: "/topics"
   },
   topicDetails: {
-    path: "/topics/$topicId"
+    path: "/topics/$topicId/$topicTitle"
   }
 });
 
