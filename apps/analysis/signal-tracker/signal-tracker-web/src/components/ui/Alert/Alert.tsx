@@ -17,9 +17,9 @@ const alertVariants = cva(
     variants: {
       variant: {
         danger: "border-danger/40 bg-danger/5 text-foreground",
-        info: "border-sky-600/30 bg-sky-50 text-foreground",
-        success: "border-emerald-600/30 bg-emerald-50 text-foreground",
-        warning: "border-amber-600/30 bg-amber-50 text-foreground"
+        info: "border-info/30 bg-info/5 text-foreground",
+        success: "border-success/30 bg-success/5 text-foreground",
+        warning: "border-warning/30 bg-warning/5 text-foreground"
       }
     },
     defaultVariants: {
@@ -32,9 +32,9 @@ const alertIconVariants = cva("mt-0.5 size-4 shrink-0", {
   variants: {
     variant: {
       danger: "text-danger",
-      info: "text-sky-700",
-      success: "text-emerald-700",
-      warning: "text-amber-700"
+      info: "text-info-foreground",
+      success: "text-success-foreground",
+      warning: "text-warning-foreground"
     }
   },
   defaultVariants: {

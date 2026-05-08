@@ -9,6 +9,7 @@ import { ListTopicsPage } from "./pages/topic/ListTopicsPage";
 import { TopicDetailsPage } from "./pages/topic/TopicDetailsPage";
 import { appRoutes } from "./routeRegistry";
 
+// TODO: Can these routes be generated from the routes registry?
 const rootRoute = createRootRoute({
   component: SignalTrackerAppShell
 });

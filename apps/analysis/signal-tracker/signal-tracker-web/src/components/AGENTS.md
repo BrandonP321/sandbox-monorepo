@@ -13,6 +13,10 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Spread only the picked native prop subset onto the underlying element. Do not expose the full native element prop surface by default.
 - Avoid generic prop pass-throughs and broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches unless a concrete Signal Tracker caller needs them.
 - Use component variants for repeated styling patterns instead of pasting the same long Tailwind class strings across call sites.
+- Prefer reusable layout primitives or small local layout components for repeated arrangements. Avoid long one-off class strings when a pattern has already appeared in multiple call sites.
+- Keep width decisions at the field, form, or layout wrapper layer. Do not add fixed widths to reusable controls unless the control's own behavior requires it.
+- Use viewport breakpoints for page and shell layouts. Use container queries for reusable component internals so components adapt to the space they are placed in.
+- Use JavaScript media-query hooks only for runtime behavior that CSS cannot express, not for presentation-only layout changes.
 - Use `ContentHeader` from `src/components/ui/` for page, section, card, dialog, and form-section headings instead of raw `h1`-`h6` markup. Keep semantic `headingLevel` correct, and use `headingSize` values such as `h1`, `h2`, or `h5` when a heading should follow a different visual scale.
 - Do not add `aria-labelledby` wiring around ordinary `ContentHeader` sections for now; keep the markup uncluttered until Signal Tracker takes on a dedicated accessibility pass.
 - Use semantic HTML, labels, keyboard-safe primitives, and accessibility behavior provided by shadcn/ui or Radix. Avoid bespoke exhaustive ARIA APIs by default.
@@ -27,6 +31,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 
 - Prefer controlled form controls with `value` and `onChange`; avoid uncontrolled `defaultValue` props unless a concrete caller needs uncontrolled behavior.
 - Use `TextInput` and `FormTextInput` as the generic fallback for string-valued input fields that do not yet have a more specific component. Avoid reintroducing ambiguous `Input` or `FormInput` call sites when the value kind is known.
+- Text-like controls should render full width by default. Constrain form layouts through `FormField`, form sections, dialogs, or layout primitives instead of narrowing the input primitive.
 - Form layout wrappers should allow omitted IDs and generate stable local IDs while still preserving explicit IDs when callers need stable control references.
 - React Hook Form wrappers should reuse behavior-only controls from `@repo/ui-base` and compose them with Signal Tracker-local visual primitives.
 - Prefer schema-derived required state from `@repo/ui-base` for form wrappers, with explicit overrides only when a caller needs to diverge from the schema.

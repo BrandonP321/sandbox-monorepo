@@ -18,6 +18,8 @@ Tailwind Plus and Catalyst, if used, should be treated as reference libraries an
 
 Avoid mixing multiple primitive systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component system interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
 
+Styled primitives stay local to this app until reuse across multiple apps is real or an issue explicitly asks for extraction. Signal Tracker web should not import `@repo/ui` or another styled shared package; use `@repo/ui-base` only for behavior abstractions.
+
 ## Component organization
 
 Prefer this local organization as product UI is built out:
@@ -31,6 +33,10 @@ src/components/signal-tracker/
 ```
 
 The `components/ui/` layer should stay generic and product-agnostic. The `components/signal-tracker/` layer should encode Signal Tracker product concepts and workflows.
+
+Durable primitive styling should use semantic tokens and semantic Tailwind utilities. Raw palette utilities belong in theme definitions or temporary exploration code. Text-like controls should be full-width by default; constrain widths at the field, form, dialog, or layout wrapper layer.
+
+Use viewport breakpoints for page and shell layouts, container queries for reusable component internals, and JavaScript media-query hooks only for runtime behavior that CSS cannot express.
 
 ## Component interface model
 

@@ -20,6 +20,7 @@
 - Use Radix UI as the accessible primitive layer, usually through shadcn/ui. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 - Signal Tracker UI must not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
+- Keep styled Signal Tracker UI primitives app-local in `signal-tracker-web` until they stabilize through real use across more than one app, or until the user or issue explicitly requests extraction.
 - Use `@repo/ui-base` when a UI behavior abstraction is useful, especially for form wiring or other behavior-only primitives.
 - Keep generic copy-owned UI primitives product-agnostic in a local web-app layer such as `src/components/ui/`.
 - Keep product-specific Signal Tracker components inside `signal-tracker-web`, in a product layer such as `src/components/signal-tracker/`.
