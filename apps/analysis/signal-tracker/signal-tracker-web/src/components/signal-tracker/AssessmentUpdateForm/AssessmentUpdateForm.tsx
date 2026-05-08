@@ -3,6 +3,7 @@ import { FormProvider } from "@repo/ui-base";
 import { useCreateAssessmentUpdateMutation } from "@/api";
 import { SourceUrlFormSection } from "@/components/signal-tracker/SourceUrlEditor";
 import {
+  AutoGrid,
   ContentHeader,
   Form,
   FormButton,
@@ -76,7 +77,7 @@ function AssessmentUpdateForm({
           placeholder="What do you currently think, and why?"
           rows={5}
         />
-        <div className="grid items-start gap-4 sm:grid-cols-2">
+        <AutoGrid>
           <FormSelect<AssessmentUpdateFormValues>
             label="Confidence"
             name="confidenceLabel"
@@ -87,8 +88,8 @@ function AssessmentUpdateForm({
             label="Assessment date"
             name="assessmentDate"
           />
-        </div>
-        <div className="grid items-start gap-4 sm:grid-cols-2">
+        </AutoGrid>
+        <AutoGrid>
           <FormTextarea<AssessmentUpdateFormValues>
             description="One assumption per line."
             label="Assumptions"
@@ -101,7 +102,7 @@ function AssessmentUpdateForm({
             name="indicators"
             rows={4}
           />
-        </div>
+        </AutoGrid>
         <AssessmentUpdateOptionalFields />
         <SourceUrlFormSection<AssessmentUpdateFormValues>
           description="URLs attached to this assessment."
@@ -121,7 +122,7 @@ function AssessmentUpdateOptionalFields() {
         headingSize="h5"
         title="Optional details"
       />
-      <div className="grid items-start gap-4 sm:grid-cols-2">
+      <AutoGrid>
         <FormNumberInput<AssessmentUpdateFormValues>
           label="Probability"
           name="probabilityPct"
@@ -131,7 +132,7 @@ function AssessmentUpdateOptionalFields() {
           label="Target resolution date"
           name="targetResolutionDate"
         />
-      </div>
+      </AutoGrid>
       <FormTextarea<AssessmentUpdateFormValues>
         label="Resolution criteria"
         name="resolutionCriteria"

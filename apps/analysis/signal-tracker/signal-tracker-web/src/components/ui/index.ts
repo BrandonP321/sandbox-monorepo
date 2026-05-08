@@ -14,6 +14,7 @@ export * from "./EmptyState";
 export * from "./Form";
 export * from "./IconStack";
 export * from "./Input";
+export * from "./Layout";
 export * from "./LoadingState";
 export * from "./Popover";
 export * from "./Select";

@@ -20,7 +20,9 @@ import {
   Button,
   ContentHeader,
   EmptyState,
-  LoadingState
+  Inline,
+  LoadingState,
+  WithAside
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
@@ -68,17 +70,18 @@ function TopicDetailsWorkspace({
     <>
       <TopicDetailsHeader topic={topic} />
 
-      <div className="grid gap-4 py-5 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <aside className="lg:col-start-2 lg:row-start-1">
+      <WithAside
+        aside={
           <CurrentAssessmentPanel
             assessment={currentAssessment}
             topicId={topic.id}
           />
-        </aside>
-        <div className="lg:col-start-1 lg:row-start-1">
-          <TopicTimeline topicId={topic.id} />
-        </div>
-      </div>
+        }
+        className="py-5"
+        stickyAside
+      >
+        <TopicTimeline topicId={topic.id} />
+      </WithAside>
     </>
   );
 }
@@ -96,14 +99,14 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
 
       <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
+          <Inline align="center" gap="sm">
             <p className="text-muted-foreground text-xs font-medium uppercase">
               Topic workspace
             </p>
             {topic.status === "archived" ? (
               <Badge variant="outline">Archived</Badge>
             ) : null}
-          </div>
+          </Inline>
           <h1 className="mt-2 text-3xl font-semibold">{topic.title}</h1>
           <p className="text-muted-foreground mt-2 max-w-3xl text-sm">
             {topic.framingQuestion}
@@ -115,14 +118,14 @@ function TopicDetailsHeader({ topic }: { topic: Topic }) {
           ) : null}
         </div>
 
-        <div className="flex flex-wrap gap-2 lg:justify-end">
+        <Inline className="lg:justify-end" gap="sm">
           <EventEntryDialog topicId={topic.id}>
             <Button iconLeft={<Plus aria-hidden="true" className="size-4" />}>
               Add event
             </Button>
           </EventEntryDialog>
           <TopicSettingsModal topic={topic} />
-        </div>
+        </Inline>
       </div>
     </header>
   );

@@ -14,6 +14,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Avoid generic prop pass-throughs and broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches unless a concrete Signal Tracker caller needs them.
 - Use component variants for repeated styling patterns instead of pasting the same long Tailwind class strings across call sites.
 - Prefer reusable layout primitives or small local layout components for repeated arrangements. Avoid long one-off class strings when a pattern has already appeared in multiple call sites.
+- Use the local `Layout` primitive family from `src/components/ui/` for repeated vertical stacks, inline action rows, auto grids, and main/aside layouts before adding new ad hoc layout class strings.
 - Keep width decisions at the field, form, or layout wrapper layer. Do not add fixed widths to reusable controls unless the control's own behavior requires it.
 - Use viewport breakpoints for page and shell layouts. Use container queries for reusable component internals so components adapt to the space they are placed in.
 - Use JavaScript media-query hooks only for runtime behavior that CSS cannot express, not for presentation-only layout changes.

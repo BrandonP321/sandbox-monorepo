@@ -7,6 +7,7 @@ import {
 } from "@/api";
 import { SourceUrlFormSection } from "@/components/signal-tracker/SourceUrlEditor";
 import {
+  AutoGrid,
   Form,
   FormButton,
   FormDateInput,
@@ -94,7 +95,7 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
           placeholder="What happened, and why does it matter for this topic?"
           rows={5}
         />
-        <div className="grid items-start gap-4 sm:grid-cols-2">
+        <AutoGrid>
           <FormDateInput<EventEntryFormValues>
             label="Event date"
             name="eventDate"
@@ -105,7 +106,7 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
             options={epistemicStatusOptions}
             placeholder="Choose status"
           />
-        </div>
+        </AutoGrid>
         <SourceUrlFormSection<EventEntryFormValues>
           description="URLs attached to this event."
           name="sources"

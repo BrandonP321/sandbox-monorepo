@@ -24,7 +24,7 @@ function CurrentAssessmentPanel({
   const actionLabel = assessment ? "Update assessment" : "Add assessment";
 
   return (
-    <Card className="lg:sticky lg:top-6">
+    <Card>
       <CardHeader>
         <ContentHeader
           actions={
