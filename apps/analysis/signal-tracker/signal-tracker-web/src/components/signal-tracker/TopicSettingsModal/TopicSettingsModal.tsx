@@ -4,6 +4,7 @@ import type { Topic } from "@repo/signal-tracker-shared";
 import { Button, Dialog, DialogTrigger } from "@/components/ui";
 
 import { TopicSettingsModalContent } from "./components";
+import { TopicSettingsModalProvider } from "./context";
 
 type TopicSettingsModalProps = {
   topic: Topic;
@@ -12,15 +13,17 @@ type TopicSettingsModalProps = {
 function TopicSettingsModal({ topic }: TopicSettingsModalProps) {
   return (
     <Dialog>
-      <DialogTrigger>
-        <Button
-          iconLeft={<Settings aria-hidden="true" className="size-4" />}
-          variant="outline"
-        >
-          Topic settings
-        </Button>
-      </DialogTrigger>
-      <TopicSettingsModalContent topic={topic} />
+      <TopicSettingsModalProvider topic={topic}>
+        <DialogTrigger>
+          <Button
+            iconLeft={<Settings aria-hidden="true" className="size-4" />}
+            variant="outline"
+          >
+            Topic settings
+          </Button>
+        </DialogTrigger>
+        <TopicSettingsModalContent />
+      </TopicSettingsModalProvider>
     </Dialog>
   );
 }

@@ -1,16 +1,11 @@
 import { ContentHeader } from "@/components/ui";
 
 import { TopicDeleteConfirmation } from "./TopicDeleteConfirmation";
+import { useTopicSettingsModalContext } from "../hooks";
 
-type TopicDangerZoneSectionProps = {
-  topicId: string;
-  topicTitle: string;
-};
+function TopicDangerZoneSection() {
+  const { topicId, topic } = useTopicSettingsModalContext();
 
-function TopicDangerZoneSection({
-  topicId,
-  topicTitle
-}: TopicDangerZoneSectionProps) {
   return (
     <section className="border-danger/30 bg-danger/5 grid gap-3 rounded-md border p-4">
       <ContentHeader
@@ -19,7 +14,7 @@ function TopicDangerZoneSection({
         headingSize="h5"
         title="Danger zone"
       />
-      <TopicDeleteConfirmation topicId={topicId} topicTitle={topicTitle} />
+      <TopicDeleteConfirmation topicId={topicId} topicTitle={topic.title} />
     </section>
   );
 }

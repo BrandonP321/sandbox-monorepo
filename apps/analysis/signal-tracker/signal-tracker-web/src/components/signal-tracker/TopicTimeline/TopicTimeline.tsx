@@ -1,6 +1,3 @@
-import { useState } from "react";
-import type { TopicTimelineItem } from "@repo/signal-tracker-shared";
-
 import { useListTopicTimelineQuery } from "@/api";
 import {
   Alert,
@@ -13,9 +10,9 @@ import {
   LoadingState
 } from "@/components/ui";
 
-import { EntrySourceIndicator } from "../EntrySourceIndicator";
-import { EventEntryDialog } from "../EventEntryDialog";
-import { TimelineEntryRow, type VisibleTimelineItem } from "./components";
+import { TopicTimelineEntryList } from "./components";
+import { useExpandedEntryIds } from "./hooks/useExpandedEntryIds";
+import { getVisibleTimelineItems } from "./lib/visible-items";
 
 type TopicTimelineProps = {
   topicId: string;
@@ -24,24 +21,8 @@ type TopicTimelineProps = {
 function TopicTimeline({ topicId }: TopicTimelineProps) {
   const { data, errorMessage, isError, isLoading, refetch } =
     useListTopicTimelineQuery({ topicId });
-  const [expandedEntryIds, setExpandedEntryIds] = useState<Set<string>>(
-    () => new Set()
-  );
+  const { expandedEntryIds, setEntryExpanded } = useExpandedEntryIds();
   const visibleItems = getVisibleTimelineItems(data?.items ?? []);
-
-  function setEntryExpanded(entryId: string, isExpanded: boolean) {
-    setExpandedEntryIds((currentEntryIds) => {
-      const nextEntryIds = new Set(currentEntryIds);
-
-      if (isExpanded) {
-        nextEntryIds.add(entryId);
-      } else {
-        nextEntryIds.delete(entryId);
-      }
-
-      return nextEntryIds;
-    });
-  }
 
   return (
     <section>
@@ -80,47 +61,16 @@ function TopicTimeline({ topicId }: TopicTimelineProps) {
           ) : null}
 
           {!isLoading && !isError && visibleItems.length > 0 ? (
-            <ol aria-label="Timeline entries" className="grid gap-3">
-              {visibleItems.map((item) => (
-                <li key={item.entry.id}>
-                  <TimelineEntryRow
-                    actionClusterSlot={
-                      item.kind === "event" ? (
-                        <EventEntryDialog entry={item.entry} topicId={topicId}>
-                          <Button size="sm" variant="ghost">
-                            Edit
-                          </Button>
-                        </EventEntryDialog>
-                      ) : undefined
-                    }
-                    isExpanded={expandedEntryIds.has(item.entry.id)}
-                    item={item}
-                    onExpandedChange={(isExpanded) =>
-                      setEntryExpanded(item.entry.id, isExpanded)
-                    }
-                    sourceIndicatorSlot={
-                      <EntrySourceIndicator
-                        entryId={item.entry.id}
-                        sources={item.entry.sources}
-                      />
-                    }
-                  />
-                </li>
-              ))}
-            </ol>
+            <TopicTimelineEntryList
+              expandedEntryIds={expandedEntryIds}
+              items={visibleItems}
+              onEntryExpandedChange={setEntryExpanded}
+              topicId={topicId}
+            />
           ) : null}
         </CardContent>
       </Card>
     </section>
-  );
-}
-
-function getVisibleTimelineItems(
-  items: TopicTimelineItem[]
-): VisibleTimelineItem[] {
-  return items.filter(
-    (item): item is VisibleTimelineItem =>
-      item.kind === "event" || item.kind === "assessment"
   );
 }
 

@@ -5,9 +5,8 @@ import {
   useCreateEventEntryMutation,
   useUpdateEventEntryMutation
 } from "@/api";
-import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
+import { SourceUrlFormSection } from "@/components/signal-tracker/SourceUrlEditor";
 import {
-  ContentHeader,
   Form,
   FormButton,
   FormDateInput,
@@ -107,23 +106,12 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
             placeholder="Choose status"
           />
         </div>
-        <EventSourceFields />
+        <SourceUrlFormSection<EventEntryFormValues>
+          description="URLs attached to this event."
+          name="sources"
+        />
       </Form>
     </FormProvider>
-  );
-}
-
-function EventSourceFields() {
-  return (
-    <section className="border-border grid gap-3 border-t pt-4">
-      <ContentHeader
-        description="URLs attached to this event."
-        headingLevel={3}
-        headingSize="h5"
-        title="Sources"
-      />
-      <SourceUrlEditor<EventEntryFormValues> name="sources" />
-    </section>
   );
 }
 

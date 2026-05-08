@@ -1,16 +1,10 @@
-import type { Topic } from "@repo/signal-tracker-shared";
-
 import { DialogContent } from "@/components/ui";
 
 import { TopicArchiveSection } from "./TopicArchiveSection";
 import { TopicDangerZoneSection } from "./TopicDangerZoneSection";
 import { TopicMetadataSection } from "./TopicMetadataSection";
 
-type TopicSettingsModalContentProps = {
-  topic: Topic;
-};
-
-function TopicSettingsModalContent({ topic }: TopicSettingsModalContentProps) {
+function TopicSettingsModalContent() {
   return (
     <DialogContent
       className="max-w-2xl"
@@ -18,9 +12,9 @@ function TopicSettingsModalContent({ topic }: TopicSettingsModalContentProps) {
       title="Topic settings"
     >
       <div className="grid gap-6">
-        <TopicMetadataSection topic={topic} />
-        <TopicArchiveSection topicId={topic.id} />
-        <TopicDangerZoneSection topicId={topic.id} topicTitle={topic.title} />
+        <TopicMetadataSection />
+        <TopicArchiveSection />
+        <TopicDangerZoneSection />
       </div>
     </DialogContent>
   );

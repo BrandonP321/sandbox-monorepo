@@ -1,5 +1,4 @@
 import {
-  type Topic,
   type TopicMetadata,
   updateTopicRequestSchema
 } from "@repo/signal-tracker-shared";
@@ -7,12 +6,10 @@ import {
 import { useUpdateTopicMutation } from "@/api";
 import { TopicForm } from "@/components/signal-tracker/TopicForm";
 import { ContentHeader, useDialogContext } from "@/components/ui";
+import { useTopicSettingsModalContext } from "../hooks";
 
-type TopicMetadataSectionProps = {
-  topic: Topic;
-};
-
-function TopicMetadataSection({ topic }: TopicMetadataSectionProps) {
+function TopicMetadataSection() {
+  const { topic } = useTopicSettingsModalContext();
   const { closeDialog, runDialogConfirm } = useDialogContext();
   const [updateTopic, { errorMessage }] = useUpdateTopicMutation();
 

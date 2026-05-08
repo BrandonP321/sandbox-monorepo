@@ -1,22 +1,9 @@
-import { z } from "zod";
+import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
 
-import {
-  entrySourceInputSchema,
-  type AttachedSourceSummary
-} from "@repo/signal-tracker-shared";
-import { FormProvider } from "@repo/ui-base";
+import { Dialog, DialogContent } from "@/components/ui";
 
-import { useReplaceEntrySourcesMutation } from "@/api";
-import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
-import { createSourceUrlRowsFromAttachedSources } from "@/components/signal-tracker/SourceUrlEditor/lib/source-url-rows";
-import {
-  Dialog,
-  DialogContent,
-  Form,
-  FormButton,
-  SubmitButton,
-  useDialogContext
-} from "@/components/ui";
+import { EntrySourceManagerForm } from "./components";
+import { getEntrySourceManagerFormKey } from "./lib/form-key";
 
 type EntrySourceManagerDialogProps = {
   entryId: string;
@@ -24,12 +11,6 @@ type EntrySourceManagerDialogProps = {
   open: boolean;
   sources: AttachedSourceSummary[];
 };
-
-const entrySourceManagerSchema = z.object({
-  sources: z.array(entrySourceInputSchema)
-});
-
-type EntrySourceManagerFormValues = z.input<typeof entrySourceManagerSchema>;
 
 function EntrySourceManagerDialog({
   entryId,
@@ -47,67 +28,13 @@ function EntrySourceManagerDialog({
         {open ? (
           <EntrySourceManagerForm
             entryId={entryId}
-            key={getFormKey(entryId, sources)}
+            key={getEntrySourceManagerFormKey(entryId, sources)}
             sources={sources}
           />
         ) : null}
       </DialogContent>
     </Dialog>
   );
-}
-
-function EntrySourceManagerForm({
-  entryId,
-  sources
-}: {
-  entryId: string;
-  sources: AttachedSourceSummary[];
-}) {
-  const { closeDialog, runDialogConfirm } = useDialogContext();
-  const [replaceEntrySources, { errorMessage }] =
-    useReplaceEntrySourcesMutation();
-
-  async function handleSubmit(values: EntrySourceManagerFormValues) {
-    await runDialogConfirm(async () =>
-      replaceEntrySources({ entryId, sources: values.sources }).unwrap()
-    );
-  }
-
-  return (
-    <FormProvider
-      defaultValues={{
-        sources: createSourceUrlRowsFromAttachedSources(sources)
-      }}
-      schema={entrySourceManagerSchema}
-    >
-      <Form<EntrySourceManagerFormValues>
-        actions={
-          <>
-            <FormButton onClick={closeDialog} variant="outline">
-              Cancel
-            </FormButton>
-            <SubmitButton loadingLabel="Saving sources...">
-              Save sources
-            </SubmitButton>
-          </>
-        }
-        error={errorMessage}
-        errorTitle="Unable to save sources"
-        onSubmit={handleSubmit}
-      >
-        <SourceUrlEditor<EntrySourceManagerFormValues> name="sources" />
-      </Form>
-    </FormProvider>
-  );
-}
-
-function getFormKey(entryId: string, sources: AttachedSourceSummary[]) {
-  return [
-    entryId,
-    ...createSourceUrlRowsFromAttachedSources(sources).map(
-      (source) => source.url
-    )
-  ].join("|");
 }
 
 export { EntrySourceManagerDialog, type EntrySourceManagerDialogProps };

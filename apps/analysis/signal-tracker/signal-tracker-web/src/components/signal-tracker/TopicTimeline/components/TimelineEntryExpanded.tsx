@@ -1,11 +1,10 @@
-import type {
-  AttachedSourceSummary,
-  TopicTimelineItem
-} from "@repo/signal-tracker-shared";
+import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
+import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui";
 
 import { AttachedSourceSummaryList } from "../../EntrySourceIndicator/AttachedSourceSummaryList";
+import type { VisibleTimelineItem } from "../lib/visible-items";
 
 import {
   formatAssessmentConfidence,
@@ -13,11 +12,6 @@ import {
   formatEpistemicStatus,
   formatTimelineDate
 } from "../lib/formatters";
-
-type VisibleTimelineItem = Extract<
-  TopicTimelineItem,
-  { kind: "assessment" | "event" }
->;
 
 type TimelineEntryExpandedProps = {
   item: VisibleTimelineItem;
@@ -49,12 +43,9 @@ function ExpandedEventEntry({
         </time>
       </div>
 
-      <div className="grid gap-1">
-        <p className="text-muted-foreground text-xs font-medium uppercase">
-          Details
-        </p>
+      <TimelineDetailSection title="Details">
         <p className="text-sm leading-6 whitespace-pre-wrap">{entry.bodyMd}</p>
-      </div>
+      </TimelineDetailSection>
 
       <SourceSummaryList sources={entry.sources} />
     </div>
@@ -87,14 +78,11 @@ function ExpandedAssessmentEntry({
         </time>
       </div>
 
-      <div className="grid gap-1">
-        <p className="text-muted-foreground text-xs font-medium uppercase">
-          Judgment
-        </p>
+      <TimelineDetailSection title="Judgment">
         <p className="text-sm leading-6 whitespace-pre-wrap">
           {assessment.judgment}
         </p>
-      </div>
+      </TimelineDetailSection>
 
       <AssessmentDetailList
         items={assessment.assumptions}
@@ -103,25 +91,19 @@ function ExpandedAssessmentEntry({
       <AssessmentDetailList items={assessment.indicators} title="Indicators" />
 
       {assessment.resolutionCriteria ? (
-        <div className="grid gap-1">
-          <p className="text-muted-foreground text-xs font-medium uppercase">
-            Resolution criteria
-          </p>
+        <TimelineDetailSection title="Resolution criteria">
           <p className="text-sm leading-6 whitespace-pre-wrap">
             {assessment.resolutionCriteria}
           </p>
-        </div>
+        </TimelineDetailSection>
       ) : null}
 
       {assessment.targetResolvesAt ? (
-        <div className="grid gap-1">
-          <p className="text-muted-foreground text-xs font-medium uppercase">
-            Target resolution date
-          </p>
+        <TimelineDetailSection title="Target resolution date">
           <time className="text-sm" dateTime={assessment.targetResolvesAt}>
             {formatTimelineDate(assessment.targetResolvesAt)}
           </time>
-        </div>
+        </TimelineDetailSection>
       ) : null}
 
       <SourceSummaryList sources={entry.sources} />
@@ -131,12 +113,9 @@ function ExpandedAssessmentEntry({
 
 function SourceSummaryList({ sources }: { sources: AttachedSourceSummary[] }) {
   return (
-    <section aria-label="Sources" className="grid gap-2">
-      <p className="text-muted-foreground text-xs font-medium uppercase">
-        Sources
-      </p>
+    <TimelineDetailSection className="grid gap-2" title="Sources">
       <AttachedSourceSummaryList sources={sources} />
-    </section>
+    </TimelineDetailSection>
   );
 }
 
@@ -152,10 +131,7 @@ function AssessmentDetailList({
   }
 
   return (
-    <section aria-label={title} className="grid gap-2">
-      <p className="text-muted-foreground text-xs font-medium uppercase">
-        {title}
-      </p>
+    <TimelineDetailSection className="grid gap-2" title={title}>
       <ul className="grid gap-1">
         {items.map((item) => (
           <li className="text-sm leading-6" key={item}>
@@ -163,6 +139,25 @@ function AssessmentDetailList({
           </li>
         ))}
       </ul>
+    </TimelineDetailSection>
+  );
+}
+
+function TimelineDetailSection({
+  children,
+  className = "grid gap-1",
+  title
+}: {
+  children: ReactNode;
+  className?: string;
+  title: string;
+}) {
+  return (
+    <section aria-label={title} className={className}>
+      <p className="text-muted-foreground text-xs font-medium uppercase">
+        {title}
+      </p>
+      {children}
     </section>
   );
 }

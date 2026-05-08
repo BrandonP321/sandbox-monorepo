@@ -8,13 +8,11 @@ import {
   useDialogContext
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
+import { useTopicSettingsModalContext } from "../hooks";
 
-type TopicArchiveSectionProps = {
-  topicId: string;
-};
-
-function TopicArchiveSection({ topicId }: TopicArchiveSectionProps) {
+function TopicArchiveSection() {
   const navigate = useNavigate();
+  const { topicId } = useTopicSettingsModalContext();
   const { isDialogConfirming, runDialogConfirm } = useDialogContext();
   const [archiveTopic, { errorMessage }] = useArchiveTopicMutation();
 

@@ -1,7 +1,7 @@
 import { FormProvider } from "@repo/ui-base";
 
 import { useCreateAssessmentUpdateMutation } from "@/api";
-import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
+import { SourceUrlFormSection } from "@/components/signal-tracker/SourceUrlEditor";
 import {
   ContentHeader,
   Form,
@@ -103,7 +103,10 @@ function AssessmentUpdateForm({
           />
         </div>
         <AssessmentUpdateOptionalFields />
-        <AssessmentSourceFields />
+        <SourceUrlFormSection<AssessmentUpdateFormValues>
+          description="URLs attached to this assessment."
+          name="sources"
+        />
       </Form>
     </FormProvider>
   );
@@ -135,20 +138,6 @@ function AssessmentUpdateOptionalFields() {
         placeholder="What would resolve or falsify this assessment?"
         rows={3}
       />
-    </section>
-  );
-}
-
-function AssessmentSourceFields() {
-  return (
-    <section className="border-border grid gap-3 border-t pt-4">
-      <ContentHeader
-        description="URLs attached to this assessment."
-        headingLevel={3}
-        headingSize="h5"
-        title="Sources"
-      />
-      <SourceUrlEditor<AssessmentUpdateFormValues> name="sources" />
     </section>
   );
 }
