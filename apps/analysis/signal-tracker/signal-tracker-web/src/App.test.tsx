@@ -1383,9 +1383,12 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Topic not found" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Topic not found.")).toBeInTheDocument();
+    expect(screen.queryByText("404")).not.toBeInTheDocument();
     expect(
       screen.getByText("No topic matched topic-missing.")
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Back to topics" })
     ).toBeInTheDocument();
     expect(
       screen.queryByText("Topic could not be loaded.")

@@ -13,6 +13,12 @@ Also follow `../../AGENTS.md` for Signal Tracker web routing, UI stack, and vali
 
 - For now, use the simple shared `LoadingState` spinner for page-level loading. Do not add skeleton loading to pages unless the user explicitly asks for it; skeletons are deferred until the UI surface is stable enough to justify the extra implementation overhead.
 
+## Not Found States
+
+- Use the shared `ResourceNotFound` UI primitive for resource-specific missing states that need caller-defined actions, such as a missing topic details response.
+- Use the shared `PageNotFound` wrapper for true page-level 404 states. Keep it standardized through its `homePath` action instead of adding page-specific actions unless a concrete use case requires broadening the wrapper later.
+- Keep these edge cases simple: override title/description only when helpful, and avoid creating page-specific fallback headers or bespoke not-found layouts.
+
 ## Routing
 
 - Use TanStack Router for page routing.

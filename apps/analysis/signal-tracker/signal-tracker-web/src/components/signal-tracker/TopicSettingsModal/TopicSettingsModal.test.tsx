@@ -21,9 +21,16 @@ vi.mock("@/api", () => ({
   useUpdateTopicMutation: apiMocks.useUpdateTopicMutation
 }));
 
-vi.mock("@tanstack/react-router", () => ({
-  useNavigate: () => navigate
-}));
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-router")>(
+    "@tanstack/react-router"
+  );
+
+  return {
+    ...actual,
+    useNavigate: () => navigate
+  };
+});
 
 describe("TopicSettingsModal", () => {
   beforeEach(() => {

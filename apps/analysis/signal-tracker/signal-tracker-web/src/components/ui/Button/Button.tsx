@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { forwardRef } from "react";
 import type { ReactNode } from "react";
 import type * as React from "react";
 
@@ -43,7 +44,7 @@ type ButtonNativeProps = Pick<
   "aria-label" | "children" | "className" | "disabled" | "onClick" | "type"
 >;
 
-type ButtonProps = ButtonNativeProps & {
+type ButtonVisualProps = {
   iconLeft?: ReactNode;
   iconRight?: ReactNode;
   isLoading?: boolean;
@@ -51,6 +52,40 @@ type ButtonProps = ButtonNativeProps & {
   variant?: ButtonVariant;
   size?: ButtonSize;
 };
+
+type ButtonProps = ButtonNativeProps & ButtonVisualProps;
+
+type ButtonAnchorNativeProps = Pick<
+  React.ComponentPropsWithoutRef<"a">,
+  | "aria-busy"
+  | "aria-current"
+  | "aria-disabled"
+  | "aria-label"
+  | "children"
+  | "className"
+  | "href"
+  | "onBlur"
+  | "onClick"
+  | "onFocus"
+  | "onMouseEnter"
+  | "onMouseLeave"
+  | "onTouchStart"
+  | "rel"
+  | "role"
+  | "style"
+  | "target"
+> & {
+  "data-status"?: string;
+  "data-transitioning"?: string;
+  disabled?: boolean;
+};
+
+type ButtonAnchorProps = Omit<
+  ButtonAnchorNativeProps,
+  "children" | "className"
+> &
+  ButtonVisualProps &
+  Pick<ButtonAnchorNativeProps, "children" | "className">;
 
 function Button({
   className,
@@ -65,9 +100,6 @@ function Button({
   variant = "default",
   ...buttonProps
 }: ButtonProps) {
-  const content = isLoading ? (loadingLabel ?? children) : children;
-  const shouldRenderIcons = !isLoading || loadingLabel === undefined;
-
   return (
     <button
       {...buttonProps}
@@ -77,11 +109,91 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       type={type}
     >
-      {shouldRenderIcons ? iconLeft : null}
-      {content}
-      {shouldRenderIcons ? iconRight : null}
+      <ButtonContent
+        iconLeft={iconLeft}
+        iconRight={iconRight}
+        isLoading={isLoading}
+        loadingLabel={loadingLabel}
+      >
+        {children}
+      </ButtonContent>
     </button>
   );
 }
 
-export { Button, type ButtonProps };
+const ButtonAnchor = forwardRef<HTMLAnchorElement, ButtonAnchorProps>(
+  function ButtonAnchor(
+    {
+      "aria-disabled": ariaDisabled,
+      className,
+      children,
+      disabled,
+      iconLeft,
+      iconRight,
+      isLoading = false,
+      loadingLabel,
+      size = "default",
+      variant = "default",
+      ...anchorProps
+    },
+    ref
+  ) {
+    const isDisabled = disabled || isLoading;
+
+    return (
+      <a
+        {...anchorProps}
+        aria-busy={isLoading ? true : undefined}
+        aria-disabled={isDisabled ? true : ariaDisabled}
+        data-slot="button-link"
+        ref={ref}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          isDisabled ? "pointer-events-none opacity-50" : undefined
+        )}
+      >
+        <ButtonContent
+          iconLeft={iconLeft}
+          iconRight={iconRight}
+          isLoading={isLoading}
+          loadingLabel={loadingLabel}
+        >
+          {children}
+        </ButtonContent>
+      </a>
+    );
+  }
+);
+
+type ButtonContentProps = Pick<
+  ButtonVisualProps,
+  "iconLeft" | "iconRight" | "isLoading" | "loadingLabel"
+> &
+  Pick<React.ComponentProps<"span">, "children">;
+
+function ButtonContent({
+  children,
+  iconLeft,
+  iconRight,
+  isLoading = false,
+  loadingLabel
+}: ButtonContentProps) {
+  const content = isLoading ? (loadingLabel ?? children) : children;
+  const shouldRenderIcons = !isLoading || loadingLabel === undefined;
+
+  return (
+    <>
+      {shouldRenderIcons ? iconLeft : null}
+      {content}
+      {shouldRenderIcons ? iconRight : null}
+    </>
+  );
+}
+
+export {
+  Button,
+  ButtonAnchor,
+  type ButtonAnchorProps,
+  type ButtonProps,
+  type ButtonVisualProps
+};
