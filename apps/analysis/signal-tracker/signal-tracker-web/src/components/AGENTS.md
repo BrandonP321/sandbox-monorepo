@@ -18,6 +18,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Keep width decisions at the field, form, or layout wrapper layer. Do not add fixed widths to reusable controls unless the control's own behavior requires it.
 - Use viewport breakpoints for page and shell layouts. Use container queries for reusable component internals so components adapt to the space they are placed in.
 - Use JavaScript media-query hooks only for runtime behavior that CSS cannot express, not for presentation-only layout changes.
+- Do not add broad `useResponsive`, `useBreakpoint`, or presentation-only `useMediaQuery` hooks for styling, spacing, reflow, or ordinary show/hide behavior. Use Tailwind viewport breakpoints or container queries for those cases.
 - Use `ContentHeader` from `src/components/ui/` for page, section, card, dialog, and form-section headings instead of raw `h1`-`h6` markup. Keep semantic `headingLevel` correct, and use `headingSize` values such as `h1`, `h2`, or `h5` when a heading should follow a different visual scale.
 - Do not add `aria-labelledby` wiring around ordinary `ContentHeader` sections for now; keep the markup uncluttered until Signal Tracker takes on a dedicated accessibility pass.
 - Use semantic HTML, labels, keyboard-safe primitives, and accessibility behavior provided by shadcn/ui or Radix. Avoid bespoke exhaustive ARIA APIs by default.

@@ -9,7 +9,7 @@ const items = [
 ];
 
 describe("AttributeEditor", () => {
-  it("renders column labels, row controls, and row details", () => {
+  it("renders labels, row controls, row details, and accessible actions", () => {
     render(
       <AttributeEditor
         getRowKey={(row) => row.id}
@@ -18,19 +18,40 @@ describe("AttributeEditor", () => {
         renderRowDetails={({ row }) => <span>Details for {row.label}</span>}
         rowDefinitions={[
           {
-            control: ({ row }) => <span>{row.label}</span>,
-            label: "Value"
+            control: ({ row }) => (
+              <input
+                aria-label={`Attribute key for ${row.label}`}
+                defaultValue={row.label}
+              />
+            ),
+            label: "Attribute key"
+          },
+          {
+            control: ({ row }) => (
+              <textarea
+                aria-label={`Attribute note for ${row.label}`}
+                defaultValue={`Note for ${row.label}`}
+              />
+            ),
+            label: "Attribute note"
           }
         ]}
         rows={items}
       />
     );
 
-    expect(screen.getAllByText("Value")).toHaveLength(3);
-    expect(screen.getByText("First value")).toBeInTheDocument();
+    expect(screen.getAllByText("Attribute key")).toHaveLength(3);
+    expect(screen.getAllByText("Attribute note")).toHaveLength(3);
+    expect(
+      screen.getByRole("textbox", { name: "Attribute key for First value" })
+    ).toHaveValue("First value");
+    expect(
+      screen.getByRole("textbox", { name: "Attribute note for Second value" })
+    ).toHaveValue("Note for Second value");
     expect(screen.getByText("Details for First value")).toBeInTheDocument();
-    expect(screen.getByText("Second value")).toBeInTheDocument();
     expect(screen.getByText("Details for Second value")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add new item" })).toBeEnabled();
+    expect(screen.getAllByRole("button", { name: "Remove" })).toHaveLength(2);
   });
 
   it("calls add and remove handlers", () => {

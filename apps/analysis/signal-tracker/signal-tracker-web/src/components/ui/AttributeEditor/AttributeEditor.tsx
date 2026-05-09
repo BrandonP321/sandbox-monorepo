@@ -32,11 +32,33 @@ type AttributeEditorProps<TRow> = AttributeEditorNativeProps & {
   rows: readonly TRow[];
 };
 
-// TODO: Rebuild component to be more responsive
+const ATTRIBUTE_EDITOR_DEFAULT_CONTROL_MIN_WIDTH = "20rem";
+
+// The wide container query gives the default three-column editor room for
+// controls and row actions before promoting labels into the header row.
+const attributeEditorClassNames = {
+  addButton: "w-fit",
+  control: "grid min-w-0 gap-2",
+  details: "min-w-0",
+  header:
+    "hidden gap-3 [@container(min-width:56rem)]:grid [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto]",
+  headerCell: "text-sm font-medium",
+  headerControls: "grid gap-3",
+  removeButton: "w-fit justify-self-end",
+  root: "grid gap-4 [container-type:inline-size]",
+  row: "grid gap-3 [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto] [@container(min-width:56rem)]:items-start",
+  rowControls: "grid gap-3",
+  rowGroup:
+    "grid gap-3 border-b border-border pb-5 [@container(min-width:56rem)]:border-b-0 [@container(min-width:56rem)]:pb-0",
+  rowLabel: "text-sm font-medium [@container(min-width:56rem)]:hidden",
+  rows: "grid gap-3",
+  spacerButton: "invisible w-fit"
+} satisfies Record<string, string>;
+
 function AttributeEditor<TRow>({
   addButtonLabel = "Add new item",
   className,
-  controlMinWidth = "20rem",
+  controlMinWidth = ATTRIBUTE_EDITOR_DEFAULT_CONTROL_MIN_WIDTH,
   getRowKey,
   onAddRow,
   onRemoveRow,
@@ -53,20 +75,23 @@ function AttributeEditor<TRow>({
   return (
     <div
       {...editorProps}
-      className={cn("grid gap-4 [container-type:inline-size]", className)}
+      className={cn(attributeEditorClassNames.root, className)}
       data-slot="attribute-editor"
     >
       {rows.length > 0 ? (
-        <div className="grid gap-3" data-slot="attribute-editor-rows">
-          <div className="hidden gap-3 [@container(min-width:56rem)]:grid [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto]">
+        <div
+          className={attributeEditorClassNames.rows}
+          data-slot="attribute-editor-rows"
+        >
+          <div className={attributeEditorClassNames.header}>
             <div
-              className="grid gap-3"
+              className={attributeEditorClassNames.headerControls}
               data-slot="attribute-editor-header"
               style={controlGridStyle}
             >
               {rowDefinitions.map((definition, index) => (
                 <div
-                  className="text-sm font-medium"
+                  className={attributeEditorClassNames.headerCell}
                   data-slot="attribute-editor-header-cell"
                   key={index}
                 >
@@ -76,7 +101,7 @@ function AttributeEditor<TRow>({
             </div>
             <Button
               aria-hidden="true"
-              className="invisible w-fit"
+              className={attributeEditorClassNames.spacerButton}
               disabled
               type="button"
               variant="outline"
@@ -91,24 +116,24 @@ function AttributeEditor<TRow>({
 
             return (
               <div
-                className="grid gap-3 border-b border-border pb-5 [@container(min-width:56rem)]:border-b-0 [@container(min-width:56rem)]:pb-0"
+                className={attributeEditorClassNames.rowGroup}
                 data-slot="attribute-editor-row-group"
                 key={getRowKey(row, index)}
               >
-                <div className="grid gap-3 [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto] [@container(min-width:56rem)]:items-start">
+                <div className={attributeEditorClassNames.row}>
                   <div
-                    className="grid gap-3"
+                    className={attributeEditorClassNames.rowControls}
                     data-slot="attribute-editor-row"
                     style={controlGridStyle}
                   >
                     {rowDefinitions.map((definition, definitionIndex) => (
                       <div
-                        className="grid min-w-0 gap-2"
+                        className={attributeEditorClassNames.control}
                         data-slot="attribute-editor-control"
                         key={definitionIndex}
                       >
                         <div
-                          className="text-sm font-medium [@container(min-width:56rem)]:hidden"
+                          className={attributeEditorClassNames.rowLabel}
                           data-slot="attribute-editor-row-label"
                         >
                           {definition.label}
@@ -118,7 +143,7 @@ function AttributeEditor<TRow>({
                     ))}
                   </div>
                   <Button
-                    className="w-fit justify-self-end"
+                    className={attributeEditorClassNames.removeButton}
                     onClick={() => onRemoveRow(row, index)}
                     type="button"
                     variant="outline"
@@ -129,7 +154,7 @@ function AttributeEditor<TRow>({
 
                 {details ? (
                   <div
-                    className="min-w-0"
+                    className={attributeEditorClassNames.details}
                     data-slot="attribute-editor-row-details"
                   >
                     {details}
@@ -142,7 +167,7 @@ function AttributeEditor<TRow>({
       ) : null}
 
       <Button
-        className="w-fit"
+        className={attributeEditorClassNames.addButton}
         onClick={onAddRow}
         type="button"
         variant="outline"

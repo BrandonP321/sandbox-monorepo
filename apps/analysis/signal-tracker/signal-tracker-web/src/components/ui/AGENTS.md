@@ -30,6 +30,7 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 - Put width and max-width constraints on fields, forms, dialogs, or layout primitives rather than on reusable controls.
 - Use component variants for repeated visual states, sizes, and intents instead of duplicating long Tailwind class strings across primitives.
 - Use container queries when a primitive needs to adapt to its own available space. Leave page and shell breakpoints to page or shell layout code.
+- Keep responsive primitive internals CSS-driven. Do not create generic responsive hooks for styling-only changes; use JavaScript media queries only when runtime behavior must change.
 
 ## Styling Terminology
 

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { FormProvider } from "@repo/ui-base";
+import type { CSSProperties } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 
@@ -47,17 +48,31 @@ const defaultValues = {
   ]
 } satisfies AttributeEditorFormValues;
 
-export const Basic: Story = {
+export const Default: Story = {
   render: () => <AttributeEditorStory />
 };
 
-function AttributeEditorStory() {
+export const NarrowContainer: Story = {
+  render: () => <AttributeEditorStory containerWidth="24rem" />
+};
+
+export const WideContainer: Story = {
+  render: () => <AttributeEditorStory containerWidth="72rem" />
+};
+
+type AttributeEditorStoryProps = {
+  containerWidth?: string;
+};
+
+function AttributeEditorStory({
+  containerWidth = "min(72rem, calc(100vw - 2rem))"
+}: AttributeEditorStoryProps) {
   return (
     <FormProvider
       defaultValues={defaultValues}
       schema={attributeEditorFormSchema}
     >
-      <AttributeEditorForm />
+      <AttributeEditorForm containerWidth={containerWidth} />
     </FormProvider>
   );
 }
@@ -66,13 +81,16 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function AttributeEditorForm() {
+function AttributeEditorForm({ containerWidth }: { containerWidth: string }) {
   const { append, fields, remove } = useFieldArray<AttributeEditorFormValues>({
     name: "attributes"
   });
 
   return (
-    <div style={{ width: "min(72rem, calc(100vw - 2rem))" }}>
+    <div
+      className="border-border rounded-md border p-4"
+      style={getAttributeEditorContainerStyle(containerWidth)}
+    >
       <Form<AttributeEditorFormValues>
         actions={<SubmitButton>Submit</SubmitButton>}
         className="w-full"
@@ -122,6 +140,13 @@ function AttributeEditorForm() {
   );
 }
 
+function getAttributeEditorContainerStyle(width: string) {
+  return {
+    maxWidth: "calc(100vw - 2rem)",
+    width
+  } satisfies CSSProperties;
+}
+
 function AttributeValuePreview() {
   const attributes = useWatch<AttributeEditorFormValues, "attributes">({
     name: "attributes"
@@ -130,7 +155,7 @@ function AttributeValuePreview() {
   return (
     <div className="text-muted-foreground grid gap-1 text-sm">
       <p>Current rows: {attributes.length}</p>
-      <p>{JSON.stringify(attributes)}</p>
+      <p className="break-all">{JSON.stringify(attributes)}</p>
     </div>
   );
 }

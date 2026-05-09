@@ -89,20 +89,18 @@ function AssessmentUpdateForm({
             name="assessmentDate"
           />
         </AutoGrid>
-        <AutoGrid>
-          <FormTextarea<AssessmentUpdateFormValues>
-            description="One assumption per line."
-            label="Assumptions"
-            name="assumptions"
-            rows={4}
-          />
-          <FormTextarea<AssessmentUpdateFormValues>
-            description="One indicator per line."
-            label="Indicators"
-            name="indicators"
-            rows={4}
-          />
-        </AutoGrid>
+        <FormTextarea<AssessmentUpdateFormValues>
+          description="One assumption per line."
+          label="Assumptions"
+          name="assumptions"
+          rows={4}
+        />
+        <FormTextarea<AssessmentUpdateFormValues>
+          description="One indicator per line."
+          label="Indicators"
+          name="indicators"
+          rows={4}
+        />
         <AssessmentUpdateOptionalFields />
         <SourceUrlFormSection<AssessmentUpdateFormValues>
           description="URLs attached to this assessment."
