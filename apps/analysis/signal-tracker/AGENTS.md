@@ -16,12 +16,16 @@
 ## UI Architecture
 
 - Use Tailwind CSS as the Signal Tracker styling foundation for spacing, responsive layout, and design-token-driven visual control.
+- Use Tailwind responsive utilities for page and layout presentation.
+- Use CSS or container queries for reusable component internals when presentation depends on available parent/container size.
 - Use shadcn/ui as the default local component layer for common app components. Treat copied shadcn-style primitives as app-owned code.
 - Use Radix UI as the accessible primitive layer, usually through shadcn/ui. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 - Signal Tracker UI must not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
 - Keep styled Signal Tracker UI primitives app-local in `signal-tracker-web` until they stabilize through real use across more than one app, or until the user or issue explicitly requests extraction.
 - Use `@repo/ui-base` when a UI behavior abstraction is useful, especially for form wiring or other behavior-only primitives.
+- Use `@repo/ui-base` responsive hooks only for runtime behavior changes that CSS cannot express. Do not use these hooks as the default styling or layout mechanism.
+- Do not create app-local responsive hook duplicates when `@repo/ui-base` already provides the needed behavior.
 - Keep generic copy-owned UI primitives product-agnostic in a local web-app layer such as `src/components/ui/`.
 - Keep product-specific Signal Tracker components inside `signal-tracker-web`, in a product layer such as `src/components/signal-tracker/`.
 - The Signal Tracker product layer should encode topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.

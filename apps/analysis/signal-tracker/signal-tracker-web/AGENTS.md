@@ -17,6 +17,7 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 
 - For visual, responsive, page-shell, dialog, popover, menu, or layout-sensitive changes, inspect the affected UI with the Playwright CLI while work is in progress.
 - Use Storybook for isolated primitives and components; use the routed app when the change depends on API state, routing, shell behavior, or a multi-step workflow.
+- Put Storybook-only verification stories that are not tied to a component under `src/storybook/` so they stay separate from component stories.
 - Prefer `pnpm --filter signal-tracker-web storybook:ci` for Playwright-driven Storybook checks so the server does not try to open its own browser window.
 - When responsiveness is part of the change, check at least one narrow and one wide viewport or bounded Storybook container.
 - Treat Playwright CLI snapshots, screenshots, and console logs as temporary artifacts. Do not commit `.playwright-cli/` output unless the user explicitly asks to preserve a debugging artifact.

@@ -17,6 +17,8 @@ The package starts with form infrastructure and RHF-backed form controls:
 - `FormCheckboxGroupControl`
 - `FormRadioGroupControl`
 - `useDebouncedValue`
+- `useMediaQuery`
+- `useMinBreakpoint`
 
 These exports do not ship styles or field chrome. Designed packages such as
 `@repo/ui` inject their own rendering components and keep ownership of layout,
