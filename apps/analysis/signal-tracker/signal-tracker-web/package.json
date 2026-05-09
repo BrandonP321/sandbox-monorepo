@@ -7,6 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "storybook": "storybook dev -p 6007 -c .storybook",
+    "storybook:ci": "storybook dev -p 6007 -c .storybook --ci --no-open",
     "build-storybook": "storybook build -c .storybook",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",

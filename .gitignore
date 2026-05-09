@@ -73,6 +73,7 @@ Thumbs.db
 *.swn
 
 # Test artifacts
+.playwright-cli
 playwright-report
 
 # Zip files
