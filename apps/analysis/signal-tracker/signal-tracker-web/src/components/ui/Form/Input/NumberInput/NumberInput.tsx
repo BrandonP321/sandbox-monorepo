@@ -1,4 +1,4 @@
-import { Input, type NumberInputNativeProps } from "./Input";
+import { Input, type NumberInputNativeProps } from "../Input";
 
 type NumberInputProps = Omit<NumberInputNativeProps, "type">;
 

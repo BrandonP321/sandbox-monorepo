@@ -6,3 +6,6 @@ export * from "./FormNumberInput";
 export * from "./FormSelect";
 export * from "./FormTextarea";
 export * from "./FormTextInput";
+export * from "./Input";
+export * from "./Select";
+export * from "./Textarea";

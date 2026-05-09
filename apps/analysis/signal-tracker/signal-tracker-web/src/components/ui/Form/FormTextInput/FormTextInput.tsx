@@ -1,7 +1,7 @@
 import type { ChangeEvent } from "react";
 import type { FieldValues } from "react-hook-form";
 
-import { FormInputBase, type FormInputBaseCommonProps } from "./FormInputBase";
+import { FormInputBase, type FormInputBaseCommonProps } from "../FormInputBase";
 import { TextInput, type TextInputProps } from "../Input";
 
 type FormTextInputProps<TFieldValues extends FieldValues> = Pick<

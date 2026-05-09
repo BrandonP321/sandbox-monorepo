@@ -1,4 +1,4 @@
-import { Input, type TextInputNativeProps } from "./Input";
+import { Input, type TextInputNativeProps } from "../Input";
 
 type TextInputProps = TextInputNativeProps;
 

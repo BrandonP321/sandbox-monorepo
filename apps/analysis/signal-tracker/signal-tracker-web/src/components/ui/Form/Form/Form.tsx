@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-import { Alert } from "../Alert";
+import { Alert } from "../../Alert";
 
 type FormProps<T extends FieldValues> = BaseFormProps<T> & {
   actions?: ReactNode;

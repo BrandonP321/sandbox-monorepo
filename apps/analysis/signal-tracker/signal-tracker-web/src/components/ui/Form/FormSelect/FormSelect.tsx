@@ -1,7 +1,7 @@
 import { FormDropdownControl, type FormFieldName } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
 
-import { FormField } from "./FormField";
+import { FormField } from "../FormField";
 import { Select, type SelectOption, type SelectProps } from "../Select";
 
 // TODO: Why is this not extending the shared props from FormField like other form components?

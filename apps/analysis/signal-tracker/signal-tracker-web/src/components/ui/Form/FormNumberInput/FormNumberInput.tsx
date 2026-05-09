@@ -2,7 +2,7 @@ import type { ChangeEvent } from "react";
 import { useFormSchemaMetadata } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
 
-import { FormInputBase, type FormInputBaseCommonProps } from "./FormInputBase";
+import { FormInputBase, type FormInputBaseCommonProps } from "../FormInputBase";
 import { NumberInput, type NumberInputProps } from "../Input";
 
 type FormNumberInputProps<TFieldValues extends FieldValues> = Pick<

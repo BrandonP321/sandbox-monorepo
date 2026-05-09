@@ -4,16 +4,16 @@ import { FormProvider } from "@repo/ui-base";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { Button } from "../Button";
+import { Button } from "../../Button";
 import { Form } from "./Form";
-import { FormDateInput } from "./FormDateInput";
-import { FormNumberInput } from "./FormNumberInput";
-import { FormSelect } from "./FormSelect";
-import { FormTextInput } from "./FormTextInput";
-import { FormTextarea } from "./FormTextarea";
+import { FormDateInput } from "../FormDateInput";
+import { FormNumberInput } from "../FormNumberInput";
+import { FormSelect } from "../FormSelect";
+import { FormTextInput } from "../FormTextInput";
+import { FormTextarea } from "../FormTextarea";
 
 const meta = {
-  title: "UI/Form"
+  title: "UI/Form/Form"
 } satisfies Meta;
 
 export default meta;

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { TextInput } from "./TextInput";
 
 const meta = {
-  title: "UI/TextInput",
+  title: "UI/Form/TextInput",
   component: TextInput,
   args: {
     placeholder: "Enter text"

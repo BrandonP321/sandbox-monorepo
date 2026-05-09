@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Textarea } from "./Textarea";
 
 const meta = {
-  title: "UI/Textarea",
+  title: "UI/Form/Textarea",
   component: Textarea,
   args: {
     placeholder: "Enter longer text"

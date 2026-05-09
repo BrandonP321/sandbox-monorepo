@@ -5,7 +5,7 @@ import {
 } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
 
-import { FormField } from "./FormField";
+import { FormField } from "../FormField";
 import { Textarea, type TextareaProps } from "../Textarea";
 
 type FormTextareaProps<TFieldValues extends FieldValues> = Pick<

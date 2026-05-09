@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { NumberInput } from "./NumberInput";
 
 const meta = {
-  title: "UI/NumberInput",
+  title: "UI/Form/NumberInput",
   component: NumberInput,
   args: {
     max: 100,

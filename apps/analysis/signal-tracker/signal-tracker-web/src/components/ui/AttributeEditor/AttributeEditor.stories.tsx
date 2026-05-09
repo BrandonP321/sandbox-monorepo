@@ -4,8 +4,7 @@ import { useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Form, SubmitButton } from "../Form";
-import { FormSelect } from "../Form/FormSelect";
-import { FormTextInput } from "../Form/FormTextInput";
+import { FormSelect, FormTextInput } from "../Form";
 import { AttributeEditor } from "./AttributeEditor";
 
 const meta = {

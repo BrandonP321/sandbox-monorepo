@@ -1,7 +1,6 @@
 import { useState, type ReactNode } from "react";
 
-import { FormField } from "../Form";
-import { TextInput } from "../Input";
+import { FormField, TextInput } from "../Form";
 import {
   AlertDialog,
   AlertDialogContent,

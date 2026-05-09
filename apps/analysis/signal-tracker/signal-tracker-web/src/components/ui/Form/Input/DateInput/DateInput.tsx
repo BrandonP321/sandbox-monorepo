@@ -1,4 +1,4 @@
-import { Input, type DateInputNativeProps } from "./Input";
+import { Input, type DateInputNativeProps } from "../Input";
 
 type DateInputProps = Omit<DateInputNativeProps, "placeholder" | "type">;
 
