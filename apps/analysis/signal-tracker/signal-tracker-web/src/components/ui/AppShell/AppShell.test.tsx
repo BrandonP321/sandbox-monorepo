@@ -40,7 +40,9 @@ const nestedRoutes = defineAppShellRoutes([
           topicTitle: params.topicTitle
         }),
         path: "/topics/$topicId/$topicTitle",
-        title: ({ params }) => params.topicTitle,
+        title: ({ params }) => `Topic: ${params.topicTitle}`,
+        breadcrumbTitle: ({ params }) => params.topicTitle,
+        navLinkTitle: ({ params }) => params.topicTitle,
         visibleWhen: "activeBranch"
       })
     ],
@@ -122,7 +124,7 @@ describe("AppShell", () => {
     expect(header).toHaveClass("bg-transparent", "shadow-none");
   });
 
-  it("renders nested route links and uses the active child as the header title", async () => {
+  it("uses route-specific labels for nested links and active header titles", async () => {
     await renderAppShell({
       initialPath: "/topics/topic-1/Iran%20strike%20risk",
       routes: nestedRoutes

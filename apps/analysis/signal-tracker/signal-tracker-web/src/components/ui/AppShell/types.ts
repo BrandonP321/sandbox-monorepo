@@ -28,7 +28,12 @@ type AppShellRoute<TPath extends string = string> = {
   id?: string;
   params?: AppShellRouteValue<AppShellRouteParams<TPath>, TPath>;
   path: TPath;
+  /* SEO page title */
   title: AppShellRouteValue<string, TPath>;
+  /* Breadcrumb title */
+  breadcrumbTitle?: AppShellRouteValue<string, TPath>;
+  /* Sidebar navigation link title */
+  navLinkTitle?: AppShellRouteValue<string, TPath>;
   to?: AppShellRouteValue<string, TPath>;
   visibleWhen?: AppShellRouteVisibility;
 };
@@ -40,6 +45,8 @@ type AnyAppShellRoute = {
   params?: AnyAppShellRouteValue<AppShellRouteParams>;
   path: string;
   title: AnyAppShellRouteValue<string>;
+  breadcrumbTitle?: AnyAppShellRouteValue<string>;
+  navLinkTitle?: AnyAppShellRouteValue<string>;
   to?: AnyAppShellRouteValue<string>;
   visibleWhen?: AppShellRouteVisibility;
 };
@@ -51,6 +58,8 @@ type AppShellResolvedRoute = {
   params?: AppShellRouteParams;
   path: string;
   title: string;
+  breadcrumbTitle: string;
+  navLinkTitle: string;
   to: string;
 };
 

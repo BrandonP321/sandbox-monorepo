@@ -10,7 +10,9 @@ const signalTrackerAppShellRoutes = defineAppShellRoutes([
           topicTitle: params.topicTitle
         }),
         path: appRoutes.topicDetails.path,
-        title: ({ params }) => params.topicTitle,
+        title: ({ params }) => `Topic: ${params.topicTitle}`,
+        navLinkTitle: ({ params }) => params.topicTitle,
+        breadcrumbTitle: ({ params }) => params.topicTitle,
         visibleWhen: "activeBranch"
       })
     ],

@@ -111,7 +111,7 @@ function AppShell({
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <AppShellSidebarToggle className="-ml-1" />
                 <span className="text-foreground truncate text-sm font-semibold leading-5">
-                  {activeRoute.title}
+                  {activeRoute.breadcrumbTitle}
                 </span>
               </div>
             </AppShellHeader>

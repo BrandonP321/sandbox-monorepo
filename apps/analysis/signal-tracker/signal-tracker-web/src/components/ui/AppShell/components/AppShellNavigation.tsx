@@ -66,7 +66,7 @@ function AppShellNavigationItem({
           {route.icon}
         </span>
       ) : null}
-      <span className="truncate leading-5">{route.title}</span>
+      <span className="truncate leading-5">{route.navLinkTitle}</span>
     </>
   );
   const linkClassName = cn(

@@ -56,17 +56,24 @@ function resolveAppShellRoutes(
     }
 
     const children = resolveAppShellRoutes(route.children ?? [], context);
+    const title = resolveRouteValue(route.title, context);
 
     return [
       {
+        breadcrumbTitle: route.breadcrumbTitle
+          ? resolveRouteValue(route.breadcrumbTitle, context)
+          : title,
         children: children.length > 0 ? children : undefined,
         icon: route.icon,
         id: route.id ?? route.path,
+        navLinkTitle: route.navLinkTitle
+          ? resolveRouteValue(route.navLinkTitle, context)
+          : title,
         params: route.params
           ? resolveRouteValue(route.params, context)
           : undefined,
         path: route.path,
-        title: resolveRouteValue(route.title, context),
+        title,
         to: resolveRouteValue(route.to ?? route.path, context)
       }
     ];
