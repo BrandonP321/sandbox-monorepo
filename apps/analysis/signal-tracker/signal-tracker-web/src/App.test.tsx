@@ -268,8 +268,11 @@ describe("App", () => {
     );
     expect(screen.getByRole("main")).toHaveClass(
       "overflow-y-auto",
-      "overscroll-y-contain"
+      "overscroll-y-contain",
+      "pt-0",
+      "pb-5"
     );
+    expect(screen.getByRole("main")).not.toHaveClass("pt-5");
     expect(
       screen.getByRole("heading", { level: 2, name: "Active topics" })
     ).toBeInTheDocument();
@@ -598,8 +601,8 @@ describe("App", () => {
       screen.getByText("Track official signals and military movements.")
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "Back to topics" })
-    ).toHaveAttribute("href", "/topics");
+      screen.queryByRole("link", { name: "Back to topics" })
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Add event" })).toBeEnabled();
     expect(
       screen.getByRole("button", { name: "Topic settings" })
@@ -1298,10 +1301,15 @@ describe("App", () => {
 
     renderApp();
 
-    expect(
-      await screen.findByRole("heading", { level: 1, name: "Archived topic" })
-    ).toBeInTheDocument();
-    expect(screen.getByText("Archived")).toBeInTheDocument();
+    const heading = await screen.findByRole("heading", {
+      level: 1,
+      name: "Archived topic"
+    });
+    const archivedBadge = screen.getByText("Archived");
+
+    expect(heading).toBeInTheDocument();
+    expect(screen.queryByText("Topic workspace")).not.toBeInTheDocument();
+    expect(heading.parentElement).toContainElement(archivedBadge);
   });
 
   it("renders a structured loading state for topic details", async () => {

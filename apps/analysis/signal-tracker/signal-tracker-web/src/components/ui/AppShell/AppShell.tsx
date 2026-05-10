@@ -16,12 +16,15 @@ import { AppShellContext, type AppShellContextValue } from "./context";
 import { useResolvedAppShellRoutes } from "./hooks/useResolvedAppShellRoutes";
 import type { AnyAppShellRoute } from "./types";
 
+const HEADER_SCROLLED_OFFSET_PX = 8;
+
 type AppShellNativeProps = Pick<
   React.ComponentProps<"div">,
   "children" | "className"
 >;
 
 type AppShellProps = AppShellNativeProps & {
+  contentClassName?: string;
   defaultSidebarOpen?: boolean;
   onSidebarOpenChange?: (open: boolean) => void;
   sidebarLabel?: string;
@@ -32,6 +35,7 @@ type AppShellProps = AppShellNativeProps & {
 function AppShell({
   children,
   className,
+  contentClassName,
   defaultSidebarOpen = true,
   onSidebarOpenChange,
   sidebarLabel = "Application navigation",
@@ -40,6 +44,7 @@ function AppShell({
 }: AppShellProps) {
   const [uncontrolledSidebarOpen, setUncontrolledSidebarOpen] =
     useState(defaultSidebarOpen);
+  const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const isSidebarOpen = controlledSidebarOpen ?? uncontrolledSidebarOpen;
   const { activeRoute, routes: resolvedRoutes } = useResolvedAppShellRoutes({
     routes
@@ -67,6 +72,12 @@ function AppShell({
   const toggleSidebar = useCallback(() => {
     setSidebarOpen(!isSidebarOpen);
   }, [isSidebarOpen, setSidebarOpen]);
+
+  const handleMainScroll = useCallback((event: React.UIEvent<HTMLElement>) => {
+    setIsHeaderScrolled(
+      event.currentTarget.scrollTop > HEADER_SCROLLED_OFFSET_PX
+    );
+  }, []);
 
   const contextValue = useMemo<AppShellContextValue>(
     () => ({
@@ -96,7 +107,7 @@ function AppShell({
         </AppShellSidebar>
         <AppShellContent>
           {activeRoute ? (
-            <AppShellHeader>
+            <AppShellHeader scrolled={isHeaderScrolled}>
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <AppShellSidebarToggle className="-ml-1" />
                 <span className="text-foreground truncate text-sm font-semibold leading-5">
@@ -105,7 +116,12 @@ function AppShell({
               </div>
             </AppShellHeader>
           ) : null}
-          <AppShellMain>{children ?? <Outlet />}</AppShellMain>
+          <AppShellMain
+            className={contentClassName}
+            onScroll={handleMainScroll}
+          >
+            {children ?? <Outlet />}
+          </AppShellMain>
         </AppShellContent>
       </div>
     </AppShellContext.Provider>

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   createMemoryHistory,
   createRootRoute,
@@ -84,17 +84,47 @@ export const CollapsedSidebar: Story = {
   render: (args) => <AppShellStory args={args} initialPath="/settings" />
 };
 
+export const ScrolledHeader: Story = {
+  args: baseArgs,
+  render: (args) => <AppShellStory args={args} initialMainScrollTop={64} />
+};
+
 function AppShellStory({
   args,
+  initialMainScrollTop,
   initialPath = "/overview"
 }: {
   args: Story["args"];
+  initialMainScrollTop?: number;
   initialPath?: string;
 }) {
   const router = useMemo(
     () => createAppShellStoryRouter(args, initialPath),
     [args, initialPath]
   );
+
+  useEffect(() => {
+    if (initialMainScrollTop === undefined) {
+      return;
+    }
+
+    const animationFrameId = window.requestAnimationFrame(() => {
+      const main = document.querySelector<HTMLElement>(
+        "[data-slot='app-shell-main']"
+      );
+
+      if (!main) {
+        return;
+      }
+
+      main.scrollTop = initialMainScrollTop;
+      main.dispatchEvent(new Event("scroll", { bubbles: true }));
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrameId);
+    };
+  }, [initialMainScrollTop]);
 
   return <RouterProvider router={router} />;
 }

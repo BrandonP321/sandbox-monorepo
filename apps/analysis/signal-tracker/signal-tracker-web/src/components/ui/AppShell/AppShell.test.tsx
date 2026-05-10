@@ -59,9 +59,25 @@ describe("AppShell", () => {
     });
 
     expect(sidebar).toBeInTheDocument();
-    expect(sidebar).toHaveClass("overflow-y-auto", "overscroll-y-contain");
+    expect(sidebar).toHaveClass(
+      "border-r",
+      "border-border/60",
+      "overflow-y-auto",
+      "overscroll-y-contain"
+    );
     expect(screen.getByRole("banner")).toHaveTextContent("Topics");
     expect(screen.getByRole("main")).toHaveTextContent("Main content");
+  });
+
+  it("pads main content by default and accepts content class overrides", async () => {
+    await renderAppShell({
+      contentClassName: "pt-0",
+      initialPath: "/topics",
+      routes
+    });
+
+    expect(screen.getByRole("main")).toHaveClass("px-4", "pt-0", "pb-5");
+    expect(screen.getByRole("main")).not.toHaveClass("pt-5");
   });
 
   it("renders route links and marks the active route", async () => {
@@ -76,6 +92,34 @@ describe("AppShell", () => {
       "page"
     );
     expect(screen.getByRole("banner")).toHaveTextContent("Settings");
+  });
+
+  it("applies the scrolled header treatment after main content scrolls past the threshold", async () => {
+    await renderAppShell({ initialPath: "/topics", routes });
+
+    const header = screen.getByRole("banner");
+    const main = screen.getByRole("main");
+    const sidebar = screen.getByRole("complementary", {
+      name: "Workspace navigation"
+    });
+
+    expect(header).toHaveClass(
+      "transition-[background-color,box-shadow]",
+      "duration-300",
+      "ease-out",
+      "z-10",
+      "bg-transparent",
+      "shadow-none"
+    );
+    expect(sidebar).toHaveClass("z-20");
+
+    fireEvent.scroll(main, { target: { scrollTop: 12 } });
+
+    expect(header).toHaveClass("bg-card", "shadow-sm");
+
+    fireEvent.scroll(main, { target: { scrollTop: 0 } });
+
+    expect(header).toHaveClass("bg-transparent", "shadow-none");
   });
 
   it("renders nested route links and uses the active child as the header title", async () => {
@@ -170,6 +214,7 @@ describe("AppShell", () => {
 
 type RenderAppShellOptions = {
   children?: React.ReactNode;
+  contentClassName?: string;
   initialPath: string;
   onSidebarOpenChange?: (open: boolean) => void;
   routes: readonly AnyAppShellRoute[];
@@ -178,6 +223,7 @@ type RenderAppShellOptions = {
 
 async function renderAppShell({
   children = "Main content",
+  contentClassName,
   initialPath,
   onSidebarOpenChange,
   routes,
@@ -186,6 +232,7 @@ async function renderAppShell({
   const rootRoute = createRootRoute({
     component: () => (
       <AppShell
+        contentClassName={contentClassName}
         onSidebarOpenChange={onSidebarOpenChange}
         routes={routes}
         sidebarLabel="Workspace navigation"

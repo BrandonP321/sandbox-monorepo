@@ -4,15 +4,16 @@ import { cn } from "@/lib/utils";
 
 type AppShellMainProps = Pick<
   React.ComponentProps<"main">,
-  "children" | "className"
+  "children" | "className" | "onScroll"
 >;
 
-function AppShellMain({ children, className }: AppShellMainProps) {
+function AppShellMain({ children, className, onScroll }: AppShellMainProps) {
   return (
     <main
       data-slot="app-shell-main"
+      onScroll={onScroll}
       className={cn(
-        "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-7",
+        "min-h-0 flex-1 overflow-y-auto overscroll-y-contain px-4 pt-5 pb-5 sm:px-6 sm:pt-6 sm:pb-6 lg:px-8 lg:pt-7 lg:pb-7",
         className
       )}
     >
