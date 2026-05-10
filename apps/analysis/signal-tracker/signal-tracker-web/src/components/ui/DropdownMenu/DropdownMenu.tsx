@@ -59,7 +59,7 @@ function DropdownMenuContent({
       <DropdownMenuPrimitive.Content
         align={align}
         className={cn(
-          "bg-popover text-popover-foreground z-50 min-w-40 overflow-hidden rounded-md border p-1 shadow-md outline-none",
+          "bg-popover text-popover-foreground border-border/80 z-50 min-w-44 overflow-hidden rounded-lg border p-1.5 shadow-lg outline-none",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -84,8 +84,8 @@ function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none transition-colors",
-        "focus:bg-accent focus:text-accent-foreground",
+        "text-foreground relative flex cursor-default select-none items-center gap-2 rounded-md px-2.5 py-1.5 text-sm outline-none transition-colors",
+        "focus:bg-accent/70 focus:text-accent-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         variant === "danger" &&
           "text-danger focus:bg-danger/10 focus:text-danger",
@@ -101,7 +101,10 @@ function DropdownMenuItem({
 function DropdownMenuLabel({ children, className }: DropdownMenuLabelProps) {
   return (
     <DropdownMenuPrimitive.Label
-      className={cn("px-2 py-1.5 text-xs font-medium", className)}
+      className={cn(
+        "text-muted-foreground px-2.5 py-1.5 text-xs font-medium",
+        className
+      )}
     >
       {children}
     </DropdownMenuPrimitive.Label>
@@ -111,7 +114,7 @@ function DropdownMenuLabel({ children, className }: DropdownMenuLabelProps) {
 function DropdownMenuSeparator({ className }: DropdownMenuSeparatorProps) {
   return (
     <DropdownMenuPrimitive.Separator
-      className={cn("bg-border -mx-1 my-1 h-px", className)}
+      className={cn("bg-border/80 -mx-1.5 my-1 h-px", className)}
     />
   );
 }

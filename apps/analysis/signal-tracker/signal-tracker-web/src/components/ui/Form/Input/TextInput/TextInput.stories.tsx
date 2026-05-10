@@ -16,7 +16,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: (args) => (
-    <div className="w-80">
+    <div className="w-full max-w-sm">
       <TextInput {...args} />
     </div>
   )
@@ -24,7 +24,7 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   render: (args) => (
-    <div className="w-80">
+    <div className="w-full max-w-sm">
       <TextInput {...args} disabled placeholder="Disabled text input" />
     </div>
   )
@@ -32,8 +32,18 @@ export const Disabled: Story = {
 
 export const Invalid: Story = {
   render: (args) => (
-    <div className="w-80">
+    <div className="w-full max-w-sm">
       <TextInput {...args} aria-invalid placeholder="Invalid text input" />
+    </div>
+  )
+};
+
+export const Types: Story = {
+  render: (args) => (
+    <div className="grid w-full max-w-sm gap-3">
+      <TextInput {...args} placeholder="Search topics" type="search" />
+      <TextInput {...args} placeholder="Source URL" type="url" />
+      <TextInput {...args} placeholder="Contact email" type="email" />
     </div>
   )
 };

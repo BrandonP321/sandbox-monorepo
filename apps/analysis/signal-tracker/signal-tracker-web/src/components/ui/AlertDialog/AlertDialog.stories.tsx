@@ -68,7 +68,7 @@ function CustomTextAlertDialogStory() {
             The alert dialog owns the standard cancel and danger-toned confirm
             actions. Use label props to fit the action language to the context.
           </p>
-          <div className="rounded-md border bg-muted/40 p-3 text-muted-foreground">
+          <div className="border-border/80 bg-card rounded-lg border p-3 text-muted-foreground shadow-xs">
             The dialog remains open while confirmation is running, and all
             dismiss actions are disabled until the operation settles.
           </div>

@@ -16,10 +16,11 @@ function InputFieldExample() {
   const [value, setValue] = useState("Compact timeline");
 
   return (
-    <div className="w-96">
+    <div className="w-full max-w-md">
       <FormField
         description="Use a short label that can be scanned quickly."
         label="Title"
+        required
       >
         {(fieldProps) => (
           <TextInput
@@ -39,8 +40,14 @@ function InvalidInputFieldExample() {
   const [value, setValue] = useState("");
 
   return (
-    <div className="w-96">
-      <FormField error="Title is required." id="invalid-title" label="Title">
+    <div className="w-full max-w-md">
+      <FormField
+        description="Errors stay close to the control and preserve the helper text."
+        error="Title is required."
+        id="invalid-title"
+        label="Title"
+        required
+      >
         {(fieldProps) => (
           <TextInput
             {...fieldProps}
@@ -59,7 +66,7 @@ function CustomLabelStyleExample() {
   const [value, setValue] = useState("");
 
   return (
-    <div className="w-96">
+    <div className="w-full max-w-md">
       <FormField
         label={
           <>

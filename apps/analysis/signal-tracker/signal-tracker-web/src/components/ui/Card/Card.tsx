@@ -18,7 +18,7 @@ function Card({ className, ...cardProps }: CardProps) {
       {...cardProps}
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground border-border rounded-lg border shadow-xs",
+        "bg-card text-card-foreground border-border/80 rounded-xl border shadow-sm",
         className
       )}
     />
@@ -30,7 +30,7 @@ function CardHeader({ className, ...headerProps }: CardHeaderProps) {
     <div
       {...headerProps}
       data-slot="card-header"
-      className={cn("grid gap-1.5 p-4", className)}
+      className={cn("grid gap-2 p-5", className)}
     />
   );
 }
@@ -40,7 +40,7 @@ function CardContent({ className, ...contentProps }: CardContentProps) {
     <div
       {...contentProps}
       data-slot="card-content"
-      className={cn("p-4 pt-0", className)}
+      className={cn("p-5 pt-0", className)}
     />
   );
 }
@@ -50,7 +50,7 @@ function CardFooter({ className, ...footerProps }: CardFooterProps) {
     <div
       {...footerProps}
       data-slot="card-footer"
-      className={cn("flex items-center gap-2 p-4 pt-0", className)}
+      className={cn("flex flex-wrap items-center gap-2 p-5 pt-0", className)}
     />
   );
 }

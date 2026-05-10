@@ -9,7 +9,7 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity, LayoutDashboard, Settings } from "lucide-react";
 
-import { AppShell, defineAppShellRoutes } from "./index";
+import { AppShell, defineAppShellRoutes, type AppShellProps } from "./index";
 
 const meta = {
   title: "UI/AppShell",
@@ -57,25 +57,52 @@ const routes = defineAppShellRoutes([
   }
 ]);
 
+const baseArgs = {
+  children: <AppShellStoryContent />,
+  className: "w-screen",
+  routes,
+  sidebarLabel: "Workspace navigation"
+} satisfies AppShellProps;
+
 export const Basic: Story = {
-  args: {
-    children: <AppShellStoryContent />,
-    className: "w-screen",
-    routes,
-    sidebarLabel: "Workspace navigation"
-  },
+  args: baseArgs,
   render: (args) => <AppShellStory args={args} />
 };
 
-function AppShellStory({ args }: { args: Story["args"] }) {
-  const router = useMemo(() => createAppShellStoryRouter(args), [args]);
+export const NestedRoute: Story = {
+  args: baseArgs,
+  render: (args) => (
+    <AppShellStory args={args} initialPath="/workspace/current" />
+  )
+};
+
+export const CollapsedSidebar: Story = {
+  args: {
+    ...baseArgs,
+    defaultSidebarOpen: false
+  },
+  render: (args) => <AppShellStory args={args} initialPath="/settings" />
+};
+
+function AppShellStory({
+  args,
+  initialPath = "/overview"
+}: {
+  args: Story["args"];
+  initialPath?: string;
+}) {
+  const router = useMemo(
+    () => createAppShellStoryRouter(args, initialPath),
+    [args, initialPath]
+  );
 
   return <RouterProvider router={router} />;
 }
 
-function createAppShellStoryRouter(args: Story["args"]) {
+function createAppShellStoryRouter(args: Story["args"], initialPath: string) {
+  const appShellProps = { ...baseArgs, ...args };
   const rootRoute = createRootRoute({
-    component: () => <AppShell {...args} />
+    component: () => <AppShell {...appShellProps} />
   });
   const overviewRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -99,7 +126,7 @@ function createAppShellStoryRouter(args: Story["args"]) {
   });
 
   return createRouter({
-    history: createMemoryHistory({ initialEntries: ["/workspace/current"] }),
+    history: createMemoryHistory({ initialEntries: [initialPath] }),
     routeTree: rootRoute.addChildren([
       overviewRoute,
       workspaceRoute,
@@ -117,7 +144,9 @@ function AppShellStoryContent() {
   return (
     <div className="mx-auto grid w-full max-w-5xl gap-4">
       <div className="grid gap-2">
-        <h2 className="text-xl font-semibold">App shell content</h2>
+        <h2 className="text-foreground text-xl font-semibold">
+          App shell content
+        </h2>
         <p className="text-muted-foreground text-sm">
           The main region scrolls independently once page content exceeds the
           viewport.
@@ -127,7 +156,7 @@ function AppShellStoryContent() {
       <div className="grid gap-3">
         {contentBlocks.map((block) => (
           <section
-            className="border-border bg-card text-card-foreground rounded-lg border p-4 shadow-xs"
+            className="bg-card text-card-foreground rounded-xl p-5"
             key={block.title}
           >
             <h3 className="text-base font-semibold">{block.title}</h3>

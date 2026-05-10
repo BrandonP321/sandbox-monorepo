@@ -17,14 +17,14 @@ function Chip({ children, className, iconLeft, ...chipProps }: ChipProps) {
     <span
       {...chipProps}
       className={cn(
-        "border-border bg-background text-foreground inline-flex max-w-full items-center gap-2 rounded-full border px-2.5 py-1.5 text-sm shadow-xs",
+        "border-border/80 bg-card text-foreground inline-flex max-w-full items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs shadow-xs",
         className
       )}
       data-slot="chip"
     >
       {iconLeft ? (
         <span
-          className="bg-muted text-muted-foreground flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full"
+          className="bg-accent/70 text-accent-foreground flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full"
           data-slot="chip-icon"
         >
           {iconLeft}

@@ -23,7 +23,7 @@ function AppShellSidebar({
       data-state={isSidebarOpen ? "open" : "closed"}
       hidden={!isSidebarOpen}
       className={cn(
-        "border-border bg-muted/30 w-64 shrink-0 overflow-y-auto border-r px-3 py-4",
+        "bg-card relative z-10 w-64 shrink-0 overflow-y-auto overscroll-y-contain px-4 py-5",
         className
       )}
     >

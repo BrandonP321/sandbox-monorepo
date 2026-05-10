@@ -14,7 +14,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <div className="w-[32rem]">
+    <div className="w-full max-w-[32rem]">
       <Stack>
         <Card>
           <CardContent className="pt-4">First stacked item</CardContent>
@@ -32,7 +32,7 @@ export const Default: Story = {
 
 export const Compact: Story = {
   render: () => (
-    <div className="w-[24rem]">
+    <div className="w-full max-w-[24rem]">
       <Stack gap="xs">
         <p className="text-sm">Compact line one</p>
         <p className="text-sm">Compact line two</p>

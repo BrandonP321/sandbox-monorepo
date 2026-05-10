@@ -12,7 +12,7 @@ function AppShellHeader({ children, className }: AppShellHeaderProps) {
     <header
       data-slot="app-shell-header"
       className={cn(
-        "border-border bg-background/95 flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3 sm:px-6",
+        "flex h-16 shrink-0 items-center justify-between gap-3 bg-transparent px-4 sm:px-6 lg:px-7",
         className
       )}
     >

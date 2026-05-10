@@ -17,16 +17,6 @@ function TopicDetailsHeader({ topic }: TopicDetailsHeaderProps) {
   return (
     <header className="border-border border-b pb-5">
       <div>
-        <ButtonLink
-          className="-ml-3 mb-3"
-          iconLeft={<ArrowLeft aria-hidden="true" className="size-4" />}
-          size="sm"
-          to={appRoutes.listTopics.path}
-          variant="ghost"
-        >
-          Back to topics
-        </ButtonLink>
-
         <div className="flex flex-wrap items-center gap-2">
           <p className="text-muted-foreground text-xs font-medium uppercase">
             Topic workspace

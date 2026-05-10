@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Basic: Story = {
   render: () => (
-    <Card className="w-96">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <h3 className="text-base font-semibold">Card heading</h3>
         <p className="text-muted-foreground text-sm">
@@ -34,7 +34,7 @@ export const Basic: Story = {
 
 export const WithFooter: Story = {
   render: () => (
-    <Card className="w-96">
+    <Card className="w-full max-w-md">
       <CardHeader>
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">Review surface</h3>

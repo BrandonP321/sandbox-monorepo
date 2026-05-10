@@ -13,7 +13,7 @@ function LoadingState({ className, label = "Loading" }: LoadingStateProps) {
     <div
       aria-live="polite"
       className={cn(
-        "flex min-h-24 items-center justify-center px-4 py-6 text-center",
+        "flex min-h-28 items-center justify-center px-4 py-7 text-center",
         className
       )}
       data-slot="loading-state"
@@ -22,7 +22,7 @@ function LoadingState({ className, label = "Loading" }: LoadingStateProps) {
       <span className="sr-only">{label}</span>
       <span
         aria-hidden="true"
-        className="border-muted border-t-primary size-5 animate-spin rounded-full border-2"
+        className="border-muted border-t-primary size-6 animate-spin rounded-full border-[3px]"
         data-slot="loading-state-spinner"
       />
     </div>

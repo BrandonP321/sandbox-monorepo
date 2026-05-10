@@ -54,9 +54,12 @@ describe("AppShell", () => {
   it("renders the shell regions together", async () => {
     await renderAppShell({ initialPath: "/topics", routes });
 
-    expect(
-      screen.getByRole("complementary", { name: "Workspace navigation" })
-    ).toBeInTheDocument();
+    const sidebar = screen.getByRole("complementary", {
+      name: "Workspace navigation"
+    });
+
+    expect(sidebar).toBeInTheDocument();
+    expect(sidebar).toHaveClass("overflow-y-auto", "overscroll-y-contain");
     expect(screen.getByRole("banner")).toHaveTextContent("Topics");
     expect(screen.getByRole("main")).toHaveTextContent("Main content");
   });

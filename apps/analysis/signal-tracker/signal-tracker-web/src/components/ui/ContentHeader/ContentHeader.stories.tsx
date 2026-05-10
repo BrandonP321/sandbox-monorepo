@@ -20,7 +20,7 @@ export const PageHeader: Story = {
     title: "Topics"
   },
   render: () => (
-    <div className="w-[42rem] border-b pb-5">
+    <div className="border-border w-full max-w-[42rem] border-b pb-5">
       <ContentHeader
         actions={<Button>Create topic</Button>}
         description="Scan active dossiers and open one topic workspace at a time."
@@ -40,7 +40,7 @@ export const SectionHeader: Story = {
     title: "Timeline"
   },
   render: () => (
-    <div className="w-[36rem]">
+    <div className="w-full max-w-[36rem]">
       <ContentHeader
         actions={
           <Button size="sm" variant="outline">
@@ -64,7 +64,7 @@ export const CompactSectionHeader: Story = {
     title: "Lifecycle"
   },
   render: () => (
-    <div className="w-[28rem]">
+    <div className="w-full max-w-[28rem]">
       <ContentHeader
         description="Archive hides this topic without deleting its history."
         headingLevel={2}

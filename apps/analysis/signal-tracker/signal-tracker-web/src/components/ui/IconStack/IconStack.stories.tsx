@@ -58,7 +58,7 @@ function CustomLimitExample() {
   const items = useMemo(() => createIconItems(totalItems), [totalItems]);
 
   return (
-    <div className="grid w-96 gap-4">
+    <div className="grid w-full max-w-sm gap-4">
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="grid gap-1 text-sm font-medium">
           Visible icons
@@ -81,7 +81,7 @@ function CustomLimitExample() {
           />
         </label>
       </div>
-      <div className="border-border flex min-h-16 items-center rounded-md border p-4">
+      <div className="border-border/80 bg-card flex min-h-16 items-center rounded-lg border p-4 shadow-xs">
         <IconStack items={items} maxVisible={maxVisible} />
       </div>
     </div>

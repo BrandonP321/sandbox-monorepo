@@ -32,7 +32,7 @@ function Form<T extends FieldValues>({
         </Alert>
       ) : null}
       {actions ? (
-        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
           {actions}
         </div>
       ) : null}

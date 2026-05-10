@@ -50,17 +50,20 @@ function FormField({
   const describedBy = [descriptionId, errorId].filter(Boolean).join(" ");
 
   return (
-    <div className={cn("grid gap-2", className)} data-slot="form-field">
+    <div className={cn("grid gap-2.5", className)} data-slot="form-field">
       {label ? (
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <label
-            className={cn("text-sm font-medium", labelClassName)}
+            className={cn(
+              "text-foreground text-sm font-medium",
+              labelClassName
+            )}
             htmlFor={controlId}
           >
             {label}
           </label>
           {required ? (
-            <span className="text-muted-foreground text-xs font-medium">
+            <span className="border-border bg-muted text-muted-foreground rounded-md border px-1.5 py-0.5 text-xs font-medium">
               Required
             </span>
           ) : null}
@@ -72,12 +75,15 @@ function FormField({
         "aria-invalid": error ? true : undefined
       })}
       {description ? (
-        <p className="text-muted-foreground text-sm" id={descriptionId}>
+        <p
+          className="text-muted-foreground text-xs leading-5"
+          id={descriptionId}
+        >
           {description}
         </p>
       ) : null}
       {error ? (
-        <p className="text-danger text-sm font-medium" id={errorId}>
+        <p className="text-danger text-xs font-medium leading-5" id={errorId}>
           {error}
         </p>
       ) : null}

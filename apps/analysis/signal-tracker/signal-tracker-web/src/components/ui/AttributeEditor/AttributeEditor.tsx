@@ -42,15 +42,16 @@ const attributeEditorClassNames = {
   details: "min-w-0",
   header:
     "hidden gap-3 [@container(min-width:56rem)]:grid [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto]",
-  headerCell: "text-sm font-medium",
+  headerCell: "text-muted-foreground text-xs font-medium",
   headerControls: "grid gap-3",
   removeButton: "w-fit justify-self-end",
   root: "grid gap-4 [container-type:inline-size]",
   row: "grid gap-3 [@container(min-width:56rem)]:grid-cols-[minmax(0,1fr)_auto] [@container(min-width:56rem)]:items-start",
   rowControls: "grid gap-3",
   rowGroup:
-    "grid gap-3 border-b border-border pb-5 [@container(min-width:56rem)]:border-b-0 [@container(min-width:56rem)]:pb-0",
-  rowLabel: "text-sm font-medium [@container(min-width:56rem)]:hidden",
+    "bg-card border-border/80 grid gap-3 rounded-lg border p-3 shadow-xs",
+  rowLabel:
+    "text-muted-foreground text-xs font-medium [@container(min-width:56rem)]:hidden",
   rows: "grid gap-3",
   spacerButton: "invisible w-fit"
 } satisfies Record<string, string>;

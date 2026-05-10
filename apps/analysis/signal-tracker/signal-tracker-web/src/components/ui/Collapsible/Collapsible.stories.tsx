@@ -20,7 +20,7 @@ type Story = StoryObj<typeof meta>;
 
 function BasicCollapsibleStory() {
   return (
-    <div className="w-96">
+    <div className="w-full max-w-sm">
       <Collapsible>
         <CollapsibleTrigger>
           <Button
@@ -32,7 +32,7 @@ function BasicCollapsibleStory() {
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="pt-3">
-          <div className="rounded-md border bg-muted/40 p-3 text-sm text-muted-foreground">
+          <div className="border-border/80 bg-card rounded-lg border p-3 text-sm text-muted-foreground shadow-xs">
             Collapsible content keeps supporting details nearby without adding a
             modal or a floating layer.
           </div>
@@ -46,7 +46,7 @@ function ControlledCollapsibleStory() {
   const [open, setOpen] = useState(true);
 
   return (
-    <div className="w-96">
+    <div className="w-full max-w-sm">
       <Collapsible open={open} onOpenChange={setOpen}>
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm font-medium">Review notes</span>
@@ -57,7 +57,7 @@ function ControlledCollapsibleStory() {
           </CollapsibleTrigger>
         </div>
         <CollapsibleContent className="pt-3">
-          <div className="grid gap-2 rounded-md border p-3 text-sm">
+          <div className="border-border/80 bg-card grid gap-2 rounded-lg border p-3 text-sm shadow-xs">
             <p>Assumption set updated after source review.</p>
             <p className="text-muted-foreground">
               Use controlled state when nearby controls need to reflect whether

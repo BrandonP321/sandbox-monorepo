@@ -12,7 +12,7 @@ import type * as React from "react";
 import { cn } from "@/lib/utils";
 
 const alertVariants = cva(
-  "grid grid-cols-[auto_1fr] gap-x-3 rounded-md border p-4 text-sm",
+  "grid grid-cols-[auto_1fr] gap-x-3 rounded-lg border p-4 text-sm shadow-xs",
   {
     variants: {
       variant: {
@@ -28,13 +28,13 @@ const alertVariants = cva(
   }
 );
 
-const alertIconVariants = cva("mt-0.5 size-4 shrink-0", {
+const alertIconVariants = cva("mt-0.5 size-7 shrink-0 rounded-full p-1.5", {
   variants: {
     variant: {
-      danger: "text-danger",
-      info: "text-info-foreground",
-      success: "text-success-foreground",
-      warning: "text-warning-foreground"
+      danger: "bg-danger/10 text-danger",
+      info: "bg-info/10 text-info-foreground",
+      success: "bg-success/10 text-success-foreground",
+      warning: "bg-warning/10 text-warning-foreground"
     }
   },
   defaultVariants: {
@@ -85,13 +85,16 @@ function Alert({
       />
       <div className="min-w-0">
         {title ? (
-          <p data-slot="alert-title" className="font-medium">
+          <p data-slot="alert-title" className="text-foreground font-medium">
             {title}
           </p>
         ) : null}
         <div
           data-slot="alert-content"
-          className={cn(title ? "text-muted-foreground mt-1" : undefined)}
+          className={cn(
+            "leading-5",
+            title ? "text-muted-foreground mt-1" : undefined
+          )}
         >
           {children}
         </div>
@@ -99,7 +102,7 @@ function Alert({
       {actions ? (
         <div
           data-slot="alert-actions"
-          className="col-start-2 mt-3 flex items-center gap-2"
+          className="col-start-2 mt-4 flex flex-wrap items-center gap-2"
         >
           {actions}
         </div>

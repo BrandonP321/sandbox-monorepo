@@ -2,6 +2,8 @@ import type * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import { textInputClassName } from "../../form-control-styles";
+
 type SharedNativeInputProps = Pick<
   React.ComponentPropsWithRef<"input">,
   | "aria-label"
@@ -55,13 +57,7 @@ function Input({ className, type = "text", ...inputProps }: InputProps) {
       {...inputProps}
       data-slot="input"
       type={type}
-      className={cn(
-        "border-input bg-background text-foreground placeholder:text-muted-foreground",
-        "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:border-danger aria-invalid:ring-danger/20",
-        "flex h-9 w-full rounded-md border px-3 py-1 text-sm shadow-xs transition-colors outline-none focus-visible:ring-[3px]",
-        "disabled:cursor-not-allowed disabled:opacity-50",
-        className
-      )}
+      className={cn(textInputClassName, className)}
     />
   );
 }

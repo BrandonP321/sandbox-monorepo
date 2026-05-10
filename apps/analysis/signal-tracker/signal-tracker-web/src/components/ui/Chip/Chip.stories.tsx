@@ -32,3 +32,20 @@ export const Truncated: Story = {
     </div>
   )
 };
+
+export const MetadataRow: Story = {
+  render: () => (
+    <div className="flex w-full max-w-md flex-wrap items-center gap-2">
+      <Chip iconLeft={<FileText aria-hidden="true" className="size-3.5" />}>
+        Agency report
+      </Chip>
+      <Chip>Updated today</Chip>
+      <Chip>Reviewed</Chip>
+      <div className="max-w-48">
+        <Chip title="A longer metadata label">
+          A longer metadata label that truncates
+        </Chip>
+      </div>
+    </div>
+  )
+};

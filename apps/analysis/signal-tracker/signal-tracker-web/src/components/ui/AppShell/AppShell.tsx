@@ -97,9 +97,9 @@ function AppShell({
         <AppShellContent>
           {activeRoute ? (
             <AppShellHeader>
-              <div className="flex min-w-0 flex-1 items-center gap-3">
-                <AppShellSidebarToggle />
-                <span className="truncate text-sm font-semibold">
+              <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                <AppShellSidebarToggle className="-ml-1" />
+                <span className="text-foreground truncate text-sm font-semibold leading-5">
                   {activeRoute.title}
                 </span>
               </div>

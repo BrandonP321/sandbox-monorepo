@@ -1,6 +1,8 @@
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type * as React from "react";
 
+import { cn } from "@/lib/utils";
+
 import { Button } from "../../Button";
 import { useAppShellContext } from "../hooks";
 
@@ -24,7 +26,7 @@ function AppShellSidebarToggle({
   return (
     <Button
       aria-label={label}
-      className={className}
+      className={cn("text-muted-foreground shrink-0", className)}
       onClick={toggleSidebar}
       size="icon"
       variant="ghost"

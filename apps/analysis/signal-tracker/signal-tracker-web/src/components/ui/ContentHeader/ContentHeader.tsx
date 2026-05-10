@@ -40,7 +40,7 @@ const defaultHeadingSizeByLevel = {
 } satisfies Record<ContentHeaderHeadingLevel, ContentHeaderHeadingSize>;
 
 const headingClassNameBySize = {
-  h1: "text-3xl",
+  h1: "text-2xl",
   h2: "text-xl",
   h3: "text-lg",
   h4: "text-base",
@@ -60,11 +60,11 @@ function ContentHeader({
   title
 }: ContentHeaderProps) {
   const headingClassName = cn(
-    "font-semibold",
+    "text-foreground font-semibold leading-tight",
     eyebrow ? "mt-1" : undefined,
     headingClassNameBySize[headingSize]
   );
-  const descriptionClassName = "text-muted-foreground mt-1 text-sm";
+  const descriptionClassName = "text-muted-foreground mt-1.5 text-sm leading-5";
 
   return (
     <div
@@ -78,7 +78,7 @@ function ContentHeader({
         {eyebrow ? (
           <p
             data-slot="content-header-eyebrow"
-            className="text-muted-foreground text-xs font-medium uppercase"
+            className="text-primary text-xs font-semibold"
           >
             {eyebrow}
           </p>

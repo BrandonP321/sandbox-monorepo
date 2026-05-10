@@ -61,7 +61,7 @@ function FormValuePreview() {
   const title = useWatch<ExampleFormValues, "title">({ name: "title" });
 
   return (
-    <div className="text-muted-foreground grid gap-1 text-sm">
+    <div className="border-border/80 bg-muted/40 text-muted-foreground grid gap-1 rounded-lg border p-3 text-sm">
       <p>Current title: {title || "<empty>"}</p>
       <p>Current subtitle: {subtitle || "<empty>"}</p>
       <p>Current priority: {priority || "<empty>"}</p>
@@ -76,7 +76,7 @@ function FormNumberValuePreview() {
   });
 
   return (
-    <div className="text-muted-foreground grid gap-1 text-sm">
+    <div className="border-border/80 bg-muted/40 text-muted-foreground grid gap-1 rounded-lg border p-3 text-sm">
       <p>Current probability: {probabilityPct ?? "<empty>"}</p>
     </div>
   );
@@ -93,7 +93,7 @@ function FormDateValuePreview() {
   );
 
   return (
-    <div className="text-muted-foreground grid gap-1 text-sm">
+    <div className="border-border/80 bg-muted/40 text-muted-foreground grid gap-1 rounded-lg border p-3 text-sm">
       <p>Current assessment date: {assessmentDate || "<empty>"}</p>
       <p>Current target date: {targetResolutionDate || "<empty>"}</p>
     </div>
@@ -115,7 +115,7 @@ function FormTextInputExample() {
       schema={exampleFormSchema}
     >
       <Form<ExampleFormValues>
-        className="grid w-96 gap-4"
+        className="grid w-full max-w-md gap-4"
         onSubmit={async (values) => {
           setSubmittedValues(values);
         }}
@@ -173,7 +173,7 @@ function FormDateInputExample() {
       schema={dateFormSchema}
     >
       <Form<DateFormValues>
-        className="grid w-96 gap-4"
+        className="grid w-full max-w-md gap-4"
         onSubmit={async (values) => {
           setSubmittedValues(values);
         }}
@@ -216,7 +216,7 @@ function FormNumberInputExample() {
       schema={numberFormSchema}
     >
       <Form<NumberFormValues>
-        className="grid w-96 gap-4"
+        className="grid w-full max-w-md gap-4"
         onSubmit={async (values) => {
           setSubmittedValues(values);
         }}
@@ -266,7 +266,7 @@ export const WithErrorMessage: Story = {
     >
       <Form<ExampleFormValues>
         actions={<Button type="submit">Save changes</Button>}
-        className="w-96"
+        className="w-full max-w-md"
         error="Topic could not be saved. Resolve the API error and try again."
         errorTitle="Unable to save topic"
         onSubmit={async () => undefined}

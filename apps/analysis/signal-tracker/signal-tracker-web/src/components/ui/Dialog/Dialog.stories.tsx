@@ -67,7 +67,7 @@ function ManualDialogStory() {
             This layout keeps the standard dialog shell while giving the footer
             direct control over extra actions and async confirmation behavior.
           </p>
-          <div className="rounded-md border bg-muted/40 p-3 text-muted-foreground">
+          <div className="border-border/80 bg-card rounded-lg border p-3 text-muted-foreground shadow-xs">
             Manual actions can read confirmation state, close the dialog, or run
             an async confirm handler from context.
           </div>

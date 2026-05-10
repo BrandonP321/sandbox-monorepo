@@ -88,7 +88,7 @@ function AttributeEditorForm({ containerWidth }: { containerWidth: string }) {
 
   return (
     <div
-      className="border-border rounded-md border p-4"
+      className="border-border/80 bg-card rounded-xl border p-5 shadow-sm"
       style={getAttributeEditorContainerStyle(containerWidth)}
     >
       <Form<AttributeEditorFormValues>

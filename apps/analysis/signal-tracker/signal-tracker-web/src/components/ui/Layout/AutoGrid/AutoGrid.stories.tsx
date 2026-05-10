@@ -45,7 +45,7 @@ const statusOptions = [
 
 export const FormFields: Story = {
   render: () => (
-    <div className="w-[40rem]">
+    <div className="w-full max-w-[40rem]">
       <FormProvider
         defaultValues={{
           confidence: "medium",
@@ -103,12 +103,12 @@ export const FormFields: Story = {
 
 export const WideCards: Story = {
   render: () => (
-    <div className="w-[46rem]">
+    <div className="w-full max-w-[46rem]">
       <AutoGrid minColumnWidth="lg">
-        <div className="border-border rounded-md border p-4">
+        <div className="border-border/80 bg-card rounded-xl border p-5 shadow-sm">
           Wider grid item
         </div>
-        <div className="border-border rounded-md border p-4">
+        <div className="border-border/80 bg-card rounded-xl border p-5 shadow-sm">
           Another wider grid item
         </div>
       </AutoGrid>

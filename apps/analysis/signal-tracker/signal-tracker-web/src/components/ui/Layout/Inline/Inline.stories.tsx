@@ -15,7 +15,7 @@ type Story = StoryObj<typeof meta>;
 
 export const ActionRow: Story = {
   render: () => (
-    <div className="w-[28rem]">
+    <div className="w-full max-w-[28rem]">
       <Inline justify="end">
         <Button variant="outline">Cancel</Button>
         <Button>Add event</Button>
@@ -26,7 +26,7 @@ export const ActionRow: Story = {
 
 export const WrappedMetadata: Story = {
   render: () => (
-    <div className="w-[18rem]">
+    <div className="w-full max-w-[18rem]">
       <Inline>
         <p className="text-muted-foreground text-xs font-medium uppercase">
           Topic workspace

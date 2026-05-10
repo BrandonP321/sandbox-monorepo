@@ -99,7 +99,7 @@ function AlertDialogContent({
       role="alertdialog"
       showCloseButton={false}
     >
-      <div className="grid gap-3">
+      <div className="grid gap-4">
         <div>{children}</div>
         {alert ? (
           <Alert title={alert.title} variant={alert.variant}>

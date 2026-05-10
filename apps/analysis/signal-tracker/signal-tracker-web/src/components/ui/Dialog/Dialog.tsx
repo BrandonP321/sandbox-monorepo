@@ -149,7 +149,7 @@ function DialogContent({
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay
         className={cn(
-          "fixed inset-0 z-50 bg-black/40",
+          "bg-foreground/30 fixed inset-0 z-50 backdrop-blur-[1px]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
         )}
@@ -158,7 +158,7 @@ function DialogContent({
         {...descriptionProps}
         {...roleProps}
         className={cn(
-          "bg-background text-foreground fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-lg border p-6 shadow-lg supports-[height:100dvh]:max-h-[calc(100dvh-2rem)]",
+          "bg-card text-card-foreground border-border/80 fixed top-1/2 left-1/2 z-50 grid max-h-[calc(100vh-2rem)] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-5 overflow-y-auto rounded-xl border p-5 shadow-xl supports-[height:100dvh]:max-h-[calc(100dvh-2rem)] sm:p-6",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
@@ -201,7 +201,7 @@ function DialogContent({
         {footer ? (
           <div
             data-slot="dialog-footer"
-            className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"
+            className="flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end"
           >
             {footer}
           </div>
@@ -211,8 +211,8 @@ function DialogContent({
           <DialogPrimitive.Close
             aria-label="Close dialog"
             className={cn(
-              "ring-offset-background focus:ring-ring absolute top-4 right-4 rounded-sm opacity-70 transition-opacity hover:opacity-100",
-              "focus:ring-2 focus:ring-offset-2 focus:outline-none disabled:pointer-events-none disabled:opacity-40"
+              "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground absolute top-4 right-4 inline-flex size-8 items-center justify-center rounded-lg transition-[background-color,color,opacity]",
+              "focus-visible:ring-ring/50 outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:opacity-40"
             )}
             disabled={isDialogConfirming}
           >

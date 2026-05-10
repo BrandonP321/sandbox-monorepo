@@ -30,6 +30,13 @@ export const Danger: Story = {
   }
 };
 
+export const Info: Story = {
+  args: {
+    children: "Info",
+    variant: "info"
+  }
+};
+
 export const Outline: Story = {
   args: {
     children: "Outline",
@@ -37,11 +44,28 @@ export const Outline: Story = {
   }
 };
 
+export const Success: Story = {
+  args: {
+    children: "Success",
+    variant: "success"
+  }
+};
+
+export const Warning: Story = {
+  args: {
+    children: "Warning",
+    variant: "warning"
+  }
+};
+
 export const Variants: Story = {
   render: () => (
-    <div className="flex w-96 flex-wrap gap-2">
+    <div className="flex w-full max-w-md flex-wrap gap-2">
       <Badge>Default</Badge>
       <Badge variant="secondary">Secondary</Badge>
+      <Badge variant="info">Info</Badge>
+      <Badge variant="success">Success</Badge>
+      <Badge variant="warning">Warning</Badge>
       <Badge variant="danger">Danger</Badge>
       <Badge variant="outline">Outline</Badge>
     </div>

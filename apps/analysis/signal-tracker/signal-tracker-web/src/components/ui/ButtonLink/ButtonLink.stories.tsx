@@ -7,7 +7,7 @@ import {
   createRouter,
   RouterProvider
 } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus } from "lucide-react";
 
 import { appRoutes } from "@/routeRegistry";
 
@@ -39,8 +39,11 @@ export const Default: Story = {
 
 export const Variants: Story = {
   render: () => (
-    <div className="flex items-center gap-3">
+    <div className="flex w-full max-w-md flex-wrap items-center gap-2">
       <ButtonLink to={appRoutes.listTopics.path}>Default link</ButtonLink>
+      <ButtonLink to={appRoutes.listTopics.path} variant="secondary">
+        Secondary link
+      </ButtonLink>
       <ButtonLink to={appRoutes.listTopics.path} variant="outline">
         Outline link
       </ButtonLink>
@@ -50,6 +53,12 @@ export const Variants: Story = {
         variant="ghost"
       >
         Ghost link
+      </ButtonLink>
+      <ButtonLink
+        iconLeft={<Plus aria-hidden="true" className="size-4" />}
+        to={appRoutes.listTopics.path}
+      >
+        New topic
       </ButtonLink>
     </div>
   )

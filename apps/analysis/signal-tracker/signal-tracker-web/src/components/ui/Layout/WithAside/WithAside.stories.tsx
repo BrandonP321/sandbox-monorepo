@@ -16,7 +16,7 @@ type Story = StoryObj;
 
 export const TopicDetails: Story = {
   render: () => (
-    <div className="w-[54rem]">
+    <div className="w-full max-w-[54rem]">
       <WithAside
         aside={
           <Card>
@@ -57,16 +57,16 @@ export const TopicDetails: Story = {
 
 export const NarrowAside: Story = {
   render: () => (
-    <div className="w-[48rem]">
+    <div className="w-full max-w-[48rem]">
       <WithAside
         aside={
-          <div className="border-border rounded-md border p-4 text-sm">
+          <div className="border-border/80 bg-card rounded-xl border p-5 text-sm shadow-sm">
             Narrow aside
           </div>
         }
         asideWidth="sm"
       >
-        <div className="border-border rounded-md border p-4 text-sm">
+        <div className="border-border/80 bg-card rounded-xl border p-5 text-sm shadow-sm">
           Main content
         </div>
       </WithAside>

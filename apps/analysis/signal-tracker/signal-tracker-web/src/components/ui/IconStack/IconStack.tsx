@@ -22,7 +22,7 @@ function IconStack({ className, items, maxVisible = 3 }: IconStackProps) {
       {visibleItems.map((item, index) => (
         <span
           className={cn(
-            "bg-muted text-muted-foreground border-background inline-flex size-5 items-center justify-center overflow-hidden rounded-full border",
+            "bg-card text-muted-foreground border-background inline-flex size-5 items-center justify-center overflow-hidden rounded-full border shadow-xs",
             index > 0 ? "-ml-1.5" : undefined
           )}
           key={`${stackId}-${index}`}
@@ -31,7 +31,7 @@ function IconStack({ className, items, maxVisible = 3 }: IconStackProps) {
         </span>
       ))}
       {hiddenCount > 0 ? (
-        <span className="bg-muted text-muted-foreground border-background -ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border px-1 text-[0.625rem] font-medium">
+        <span className="bg-secondary text-secondary-foreground border-background -ml-1.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full border px-1 text-[0.625rem] font-medium shadow-xs">
           +{hiddenCount}
         </span>
       ) : null}
