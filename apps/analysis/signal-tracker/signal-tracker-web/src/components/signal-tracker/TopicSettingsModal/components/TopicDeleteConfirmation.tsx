@@ -18,8 +18,25 @@ function TopicDeleteConfirmation({
   topicId,
   topicTitle
 }: TopicDeleteConfirmationProps) {
+  return (
+    <DeleteConfirmationDialog>
+      <DeleteConfirmationDialogTrigger>
+        <Button variant="danger">Delete topic</Button>
+      </DeleteConfirmationDialogTrigger>
+      <TopicDeleteConfirmationContent
+        topicId={topicId}
+        topicTitle={topicTitle}
+      />
+    </DeleteConfirmationDialog>
+  );
+}
+
+function TopicDeleteConfirmationContent({
+  topicId,
+  topicTitle
+}: TopicDeleteConfirmationProps) {
   const navigate = useNavigate();
-  const [deleteTopic, { errorMessage }] = useDeleteTopicMutation();
+  const [deleteTopic] = useDeleteTopicMutation();
 
   async function handleDelete() {
     await deleteTopic({ topicId }).unwrap();
@@ -27,28 +44,19 @@ function TopicDeleteConfirmation({
   }
 
   return (
-    <DeleteConfirmationDialog>
-      <DeleteConfirmationDialogTrigger>
-        <Button variant="danger">Delete topic</Button>
-      </DeleteConfirmationDialogTrigger>
-      <DeleteConfirmationDialogContent
-        cancelButton={{ text: "Keep topic" }}
-        confirmationText={topicTitle}
-        deleteButton={{
-          loadingText: "Deleting topic...",
-          text: "Delete permanently"
-        }}
-        error={{
-          message: errorMessage,
-          title: "Unable to delete topic"
-        }}
-        onConfirm={handleDelete}
-        title="Delete topic permanently?"
-      >
-        This permanently removes the topic. Archive is the reversible way to
-        hide a topic without losing history.
-      </DeleteConfirmationDialogContent>
-    </DeleteConfirmationDialog>
+    <DeleteConfirmationDialogContent
+      cancelButton={{ text: "Keep topic" }}
+      confirmationText={topicTitle}
+      deleteButton={{
+        loadingText: "Deleting topic...",
+        text: "Delete permanently"
+      }}
+      onConfirm={handleDelete}
+      title="Delete topic permanently?"
+    >
+      This permanently removes the topic. Archive is the reversible way to hide
+      a topic without losing history.
+    </DeleteConfirmationDialogContent>
   );
 }
 

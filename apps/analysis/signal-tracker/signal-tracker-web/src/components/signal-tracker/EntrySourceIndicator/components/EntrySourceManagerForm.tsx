@@ -25,9 +25,23 @@ function EntrySourceManagerForm({
   entryId,
   sources
 }: EntrySourceManagerFormProps) {
+  return (
+    <FormProvider
+      defaultValues={{
+        sources: createSourceUrlRowsFromAttachedSources(sources)
+      }}
+      schema={entrySourceManagerSchema}
+    >
+      <EntrySourceManagerFormContent entryId={entryId} />
+    </FormProvider>
+  );
+}
+
+function EntrySourceManagerFormContent({
+  entryId
+}: Pick<EntrySourceManagerFormProps, "entryId">) {
   const { closeDialog, runDialogConfirm } = useDialogContext();
-  const [replaceEntrySources, { errorMessage }] =
-    useReplaceEntrySourcesMutation();
+  const [replaceEntrySources] = useReplaceEntrySourcesMutation();
 
   async function handleSubmit(values: EntrySourceManagerFormValues) {
     await runDialogConfirm(async () =>
@@ -36,30 +50,21 @@ function EntrySourceManagerForm({
   }
 
   return (
-    <FormProvider
-      defaultValues={{
-        sources: createSourceUrlRowsFromAttachedSources(sources)
-      }}
-      schema={entrySourceManagerSchema}
+    <Form<EntrySourceManagerFormValues>
+      actions={
+        <>
+          <FormButton onClick={closeDialog} variant="outline">
+            Cancel
+          </FormButton>
+          <SubmitButton loadingLabel="Saving sources...">
+            Save sources
+          </SubmitButton>
+        </>
+      }
+      onSubmit={handleSubmit}
     >
-      <Form<EntrySourceManagerFormValues>
-        actions={
-          <>
-            <FormButton onClick={closeDialog} variant="outline">
-              Cancel
-            </FormButton>
-            <SubmitButton loadingLabel="Saving sources...">
-              Save sources
-            </SubmitButton>
-          </>
-        }
-        error={errorMessage}
-        errorTitle="Unable to save sources"
-        onSubmit={handleSubmit}
-      >
-        <SourceUrlEditor<EntrySourceManagerFormValues> name="sources" />
-      </Form>
-    </FormProvider>
+      <SourceUrlEditor<EntrySourceManagerFormValues> name="sources" />
+    </Form>
   );
 }
 

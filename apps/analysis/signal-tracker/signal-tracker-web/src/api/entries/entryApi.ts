@@ -99,7 +99,7 @@ export const entryApi = signalTrackerApi.injectEndpoints({
 export const useCreateEventEntryMutation = getMutation(
   entryApi.useCreateEventEntryMutation,
   {
-    displayError: false,
+    errorTitle: "Unable to add event",
     successMessage: ({ entry }) => ({
       content: entry.title,
       header: "Event added."
@@ -118,7 +118,7 @@ export const useListEventEntriesQuery = getQuery(
 export const useReplaceEntrySourcesMutation = getMutation(
   entryApi.useReplaceEntrySourcesMutation,
   {
-    displayError: false,
+    errorTitle: "Unable to save sources",
     successMessage: ({ entry }) => ({
       content: entry.title,
       header: "Sources saved."
@@ -128,7 +128,7 @@ export const useReplaceEntrySourcesMutation = getMutation(
 export const useUpdateEventEntryMutation = getMutation(
   entryApi.useUpdateEventEntryMutation,
   {
-    displayError: false,
+    errorTitle: "Unable to save event",
     successMessage: ({ entry }) => ({
       content: entry.title,
       header: "Event saved."

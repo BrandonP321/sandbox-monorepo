@@ -8,9 +8,13 @@ import type {
   TypedUseMutation,
   TypedUseMutationResult
 } from "@reduxjs/toolkit/query/react";
+import { useCallback } from "react";
+
+import { useNotifications } from "@/components/ui/Notifications";
 
 import {
-  useApiNotifications,
+  notifyApiError,
+  notifyApiSuccess,
   type RtkQueryNotificationOptions
 } from "./apiNotifications";
 import { withErrorMessage, type WithErrorMessage } from "./rtkQueryHooksShared";
@@ -82,10 +86,37 @@ function getMutation<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
     const hookResult = mutationHook(options);
     const mutation = hookResult[0];
     const result = withErrorMessage(hookResult[1]);
+    const { notifyError, notifySuccess } = useNotifications();
 
-    useApiNotifications<TResultType>(result, notificationOptions);
+    const mutationWithNotifications = useCallback(
+      ((...args: Parameters<typeof mutation>) => {
+        const mutationResult = mutation(...args);
 
-    return [mutation, result];
+        void mutationResult.then((settledResult) => {
+          if ("data" in settledResult) {
+            notifyApiSuccess(
+              settledResult.data as TResultType,
+              notificationOptions,
+              notifySuccess
+            );
+            return;
+          }
+
+          if ("error" in settledResult) {
+            notifyApiError(
+              settledResult.error,
+              notificationOptions,
+              notifyError
+            );
+          }
+        });
+
+        return mutationResult;
+      }) as typeof mutation,
+      [mutation, notifyError, notifySuccess]
+    );
+
+    return [mutationWithNotifications, result];
   }
 
   return useMutationHookWithErrorMessage as unknown as <

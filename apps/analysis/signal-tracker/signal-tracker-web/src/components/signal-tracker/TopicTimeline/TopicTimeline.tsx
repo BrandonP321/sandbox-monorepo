@@ -20,6 +20,7 @@ type TopicTimelineProps = {
 };
 
 function TopicTimeline({ topicId }: TopicTimelineProps) {
+  // TODO: Automatically catch this error cleanly
   const { data, errorMessage, isError, isLoading, refetch } =
     useListTopicTimelineQuery({ topicId });
   const { expandedEntryIds, setEntryExpanded } = useExpandedEntryIds();

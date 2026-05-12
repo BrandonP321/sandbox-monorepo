@@ -36,21 +36,39 @@ type EventEntryFormProps = {
 };
 
 function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
-  const { closeDialog, runDialogConfirm } = useDialogContext();
-
-  const [createEventEntry, { errorMessage: createErrorMessage }] =
-    useCreateEventEntryMutation();
-
-  const [updateEventEntry, { errorMessage: updateErrorMessage }] =
-    useUpdateEventEntryMutation();
-
   const isEditing = entry !== undefined && entry !== null;
   const defaultValues = isEditing
     ? createEditFormValues(entry)
     : createDefaultFormValues();
 
+  return (
+    <FormProvider defaultValues={defaultValues} schema={eventEntryFormSchema}>
+      <EventEntryFormContent
+        entry={entry}
+        isEditing={isEditing}
+        topicId={topicId}
+      />
+    </FormProvider>
+  );
+}
+
+type EventEntryFormContentProps = EventEntryFormProps & {
+  isEditing: boolean;
+};
+
+function EventEntryFormContent({
+  entry,
+  isEditing,
+  topicId
+}: EventEntryFormContentProps) {
+  const { closeDialog, runDialogConfirm } = useDialogContext();
+
+  const [createEventEntry] = useCreateEventEntryMutation();
+
+  const [updateEventEntry] = useUpdateEventEntryMutation();
+
   async function handleSubmit(values: EventEntryFormValues) {
-    if (isEditing) {
+    if (isEditing && entry) {
       const request = createUpdateEventEntryRequest({
         entryId: entry.id,
         values
@@ -66,53 +84,49 @@ function EventEntryForm({ entry, topicId }: EventEntryFormProps) {
   }
 
   return (
-    <FormProvider defaultValues={defaultValues} schema={eventEntryFormSchema}>
-      <Form<EventEntryFormValues>
-        actions={
-          <>
-            <FormButton onClick={closeDialog} variant="outline">
-              Cancel
-            </FormButton>
-            <SubmitButton
-              loadingLabel={isEditing ? "Saving event..." : "Adding event..."}
-            >
-              {isEditing ? "Save event" : "Add event"}
-            </SubmitButton>
-          </>
-        }
-        error={isEditing ? updateErrorMessage : createErrorMessage}
-        errorTitle={isEditing ? "Unable to save event" : "Unable to add event"}
-        onSubmit={handleSubmit}
-      >
-        <FormTextInput<EventEntryFormValues>
-          label="Title"
-          name="title"
-          placeholder="Court grants injunction"
+    <Form<EventEntryFormValues>
+      actions={
+        <>
+          <FormButton onClick={closeDialog} variant="outline">
+            Cancel
+          </FormButton>
+          <SubmitButton
+            loadingLabel={isEditing ? "Saving event..." : "Adding event..."}
+          >
+            {isEditing ? "Save event" : "Add event"}
+          </SubmitButton>
+        </>
+      }
+      onSubmit={handleSubmit}
+    >
+      <FormTextInput<EventEntryFormValues>
+        label="Title"
+        name="title"
+        placeholder="Court grants injunction"
+      />
+      <FormTextarea<EventEntryFormValues>
+        label="Details"
+        name="bodyMd"
+        placeholder="What happened, and why does it matter for this topic?"
+        rows={5}
+      />
+      <AutoGrid>
+        <FormDateInput<EventEntryFormValues>
+          label="Event date"
+          name="eventDate"
         />
-        <FormTextarea<EventEntryFormValues>
-          label="Details"
-          name="bodyMd"
-          placeholder="What happened, and why does it matter for this topic?"
-          rows={5}
+        <FormSelect<EventEntryFormValues>
+          label="Epistemic status"
+          name="epistemicStatus"
+          options={epistemicStatusOptions}
+          placeholder="Choose status"
         />
-        <AutoGrid>
-          <FormDateInput<EventEntryFormValues>
-            label="Event date"
-            name="eventDate"
-          />
-          <FormSelect<EventEntryFormValues>
-            label="Epistemic status"
-            name="epistemicStatus"
-            options={epistemicStatusOptions}
-            placeholder="Choose status"
-          />
-        </AutoGrid>
-        <SourceUrlFormSection<EventEntryFormValues>
-          description="URLs attached to this event."
-          name="sources"
-        />
-      </Form>
-    </FormProvider>
+      </AutoGrid>
+      <SourceUrlFormSection<EventEntryFormValues>
+        description="URLs attached to this event."
+        name="sources"
+      />
+    </Form>
   );
 }
 

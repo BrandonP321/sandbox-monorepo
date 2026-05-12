@@ -38,7 +38,7 @@ export const assessmentApi = signalTrackerApi.injectEndpoints({
 export const useCreateAssessmentUpdateMutation = getMutation(
   assessmentApi.useCreateAssessmentUpdateMutation,
   {
-    displayError: false,
+    errorTitle: "Unable to save assessment",
     successMessage: ({ assessmentUpdate }) => ({
       content: assessmentUpdate.entry.title,
       // TODO: Remove periods from all message titles

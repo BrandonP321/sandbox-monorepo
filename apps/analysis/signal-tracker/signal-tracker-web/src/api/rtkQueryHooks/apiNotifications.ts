@@ -2,7 +2,12 @@ import { useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { useNotifications } from "@/components/ui/Notifications";
-import type { NotificationMessageInput } from "@/components/ui/Notifications";
+import type {
+  NotificationContextValue,
+  NotificationMessageInput
+} from "@/components/ui/Notifications";
+
+import { getApiErrorMessage } from "../apiError";
 
 type RtkQuerySuccessMessage<TResultType> =
   | NotificationMessageInput
@@ -236,5 +241,47 @@ function useApiNotifications<TResultType>(
   ]);
 }
 
-export { useApiNotifications };
+function notifyApiError<TResultType>(
+  error: unknown,
+  options: RtkQueryNotificationOptions<TResultType> | undefined,
+  notifyError: NotificationContextValue["notifyError"]
+) {
+  if (options?.displayError === false) {
+    return;
+  }
+
+  const errorMessage = options?.errorMessage ?? getApiErrorMessage(error);
+
+  if (!isDisplayableNotificationMessage(errorMessage)) {
+    return;
+  }
+
+  notifyError(
+    options?.errorTitle
+      ? {
+          content: errorMessage,
+          header: options.errorTitle
+        }
+      : errorMessage
+  );
+}
+
+function notifyApiSuccess<TResultType>(
+  response: TResultType,
+  options: RtkQueryNotificationOptions<TResultType> | undefined,
+  notifySuccess: NotificationContextValue["notifySuccess"]
+) {
+  const successMessage = resolveSuccessMessage(
+    options?.successMessage,
+    response
+  );
+
+  if (!isDisplayableNotificationMessage(successMessage)) {
+    return;
+  }
+
+  notifySuccess(successMessage);
+}
+
+export { notifyApiError, notifyApiSuccess, useApiNotifications };
 export type { RtkQueryNotificationOptions };

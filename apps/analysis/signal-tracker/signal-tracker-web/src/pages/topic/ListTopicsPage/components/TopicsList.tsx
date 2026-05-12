@@ -15,6 +15,7 @@ import { TopicListItem } from "./TopicListItem";
 import { TopicsListEmptyState } from "./TopicsListEmptyState";
 
 function TopicsListContent() {
+  // TODO: Automatically catch this error cleanly
   const { topics, errorMessage, hasQuery, isError, isLoading, refetchTopics } =
     useListTopicsPageTopics();
 

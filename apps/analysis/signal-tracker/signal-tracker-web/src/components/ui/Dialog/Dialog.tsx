@@ -9,6 +9,10 @@ import { Alert } from "../Alert";
 import { Button } from "../Button";
 import { ContentHeader } from "../ContentHeader";
 import {
+  ErrorNotificationProvider,
+  NotificationAlerts
+} from "../Notifications";
+import {
   DialogContext,
   useDialogContext,
   type DialogContextValue
@@ -119,11 +123,13 @@ function Dialog({
   );
 
   return (
-    <DialogContext.Provider value={contextValue}>
-      <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
-        {children}
-      </DialogPrimitive.Root>
-    </DialogContext.Provider>
+    <ErrorNotificationProvider>
+      <DialogContext.Provider value={contextValue}>
+        <DialogPrimitive.Root open={open} onOpenChange={handleOpenChange}>
+          {children}
+        </DialogPrimitive.Root>
+      </DialogContext.Provider>
+    </ErrorNotificationProvider>
   );
 }
 
@@ -197,6 +203,8 @@ function DialogContent({
             {error.message}
           </Alert>
         ) : null}
+
+        <NotificationAlerts />
 
         {footer ? (
           <div

@@ -33,7 +33,7 @@
 }
 
 :root {
-  --background: #e8eff9;
+  --background: #edf4fb;
   --foreground: oklch(0.22 0.035 260);
   --card: #ffffff;
   --card-foreground: var(--foreground);

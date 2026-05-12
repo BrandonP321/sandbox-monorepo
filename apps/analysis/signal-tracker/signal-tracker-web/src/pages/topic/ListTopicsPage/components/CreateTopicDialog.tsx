@@ -41,7 +41,7 @@ function CreateTopicDialogContent() {
 
 function CreateTopicDialogForm() {
   const navigate = useNavigate();
-  const [createTopic, { errorMessage }] = useCreateTopicMutation();
+  const [createTopic] = useCreateTopicMutation();
   const { closeDialog, runDialogConfirm } = useDialogContext();
 
   async function handleSubmit(metadata: TopicMetadata) {
@@ -65,8 +65,6 @@ function CreateTopicDialogForm() {
 
   return (
     <TopicForm
-      error={errorMessage}
-      errorTitle="Unable to create topic"
       onCancel={closeDialog}
       onSubmit={handleSubmit}
       submitLabel="Create topic"

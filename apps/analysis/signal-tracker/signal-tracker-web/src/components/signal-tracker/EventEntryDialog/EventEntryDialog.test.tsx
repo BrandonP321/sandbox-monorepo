@@ -6,7 +6,6 @@ import {
   waitFor,
   within
 } from "@testing-library/react";
-import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -16,6 +15,7 @@ import type {
 
 import { getApiErrorMessage } from "@/api/apiError";
 import { eventEntryReadModel } from "@/api/apiTestData";
+import { useNotifications } from "@/components/ui";
 
 import { EventEntryDialog } from "./EventEntryDialog";
 
@@ -238,7 +238,7 @@ describe("EventEntryDialog", () => {
     } satisfies CreateEventEntryResponse);
     apiMocks.useCreateEventEntryMutation.mockImplementation(
       function useMockCreateEventEntryMutation() {
-        const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function createEventEntryTrigger(request: unknown) {
           createEventEntry(request);
@@ -250,7 +250,10 @@ describe("EventEntryDialog", () => {
                   request
                 )) as CreateEventEntryResponse;
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                notifyError({
+                  content: getApiErrorMessage(error),
+                  header: "Unable to add event"
+                });
                 throw error;
               }
             }
@@ -259,7 +262,7 @@ describe("EventEntryDialog", () => {
 
         return [
           createEventEntryTrigger,
-          { errorMessage, isLoading: false }
+          { errorMessage: undefined, isLoading: false }
         ] satisfies MutationHookResult<CreateEventEntryResponse>;
       }
     );
@@ -271,7 +274,7 @@ describe("EventEntryDialog", () => {
     } satisfies UpdateEventEntryResponse);
     apiMocks.useUpdateEventEntryMutation.mockImplementation(
       function useMockUpdateEventEntryMutation() {
-        const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function updateEventEntryTrigger(request: unknown) {
           updateEventEntry(request);
@@ -283,7 +286,10 @@ describe("EventEntryDialog", () => {
                   request
                 )) as UpdateEventEntryResponse;
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                notifyError({
+                  content: getApiErrorMessage(error),
+                  header: "Unable to save event"
+                });
                 throw error;
               }
             }
@@ -292,7 +298,7 @@ describe("EventEntryDialog", () => {
 
         return [
           updateEventEntryTrigger,
-          { errorMessage, isLoading: false }
+          { errorMessage: undefined, isLoading: false }
         ] satisfies MutationHookResult<UpdateEventEntryResponse>;
       }
     );

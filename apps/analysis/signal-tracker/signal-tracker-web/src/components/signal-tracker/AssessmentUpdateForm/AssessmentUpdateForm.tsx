@@ -31,9 +31,25 @@ function AssessmentUpdateForm({
   hasCurrentAssessment,
   topicId
 }: AssessmentUpdateFormProps) {
+  return (
+    <FormProvider
+      defaultValues={createDefaultFormValues()}
+      schema={assessmentUpdateFormSchema}
+    >
+      <AssessmentUpdateFormContent
+        hasCurrentAssessment={hasCurrentAssessment}
+        topicId={topicId}
+      />
+    </FormProvider>
+  );
+}
+
+function AssessmentUpdateFormContent({
+  hasCurrentAssessment,
+  topicId
+}: AssessmentUpdateFormProps) {
   const { closeDialog, runDialogConfirm } = useDialogContext();
-  const [createAssessmentUpdate, { errorMessage }] =
-    useCreateAssessmentUpdateMutation();
+  const [createAssessmentUpdate] = useCreateAssessmentUpdateMutation();
 
   const submitLabel = hasCurrentAssessment
     ? "Update assessment"
@@ -51,62 +67,55 @@ function AssessmentUpdateForm({
   }
 
   return (
-    <FormProvider
-      defaultValues={createDefaultFormValues()}
-      schema={assessmentUpdateFormSchema}
+    <Form<AssessmentUpdateFormValues>
+      actions={
+        <>
+          <FormButton onClick={closeDialog} variant="outline">
+            Cancel
+          </FormButton>
+          <SubmitButton loadingLabel="Saving assessment...">
+            {submitLabel}
+          </SubmitButton>
+        </>
+      }
+      onSubmit={handleSubmit}
     >
-      <Form<AssessmentUpdateFormValues>
-        actions={
-          <>
-            <FormButton onClick={closeDialog} variant="outline">
-              Cancel
-            </FormButton>
-            <SubmitButton loadingLabel="Saving assessment...">
-              {submitLabel}
-            </SubmitButton>
-          </>
-        }
-        error={errorMessage}
-        errorTitle="Unable to save assessment"
-        onSubmit={handleSubmit}
-      >
-        <FormTextarea<AssessmentUpdateFormValues>
-          label="Judgment"
-          name="judgment"
-          placeholder="What do you currently think, and why?"
-          rows={5}
+      <FormTextarea<AssessmentUpdateFormValues>
+        label="Judgment"
+        name="judgment"
+        placeholder="What do you currently think, and why?"
+        rows={5}
+      />
+      <AutoGrid>
+        <FormSelect<AssessmentUpdateFormValues>
+          label="Confidence"
+          name="confidenceLabel"
+          options={confidenceOptions}
+          placeholder="Choose confidence"
         />
-        <AutoGrid>
-          <FormSelect<AssessmentUpdateFormValues>
-            label="Confidence"
-            name="confidenceLabel"
-            options={confidenceOptions}
-            placeholder="Choose confidence"
-          />
-          <FormDateInput<AssessmentUpdateFormValues>
-            label="Assessment date"
-            name="assessmentDate"
-          />
-        </AutoGrid>
-        <FormTextarea<AssessmentUpdateFormValues>
-          description="One assumption per line."
-          label="Assumptions"
-          name="assumptions"
-          rows={4}
+        <FormDateInput<AssessmentUpdateFormValues>
+          label="Assessment date"
+          name="assessmentDate"
         />
-        <FormTextarea<AssessmentUpdateFormValues>
-          description="One indicator per line."
-          label="Indicators"
-          name="indicators"
-          rows={4}
-        />
-        <AssessmentUpdateOptionalFields />
-        <SourceUrlFormSection<AssessmentUpdateFormValues>
-          description="URLs attached to this assessment."
-          name="sources"
-        />
-      </Form>
-    </FormProvider>
+      </AutoGrid>
+      <FormTextarea<AssessmentUpdateFormValues>
+        description="One assumption per line."
+        label="Assumptions"
+        name="assumptions"
+        rows={4}
+      />
+      <FormTextarea<AssessmentUpdateFormValues>
+        description="One indicator per line."
+        label="Indicators"
+        name="indicators"
+        rows={4}
+      />
+      <AssessmentUpdateOptionalFields />
+      <SourceUrlFormSection<AssessmentUpdateFormValues>
+        description="URLs attached to this assessment."
+        name="sources"
+      />
+    </Form>
   );
 }
 

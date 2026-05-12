@@ -6,7 +6,6 @@ import {
   waitFor,
   within
 } from "@testing-library/react";
-import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -15,6 +14,7 @@ import type {
 } from "@repo/signal-tracker-shared";
 
 import { getApiErrorMessage } from "@/api/apiError";
+import { useNotifications } from "@/components/ui";
 
 import { AssessmentUpdateDialog } from "./AssessmentUpdateDialog";
 
@@ -319,7 +319,7 @@ describe("AssessmentUpdateDialog", () => {
     );
     apiMocks.useCreateAssessmentUpdateMutation.mockImplementation(
       function useMockCreateAssessmentUpdateMutation() {
-        const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function createAssessmentUpdateTrigger(request: unknown) {
           createAssessmentUpdate(request);
@@ -331,7 +331,10 @@ describe("AssessmentUpdateDialog", () => {
                   request
                 )) as CreateAssessmentUpdateResponse;
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                notifyError({
+                  content: getApiErrorMessage(error),
+                  header: "Unable to save assessment"
+                });
                 throw error;
               }
             }
@@ -340,7 +343,7 @@ describe("AssessmentUpdateDialog", () => {
 
         return [
           createAssessmentUpdateTrigger,
-          { errorMessage, isLoading: false }
+          { errorMessage: undefined, isLoading: false }
         ] satisfies MutationHookResult<CreateAssessmentUpdateResponse>;
       }
     );

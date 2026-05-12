@@ -23,8 +23,6 @@ type TopicFormInitialValues = Partial<
 >;
 
 type TopicFormProps = {
-  error?: string;
-  errorTitle?: string;
   onCancel: () => void;
   onSubmit: (metadata: TopicMetadata) => Promise<void>;
   submitLabel: string;
@@ -58,8 +56,6 @@ function TopicFormProvider({
 }
 
 function TopicForm({
-  error,
-  errorTitle,
   onCancel,
   onSubmit,
   submitLabel,
@@ -74,8 +70,6 @@ function TopicForm({
   return (
     <Form<TopicFormValues>
       onSubmit={handleSubmit}
-      error={error}
-      errorTitle={errorTitle}
       actions={
         <>
           <FormButton onClick={onCancel} variant="outline">

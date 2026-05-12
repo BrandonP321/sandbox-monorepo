@@ -10,6 +10,7 @@ import { useTopicDetailsPageTopic } from "./hooks/useTopicDetailsPageTopic";
 export function TopicDetailsPage() {
   const {
     currentAssessment,
+    // TODO: Automatically catch this error cleanly
     errorMessage,
     isError,
     isLoading,

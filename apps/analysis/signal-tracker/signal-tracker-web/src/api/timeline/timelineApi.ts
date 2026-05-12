@@ -33,7 +33,5 @@ export const timelineApi = signalTrackerApi.injectEndpoints({
 
 export const useListTopicTimelineQuery = getQuery(
   timelineApi.useListTopicTimelineQuery,
-  {
-    displayError: false
-  }
+  {}
 );

@@ -6,7 +6,6 @@ import {
   waitFor,
   within
 } from "@testing-library/react";
-import { useState } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -16,6 +15,8 @@ import type {
   EvidenceRecord,
   ReplaceEntrySourcesResponse
 } from "@repo/signal-tracker-shared";
+
+import { useNotifications } from "@/components/ui";
 
 import { EntrySourceIndicator } from "./EntrySourceIndicator";
 
@@ -371,7 +372,7 @@ describe("EntrySourceIndicator", () => {
     } satisfies ReplaceEntrySourcesResponse);
     apiMocks.useReplaceEntrySourcesMutation.mockImplementation(
       function useMockReplaceEntrySourcesMutation() {
-        const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function replaceEntrySourcesTrigger(request: unknown) {
           replaceEntrySources(request);
@@ -383,14 +384,20 @@ describe("EntrySourceIndicator", () => {
                   request
                 )) as ReplaceEntrySourcesResponse;
               } catch (error) {
-                setErrorMessage(getMockApiErrorMessage(error));
+                notifyError({
+                  content: getMockApiErrorMessage(error),
+                  header: "Unable to save sources"
+                });
                 throw error;
               }
             }
           };
         }
 
-        return [replaceEntrySourcesTrigger, { errorMessage, isLoading: false }];
+        return [
+          replaceEntrySourcesTrigger,
+          { errorMessage: undefined, isLoading: false }
+        ];
       }
     );
   }

@@ -870,8 +870,14 @@ describe("App", () => {
       within(dialog).getByRole("button", { name: "Archive topic" })
     );
 
-    expect(await within(dialog).findByRole("alert")).toHaveTextContent(
-      "Archive is temporarily unavailable."
+    const alert = await within(dialog).findByRole("alert");
+    const archiveButton = within(dialog).getByRole("button", {
+      name: "Archive topic"
+    });
+
+    expect(alert).toHaveTextContent("Archive is temporarily unavailable.");
+    expect(archiveButton.nextElementSibling).toBe(
+      alert.closest("[data-slot='notification-alerts']")
     );
     expect(window.location.pathname).toBe(
       "/topics/topic-1/Iran%20strike%20risk"
@@ -958,6 +964,10 @@ describe("App", () => {
       expect(deleteTopic).toHaveBeenCalledWith({ topicId: "topic-1" });
       expect(window.location.pathname).toBe("/topics");
     });
+    expect(await screen.findByText("Topic deleted.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Iran strike risk was permanently deleted.")
+    ).toBeInTheDocument();
   });
 
   it("shows delete failures without leaving the confirmation flow", async () => {
@@ -1460,6 +1470,7 @@ describe("App", () => {
     apiMocks.useCreateAssessmentUpdateMutation.mockImplementation(
       function useMockCreateAssessmentUpdateMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function createAssessmentUpdateTrigger(request: unknown) {
           createAssessmentUpdate(request);
@@ -1469,7 +1480,13 @@ describe("App", () => {
               try {
                 return await unwrapCreateAssessmentUpdate(request);
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to save assessment"
+                });
                 throw error;
               }
             }
@@ -1500,6 +1517,7 @@ describe("App", () => {
     apiMocks.useCreateEventEntryMutation.mockImplementation(
       function useMockCreateEventEntryMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function createEventEntryTrigger(request: unknown) {
           createEventEntry(request);
@@ -1509,7 +1527,13 @@ describe("App", () => {
               try {
                 return await unwrapCreateEventEntry(request);
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to add event"
+                });
                 throw error;
               }
             }
@@ -1531,6 +1555,7 @@ describe("App", () => {
     apiMocks.useCreateTopicMutation.mockImplementation(
       function useMockCreateTopicMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function createTopicTrigger(request: unknown) {
           createTopic(request);
@@ -1540,7 +1565,13 @@ describe("App", () => {
               try {
                 return await unwrapCreateTopic();
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to create topic"
+                });
                 throw error;
               }
             }
@@ -1564,6 +1595,7 @@ describe("App", () => {
     apiMocks.useArchiveTopicMutation.mockImplementation(
       function useMockArchiveTopicMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function archiveTopicTrigger(request: unknown) {
           archiveTopic(request);
@@ -1573,7 +1605,13 @@ describe("App", () => {
               try {
                 return await unwrapArchiveTopic();
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to archive topic"
+                });
                 throw error;
               }
             }
@@ -1597,6 +1635,7 @@ describe("App", () => {
     apiMocks.useDeleteTopicMutation.mockImplementation(
       function useMockDeleteTopicMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError, notifySuccess } = useNotifications();
 
         function deleteTopicTrigger(request: unknown) {
           deleteTopic(request);
@@ -1604,9 +1643,21 @@ describe("App", () => {
           return {
             async unwrap() {
               try {
-                return await unwrapDeleteTopic();
+                const response = await unwrapDeleteTopic();
+
+                notifySuccess({
+                  content: `${response.topic.title} was permanently deleted.`,
+                  header: "Topic deleted."
+                });
+                return response;
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to delete topic"
+                });
                 throw error;
               }
             }
@@ -1690,6 +1741,7 @@ describe("App", () => {
     apiMocks.useUpdateEventEntryMutation.mockImplementation(
       function useMockUpdateEventEntryMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function updateEventEntryTrigger(request: unknown) {
           updateEventEntry(request);
@@ -1699,7 +1751,13 @@ describe("App", () => {
               try {
                 return await unwrapUpdateEventEntry(request);
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to save event"
+                });
                 throw error;
               }
             }

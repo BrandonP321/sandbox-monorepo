@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { createApi, type BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import { fireEvent, render, screen } from "@testing-library/react";
-import type { PropsWithChildren } from "react";
+import { useState, type PropsWithChildren } from "react";
 import { Provider } from "react-redux";
 import { describe, expect, it } from "vitest";
 
@@ -150,6 +150,21 @@ describe("RTK Query notification hooks", () => {
     expect(screen.getByText("Created thing")).toBeInTheDocument();
   });
 
+  it("reports mutation success before a caller unmounts after unwrap", async () => {
+    render(
+      <RtkQueryHooksTestProviders>
+        <NotificationFlashbar />
+        <MutationSuccessUnmountProbe />
+      </RtkQueryHooksTestProviders>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
+
+    expect(await screen.findByText("Request finished")).toBeInTheDocument();
+    expect(await screen.findByText("Thing created.")).toBeInTheDocument();
+    expect(screen.getByText("Created thing")).toBeInTheDocument();
+  });
+
   it("reports query success notifications when a success message is configured", async () => {
     render(
       <RtkQueryHooksTestProviders>
@@ -229,6 +244,31 @@ function MutationSuccessProbe() {
 
   return (
     <button onClick={() => void createThing()} type="button">
+      Create thing
+    </button>
+  );
+}
+
+function MutationSuccessUnmountProbe() {
+  const [isMounted, setIsMounted] = useState(true);
+
+  return isMounted ? (
+    <MutationSuccessUnmountButton onDone={() => setIsMounted(false)} />
+  ) : (
+    <span>Request finished</span>
+  );
+}
+
+function MutationSuccessUnmountButton({ onDone }: { onDone: () => void }) {
+  const [createThing] = useCreateThingWithNotificationsMutation();
+
+  async function handleClick() {
+    await createThing().unwrap();
+    onDone();
+  }
+
+  return (
+    <button onClick={() => void handleClick()} type="button">
       Create thing
     </button>
   );

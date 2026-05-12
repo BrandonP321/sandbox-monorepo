@@ -8,6 +8,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { Button } from "../Button";
+import { useNotifications } from "../Notifications";
 import {
   Dialog,
   DialogClose,
@@ -110,6 +111,23 @@ function FailingDialogActions({
   }
 
   return <Button onClick={() => void handleConfirm()}>Confirm</Button>;
+}
+
+function DialogNotificationButton() {
+  const { notifyError } = useNotifications();
+
+  return (
+    <Button
+      onClick={() =>
+        notifyError({
+          content: "The archive request failed.",
+          header: "Unable to archive topic"
+        })
+      }
+    >
+      Show notification
+    </Button>
+  );
 }
 
 describe("Dialog", () => {
@@ -251,6 +269,34 @@ describe("Dialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("renders caught error notifications directly above footer actions", () => {
+    render(
+      <Dialog>
+        <DialogTrigger>
+          <Button>Open dialog</Button>
+        </DialogTrigger>
+        <DialogContent
+          footer={<Button>Retry</Button>}
+          title="Dialog with notification"
+        >
+          <DialogNotificationButton />
+        </DialogContent>
+      </Dialog>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Open dialog" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show notification" }));
+
+    const alert = screen.getByRole("alert");
+    const retryButton = screen.getByRole("button", { name: "Retry" });
+    const footer = retryButton.closest("[data-slot='dialog-footer']");
+    const alertSurface = alert.closest("[data-slot='notification-alerts']");
+
+    expect(alert).toHaveTextContent("Unable to archive topic");
+    expect(alert).toHaveTextContent("The archive request failed.");
+    expect(alertSurface?.nextElementSibling).toBe(footer);
   });
 
   it("renders custom confirm action labels", () => {

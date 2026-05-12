@@ -2,19 +2,28 @@ import { useNavigate } from "@tanstack/react-router";
 
 import { useArchiveTopicMutation } from "@/api";
 import {
-  Alert,
   Button,
   ContentHeader,
+  ErrorNotificationProvider,
+  NotificationAlerts,
   useDialogContext
 } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 import { useTopicSettingsModalContext } from "../hooks";
 
 function TopicArchiveSection() {
+  return (
+    <ErrorNotificationProvider>
+      <TopicArchiveSectionContent />
+    </ErrorNotificationProvider>
+  );
+}
+
+function TopicArchiveSectionContent() {
   const navigate = useNavigate();
   const { topicId } = useTopicSettingsModalContext();
   const { isDialogConfirming, runDialogConfirm } = useDialogContext();
-  const [archiveTopic, { errorMessage }] = useArchiveTopicMutation();
+  const [archiveTopic] = useArchiveTopicMutation();
 
   async function handleArchive() {
     const result = await runDialogConfirm(async () =>
@@ -34,11 +43,6 @@ function TopicArchiveSection() {
         headingSize="h5"
         title="Lifecycle"
       />
-      {errorMessage ? (
-        <Alert title="Unable to archive topic" variant="danger">
-          {errorMessage}
-        </Alert>
-      ) : null}
       <Button
         isLoading={isDialogConfirming}
         loadingLabel="Archiving topic..."
@@ -47,6 +51,7 @@ function TopicArchiveSection() {
       >
         Archive topic
       </Button>
+      <NotificationAlerts />
     </section>
   );
 }
