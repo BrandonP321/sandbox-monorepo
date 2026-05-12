@@ -8,8 +8,7 @@ import {
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { FormProvider } from "@repo/ui-base";
-
+import { FormProvider } from "../FormProvider";
 import { FormSelect } from "./FormSelect";
 
 const options = [

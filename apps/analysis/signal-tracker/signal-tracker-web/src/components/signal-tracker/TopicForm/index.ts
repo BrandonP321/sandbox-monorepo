@@ -1,1 +1,7 @@
-export { TopicForm, type TopicFormProps } from "./TopicForm";
+export {
+  TopicForm,
+  TopicFormProvider,
+  type TopicFormInitialValues,
+  type TopicFormProps,
+  type TopicFormProviderProps
+} from "./TopicForm";

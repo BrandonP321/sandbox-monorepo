@@ -70,7 +70,7 @@ type MutationHookWithErrorMessage<
 
 function getMutation<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
   mutationHook: TypedUseMutation<TResultType, TQueryArg, TBaseQuery>,
-  notificationOptions?: RtkQueryNotificationOptions<TResultType>
+  notificationOptions: RtkQueryNotificationOptions<TResultType>
 ): MutationHookWithErrorMessage<TResultType, TQueryArg, TBaseQuery> {
   function useMutationHookWithErrorMessage<
     TResult extends Record<string, unknown> = MutationResultSelectorResult<

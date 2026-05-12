@@ -1,39 +1,44 @@
-import { render, screen } from "@testing-library/react";
-import {
-  FormProvider as ReactHookFormProvider,
-  useForm
-} from "react-hook-form";
+import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 
+import { useNotifications } from "../../Notifications";
 import { Form } from "./Form";
+import { FormProvider } from "../FormProvider";
 
-type ExampleFormValues = {
-  title: string;
-};
+const exampleFormSchema = z.object({
+  title: z.string()
+});
 
-function FormHarness({
-  error,
-  errorTitle
-}: {
+type ExampleFormValues = z.input<typeof exampleFormSchema>;
+
+function RegisteredInput() {
+  return <input aria-label="Title" name="title" />;
+}
+
+type FormHarnessProps = {
+  children?: ReactNode;
   error?: string;
   errorTitle?: string;
-}) {
-  const form = useForm<ExampleFormValues>({
-    defaultValues: {
-      title: "Initial title"
-    }
-  });
+};
 
+const defaultValues = {
+  title: "Initial title"
+} satisfies ExampleFormValues;
+
+function FormHarness({ children, error, errorTitle }: FormHarnessProps) {
   return (
-    <ReactHookFormProvider {...form}>
+    <FormProvider defaultValues={defaultValues} schema={exampleFormSchema}>
       <Form<ExampleFormValues>
         error={error}
         errorTitle={errorTitle}
         onSubmit={async () => undefined}
       >
-        <input {...form.register("title")} aria-label="Title" />
+        <RegisteredInput />
+        {children}
       </Form>
-    </ReactHookFormProvider>
+    </FormProvider>
   );
 }
 
@@ -57,4 +62,37 @@ describe("Form", () => {
 
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  it("renders error notifications from form children as alerts", () => {
+    render(
+      <FormHarness>
+        <ProviderErrorButton />
+      </FormHarness>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Show API error" }));
+
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "The API request failed."
+    );
+    expect(screen.getByText("Unable to save form")).toBeInTheDocument();
+  });
 });
+
+function ProviderErrorButton() {
+  const { notifyError } = useNotifications();
+
+  return (
+    <button
+      onClick={() =>
+        notifyError({
+          content: "The API request failed.",
+          header: "Unable to save form"
+        })
+      }
+      type="button"
+    >
+      Show API error
+    </button>
+  );
+}

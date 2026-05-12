@@ -3,7 +3,10 @@ export {
   NotificationFlashbar,
   type NotificationFlashbarProps
 } from "./NotificationFlashbar";
-export { NotificationProvider } from "./NotificationProvider";
+export {
+  ErrorNotificationProvider,
+  NotificationProvider
+} from "./NotificationProvider";
 export { useNotifications } from "./useNotifications";
 export type {
   Notification,

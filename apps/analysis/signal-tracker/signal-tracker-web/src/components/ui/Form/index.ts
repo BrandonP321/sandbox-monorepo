@@ -2,6 +2,7 @@ export * from "./Form";
 export * from "./FormButton";
 export * from "./FormDateInput";
 export * from "./FormField";
+export * from "./FormProvider";
 export * from "./FormNumberInput";
 export * from "./FormSelect";
 export * from "./FormTextarea";

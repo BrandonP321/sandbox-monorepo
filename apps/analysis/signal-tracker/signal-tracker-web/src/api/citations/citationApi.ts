@@ -74,11 +74,28 @@ export const citationApi = signalTrackerApi.injectEndpoints({
 });
 
 export const useAttachEntryCitationMutation = getMutation(
-  citationApi.useAttachEntryCitationMutation
+  citationApi.useAttachEntryCitationMutation,
+  {
+    errorTitle: "Unable to attach citation",
+    successMessage: ({ citation }) => ({
+      content: citation.evidence.evidenceItem.title,
+      header: "Citation attached."
+    })
+  }
 );
 export const useDetachEntryCitationMutation = getMutation(
-  citationApi.useDetachEntryCitationMutation
+  citationApi.useDetachEntryCitationMutation,
+  {
+    errorTitle: "Unable to remove citation",
+    successMessage: ({ citation }) => ({
+      content: citation.evidence.evidenceItem.title,
+      header: "Citation removed."
+    })
+  }
 );
 export const useListEntryCitationsQuery = getQuery(
-  citationApi.useListEntryCitationsQuery
+  citationApi.useListEntryCitationsQuery,
+  {
+    errorTitle: "Unable to load citations"
+  }
 );

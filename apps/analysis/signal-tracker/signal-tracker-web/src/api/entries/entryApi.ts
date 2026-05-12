@@ -97,15 +97,41 @@ export const entryApi = signalTrackerApi.injectEndpoints({
 });
 
 export const useCreateEventEntryMutation = getMutation(
-  entryApi.useCreateEventEntryMutation
+  entryApi.useCreateEventEntryMutation,
+  {
+    displayError: false,
+    successMessage: ({ entry }) => ({
+      content: entry.title,
+      header: "Event added."
+    })
+  }
 );
-export const useGetEventEntryQuery = getQuery(entryApi.useGetEventEntryQuery);
+export const useGetEventEntryQuery = getQuery(entryApi.useGetEventEntryQuery, {
+  errorTitle: "Unable to load event"
+});
 export const useListEventEntriesQuery = getQuery(
-  entryApi.useListEventEntriesQuery
+  entryApi.useListEventEntriesQuery,
+  {
+    errorTitle: "Unable to load events"
+  }
 );
 export const useReplaceEntrySourcesMutation = getMutation(
-  entryApi.useReplaceEntrySourcesMutation
+  entryApi.useReplaceEntrySourcesMutation,
+  {
+    displayError: false,
+    successMessage: ({ entry }) => ({
+      content: entry.title,
+      header: "Sources saved."
+    })
+  }
 );
 export const useUpdateEventEntryMutation = getMutation(
-  entryApi.useUpdateEventEntryMutation
+  entryApi.useUpdateEventEntryMutation,
+  {
+    displayError: false,
+    successMessage: ({ entry }) => ({
+      content: entry.title,
+      header: "Event saved."
+    })
+  }
 );

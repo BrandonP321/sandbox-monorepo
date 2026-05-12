@@ -5,7 +5,7 @@ import {
 } from "@repo/signal-tracker-shared";
 
 import { useCreateTopicMutation } from "@/api";
-import { TopicForm } from "@/components/signal-tracker";
+import { TopicForm, TopicFormProvider } from "@/components/signal-tracker";
 import {
   Button,
   Dialog,
@@ -27,6 +27,19 @@ function CreateTopicDialog() {
 }
 
 function CreateTopicDialogContent() {
+  return (
+    <DialogContent
+      description="Start a durable dossier with a title, framing question, and optional scope note."
+      title="Create topic"
+    >
+      <TopicFormProvider>
+        <CreateTopicDialogForm />
+      </TopicFormProvider>
+    </DialogContent>
+  );
+}
+
+function CreateTopicDialogForm() {
   const navigate = useNavigate();
   const [createTopic, { errorMessage }] = useCreateTopicMutation();
   const { closeDialog, runDialogConfirm } = useDialogContext();
@@ -51,19 +64,14 @@ function CreateTopicDialogContent() {
   }
 
   return (
-    <DialogContent
-      description="Start a durable dossier with a title, framing question, and optional scope note."
-      title="Create topic"
-    >
-      <TopicForm
-        error={errorMessage}
-        errorTitle="Unable to create topic"
-        onCancel={closeDialog}
-        onSubmit={handleSubmit}
-        submitLabel="Create topic"
-        submittingLabel="Creating topic..."
-      />
-    </DialogContent>
+    <TopicForm
+      error={errorMessage}
+      errorTitle="Unable to create topic"
+      onCancel={closeDialog}
+      onSubmit={handleSubmit}
+      submitLabel="Create topic"
+      submittingLabel="Creating topic..."
+    />
   );
 }
 

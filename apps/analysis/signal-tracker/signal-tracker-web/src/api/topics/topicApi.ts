@@ -108,17 +108,28 @@ export const topicApi = signalTrackerApi.injectEndpoints({
   })
 });
 
-export const useGetTopicQuery = getQuery(topicApi.useGetTopicQuery);
+export const useGetTopicQuery = getQuery(topicApi.useGetTopicQuery, {
+  displayError: false
+});
 
-export const useListTopicsQuery = getQuery(topicApi.useListTopicsQuery);
+export const useListTopicsQuery = getQuery(topicApi.useListTopicsQuery, {
+  displayError: false
+});
 
 export const useArchiveTopicMutation = getMutation(
-  topicApi.useArchiveTopicMutation
+  topicApi.useArchiveTopicMutation,
+  {
+    displayError: false,
+    successMessage: ({ topic }) => ({
+      content: `${topic.title} is hidden from active topic lists.`,
+      header: "Topic archived."
+    })
+  }
 );
 export const useCreateTopicMutation = getMutation(
   topicApi.useCreateTopicMutation,
   {
-    errorTitle: "Unable to create topic",
+    displayError: false,
     successMessage: ({ topic }) => ({
       content: `${topic.title} is ready to review.`,
       header: "Topic created."
@@ -126,7 +137,14 @@ export const useCreateTopicMutation = getMutation(
   }
 );
 export const useDeleteTopicMutation = getMutation(
-  topicApi.useDeleteTopicMutation
+  topicApi.useDeleteTopicMutation,
+  {
+    displayError: false,
+    successMessage: ({ topic }) => ({
+      content: `${topic.title} was permanently deleted.`,
+      header: "Topic deleted."
+    })
+  }
 );
 export const useUpdateTopicMutation = getMutation(
   topicApi.useUpdateTopicMutation,

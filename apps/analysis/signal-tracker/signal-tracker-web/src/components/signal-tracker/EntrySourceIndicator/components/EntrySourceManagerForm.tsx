@@ -1,11 +1,11 @@
 import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
-import { FormProvider } from "@repo/ui-base";
 
 import { useReplaceEntrySourcesMutation } from "@/api";
 import { SourceUrlEditor } from "@/components/signal-tracker/SourceUrlEditor";
 import {
   Form,
   FormButton,
+  FormProvider,
   SubmitButton,
   useDialogContext
 } from "@/components/ui";

@@ -64,7 +64,7 @@ type QueryHookWithErrorMessage<
 
 function getQuery<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
   queryHook: TypedUseQuery<TResultType, TQueryArg, TBaseQuery>,
-  notificationOptions?: RtkQueryNotificationOptions<TResultType>
+  notificationOptions: RtkQueryNotificationOptions<TResultType>
 ): QueryHookWithErrorMessage<TResultType, TQueryArg, TBaseQuery> {
   function useQueryHookWithErrorMessage(
     arg: TQueryArg | SkipToken,

@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 import { Alert } from "../../Alert";
+import { NotificationAlerts } from "../../Notifications";
 
 type FormProps<T extends FieldValues> = BaseFormProps<T> & {
   actions?: ReactNode;
@@ -31,6 +32,7 @@ function Form<T extends FieldValues>({
           {error}
         </Alert>
       ) : null}
+      <NotificationAlerts />
       {actions ? (
         <div className="flex flex-col-reverse gap-2 sm:flex-row sm:flex-wrap sm:justify-end">
           {actions}

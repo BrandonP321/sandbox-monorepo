@@ -71,4 +71,6 @@ export const signalTrackerApi = createApi({
   })
 });
 
-export const useGetHealthQuery = getQuery(signalTrackerApi.useGetHealthQuery);
+export const useGetHealthQuery = getQuery(signalTrackerApi.useGetHealthQuery, {
+  displayError: false
+});

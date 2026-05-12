@@ -26,6 +26,7 @@ import type {
 
 import { getApiErrorMessage } from "./api/apiError";
 import App from "./App";
+import { useNotifications } from "./components/ui";
 
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),
@@ -1647,6 +1648,7 @@ describe("App", () => {
     apiMocks.useUpdateTopicMutation.mockImplementation(
       function useMockUpdateTopicMutation() {
         const [errorMessage, setErrorMessage] = useState<string>();
+        const { notifyError } = useNotifications();
 
         function updateTopicTrigger(request: unknown) {
           updateTopic(request);
@@ -1658,7 +1660,13 @@ describe("App", () => {
                 applyTopicUpdate(response.topic);
                 return response;
               } catch (error) {
-                setErrorMessage(getApiErrorMessage(error));
+                const nextErrorMessage = getApiErrorMessage(error);
+
+                setErrorMessage(nextErrorMessage);
+                notifyError({
+                  content: nextErrorMessage,
+                  header: "Unable to update topic"
+                });
                 throw error;
               }
             }

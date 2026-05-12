@@ -1,5 +1,3 @@
-import { FormProvider } from "@repo/ui-base";
-
 import { useCreateAssessmentUpdateMutation } from "@/api";
 import { SourceUrlFormSection } from "@/components/signal-tracker/SourceUrlEditor";
 import {
@@ -8,6 +6,7 @@ import {
   Form,
   FormButton,
   FormDateInput,
+  FormProvider,
   FormNumberInput,
   FormSelect,
   FormTextarea,

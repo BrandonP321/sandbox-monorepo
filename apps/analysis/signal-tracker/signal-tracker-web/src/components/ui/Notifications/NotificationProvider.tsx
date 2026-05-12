@@ -54,7 +54,7 @@ function NotificationProvider({
 
   const notify = useCallback(
     (notification: NotificationInput) => {
-      if (!acceptsNotificationType(notification.type) && parentContext) {
+      if (!acceptsNotificationType(notification.type)) {
         return parentNotifications.notify(notification);
       }
 
@@ -76,12 +76,7 @@ function NotificationProvider({
         id
       };
     },
-    [
-      acceptsNotificationType,
-      dismissNotification,
-      parentContext,
-      parentNotifications
-    ]
+    [acceptsNotificationType, dismissNotification, parentNotifications]
   );
 
   const notifyError = useCallback(
@@ -135,5 +130,13 @@ function NotificationProvider({
   );
 }
 
-export { NotificationProvider };
+function ErrorNotificationProvider({ children }: PropsWithChildren) {
+  return (
+    <NotificationProvider acceptedTypes={["error"]}>
+      {children}
+    </NotificationProvider>
+  );
+}
+
+export { NotificationProvider, ErrorNotificationProvider };
 export type { NotificationProviderProps };

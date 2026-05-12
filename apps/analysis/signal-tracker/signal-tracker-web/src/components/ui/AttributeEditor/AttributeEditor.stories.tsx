@@ -1,11 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider } from "@repo/ui-base";
 import type { CSSProperties } from "react";
 import { useFieldArray, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { Form, SubmitButton } from "../Form";
-import { FormSelect, FormTextInput } from "../Form";
+import {
+  Form,
+  FormProvider,
+  FormSelect,
+  FormTextInput,
+  SubmitButton
+} from "../Form";
 import { AttributeEditor } from "./AttributeEditor";
 
 const meta = {

@@ -134,23 +134,53 @@ export const evidenceApi = signalTrackerApi.injectEndpoints({
 });
 
 export const useCaptureEvidenceUrlMutation = getMutation(
-  evidenceApi.useCaptureEvidenceUrlMutation
+  evidenceApi.useCaptureEvidenceUrlMutation,
+  {
+    errorTitle: "Unable to capture source",
+    successMessage: ({ evidenceItem }) => ({
+      content: evidenceItem.title,
+      header: "Source captured."
+    })
+  }
 );
 export const useCreateEvidenceAnchorMutation = getMutation(
-  evidenceApi.useCreateEvidenceAnchorMutation
+  evidenceApi.useCreateEvidenceAnchorMutation,
+  {
+    errorTitle: "Unable to create evidence anchor",
+    successMessage: "Evidence anchor created."
+  }
 );
 export const useCreateEvidenceItemMutation = getMutation(
-  evidenceApi.useCreateEvidenceItemMutation
+  evidenceApi.useCreateEvidenceItemMutation,
+  {
+    errorTitle: "Unable to create evidence item",
+    successMessage: ({ evidenceItem }) => ({
+      content: evidenceItem.title,
+      header: "Evidence item created."
+    })
+  }
 );
 export const useGetEvidenceAnchorQuery = getQuery(
-  evidenceApi.useGetEvidenceAnchorQuery
+  evidenceApi.useGetEvidenceAnchorQuery,
+  {
+    errorTitle: "Unable to load evidence anchor"
+  }
 );
 export const useGetEvidenceItemQuery = getQuery(
-  evidenceApi.useGetEvidenceItemQuery
+  evidenceApi.useGetEvidenceItemQuery,
+  {
+    errorTitle: "Unable to load evidence item"
+  }
 );
 export const useListEvidenceAnchorsForItemQuery = getQuery(
-  evidenceApi.useListEvidenceAnchorsForItemQuery
+  evidenceApi.useListEvidenceAnchorsForItemQuery,
+  {
+    errorTitle: "Unable to load evidence anchors"
+  }
 );
 export const useListEvidenceItemsQuery = getQuery(
-  evidenceApi.useListEvidenceItemsQuery
+  evidenceApi.useListEvidenceItemsQuery,
+  {
+    errorTitle: "Unable to load evidence"
+  }
 );

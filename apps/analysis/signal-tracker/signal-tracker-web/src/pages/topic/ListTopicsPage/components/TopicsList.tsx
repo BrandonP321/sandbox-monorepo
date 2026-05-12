@@ -1,9 +1,8 @@
-import { FormProvider } from "@repo/ui-base";
-
 import {
   Alert,
   Button,
   ContentHeader,
+  FormProvider,
   FormTextInput,
   LoadingState
 } from "@/components/ui";

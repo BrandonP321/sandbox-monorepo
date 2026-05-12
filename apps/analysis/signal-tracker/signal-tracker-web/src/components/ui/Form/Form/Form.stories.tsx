@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider } from "@repo/ui-base";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "../../Button";
+import { useNotifications } from "../../Notifications";
 import { Form } from "./Form";
 import { FormDateInput } from "../FormDateInput";
 import { FormNumberInput } from "../FormNumberInput";
+import { FormProvider } from "../FormProvider";
 import { FormSelect } from "../FormSelect";
 import { FormTextInput } from "../FormTextInput";
 import { FormTextarea } from "../FormTextarea";
@@ -241,6 +242,23 @@ function FormNumberInputExample() {
   );
 }
 
+function ProviderErrorMessage() {
+  const { notifyError } = useNotifications();
+
+  useEffect(() => {
+    const notification = notifyError({
+      content:
+        "The API returned a validation conflict. Review the fields and try again.",
+      header: "Unable to save topic",
+      id: "form-provider-error-story"
+    });
+
+    return notification.dismiss;
+  }, [notifyError]);
+
+  return null;
+}
+
 export const FormTextInputControl: Story = {
   render: () => <FormTextInputExample />
 };
@@ -271,6 +289,38 @@ export const WithErrorMessage: Story = {
         errorTitle="Unable to save topic"
         onSubmit={async () => undefined}
       >
+        <FormTextInput<ExampleFormValues>
+          label="Title"
+          name="title"
+          placeholder="Enter title"
+        />
+        <FormTextarea<ExampleFormValues>
+          label="Summary"
+          name="summary"
+          placeholder="Enter summary"
+        />
+      </Form>
+    </FormProvider>
+  )
+};
+
+export const WithProviderErrorMessage: Story = {
+  render: () => (
+    <FormProvider
+      defaultValues={{
+        priority: "high",
+        subtitle: "",
+        summary: "A short description of the timeline direction.",
+        title: "Compact timeline"
+      }}
+      schema={exampleFormSchema}
+    >
+      <Form<ExampleFormValues>
+        actions={<Button type="submit">Save changes</Button>}
+        className="w-full max-w-md"
+        onSubmit={async () => undefined}
+      >
+        <ProviderErrorMessage />
         <FormTextInput<ExampleFormValues>
           label="Title"
           name="title"

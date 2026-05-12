@@ -2,9 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { FormProvider } from "@repo/ui-base";
-
-import { Form, SubmitButton } from "@/components/ui";
+import { Form, FormProvider, SubmitButton } from "@/components/ui";
 
 import { SourceUrlEditor } from "./SourceUrlEditor";
 

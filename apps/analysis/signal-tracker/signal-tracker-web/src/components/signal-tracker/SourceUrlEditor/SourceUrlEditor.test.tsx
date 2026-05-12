@@ -3,9 +3,7 @@ import { useWatch } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { FormProvider } from "@repo/ui-base";
-
-import { Button, Form } from "@/components/ui";
+import { Button, Form, FormProvider } from "@/components/ui";
 
 import { SourceUrlEditor } from "./SourceUrlEditor";
 

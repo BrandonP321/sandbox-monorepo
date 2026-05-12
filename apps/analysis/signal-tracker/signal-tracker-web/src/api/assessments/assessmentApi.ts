@@ -36,5 +36,12 @@ export const assessmentApi = signalTrackerApi.injectEndpoints({
 });
 
 export const useCreateAssessmentUpdateMutation = getMutation(
-  assessmentApi.useCreateAssessmentUpdateMutation
+  assessmentApi.useCreateAssessmentUpdateMutation,
+  {
+    displayError: false,
+    successMessage: ({ assessmentUpdate }) => ({
+      content: assessmentUpdate.entry.title,
+      header: "Assessment saved."
+    })
+  }
 );

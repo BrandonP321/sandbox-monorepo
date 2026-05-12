@@ -1,13 +1,14 @@
-import { FormProvider } from "@repo/ui-base";
 import {
   topicMetadataSchema,
   type TopicMetadata
 } from "@repo/signal-tracker-shared";
+import type { PropsWithChildren } from "react";
 import { z } from "zod";
 
 import {
   Form,
   FormButton,
+  FormProvider,
   FormTextInput,
   FormTextarea,
   SubmitButton
@@ -24,7 +25,6 @@ type TopicFormInitialValues = Partial<
 type TopicFormProps = {
   error?: string;
   errorTitle?: string;
-  initialValues?: TopicFormInitialValues;
   onCancel: () => void;
   onSubmit: (metadata: TopicMetadata) => Promise<void>;
   submitLabel: string;
@@ -37,20 +37,34 @@ const defaultTopicFormValues = {
   scopeNote: ""
 } satisfies TopicFormValues;
 
-function TopicForm({
-  error,
-  errorTitle,
-  initialValues,
-  onCancel,
-  onSubmit,
-  submitLabel,
-  submittingLabel
-}: TopicFormProps) {
+type TopicFormProviderProps = PropsWithChildren<{
+  initialValues?: TopicFormInitialValues;
+}>;
+
+function TopicFormProvider({
+  children,
+  initialValues
+}: TopicFormProviderProps) {
   const defaultValues = {
     ...defaultTopicFormValues,
     ...initialValues
   } satisfies TopicFormValues;
 
+  return (
+    <FormProvider defaultValues={defaultValues} schema={topicFormSchema}>
+      {children}
+    </FormProvider>
+  );
+}
+
+function TopicForm({
+  error,
+  errorTitle,
+  onCancel,
+  onSubmit,
+  submitLabel,
+  submittingLabel
+}: TopicFormProps) {
   async function handleSubmit(values: TopicFormValues) {
     const metadata = topicMetadataSchema.parse(values);
 
@@ -58,42 +72,46 @@ function TopicForm({
   }
 
   return (
-    <FormProvider defaultValues={defaultValues} schema={topicFormSchema}>
-      <Form<TopicFormValues>
-        onSubmit={handleSubmit}
-        error={error}
-        errorTitle={errorTitle}
-        actions={
-          <>
-            <FormButton onClick={onCancel} variant="outline">
-              Cancel
-            </FormButton>
-            <SubmitButton loadingLabel={submittingLabel}>
-              {submitLabel}
-            </SubmitButton>
-          </>
-        }
-      >
-        <FormTextInput<TopicFormValues>
-          label="Title"
-          name="title"
-          placeholder="Iran strike risk"
-        />
-        <FormTextInput<TopicFormValues>
-          label="Framing question"
-          name="framingQuestion"
-          placeholder="What changed, and what would change the assessment?"
-        />
-        <FormTextarea<TopicFormValues>
-          description="Optional boundary for what belongs in this dossier."
-          label="Scope note"
-          name="scopeNote"
-          placeholder="Track official signals, military movement, and diplomatic constraints."
-          rows={4}
-        />
-      </Form>
-    </FormProvider>
+    <Form<TopicFormValues>
+      onSubmit={handleSubmit}
+      error={error}
+      errorTitle={errorTitle}
+      actions={
+        <>
+          <FormButton onClick={onCancel} variant="outline">
+            Cancel
+          </FormButton>
+          <SubmitButton loadingLabel={submittingLabel}>
+            {submitLabel}
+          </SubmitButton>
+        </>
+      }
+    >
+      <FormTextInput<TopicFormValues>
+        label="Title"
+        name="title"
+        placeholder="Iran strike risk"
+      />
+      <FormTextInput<TopicFormValues>
+        label="Framing question"
+        name="framingQuestion"
+        placeholder="What changed, and what would change the assessment?"
+      />
+      <FormTextarea<TopicFormValues>
+        description="Optional boundary for what belongs in this dossier."
+        label="Scope note"
+        name="scopeNote"
+        placeholder="Track official signals, military movement, and diplomatic constraints."
+        rows={4}
+      />
+    </Form>
   );
 }
 
-export { TopicForm, type TopicFormProps };
+export {
+  TopicForm,
+  TopicFormProvider,
+  type TopicFormInitialValues,
+  type TopicFormProps,
+  type TopicFormProviderProps
+};

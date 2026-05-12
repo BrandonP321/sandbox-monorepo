@@ -51,7 +51,8 @@ const rtkQueryHooksTestApi = createApi({
 });
 
 const useCreateThingMutation = getMutation(
-  rtkQueryHooksTestApi.useCreateThingMutation
+  rtkQueryHooksTestApi.useCreateThingMutation,
+  {}
 );
 const useCreateThingWithNotificationsMutation = getMutation(
   rtkQueryHooksTestApi.useCreateThingMutation,
@@ -69,7 +70,7 @@ const useCreateThingWithSuppressedErrorsMutation = getMutation(
     displayError: false
   }
 );
-const useGetThingQuery = getQuery(rtkQueryHooksTestApi.useGetThingQuery);
+const useGetThingQuery = getQuery(rtkQueryHooksTestApi.useGetThingQuery, {});
 const useGetThingWithNotificationsQuery = getQuery(
   rtkQueryHooksTestApi.useGetThingQuery,
   {

@@ -1,5 +1,4 @@
 import type { EntryReadModel } from "@repo/signal-tracker-shared";
-import { FormProvider } from "@repo/ui-base";
 
 import {
   useCreateEventEntryMutation,
@@ -11,6 +10,7 @@ import {
   Form,
   FormButton,
   FormDateInput,
+  FormProvider,
   FormSelect,
   FormTextarea,
   FormTextInput,

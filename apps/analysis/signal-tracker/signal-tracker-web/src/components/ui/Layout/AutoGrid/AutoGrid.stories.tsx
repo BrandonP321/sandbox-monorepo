@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { FormProvider } from "@repo/ui-base";
 import { z } from "zod";
 
 import {
   Form,
   FormDateInput,
+  FormProvider,
   FormSelect,
   FormTextarea,
   FormTextInput
