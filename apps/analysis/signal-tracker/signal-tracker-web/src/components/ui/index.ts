@@ -22,5 +22,6 @@ export * from "./Notifications";
 export * from "./PageNotFound";
 export * from "./Popover";
 export * from "./ResourceNotFound";
+export * from "./semanticIcons";
 export * from "./Skeleton";
 export * from "./SourceIcon";

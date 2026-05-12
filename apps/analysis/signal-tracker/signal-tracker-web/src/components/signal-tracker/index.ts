@@ -7,3 +7,4 @@ export * from "./SignalTrackerAppShell";
 export * from "./TopicForm";
 export * from "./TopicTimeline";
 export * from "./TopicSettingsModal";
+export * from "./signalTrackerIcons";

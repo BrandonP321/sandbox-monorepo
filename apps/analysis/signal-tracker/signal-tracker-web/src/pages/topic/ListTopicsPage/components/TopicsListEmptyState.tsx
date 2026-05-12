@@ -1,5 +1,6 @@
+import { signalTrackerIcons as Icons } from "@/components/signal-tracker/signalTrackerIcons";
 import { EmptyState } from "@/components/ui";
-import { Radar } from "lucide-react";
+
 import { CreateTopicDialog } from "./CreateTopicDialog";
 
 type TopicsListEmptyStateProps = {
@@ -15,7 +16,7 @@ function TopicsListEmptyState({ hasQuery }: TopicsListEmptyStateProps) {
           ? "Adjust the search text to return to the active dossier list."
           : "Create topic will start the next topic dossier."
       }
-      icon={<Radar className="size-8" strokeWidth={1.75} />}
+      icon={<Icons.topicEmptyState className="size-8" strokeWidth={1.75} />}
       title={hasQuery ? "No matching topics found." : "No active topics yet."}
     />
   );

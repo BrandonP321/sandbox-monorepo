@@ -1,8 +1,8 @@
-import { Settings } from "lucide-react";
 import type { Topic } from "@repo/signal-tracker-shared";
 
 import { Button, Dialog, DialogTrigger } from "@/components/ui";
 
+import { signalTrackerIcons as Icons } from "../signalTrackerIcons";
 import { TopicSettingsModalContent } from "./components";
 import { TopicSettingsModalProvider } from "./context";
 
@@ -16,7 +16,7 @@ function TopicSettingsModal({ topic }: TopicSettingsModalProps) {
       <TopicSettingsModalProvider topic={topic}>
         <DialogTrigger>
           <Button
-            iconLeft={<Settings aria-hidden="true" className="size-4" />}
+            iconLeft={<Icons.settings aria-hidden="true" className="size-4" />}
             variant="outline"
           >
             Topic settings

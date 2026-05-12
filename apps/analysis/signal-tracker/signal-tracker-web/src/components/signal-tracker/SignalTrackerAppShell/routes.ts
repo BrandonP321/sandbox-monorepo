@@ -1,8 +1,9 @@
 import { createElement } from "react";
-import { FolderKanban } from "lucide-react";
 
 import { defineAppShellRoute, defineAppShellRoutes } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
+
+import { signalTrackerIcons as Icons } from "../signalTrackerIcons";
 
 const signalTrackerAppShellRoutes = defineAppShellRoutes([
   {
@@ -19,7 +20,7 @@ const signalTrackerAppShellRoutes = defineAppShellRoutes([
         visibleWhen: "activeBranch"
       })
     ],
-    icon: createElement(FolderKanban),
+    icon: createElement(Icons.topic),
     path: appRoutes.listTopics.path,
     title: "Topics"
   }
