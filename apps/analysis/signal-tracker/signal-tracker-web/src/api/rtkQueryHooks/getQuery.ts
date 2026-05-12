@@ -9,6 +9,10 @@ import type {
   TypedUseQueryHookResult
 } from "@reduxjs/toolkit/query/react";
 
+import {
+  useApiNotifications,
+  type RtkQueryNotificationOptions
+} from "./apiNotifications";
 import { withErrorMessage, type WithErrorMessage } from "./rtkQueryHooksShared";
 
 type QueryHookSubscriptionOptions = SubscriptionOptions & {
@@ -59,9 +63,10 @@ type QueryHookWithErrorMessage<
 };
 
 function getQuery<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
-  queryHook: TypedUseQuery<TResultType, TQueryArg, TBaseQuery>
+  queryHook: TypedUseQuery<TResultType, TQueryArg, TBaseQuery>,
+  notificationOptions?: RtkQueryNotificationOptions<TResultType>
 ): QueryHookWithErrorMessage<TResultType, TQueryArg, TBaseQuery> {
-  const queryHookWithErrorMessage = (
+  function useQueryHookWithErrorMessage(
     arg: TQueryArg | SkipToken,
     options?:
       | QueryHookOptionsWithoutSelectedResult
@@ -71,8 +76,8 @@ function getQuery<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
           TBaseQuery,
           Record<string, unknown>
         >
-  ) =>
-    withErrorMessage(
+  ) {
+    const result = withErrorMessage(
       queryHook(
         arg as Parameters<TypedUseQuery<TResultType, TQueryArg, TBaseQuery>>[0],
         options as Parameters<
@@ -81,7 +86,12 @@ function getQuery<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
       )
     );
 
-  return queryHookWithErrorMessage as QueryHookWithErrorMessage<
+    useApiNotifications<TResultType>(result, notificationOptions);
+
+    return result;
+  }
+
+  return useQueryHookWithErrorMessage as QueryHookWithErrorMessage<
     TResultType,
     TQueryArg,
     TBaseQuery

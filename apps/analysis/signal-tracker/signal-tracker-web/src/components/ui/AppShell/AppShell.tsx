@@ -6,6 +6,7 @@ import { useMinBreakpoint } from "@repo/ui-base";
 import { cn } from "@/lib/utils";
 
 import { Breadcrumbs, type BreadcrumbsItem } from "../Breadcrumbs";
+import { NotificationFlashbar, NotificationProvider } from "../Notifications";
 import {
   AppShellContent,
   AppShellHeader,
@@ -129,38 +130,41 @@ function AppShell({
   );
 
   return (
-    <AppShellContext.Provider value={contextValue}>
-      <div
-        data-slot="app-shell"
-        className={cn(
-          "bg-background text-foreground flex h-screen overflow-hidden supports-[height:100svh]:h-svh",
-          className
-        )}
-      >
-        <AppShellSidebar aria-label={sidebarLabel} brand={sidebarBrand}>
-          <AppShellNavigation
-            activeRouteId={activeRoute?.id}
-            routes={resolvedRoutes}
-          />
-        </AppShellSidebar>
-        <AppShellContent>
-          {activeRoute ? (
-            <AppShellHeader scrolled={isHeaderScrolled}>
-              <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <AppShellSidebarToggle className="-ml-1" />
-                <Breadcrumbs items={breadcrumbItems} />
-              </div>
-            </AppShellHeader>
-          ) : null}
-          <AppShellMain
-            className={contentClassName}
-            onScroll={handleMainScroll}
-          >
-            {children ?? <Outlet />}
-          </AppShellMain>
-        </AppShellContent>
-      </div>
-    </AppShellContext.Provider>
+    <NotificationProvider>
+      <AppShellContext.Provider value={contextValue}>
+        <div
+          data-slot="app-shell"
+          className={cn(
+            "bg-background text-foreground flex h-screen overflow-hidden supports-[height:100svh]:h-svh",
+            className
+          )}
+        >
+          <AppShellSidebar aria-label={sidebarLabel} brand={sidebarBrand}>
+            <AppShellNavigation
+              activeRouteId={activeRoute?.id}
+              routes={resolvedRoutes}
+            />
+          </AppShellSidebar>
+          <AppShellContent>
+            {activeRoute ? (
+              <AppShellHeader scrolled={isHeaderScrolled}>
+                <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                  <AppShellSidebarToggle className="-ml-1" />
+                  <Breadcrumbs items={breadcrumbItems} />
+                </div>
+              </AppShellHeader>
+            ) : null}
+            <AppShellMain
+              className={contentClassName}
+              onScroll={handleMainScroll}
+            >
+              <NotificationFlashbar className="mb-4" />
+              {children ?? <Outlet />}
+            </AppShellMain>
+          </AppShellContent>
+        </div>
+      </AppShellContext.Provider>
+    </NotificationProvider>
   );
 }
 

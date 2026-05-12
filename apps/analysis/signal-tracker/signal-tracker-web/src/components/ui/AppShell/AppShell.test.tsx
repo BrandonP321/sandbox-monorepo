@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { useNotifications } from "../Notifications";
 import {
   AppShell,
   type AnyAppShellRoute,
@@ -435,6 +436,33 @@ describe("AppShell", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("provides a root notification flashbar inside the main scroll region", async () => {
+    await renderAppShell({
+      children: (
+        <>
+          <NotifySuccessButton />
+          <span>Main content</span>
+        </>
+      ),
+      initialPath: "/topics",
+      routes
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Show notification" }));
+
+    const main = screen.getByRole("main");
+    const flashbar = within(main).getByRole("region", {
+      name: "Notifications"
+    });
+
+    expect(flashbar).toHaveClass("mb-4");
+    expect(within(flashbar).getByText("Topic created.")).toBeInTheDocument();
+    expect(
+      flashbar.compareDocumentPosition(screen.getByText("Main content")) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
   it("supports controlled sidebar state", async () => {
     const handleSidebarOpenChange = vi.fn();
 
@@ -536,6 +564,16 @@ function CloseSidebarButton() {
   return (
     <button onClick={closeSidebar} type="button">
       Close navigation
+    </button>
+  );
+}
+
+function NotifySuccessButton() {
+  const { notifySuccess } = useNotifications();
+
+  return (
+    <button onClick={() => notifySuccess("Topic created.")} type="button">
+      Show notification
     </button>
   );
 }

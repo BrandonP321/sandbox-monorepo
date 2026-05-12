@@ -6,6 +6,7 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 
 - Keep each standalone primitive in its own PascalCase folder, such as `Button/`, `Badge/`, or `DropdownMenu/`.
 - Keep tightly related primitive families in one folder when they share ownership or are normally consumed together. For example, `Form/` owns `FormField`, `FormInput`, `FormSelect`, and `FormTextarea`; `Dialog/` owns `DialogContext`.
+- `AppShell` owns the root `NotificationProvider` and page-level `NotificationFlashbar`. Product shells should not wrap `AppShell` in a second root notification provider or render another page-level flashbar unless a specific nested notification boundary is needed.
 - Keep each component's implementation, tests, and stories together in the owning folder.
 - Add an `index.ts` file to each component folder and export only the intentional public surface for that primitive or family.
 - Keep `src/components/ui/index.ts` as the app-facing barrel that re-exports component-folder public APIs.

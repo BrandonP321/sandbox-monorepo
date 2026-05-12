@@ -116,11 +116,25 @@ export const useArchiveTopicMutation = getMutation(
   topicApi.useArchiveTopicMutation
 );
 export const useCreateTopicMutation = getMutation(
-  topicApi.useCreateTopicMutation
+  topicApi.useCreateTopicMutation,
+  {
+    errorTitle: "Unable to create topic",
+    successMessage: ({ topic }) => ({
+      content: `${topic.title} is ready to review.`,
+      header: "Topic created."
+    })
+  }
 );
 export const useDeleteTopicMutation = getMutation(
   topicApi.useDeleteTopicMutation
 );
 export const useUpdateTopicMutation = getMutation(
-  topicApi.useUpdateTopicMutation
+  topicApi.useUpdateTopicMutation,
+  {
+    errorTitle: "Unable to update topic",
+    successMessage: ({ topic }) => ({
+      content: `${topic.title} has been updated.`,
+      header: "Topic updated."
+    })
+  }
 );

@@ -9,6 +9,10 @@ import type {
   TypedUseMutationResult
 } from "@reduxjs/toolkit/query/react";
 
+import {
+  useApiNotifications,
+  type RtkQueryNotificationOptions
+} from "./apiNotifications";
 import { withErrorMessage, type WithErrorMessage } from "./rtkQueryHooksShared";
 
 type MutationHookOptions<
@@ -65,15 +69,26 @@ type MutationHookWithErrorMessage<
 >;
 
 function getMutation<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
-  mutationHook: TypedUseMutation<TResultType, TQueryArg, TBaseQuery>
+  mutationHook: TypedUseMutation<TResultType, TQueryArg, TBaseQuery>,
+  notificationOptions?: RtkQueryNotificationOptions<TResultType>
 ): MutationHookWithErrorMessage<TResultType, TQueryArg, TBaseQuery> {
-  return ((options) => {
+  function useMutationHookWithErrorMessage<
+    TResult extends Record<string, unknown> = MutationResultSelectorResult<
+      MutationDefinition<TQueryArg, TBaseQuery, string, TResultType>
+    >
+  >(
+    options?: MutationHookOptions<TResultType, TQueryArg, TBaseQuery, TResult>
+  ) {
     const hookResult = mutationHook(options);
     const mutation = hookResult[0];
-    const result = hookResult[1];
+    const result = withErrorMessage(hookResult[1]);
 
-    return [mutation, withErrorMessage(result)];
-  }) as <
+    useApiNotifications<TResultType>(result, notificationOptions);
+
+    return [mutation, result];
+  }
+
+  return useMutationHookWithErrorMessage as unknown as <
     TResult extends Record<string, unknown> = MutationResultSelectorResult<
       MutationDefinition<TQueryArg, TBaseQuery, string, TResultType>
     >

@@ -539,10 +539,12 @@ describe("App", () => {
     await waitFor(() => {
       expect(window.location.pathname).toBe("/topics/topic-1");
     });
-    expect(getTopicMock).toHaveBeenCalledWith(
-      { topicId: "topic-1" },
-      expect.objectContaining({ onProgress: expect.any(Function) })
-    );
+    await waitFor(() => {
+      expect(getTopicMock).toHaveBeenCalledWith(
+        { topicId: "topic-1" },
+        expect.objectContaining({ onProgress: expect.any(Function) })
+      );
+    });
     expect(
       await screen.findByRole("heading", { name: "Iran strike risk" })
     ).toBeInTheDocument();
