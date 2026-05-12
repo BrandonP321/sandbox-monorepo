@@ -15,7 +15,7 @@ function AppShellNavigation({
   routes
 }: AppShellNavigationProps) {
   return (
-    <nav aria-label="Routes" className="grid gap-1">
+    <nav aria-label="Routes" className="grid min-w-0 gap-1">
       <AppShellNavigationList activeRouteId={activeRouteId} routes={routes} />
     </nav>
   );
@@ -27,7 +27,9 @@ function AppShellNavigationList({
   nested = false
 }: AppShellNavigationProps & { nested?: boolean }) {
   return (
-    <ul className={cn("grid list-none gap-1.5 p-0", nested && "mt-1.5")}>
+    <ul
+      className={cn("grid min-w-0 list-none gap-1.5 p-0", nested && "mt-1.5")}
+    >
       {routes.map((route) => (
         <AppShellNavigationItem
           activeRouteId={activeRouteId}
@@ -69,7 +71,12 @@ function AppShellNavigationItem({
           {route.icon}
         </span>
       ) : null}
-      <span className="truncate leading-5">{route.navLinkTitle}</span>
+      <span
+        className="min-w-0 flex-1 truncate leading-5"
+        data-slot="app-shell-navigation-label"
+      >
+        {route.navLinkTitle}
+      </span>
     </>
   );
   const linkClassName = cn(
@@ -93,7 +100,7 @@ function AppShellNavigationItem({
   } as const;
 
   return (
-    <li>
+    <li className="min-w-0">
       <Link {...linkProps} />
       {route.children && route.children.length > 0 ? (
         <AppShellNavigationList

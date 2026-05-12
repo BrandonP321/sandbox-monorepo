@@ -59,6 +59,42 @@ const routes = defineAppShellRoutes([
   }
 ]);
 
+const longLabelRoutes = defineAppShellRoutes([
+  {
+    icon: <LayoutDashboard className="size-4" />,
+    id: "overview",
+    navLinkTitle:
+      "Overview with an intentionally long navigation label that should truncate",
+    path: "/overview",
+    title: "Overview"
+  },
+  {
+    children: [
+      {
+        id: "workspace-current",
+        navLinkTitle:
+          "Current topic with a long generated display name that cannot fit",
+        path: "/workspace/current",
+        title: "Current topic"
+      }
+    ],
+    icon: <Activity className="size-4" />,
+    id: "workspace",
+    navLinkTitle:
+      "Workspace branch with a long parent label that still reserves an icon",
+    path: "/workspace",
+    title: "Workspace"
+  },
+  {
+    icon: <Settings className="size-4" />,
+    id: "settings",
+    navLinkTitle:
+      "Settings and administration with extra copy that exceeds the sidebar",
+    path: "/settings",
+    title: "Settings"
+  }
+]);
+
 const baseArgs = {
   children: <AppShellStoryContent />,
   className: "w-screen",
@@ -74,6 +110,16 @@ export const Basic: Story = {
 
 export const NestedRoute: Story = {
   args: baseArgs,
+  render: (args) => (
+    <AppShellStory args={args} initialPath="/workspace/current" />
+  )
+};
+
+export const LongSidebarLabels: Story = {
+  args: {
+    ...baseArgs,
+    routes: longLabelRoutes
+  },
   render: (args) => (
     <AppShellStory args={args} initialPath="/workspace/current" />
   )

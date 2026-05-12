@@ -31,6 +31,21 @@ const routes = defineAppShellRoutes([
   }
 ]);
 
+const longLabelRoutes = defineAppShellRoutes([
+  {
+    id: "topics",
+    navLinkTitle:
+      "Topics with a very long sidebar label that must truncate inside the nav item",
+    path: "/topics",
+    title: "Topics"
+  },
+  {
+    id: "settings",
+    path: "/settings",
+    title: "Settings"
+  }
+]);
+
 const nestedRoutes = defineAppShellRoutes([
   {
     children: [
@@ -160,6 +175,35 @@ describe("AppShell", () => {
         name: "Settings"
       })
     ).toHaveAttribute("aria-current", "page");
+  });
+
+  it("constrains long sidebar labels so navigation text can truncate", async () => {
+    await renderAppShell({ initialPath: "/topics", routes: longLabelRoutes });
+
+    const sidebar = screen.getByRole("complementary", {
+      name: "Workspace navigation"
+    });
+    const navigation = within(sidebar).getByRole("navigation", {
+      name: "Routes"
+    });
+    const longLabel =
+      "Topics with a very long sidebar label that must truncate inside the nav item";
+    const link = within(navigation).getByRole("link", { name: longLabel });
+    const list = within(navigation).getByRole("list");
+    const label = link.querySelector(
+      '[data-slot="app-shell-navigation-label"]'
+    );
+    const item = link.closest("li");
+
+    if (!label || !item) {
+      throw new Error("Expected AppShell navigation item structure.");
+    }
+
+    expect(navigation).toHaveClass("min-w-0");
+    expect(list).toHaveClass("min-w-0");
+    expect(item).toHaveClass("min-w-0");
+    expect(link).toHaveClass("min-w-0");
+    expect(label).toHaveClass("min-w-0", "flex-1", "truncate");
   });
 
   it("applies the scrolled header treatment after main content scrolls past the threshold", async () => {

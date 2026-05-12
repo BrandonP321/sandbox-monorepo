@@ -11,6 +11,7 @@ type TopicDetailsHeaderProps = {
   topic: Topic;
 };
 
+// TODO: Update ContentHeader to support badge slot
 function TopicDetailsHeader({ topic }: TopicDetailsHeaderProps) {
   return (
     <header className="border-border border-b pb-5">
