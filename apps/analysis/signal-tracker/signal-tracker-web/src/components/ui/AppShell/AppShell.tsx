@@ -29,6 +29,7 @@ type AppShellProps = AppShellNativeProps & {
   contentClassName?: string;
   defaultSidebarOpen?: boolean;
   onSidebarOpenChange?: (open: boolean) => void;
+  sidebarBrand?: React.ReactNode;
   sidebarLabel?: string;
   sidebarOpen?: boolean;
   routes: readonly AnyAppShellRoute[];
@@ -40,6 +41,7 @@ function AppShell({
   contentClassName,
   defaultSidebarOpen,
   onSidebarOpenChange,
+  sidebarBrand,
   sidebarLabel = "Application navigation",
   sidebarOpen: controlledSidebarOpen,
   routes
@@ -135,7 +137,7 @@ function AppShell({
           className
         )}
       >
-        <AppShellSidebar aria-label={sidebarLabel}>
+        <AppShellSidebar aria-label={sidebarLabel} brand={sidebarBrand}>
           <AppShellNavigation
             activeRouteId={activeRoute?.id}
             routes={resolvedRoutes}

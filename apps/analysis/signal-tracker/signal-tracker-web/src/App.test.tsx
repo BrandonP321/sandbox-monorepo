@@ -1796,6 +1796,10 @@ async function expectListTopicsPage() {
     name: "Signal Tracker navigation"
   });
 
+  expect(within(navigation).getByText("Signal Tracker")).toBeInTheDocument();
+  expect(
+    within(navigation).getByText("Continuity workspace")
+  ).toBeInTheDocument();
   expect(
     within(navigation).getByRole("link", { name: "Topics" })
   ).toHaveAttribute("aria-current", "page");

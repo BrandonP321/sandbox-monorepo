@@ -27,12 +27,7 @@ function AppShellNavigationList({
   nested = false
 }: AppShellNavigationProps & { nested?: boolean }) {
   return (
-    <ul
-      className={cn(
-        "grid list-none gap-1 p-0",
-        nested && "border-border/70 mt-1.5 ml-3 border-l pl-2.5"
-      )}
-    >
+    <ul className={cn("grid list-none gap-1.5 p-0", nested && "mt-1.5")}>
       {routes.map((route) => (
         <AppShellNavigationItem
           activeRouteId={activeRouteId}
@@ -58,12 +53,18 @@ function AppShellNavigationItem({
   const isActiveRoute = route.id === activeRouteId;
   const isActiveBranch =
     isActiveRoute || hasActiveChildRoute(route, activeRouteId);
+  const hasChildren = Boolean(route.children?.length);
+  const reservesIconSlot = !nested && (Boolean(route.icon) || hasChildren);
   const linkContent = (
     <>
-      {route.icon ? (
+      {reservesIconSlot ? (
         <span
-          className="shrink-0 text-current [&>svg]:size-4"
           aria-hidden="true"
+          className={cn(
+            "flex size-4 shrink-0 items-center justify-center text-current [&>svg]:size-4",
+            isActiveBranch && "text-primary"
+          )}
+          data-slot="app-shell-navigation-icon"
         >
           {route.icon}
         </span>
@@ -74,11 +75,11 @@ function AppShellNavigationItem({
   const linkClassName = cn(
     "relative flex min-w-0 items-center gap-2 rounded-lg font-medium outline-none transition-[background-color,color,box-shadow]",
     "focus-visible:ring-ring/50 focus-visible:ring-[3px]",
-    nested ? "px-2.5 py-1.5 text-[0.8125rem]" : "px-3 py-2 text-sm",
+    nested ? "py-2 pr-3 pl-9 text-sm" : "px-3 py-2 text-sm",
     isActiveRoute
-      ? "bg-accent text-accent-foreground before:absolute before:left-1.5 before:top-1/2 before:h-4 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-primary"
-      : "text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground",
-    !isActiveRoute && isActiveBranch && "bg-muted/70 text-foreground"
+      ? "bg-accent/70 text-accent-foreground"
+      : "text-muted-foreground hover:bg-accent/40 hover:text-accent-foreground",
+    !isActiveRoute && isActiveBranch && "text-muted-foreground"
   );
   const linkProps = {
     "aria-current": isActiveRoute ? "page" : undefined,

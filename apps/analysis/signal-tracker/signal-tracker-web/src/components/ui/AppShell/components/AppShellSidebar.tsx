@@ -9,9 +9,12 @@ import { useAppShellContext } from "../hooks";
 type AppShellSidebarProps = Pick<
   React.ComponentProps<"aside">,
   "aria-label" | "children" | "className"
->;
+> & {
+  brand?: React.ReactNode;
+};
 
 function AppShellSidebar({
+  brand,
   children,
   className,
   ...sidebarProps
@@ -35,7 +38,10 @@ function AppShellSidebar({
       )}
     >
       {isSidebarOverlay ? (
-        <div className="mb-4 flex shrink-0 justify-end md:hidden">
+        <div
+          data-slot="app-shell-sidebar-close"
+          className="absolute top-4 right-4 z-10 md:hidden"
+        >
           <Button
             aria-label="Close navigation"
             className="text-muted-foreground"
@@ -47,9 +53,20 @@ function AppShellSidebar({
           </Button>
         </div>
       ) : null}
+      {brand ? (
+        <div
+          data-slot="app-shell-sidebar-brand"
+          className="mb-5 shrink-0 pr-12 md:pr-0"
+        >
+          {brand}
+        </div>
+      ) : null}
       <div
         data-slot="app-shell-sidebar-scroll-area"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto overscroll-y-contain",
+          !brand && isSidebarOverlay && "pt-12"
+        )}
       >
         {children}
       </div>

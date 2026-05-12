@@ -34,6 +34,7 @@ const nestedRoutes = defineAppShellRoutes([
   {
     children: [
       defineAppShellRoute({
+        icon: <span>Topic detail icon</span>,
         id: "topic-1",
         params: ({ params }) => ({
           topicId: params.topicId,
@@ -46,6 +47,7 @@ const nestedRoutes = defineAppShellRoutes([
         visibleWhen: "activeBranch"
       })
     ],
+    icon: <span>Topics icon</span>,
     id: "topics",
     path: "/topics",
     title: "Topics"
@@ -96,6 +98,34 @@ describe("AppShell", () => {
     );
     expect(screen.getByRole("banner")).toHaveTextContent("Topics");
     expect(screen.getByRole("main")).toHaveTextContent("Main content");
+  });
+
+  it("renders optional sidebar brand content above route navigation", async () => {
+    await renderAppShell({
+      initialPath: "/topics",
+      routes,
+      sidebarBrand: <div>Workspace brand</div>
+    });
+
+    const sidebar = screen.getByRole("complementary", {
+      name: "Workspace navigation"
+    });
+    const brand = sidebar.querySelector(
+      '[data-slot="app-shell-sidebar-brand"]'
+    );
+    const navigation = within(sidebar).getByRole("navigation", {
+      name: "Routes"
+    });
+
+    if (!brand) {
+      throw new Error("Expected AppShell sidebar brand to be mounted.");
+    }
+
+    expect(brand).toHaveTextContent("Workspace brand");
+    expect(
+      brand.compareDocumentPosition(navigation) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it("pads main content by default and accepts content class overrides", async () => {
@@ -188,6 +218,47 @@ describe("AppShell", () => {
     ).toHaveAttribute("href", "/topics/topic-1/Iran%20strike%20risk");
   });
 
+  it("renders route icons only for parent navigation links and aligns child labels with parent labels", async () => {
+    await renderAppShell({
+      initialPath: "/topics/topic-1/Iran%20strike%20risk",
+      routes: nestedRoutes
+    });
+
+    const navigation = within(
+      screen.getByRole("complementary", { name: "Workspace navigation" })
+    );
+    const parentLink = navigation.getByRole("link", { name: "Topics" });
+    const childLink = navigation.getByRole("link", {
+      name: "Iran strike risk"
+    });
+    const navigationLists = navigation.getAllByRole("list");
+    const childList = parentLink.closest("li")?.querySelector("ul");
+
+    expect(
+      parentLink.querySelector('[data-slot="app-shell-navigation-icon"]')
+    ).toBeInTheDocument();
+    expect(
+      parentLink.querySelector('[data-slot="app-shell-navigation-icon"]')
+    ).toHaveClass("text-primary");
+    expect(
+      childLink.querySelector('[data-slot="app-shell-navigation-icon"]')
+    ).not.toBeInTheDocument();
+    expect(parentLink).toHaveClass("px-3", "py-2", "text-sm");
+    expect(parentLink).toHaveClass("hover:bg-accent/40");
+    expect(parentLink).not.toHaveClass(
+      "bg-accent/70",
+      "bg-muted/70",
+      "text-foreground"
+    );
+    expect(navigationLists[0]).toHaveClass("gap-1.5");
+    expect(childList).toHaveClass("gap-1.5", "mt-1.5");
+    expect(childLink).toHaveClass("py-2", "pr-3", "pl-9", "text-sm");
+    expect(childLink).toHaveClass("bg-accent/70");
+    expect(childLink).not.toHaveClass("hover:bg-accent/40");
+    expect(childLink.className).not.toContain("before:");
+    expect(childLink).not.toHaveTextContent("Topic detail icon");
+  });
+
   it("hides active-branch route links until that branch is active", async () => {
     await renderAppShell({
       initialPath: "/topics",
@@ -202,6 +273,14 @@ describe("AppShell", () => {
       "aria-current",
       "page"
     );
+    expect(
+      navigation
+        .getByRole("link", { name: "Topics" })
+        .querySelector('[data-slot="app-shell-navigation-icon"]')
+    ).toHaveClass("text-primary");
+    expect(
+      navigation.getByRole("link", { name: "Topics" }).className
+    ).not.toContain("before:");
     expect(
       navigation.queryByRole("link", { name: "Iran strike risk" })
     ).not.toBeInTheDocument();
@@ -286,6 +365,17 @@ describe("AppShell", () => {
     expect(
       within(sidebar).getByRole("button", { name: "Close navigation" })
     ).toBeInTheDocument();
+    expect(getSidebarCloseElement(sidebar)).toHaveClass(
+      "absolute",
+      "top-4",
+      "right-4",
+      "z-10",
+      "md:hidden"
+    );
+    expect(getSidebarCloseElement(sidebar)).not.toHaveClass("mb-4");
+    expect(
+      sidebar.querySelector('[data-slot="app-shell-sidebar-scroll-area"]')
+    ).toHaveClass("pt-12");
 
     fireEvent.click(
       within(sidebar).getByRole("button", { name: "Close navigation" })
@@ -294,6 +384,36 @@ describe("AppShell", () => {
     expect(
       screen.queryByRole("complementary", { name: "Workspace navigation" })
     ).not.toBeInTheDocument();
+  });
+
+  it("keeps the mobile close control from pushing branded sidebar content down", async () => {
+    await renderAppShell({
+      initialPath: "/topics",
+      isDesktopViewport: false,
+      routes,
+      sidebarBrand: <div>Workspace brand</div>,
+      useResponsiveSidebarDefault: true
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Expand navigation" }));
+
+    const sidebar = screen.getByRole("complementary", {
+      name: "Workspace navigation"
+    });
+    const brand = sidebar.querySelector(
+      '[data-slot="app-shell-sidebar-brand"]'
+    );
+    const scrollArea = sidebar.querySelector(
+      '[data-slot="app-shell-sidebar-scroll-area"]'
+    );
+
+    if (!brand || !scrollArea) {
+      throw new Error("Expected branded AppShell sidebar content.");
+    }
+
+    expect(getSidebarCloseElement(sidebar)).toHaveClass("absolute");
+    expect(brand).toHaveClass("pr-12", "md:pr-0");
+    expect(scrollArea).not.toHaveClass("pt-12");
   });
 
   it("lets descendants close the sidebar through context", async () => {
@@ -342,6 +462,7 @@ type RenderAppShellOptions = {
   isDesktopViewport?: boolean;
   onSidebarOpenChange?: (open: boolean) => void;
   routes: readonly AnyAppShellRoute[];
+  sidebarBrand?: React.ReactNode;
   sidebarOpen?: boolean;
   useResponsiveSidebarDefault?: boolean;
 };
@@ -354,6 +475,7 @@ async function renderAppShell({
   isDesktopViewport = true,
   onSidebarOpenChange,
   routes,
+  sidebarBrand,
   sidebarOpen,
   useResponsiveSidebarDefault = false
 }: RenderAppShellOptions) {
@@ -366,6 +488,7 @@ async function renderAppShell({
         {...(useResponsiveSidebarDefault ? {} : { defaultSidebarOpen })}
         onSidebarOpenChange={onSidebarOpenChange}
         routes={routes}
+        sidebarBrand={sidebarBrand}
         sidebarLabel="Workspace navigation"
         sidebarOpen={sidebarOpen}
       >
@@ -427,6 +550,18 @@ function getSidebarElement(container: HTMLElement) {
   }
 
   return sidebar;
+}
+
+function getSidebarCloseElement(container: HTMLElement) {
+  const closeElement = container.querySelector<HTMLElement>(
+    '[data-slot="app-shell-sidebar-close"]'
+  );
+
+  if (!closeElement) {
+    throw new Error("Expected AppShell sidebar close control to be mounted.");
+  }
+
+  return closeElement;
 }
 
 function installMatchMediaMock(matches: boolean) {

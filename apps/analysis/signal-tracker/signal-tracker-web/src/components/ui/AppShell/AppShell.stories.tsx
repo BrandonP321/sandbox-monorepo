@@ -61,6 +61,7 @@ const baseArgs = {
   children: <AppShellStoryContent />,
   className: "w-screen",
   routes,
+  sidebarBrand: <AppShellStoryBrand />,
   sidebarLabel: "Workspace navigation"
 } satisfies AppShellProps;
 
@@ -168,6 +169,25 @@ function createAppShellStoryRouter(args: Story["args"], initialPath: string) {
 
 function EmptyRouteComponent() {
   return null;
+}
+
+function AppShellStoryBrand() {
+  return (
+    <div className="flex min-w-0 items-center gap-2.5">
+      <span
+        aria-hidden="true"
+        className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-semibold"
+      >
+        W
+      </span>
+      <div className="min-w-0">
+        <p className="text-foreground truncate text-sm font-semibold">
+          Workspace
+        </p>
+        <p className="text-muted-foreground truncate text-xs">Research desk</p>
+      </div>
+    </div>
+  );
 }
 
 function AppShellStoryContent() {
