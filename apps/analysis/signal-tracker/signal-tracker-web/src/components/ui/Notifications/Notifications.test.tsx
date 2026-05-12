@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import { Button } from "../Button";
 import {
+  ErrorNotificationProvider,
   NotificationAlerts,
   NotificationFlashbar,
   NotificationProvider,
@@ -12,7 +13,7 @@ import {
 describe("Notifications", () => {
   it("displays success messages through the notification actions", () => {
     render(
-      <NotificationProvider>
+      <NotificationProvider mode="multiple">
         <NotificationFlashbar />
         <NotificationActionButton
           label="Show success"
@@ -40,7 +41,7 @@ describe("Notifications", () => {
 
   it("dismisses notifications from the Flashbar renderer", () => {
     render(
-      <NotificationProvider>
+      <NotificationProvider mode="multiple">
         <NotificationFlashbar />
         <NotificationActionButton
           label="Show warning"
@@ -63,9 +64,9 @@ describe("Notifications", () => {
 
   it("passes unsupported notification types to the parent provider", () => {
     render(
-      <NotificationProvider>
+      <NotificationProvider mode="multiple">
         <NotificationFlashbar />
-        <NotificationProvider acceptedTypes={["error"]}>
+        <ErrorNotificationProvider>
           <NotificationAlerts />
           <NotificationActionButton
             label="Show local error"
@@ -79,7 +80,7 @@ describe("Notifications", () => {
               notifications.notifySuccess("The form was saved.")
             }
           />
-        </NotificationProvider>
+        </ErrorNotificationProvider>
       </NotificationProvider>
     );
 
@@ -100,6 +101,66 @@ describe("Notifications", () => {
 
     expect(
       within(flashbar).getByText("The form was saved.")
+    ).toBeInTheDocument();
+  });
+
+  it("keeps only the latest notification in single-message providers", () => {
+    render(
+      <ErrorNotificationProvider>
+        <NotificationAlerts />
+        <NotificationActionButton
+          label="Show first error"
+          onNotify={(notifications) =>
+            notifications.notifyError("The first request failed.")
+          }
+        />
+        <NotificationActionButton
+          label="Show second error"
+          onNotify={(notifications) =>
+            notifications.notifyError("The second request failed.")
+          }
+        />
+      </ErrorNotificationProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Show first error" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show second error" }));
+
+    expect(
+      screen.queryByText("The first request failed.")
+    ).not.toBeInTheDocument();
+    expect(screen.getByText("The second request failed.")).toBeInTheDocument();
+  });
+
+  it("supports multiple notifications for Flashbar providers", () => {
+    render(
+      <NotificationProvider mode="multiple">
+        <NotificationFlashbar />
+        <NotificationActionButton
+          label="Show success"
+          onNotify={(notifications) =>
+            notifications.notifySuccess("The topic was saved.")
+          }
+        />
+        <NotificationActionButton
+          label="Show warning"
+          onNotify={(notifications) =>
+            notifications.notifyWarning("Review citations before publishing.")
+          }
+        />
+      </NotificationProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Show success" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show warning" }));
+
+    const flashbar = screen.getByRole("region", { name: "Notifications" });
+
+    expect(
+      within(flashbar).getByText("The topic was saved.")
+    ).toBeInTheDocument();
+    expect(
+      within(flashbar).getByText("Review citations before publishing.")
     ).toBeInTheDocument();
   });
 });

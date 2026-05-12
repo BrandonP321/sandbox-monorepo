@@ -441,22 +441,30 @@ describe("AppShell", () => {
       children: (
         <>
           <NotifySuccessButton />
+          <NotifyWarningButton />
           <span>Main content</span>
         </>
       ),
       initialPath: "/topics",
+      notificationFlashbarClassName: "mx-auto max-w-5xl",
       routes
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Show notification" }));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Show warning notification" })
+    );
 
     const main = screen.getByRole("main");
     const flashbar = within(main).getByRole("region", {
       name: "Notifications"
     });
 
-    expect(flashbar).toHaveClass("mb-4");
+    expect(flashbar).toHaveClass("mb-4", "mx-auto", "max-w-5xl");
     expect(within(flashbar).getByText("Topic created.")).toBeInTheDocument();
+    expect(
+      within(flashbar).getByText("Review the topic before publishing.")
+    ).toBeInTheDocument();
     expect(
       flashbar.compareDocumentPosition(screen.getByText("Main content")) &
         Node.DOCUMENT_POSITION_FOLLOWING
@@ -488,6 +496,7 @@ type RenderAppShellOptions = {
   defaultSidebarOpen?: boolean;
   initialPath: string;
   isDesktopViewport?: boolean;
+  notificationFlashbarClassName?: string;
   onSidebarOpenChange?: (open: boolean) => void;
   routes: readonly AnyAppShellRoute[];
   sidebarBrand?: React.ReactNode;
@@ -501,6 +510,7 @@ async function renderAppShell({
   defaultSidebarOpen = true,
   initialPath,
   isDesktopViewport = true,
+  notificationFlashbarClassName,
   onSidebarOpenChange,
   routes,
   sidebarBrand,
@@ -514,6 +524,7 @@ async function renderAppShell({
       <AppShell
         contentClassName={contentClassName}
         {...(useResponsiveSidebarDefault ? {} : { defaultSidebarOpen })}
+        notificationFlashbarClassName={notificationFlashbarClassName}
         onSidebarOpenChange={onSidebarOpenChange}
         routes={routes}
         sidebarBrand={sidebarBrand}
@@ -574,6 +585,19 @@ function NotifySuccessButton() {
   return (
     <button onClick={() => notifySuccess("Topic created.")} type="button">
       Show notification
+    </button>
+  );
+}
+
+function NotifyWarningButton() {
+  const { notifyWarning } = useNotifications();
+
+  return (
+    <button
+      onClick={() => notifyWarning("Review the topic before publishing.")}
+      type="button"
+    >
+      Show warning notification
     </button>
   );
 }

@@ -39,6 +39,7 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Prefer schema-derived required state from `@repo/ui-base` for form wrappers, with explicit overrides only when a caller needs to diverge from the schema.
 - Product forms should import shared Signal Tracker schema shapes or builders for contract-backed fields instead of recreating `z.string()` field rules locally. Keep local form code focused on layout, submit orchestration, and rare message overrides.
 - Form action buttons should disable while React Hook Form is submitting. Reserve loading/busy state for the submit action or a button that is actually performing the submitted work; cancel/secondary actions should usually disable without `aria-busy`.
+- The app-local `FormProvider` owns the form error notification boundary. When an RTK Query hook is part of a form workflow but is called above the `<Form>` component, expose a thin product-specific provider wrapper and place it above the hook owner so automatic API errors still render in the form-local alert surface.
 
 ## Stories And Tests
 

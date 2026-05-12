@@ -6,6 +6,7 @@ function SignalTrackerAppShell() {
   return (
     <AppShell
       contentClassName="pt-0 sm:pt-0 lg:pt-0"
+      notificationFlashbarClassName="mx-auto w-full max-w-6xl"
       routes={signalTrackerAppShellRoutes}
       sidebarBrand={<SignalTrackerSidebarBrand />}
       sidebarLabel="Signal Tracker navigation"

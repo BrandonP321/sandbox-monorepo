@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { Button } from "../Button";
 import {
+  ErrorNotificationProvider,
   NotificationAlerts,
   NotificationFlashbar,
   NotificationProvider,
@@ -25,7 +26,7 @@ type Story = StoryObj<typeof meta>;
 
 export const RootFlashbar: Story = {
   render: () => (
-    <NotificationProvider>
+    <NotificationProvider mode="multiple">
       <NotificationDemoControls />
       <div className="mt-4">
         <NotificationFlashbar />
@@ -36,15 +37,15 @@ export const RootFlashbar: Story = {
 
 export const NestedAlertBoundary: Story = {
   render: () => (
-    <NotificationProvider>
+    <NotificationProvider mode="multiple">
       <div className="grid gap-4">
         <NotificationFlashbar />
-        <NotificationProvider acceptedTypes={["error"]}>
+        <ErrorNotificationProvider>
           <div className="border-border bg-card grid gap-4 rounded-xl border p-4">
             <NotificationAlerts />
             <NotificationDemoControls />
           </div>
-        </NotificationProvider>
+        </ErrorNotificationProvider>
       </div>
     </NotificationProvider>
   )

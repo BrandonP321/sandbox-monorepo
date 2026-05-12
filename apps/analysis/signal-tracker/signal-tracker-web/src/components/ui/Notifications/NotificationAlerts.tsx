@@ -11,23 +11,21 @@ const alertVariantByNotificationType = {
 
 function NotificationAlerts() {
   const { notifications } = useNotifications();
+  const latestNotification = notifications.at(-1);
 
-  if (notifications.length === 0) {
+  if (!latestNotification) {
     return null;
   }
 
   return (
     <div data-slot="notification-alerts" className="grid gap-2">
-      {notifications.map((notification) => (
-        <Alert
-          actions={notification.action}
-          key={notification.id}
-          title={notification.header}
-          variant={alertVariantByNotificationType[notification.type]}
-        >
-          {notification.content}
-        </Alert>
-      ))}
+      <Alert
+        actions={latestNotification.action}
+        title={latestNotification.header}
+        variant={alertVariantByNotificationType[latestNotification.type]}
+      >
+        {latestNotification.content}
+      </Alert>
     </div>
   );
 }

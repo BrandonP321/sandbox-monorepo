@@ -1,9 +1,13 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { useNotifications } from "../../Notifications";
+import {
+  NotificationFlashbar,
+  NotificationProvider,
+  useNotifications
+} from "../../Notifications";
 import { Form } from "./Form";
 import { FormProvider } from "../FormProvider";
 
@@ -72,10 +76,40 @@ describe("Form", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Show API error" }));
 
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "The API request failed."
-    );
+    expect(
+      screen.getByText("The API request failed.").closest("[data-slot='alert']")
+    ).toHaveTextContent("The API request failed.");
     expect(screen.getByText("Unable to save form")).toBeInTheDocument();
+  });
+
+  it("clears form notifications on submit without clearing parent notifications", async () => {
+    render(
+      <NotificationProvider mode="multiple">
+        <NotificationFlashbar />
+        <FormHarness>
+          <ProviderErrorButton />
+          <ProviderSuccessButton />
+          <button type="submit">Save form</button>
+        </FormHarness>
+      </NotificationProvider>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Show API error" }));
+    fireEvent.click(screen.getByRole("button", { name: "Show page success" }));
+
+    expect(
+      screen.getByText("The API request failed.").closest("[data-slot='alert']")
+    ).toHaveTextContent("The API request failed.");
+    expect(screen.getByText("The page request succeeded.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Save form" }));
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText("The API request failed.")
+      ).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("The page request succeeded.")).toBeInTheDocument();
   });
 });
 
@@ -93,6 +127,19 @@ function ProviderErrorButton() {
       type="button"
     >
       Show API error
+    </button>
+  );
+}
+
+function ProviderSuccessButton() {
+  const { notifySuccess } = useNotifications();
+
+  return (
+    <button
+      onClick={() => notifySuccess("The page request succeeded.")}
+      type="button"
+    >
+      Show page success
     </button>
   );
 }

@@ -9,6 +9,8 @@ import {
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity, LayoutDashboard, Settings } from "lucide-react";
 
+import { Button } from "../Button";
+import { useNotifications } from "../Notifications";
 import { AppShell, defineAppShellRoutes, type AppShellProps } from "./index";
 
 const meta = {
@@ -88,6 +90,15 @@ export const CollapsedSidebar: Story = {
 export const ScrolledHeader: Story = {
   args: baseArgs,
   render: (args) => <AppShellStory args={args} initialMainScrollTop={64} />
+};
+
+export const WithNotifications: Story = {
+  args: {
+    ...baseArgs,
+    children: <AppShellNotificationStoryContent />,
+    notificationFlashbarClassName: "mx-auto w-full max-w-5xl"
+  },
+  render: (args) => <AppShellStory args={args} />
 };
 
 function AppShellStory({
@@ -216,6 +227,52 @@ function AppShellStoryContent() {
           </section>
         ))}
       </div>
+    </div>
+  );
+}
+
+function AppShellNotificationStoryContent() {
+  const { notifySuccess, notifyWarning } = useNotifications();
+
+  return (
+    <div className="mx-auto grid w-full max-w-5xl gap-4">
+      <div className="grid gap-2">
+        <h2 className="text-foreground text-xl font-semibold">
+          Regional risk review
+        </h2>
+        <p className="text-muted-foreground text-sm">
+          Keep the latest update visible while reviewing active indicators.
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Button
+          onClick={() =>
+            notifySuccess({
+              content: "The topic update is visible in the workspace.",
+              header: "Topic updated."
+            })
+          }
+        >
+          Show success
+        </Button>
+        <Button
+          onClick={() =>
+            notifyWarning("Review citations before publishing the topic.")
+          }
+          variant="outline"
+        >
+          Show warning
+        </Button>
+      </div>
+
+      <section className="bg-card text-card-foreground rounded-xl p-5">
+        <h3 className="text-base font-semibold">Active indicators</h3>
+        <p className="text-muted-foreground mt-2 text-sm">
+          Official statements, force posture, and credible reporting are ready
+          for review.
+        </p>
+      </section>
     </div>
   );
 }

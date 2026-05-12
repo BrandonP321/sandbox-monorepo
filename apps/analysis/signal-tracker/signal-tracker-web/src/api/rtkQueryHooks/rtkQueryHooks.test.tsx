@@ -174,7 +174,7 @@ function RtkQueryHooksTestProviders({ children }: PropsWithChildren) {
 
   return (
     <Provider store={store}>
-      <NotificationProvider>{children}</NotificationProvider>
+      <NotificationProvider mode="multiple">{children}</NotificationProvider>
     </Provider>
   );
 }

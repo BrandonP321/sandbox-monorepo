@@ -65,7 +65,7 @@ describe("Flashbar", () => {
 
     const flashbar = screen.getByRole("region", { name: "Notifications" });
 
-    expect(flashbar).toHaveClass("sticky", "top-1");
+    expect(flashbar).toHaveClass("sticky", "top-1", "z-30");
     expect(within(flashbar).getByRole("list")).toBeInTheDocument();
     expect(within(flashbar).getByRole("list")).toHaveClass("gap-0.5");
     expect(within(flashbar).getAllByRole("listitem")).toHaveLength(2);

@@ -102,7 +102,7 @@ function Flashbar({
     <section
       aria-label={ariaLabel}
       data-slot="flashbar"
-      className={cn("sticky top-1 w-full", className)}
+      className={cn("sticky top-1 z-30 w-full", className)}
     >
       <ul data-slot="flashbar-list" className="grid gap-0.5">
         {visibleNotifications.map((notification) => {

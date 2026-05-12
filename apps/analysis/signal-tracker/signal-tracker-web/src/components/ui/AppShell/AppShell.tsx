@@ -29,6 +29,7 @@ type AppShellNativeProps = Pick<
 type AppShellProps = AppShellNativeProps & {
   contentClassName?: string;
   defaultSidebarOpen?: boolean;
+  notificationFlashbarClassName?: string;
   onSidebarOpenChange?: (open: boolean) => void;
   sidebarBrand?: React.ReactNode;
   sidebarLabel?: string;
@@ -41,6 +42,7 @@ function AppShell({
   className,
   contentClassName,
   defaultSidebarOpen,
+  notificationFlashbarClassName,
   onSidebarOpenChange,
   sidebarBrand,
   sidebarLabel = "Application navigation",
@@ -130,7 +132,7 @@ function AppShell({
   );
 
   return (
-    <NotificationProvider>
+    <NotificationProvider mode="multiple">
       <AppShellContext.Provider value={contextValue}>
         <div
           data-slot="app-shell"
@@ -158,7 +160,9 @@ function AppShell({
               className={contentClassName}
               onScroll={handleMainScroll}
             >
-              <NotificationFlashbar className="mb-4" />
+              <NotificationFlashbar
+                className={cn("mb-4", notificationFlashbarClassName)}
+              />
               {children ?? <Outlet />}
             </AppShellMain>
           </AppShellContent>

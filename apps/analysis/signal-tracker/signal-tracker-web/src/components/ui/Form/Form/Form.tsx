@@ -3,12 +3,12 @@ import {
   type FormProps as BaseFormProps
 } from "@repo/ui-base";
 import type { FieldValues } from "react-hook-form";
-import type { ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
 import { Alert } from "../../Alert";
-import { NotificationAlerts } from "../../Notifications";
+import { NotificationAlerts, useNotifications } from "../../Notifications";
 
 type FormProps<T extends FieldValues> = BaseFormProps<T> & {
   actions?: ReactNode;
@@ -22,10 +22,24 @@ function Form<T extends FieldValues>({
   className,
   error,
   errorTitle,
+  onSubmit,
   ...props
 }: FormProps<T>) {
+  const { clearNotifications } = useNotifications();
+  const handleSubmit = useCallback<BaseFormProps<T>["onSubmit"]>(
+    async (values, event) => {
+      clearNotifications();
+      await onSubmit(values, event);
+    },
+    [clearNotifications, onSubmit]
+  );
+
   return (
-    <BaseForm {...props} className={cn("grid gap-4", className)}>
+    <BaseForm
+      {...props}
+      className={cn("grid gap-4", className)}
+      onSubmit={handleSubmit}
+    >
       {children}
       {error ? (
         <Alert title={errorTitle} variant="danger">

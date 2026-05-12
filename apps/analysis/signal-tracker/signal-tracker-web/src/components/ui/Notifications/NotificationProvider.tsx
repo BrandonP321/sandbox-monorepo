@@ -14,8 +14,11 @@ import type {
 
 let nextNotificationId = 0;
 
+type NotificationProviderMode = "multiple" | "single";
+
 type NotificationProviderProps = PropsWithChildren<{
   acceptedTypes?: readonly NotificationType[];
+  mode?: NotificationProviderMode;
 }>;
 
 function createNotificationId() {
@@ -25,7 +28,8 @@ function createNotificationId() {
 
 function NotificationProvider({
   acceptedTypes,
-  children
+  children,
+  mode = "single"
 }: NotificationProviderProps) {
   const parentContext = useContext(NotificationContext);
   const parentNotifications = parentContext ?? fallbackNotificationContextValue;
@@ -64,19 +68,24 @@ function NotificationProvider({
         id
       };
 
-      setNotifications((currentNotifications) => [
-        ...currentNotifications.filter(
+      setNotifications((currentNotifications) => {
+        const deduplicatedNotifications = currentNotifications.filter(
           (currentNotification) => currentNotification.id !== id
-        ),
-        nextNotification
-      ]);
+        );
+
+        if (mode === "single") {
+          return [nextNotification];
+        }
+
+        return [...deduplicatedNotifications, nextNotification];
+      });
 
       return {
         dismiss: () => dismissNotification(id),
         id
       };
     },
-    [acceptsNotificationType, dismissNotification, parentNotifications]
+    [acceptsNotificationType, dismissNotification, mode, parentNotifications]
   );
 
   const notifyError = useCallback(
@@ -139,4 +148,4 @@ function ErrorNotificationProvider({ children }: PropsWithChildren) {
 }
 
 export { NotificationProvider, ErrorNotificationProvider };
-export type { NotificationProviderProps };
+export type { NotificationProviderMode, NotificationProviderProps };
