@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 
 import { cn } from "@/lib/utils";
 
+import { useAppShellContext } from "../hooks";
 import type { AppShellResolvedRoute } from "../types";
 
 type AppShellNavigationProps = {
@@ -53,6 +54,7 @@ function AppShellNavigationItem({
   nested: boolean;
   route: AppShellResolvedRoute;
 }) {
+  const { closeSidebar, isSidebarOverlay } = useAppShellContext();
   const isActiveRoute = route.id === activeRouteId;
   const isActiveBranch =
     isActiveRoute || hasActiveChildRoute(route, activeRouteId);
@@ -83,6 +85,7 @@ function AppShellNavigationItem({
     activeOptions: { exact: true },
     children: linkContent,
     className: linkClassName,
+    onClick: isSidebarOverlay ? closeSidebar : undefined,
     params: route.params,
     preload: "intent",
     to: route.to

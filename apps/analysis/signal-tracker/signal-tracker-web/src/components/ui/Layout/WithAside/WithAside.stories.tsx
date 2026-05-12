@@ -23,7 +23,6 @@ export const TopicDetails: Story = {
             <CardHeader>
               <ContentHeader
                 description="Latest active assessment update."
-                eyebrow="Assessment"
                 headingLevel={2}
                 headingSize="h3"
                 title="Current assessment"

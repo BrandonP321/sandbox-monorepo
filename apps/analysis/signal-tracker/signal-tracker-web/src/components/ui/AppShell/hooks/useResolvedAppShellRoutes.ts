@@ -36,12 +36,17 @@ function useResolvedAppShellRoutes({
     () => resolveAppShellRoutes(routes, routeContext),
     [routeContext, routes]
   );
-  const activeRoute =
-    findActiveAppShellRoute(resolvedRoutes, activeRouterMatch.activePath) ??
-    resolvedRoutes[0];
+  const activeRouteBranch = findActiveAppShellRouteBranch(
+    resolvedRoutes,
+    activeRouterMatch.activePath
+  );
+  const activeRoute = activeRouteBranch?.at(-1) ?? resolvedRoutes[0];
+  const activeRouteBreadcrumbs =
+    activeRouteBranch ?? (activeRoute ? [activeRoute] : []);
 
   return {
     activeRoute,
+    activeRouteBreadcrumbs,
     routes: resolvedRoutes
   };
 }
@@ -80,26 +85,26 @@ function resolveAppShellRoutes(
   });
 }
 
-function findActiveAppShellRoute(
+function findActiveAppShellRouteBranch(
   routes: readonly AppShellResolvedRoute[],
   activePath: string | undefined
-): AppShellResolvedRoute | undefined {
+): AppShellResolvedRoute[] | undefined {
   if (!activePath) {
     return undefined;
   }
 
   for (const route of routes) {
     if (route.path === activePath) {
-      return route;
+      return [route];
     }
 
-    const childRoute = findActiveAppShellRoute(
+    const childRouteBranch = findActiveAppShellRouteBranch(
       route.children ?? [],
       activePath
     );
 
-    if (childRoute) {
-      return childRoute;
+    if (childRouteBranch) {
+      return [route, ...childRouteBranch];
     }
   }
 

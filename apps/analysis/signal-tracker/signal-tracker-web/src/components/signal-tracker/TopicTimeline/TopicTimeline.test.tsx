@@ -10,13 +10,17 @@ import type {
 import { TopicTimeline } from "./TopicTimeline";
 
 const apiMocks = vi.hoisted(() => ({
+  useCreateEventEntryMutation: vi.fn(),
   useListTopicTimelineQuery: vi.fn(),
-  useReplaceEntrySourcesMutation: vi.fn()
+  useReplaceEntrySourcesMutation: vi.fn(),
+  useUpdateEventEntryMutation: vi.fn()
 }));
 
 vi.mock("@/api", () => ({
+  useCreateEventEntryMutation: apiMocks.useCreateEventEntryMutation,
   useListTopicTimelineQuery: apiMocks.useListTopicTimelineQuery,
-  useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation
+  useReplaceEntrySourcesMutation: apiMocks.useReplaceEntrySourcesMutation,
+  useUpdateEventEntryMutation: apiMocks.useUpdateEventEntryMutation
 }));
 
 type TimelineHookResult = {
@@ -96,8 +100,18 @@ const assessmentTimelineItem = {
 describe("TopicTimeline", () => {
   beforeEach(() => {
     apiMocks.useListTopicTimelineQuery.mockReset();
+    apiMocks.useCreateEventEntryMutation.mockReset();
+    apiMocks.useCreateEventEntryMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
     apiMocks.useReplaceEntrySourcesMutation.mockReset();
     apiMocks.useReplaceEntrySourcesMutation.mockReturnValue([
+      vi.fn(),
+      { errorMessage: undefined, isLoading: false }
+    ]);
+    apiMocks.useUpdateEventEntryMutation.mockReset();
+    apiMocks.useUpdateEventEntryMutation.mockReturnValue([
       vi.fn(),
       { errorMessage: undefined, isLoading: false }
     ]);
@@ -140,10 +154,25 @@ describe("TopicTimeline", () => {
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
-  it("renders an empty state when no visible timeline entries exist", () => {
+  it("renders an empty state with an action when no visible timeline entries exist", async () => {
     render(<TopicTimeline topicId="topic-1" />);
 
     expect(screen.getByText("No timeline entries yet")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Add the first event to start building this topic history."
+      )
+    ).toBeInTheDocument();
+
+    const addEventButton = screen.getByRole("button", { name: "Add event" });
+
+    expect(addEventButton).toHaveClass("border-input");
+
+    fireEvent.click(addEventButton);
+
+    expect(
+      await screen.findByRole("dialog", { name: "Add event" })
+    ).toBeInTheDocument();
   });
 
   it("renders mixed event and assessment rows while hiding reviews", () => {

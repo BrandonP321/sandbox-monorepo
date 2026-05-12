@@ -193,6 +193,7 @@ type MutationHookResult<TResult> = [
 ];
 
 let applyTopicUpdate: (topic: Topic) => void = () => undefined;
+const originalMatchMedia = window.matchMedia;
 
 describe("App", () => {
   const archiveTopic = vi.fn();
@@ -212,6 +213,7 @@ describe("App", () => {
 
   beforeEach(() => {
     window.history.replaceState(null, "", "/");
+    installMatchMediaMock(true);
     archiveTopic.mockReset();
     createAssessmentUpdate.mockReset();
     createEventEntry.mockReset();
@@ -252,6 +254,11 @@ describe("App", () => {
   });
 
   afterEach(() => {
+    Object.defineProperty(window, "matchMedia", {
+      configurable: true,
+      value: originalMatchMedia,
+      writable: true
+    });
     vi.useRealTimers();
   });
 
@@ -587,12 +594,16 @@ describe("App", () => {
     expect(apiMocks.useGetTopicQuery).toHaveBeenLastCalledWith({
       topicId: "topic-1"
     });
-    expect(screen.getByRole("link", { name: "Topics" })).toHaveAttribute(
+    const breadcrumbs = within(
+      screen.getByRole("navigation", { name: "Breadcrumbs" })
+    );
+
+    expect(breadcrumbs.getByRole("link", { name: "Topics" })).toHaveAttribute(
       "href",
       "/topics"
     );
     expect(
-      screen.getByRole("link", { name: "Iran strike risk" })
+      breadcrumbs.getByRole("link", { name: "Iran strike risk" })
     ).toHaveAttribute("href", "/topics/topic-1/Iran%20strike%20risk");
     expect(
       screen.getByText("Will the conflict expand over the next month?")
@@ -603,7 +614,11 @@ describe("App", () => {
     expect(
       screen.queryByRole("link", { name: "Back to topics" })
     ).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Add event" })).toBeEnabled();
+    expect(
+      within(getTopicDetailsHeader()).getByRole("button", {
+        name: "Add event"
+      })
+    ).toBeEnabled();
     expect(
       screen.getByRole("button", { name: "Topic settings" })
     ).toBeEnabled();
@@ -615,16 +630,15 @@ describe("App", () => {
     });
     expect(screen.getByText("No timeline entries yet")).toBeInTheDocument();
     expect(
+      within(getTimelineSection()).getByRole("button", { name: "Add event" })
+    ).toBeEnabled();
+    expect(
       screen.getByRole("heading", { name: "Current assessment" })
     ).toBeInTheDocument();
     expect(screen.getByText("No assessment yet")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Add assessment" })
     ).toBeEnabled();
-    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
-    expect(
-      await screen.findByRole("dialog", { name: "Add assessment" })
-    ).toBeInTheDocument();
     expect(screen.queryByText("Topic ID: topic-1")).not.toBeInTheDocument();
   });
 
@@ -1167,21 +1181,24 @@ describe("App", () => {
       "",
       "/topics/topic-1/Iran%20strike%20risk"
     );
+    mockGetTopicQuery({
+      data: { topic, currentAssessment: currentAssessmentReadModel }
+    });
 
     renderApp();
 
     expect(
       await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Add assessment" }));
+    fireEvent.click(screen.getByRole("button", { name: "Update assessment" }));
 
     const dialog = await screen.findByRole("dialog", {
-      name: "Add assessment"
+      name: "Update assessment"
     });
 
     fillAssessmentComposer(dialog);
     fireEvent.click(
-      within(dialog).getByRole("button", { name: "Save assessment" })
+      within(dialog).getByRole("button", { name: "Update assessment" })
     );
 
     await waitFor(() => {
@@ -1209,7 +1226,11 @@ describe("App", () => {
     expect(
       await screen.findByRole("heading", { level: 1, name: "Iran strike risk" })
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Add event" }));
+    fireEvent.click(
+      within(getTopicDetailsHeader()).getByRole("button", {
+        name: "Add event"
+      })
+    );
 
     const dialog = await screen.findByRole("dialog", { name: "Add event" });
 
@@ -1747,6 +1768,25 @@ function renderApp() {
   return render(<App />);
 }
 
+function installMatchMediaMock(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: vi.fn((query: string): MediaQueryList => {
+      return {
+        matches,
+        media: query,
+        onchange: null,
+        addEventListener: vi.fn(),
+        addListener: vi.fn(),
+        dispatchEvent: vi.fn(() => false),
+        removeEventListener: vi.fn(),
+        removeListener: vi.fn()
+      };
+    }),
+    writable: true
+  });
+}
+
 async function expectListTopicsPage() {
   expect(
     await screen.findByRole("heading", { level: 1, name: "Topics" })
@@ -1777,6 +1817,31 @@ async function openTopicSettingsDialog() {
   fireEvent.click(screen.getByRole("button", { name: "Topic settings" }));
 
   return screen.findByRole("dialog", { name: "Topic settings" });
+}
+
+function getTopicDetailsHeader() {
+  const heading = screen.getByRole("heading", {
+    level: 1,
+    name: "Iran strike risk"
+  });
+  const header = heading.closest("header");
+
+  if (!header) {
+    throw new Error("Expected topic details heading to be inside a header.");
+  }
+
+  return header;
+}
+
+function getTimelineSection() {
+  const heading = screen.getByRole("heading", { name: "Timeline" });
+  const section = heading.closest("section");
+
+  if (!section) {
+    throw new Error("Expected timeline heading to be inside a section.");
+  }
+
+  return section;
 }
 
 function fillAssessmentComposer(dialog: HTMLElement) {

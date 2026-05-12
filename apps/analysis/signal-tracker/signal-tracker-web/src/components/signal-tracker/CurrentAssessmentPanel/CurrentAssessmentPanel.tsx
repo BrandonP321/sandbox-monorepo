@@ -21,24 +21,20 @@ function CurrentAssessmentPanel({
   assessment,
   topicId
 }: CurrentAssessmentPanelProps) {
-  const actionLabel = assessment ? "Update assessment" : "Add assessment";
-
   return (
     <Card>
       <CardHeader>
         <ContentHeader
           actions={
-            <AssessmentUpdateDialog
-              hasCurrentAssessment={assessment !== null}
-              topicId={topicId}
-            >
-              <Button size="sm" variant="outline">
-                {actionLabel}
-              </Button>
-            </AssessmentUpdateDialog>
+            assessment ? (
+              <AssessmentUpdateDialog hasCurrentAssessment topicId={topicId}>
+                <Button size="sm" variant="outline">
+                  Update assessment
+                </Button>
+              </AssessmentUpdateDialog>
+            ) : undefined
           }
           description="Latest active assessment update."
-          eyebrow="Assessment"
           headingLevel={2}
           headingSize="h3"
           title="Current assessment"
@@ -49,8 +45,15 @@ function CurrentAssessmentPanel({
           <CurrentAssessmentContent assessment={assessment} />
         ) : (
           <EmptyState
-            className="items-start px-0 py-2 text-left"
-            description="Add an assessment update to record the current judgment, confidence, assumptions, and indicators for this dossier."
+            action={
+              <AssessmentUpdateDialog
+                hasCurrentAssessment={false}
+                topicId={topicId}
+              >
+                <Button variant="outline">Add assessment</Button>
+              </AssessmentUpdateDialog>
+            }
+            description="The latest assessment update will appear here once one has been added to this topic."
             title="No assessment yet"
           />
         )}

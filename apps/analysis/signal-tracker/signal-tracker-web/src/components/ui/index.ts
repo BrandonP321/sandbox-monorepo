@@ -3,6 +3,7 @@ export * from "./AlertDialog";
 export * from "./AppShell";
 export * from "./AttributeEditor";
 export * from "./Badge";
+export * from "./Breadcrumbs";
 export * from "./Button";
 export * from "./ButtonLink";
 export * from "./Card";

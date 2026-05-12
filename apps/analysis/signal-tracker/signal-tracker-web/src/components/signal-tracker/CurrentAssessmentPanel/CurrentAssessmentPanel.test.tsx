@@ -63,7 +63,7 @@ describe("CurrentAssessmentPanel", () => {
     ]);
   });
 
-  it("renders an empty state when no assessment exists", () => {
+  it("renders an empty state with an add action when no assessment exists", async () => {
     render(<CurrentAssessmentPanel assessment={null} topicId="topic-1" />);
 
     expect(
@@ -71,8 +71,21 @@ describe("CurrentAssessmentPanel", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("No assessment yet")).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Add assessment" })
-    ).toBeEnabled();
+      screen.getByText(
+        "The latest assessment update will appear here once one has been added to this topic."
+      )
+    ).toBeInTheDocument();
+    const addAssessmentButton = screen.getByRole("button", {
+      name: "Add assessment"
+    });
+
+    expect(addAssessmentButton).toBeEnabled();
+
+    fireEvent.click(addAssessmentButton);
+
+    expect(
+      await screen.findByRole("dialog", { name: "Add assessment" })
+    ).toBeInTheDocument();
   });
 
   it("renders populated assessment details compactly", () => {

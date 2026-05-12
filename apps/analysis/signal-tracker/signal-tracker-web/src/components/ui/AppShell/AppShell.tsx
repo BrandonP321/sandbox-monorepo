@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type * as React from "react";
 import { Outlet } from "@tanstack/react-router";
+import { useMinBreakpoint } from "@repo/ui-base";
 
 import { cn } from "@/lib/utils";
 
+import { Breadcrumbs, type BreadcrumbsItem } from "../Breadcrumbs";
 import {
   AppShellContent,
   AppShellHeader,
@@ -36,19 +38,37 @@ function AppShell({
   children,
   className,
   contentClassName,
-  defaultSidebarOpen = true,
+  defaultSidebarOpen,
   onSidebarOpenChange,
   sidebarLabel = "Application navigation",
   sidebarOpen: controlledSidebarOpen,
   routes
 }: AppShellProps) {
-  const [uncontrolledSidebarOpen, setUncontrolledSidebarOpen] =
-    useState(defaultSidebarOpen);
+  const isDesktopSidebar = useMinBreakpoint("md", { ssrMatch: true });
+  const usesResponsiveSidebarDefault =
+    defaultSidebarOpen === undefined && controlledSidebarOpen === undefined;
+  const [uncontrolledSidebarOpen, setUncontrolledSidebarOpen] = useState(
+    defaultSidebarOpen ?? isDesktopSidebar
+  );
   const [isHeaderScrolled, setIsHeaderScrolled] = useState(false);
   const isSidebarOpen = controlledSidebarOpen ?? uncontrolledSidebarOpen;
-  const { activeRoute, routes: resolvedRoutes } = useResolvedAppShellRoutes({
-    routes
-  });
+  const isSidebarOverlay = !isDesktopSidebar;
+  const {
+    activeRoute,
+    activeRouteBreadcrumbs,
+    routes: resolvedRoutes
+  } = useResolvedAppShellRoutes({ routes });
+  const breadcrumbItems = useMemo<BreadcrumbsItem[]>(
+    () =>
+      activeRouteBreadcrumbs.map((route) => ({
+        icon: route.icon,
+        id: route.id,
+        params: route.params,
+        title: route.breadcrumbTitle,
+        to: route.to
+      })),
+    [activeRouteBreadcrumbs]
+  );
 
   const setSidebarOpen = useCallback(
     (nextSidebarOpen: boolean) => {
@@ -73,6 +93,14 @@ function AppShell({
     setSidebarOpen(!isSidebarOpen);
   }, [isSidebarOpen, setSidebarOpen]);
 
+  useEffect(() => {
+    if (!usesResponsiveSidebarDefault) {
+      return;
+    }
+
+    setUncontrolledSidebarOpen(isDesktopSidebar);
+  }, [isDesktopSidebar, usesResponsiveSidebarDefault]);
+
   const handleMainScroll = useCallback((event: React.UIEvent<HTMLElement>) => {
     setIsHeaderScrolled(
       event.currentTarget.scrollTop > HEADER_SCROLLED_OFFSET_PX
@@ -83,11 +111,19 @@ function AppShell({
     () => ({
       closeSidebar,
       isSidebarOpen,
+      isSidebarOverlay,
       openSidebar,
       setSidebarOpen,
       toggleSidebar
     }),
-    [closeSidebar, isSidebarOpen, openSidebar, setSidebarOpen, toggleSidebar]
+    [
+      closeSidebar,
+      isSidebarOpen,
+      isSidebarOverlay,
+      openSidebar,
+      setSidebarOpen,
+      toggleSidebar
+    ]
   );
 
   return (
@@ -110,9 +146,7 @@ function AppShell({
             <AppShellHeader scrolled={isHeaderScrolled}>
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <AppShellSidebarToggle className="-ml-1" />
-                <span className="text-foreground truncate text-sm font-semibold leading-5">
-                  {activeRoute.breadcrumbTitle}
-                </span>
+                <Breadcrumbs items={breadcrumbItems} />
               </div>
             </AppShellHeader>
           ) : null}

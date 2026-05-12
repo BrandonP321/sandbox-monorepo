@@ -13,6 +13,7 @@ import {
 import { TopicTimelineEntryList } from "./components";
 import { useExpandedEntryIds } from "./hooks/useExpandedEntryIds";
 import { getVisibleTimelineItems } from "./lib/visible-items";
+import { EventEntryDialog } from "../EventEntryDialog";
 
 type TopicTimelineProps = {
   topicId: string;
@@ -30,7 +31,6 @@ function TopicTimeline({ topicId }: TopicTimelineProps) {
         <CardHeader>
           <ContentHeader
             description="Compact topic history with inline entry details."
-            eyebrow="History"
             headingLevel={2}
             title="Timeline"
           />
@@ -54,8 +54,12 @@ function TopicTimeline({ topicId }: TopicTimelineProps) {
 
           {!isLoading && !isError && visibleItems.length === 0 ? (
             <EmptyState
-              className="items-start px-0 text-left"
-              description="Add an assessment update or event to start building this topic history."
+              action={
+                <EventEntryDialog topicId={topicId}>
+                  <Button variant="outline">Add event</Button>
+                </EventEntryDialog>
+              }
+              description="Add the first event to start building this topic history."
               title="No timeline entries yet"
             />
           ) : null}
