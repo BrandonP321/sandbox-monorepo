@@ -6,7 +6,7 @@ import {
   AlertDialogContent,
   AlertDialogTrigger
 } from "./AlertDialog";
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 
 const meta = {
   title: "UI/AlertDialog",

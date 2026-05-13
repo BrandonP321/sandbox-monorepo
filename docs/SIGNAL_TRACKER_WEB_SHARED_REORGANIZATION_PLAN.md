@@ -33,17 +33,17 @@ larger batch.
 
 ### Phase 2 - Dashboard UI Package Scaffold
 
-- [ ] Create `packages/dashboard-ui` with package metadata, TypeScript, ESLint,
+- [x] Create `packages/dashboard-ui` with package metadata, TypeScript, ESLint,
       Vitest, Vite, Storybook, README, and AGENTS guidance.
-- [ ] Add `@repo/dashboard-ui/styles` with the Signal Tracker-derived default
+- [x] Add `@repo/dashboard-ui/styles` with the Signal Tracker-derived default
       theme variables and app override guidance.
-- [ ] Move the dashboard `cn` helper into `@repo/dashboard-ui`.
-- [ ] Move low-risk visual primitives first: buttons, badges, cards, chips,
+- [x] Move the dashboard `cn` helper into `@repo/dashboard-ui`.
+- [x] Move low-risk visual primitives first: buttons, badges, cards, chips,
       alerts, content headers, layout helpers, loading/empty states, and
       skeletons.
-- [ ] Update Signal Tracker imports and package dependencies for the first
+- [x] Update Signal Tracker imports and package dependencies for the first
       dashboard UI batch.
-- [ ] Verify package tests, package Storybook build, Signal Tracker tests,
+- [x] Verify package tests, package Storybook build, Signal Tracker tests,
       Signal Tracker build, and Signal Tracker Storybook build.
 
 ### Phase 3 - Forms, Overlays, And Notification Renderers

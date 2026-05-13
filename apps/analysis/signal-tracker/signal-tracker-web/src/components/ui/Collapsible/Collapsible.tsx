@@ -1,7 +1,7 @@
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 type CollapsibleProps = Pick<
   React.ComponentProps<typeof CollapsiblePrimitive.Root>,

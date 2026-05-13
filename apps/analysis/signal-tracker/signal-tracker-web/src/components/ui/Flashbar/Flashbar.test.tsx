@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 import { Flashbar, type FlashbarType } from "./Flashbar";
 
 const rawStatusPaletteClassPattern = /(sky|emerald|amber)-/;

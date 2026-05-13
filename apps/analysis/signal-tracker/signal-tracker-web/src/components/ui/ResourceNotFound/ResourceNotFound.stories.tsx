@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ArrowRight } from "lucide-react";
 
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 import { ResourceNotFound } from "./ResourceNotFound";
 
 const meta = {

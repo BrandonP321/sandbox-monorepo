@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 import { useAppShellContext } from "../hooks";
 import type { AppShellResolvedRoute } from "../types";

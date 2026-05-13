@@ -4,7 +4,7 @@ import { useWatch } from "react-hook-form";
 import { z } from "zod";
 import { useNotifications } from "@repo/ui-base/notifications";
 
-import { Button } from "../../Button";
+import { Button } from "@repo/dashboard-ui";
 import { Form } from "./Form";
 import { FormDateInput } from "../FormDateInput";
 import { FormNumberInput } from "../FormNumberInput";

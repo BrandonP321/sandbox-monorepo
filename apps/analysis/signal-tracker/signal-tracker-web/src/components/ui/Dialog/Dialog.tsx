@@ -4,11 +4,11 @@ import { useCallback, useMemo, useState, type ReactNode } from "react";
 import type * as React from "react";
 import { ErrorNotificationProvider } from "@repo/ui-base/notifications";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
-import { Alert } from "../Alert";
-import { Button } from "../Button";
-import { ContentHeader } from "../ContentHeader";
+import { Alert } from "@repo/dashboard-ui";
+import { Button } from "@repo/dashboard-ui";
+import { ContentHeader } from "@repo/dashboard-ui";
 import { NotificationAlerts } from "../Notifications";
 import {
   DialogContext,

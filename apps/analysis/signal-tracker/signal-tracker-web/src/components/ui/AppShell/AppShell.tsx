@@ -4,7 +4,7 @@ import { Outlet } from "@tanstack/react-router";
 import { useMinBreakpoint } from "@repo/ui-base";
 import { NotificationProvider } from "@repo/ui-base/notifications";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 import { Breadcrumbs, type BreadcrumbsItem } from "../Breadcrumbs";
 import { NotificationFlashbar } from "../Notifications";

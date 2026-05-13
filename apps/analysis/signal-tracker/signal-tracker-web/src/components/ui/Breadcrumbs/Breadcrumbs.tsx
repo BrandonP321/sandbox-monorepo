@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Fragment } from "react";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 const DEFAULT_MAX_BREADCRUMB_LENGTH = 32;
 const TRUNCATION_MARK = "...";

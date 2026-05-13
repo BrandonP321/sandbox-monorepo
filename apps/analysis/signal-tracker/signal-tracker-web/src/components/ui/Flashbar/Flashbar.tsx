@@ -11,7 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 type FlashbarType = "error" | "info" | "success" | "warning";
 

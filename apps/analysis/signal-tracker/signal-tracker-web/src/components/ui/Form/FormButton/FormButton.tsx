@@ -1,6 +1,6 @@
 import { useFormContext } from "react-hook-form";
 
-import { Button, type ButtonProps } from "../../Button";
+import { Button, type ButtonProps } from "@repo/dashboard-ui";
 
 type FormButtonProps = ButtonProps & {
   loadingOnSubmit?: boolean;

@@ -1,7 +1,7 @@
 import { createLink } from "@tanstack/react-router";
 import { forwardRef } from "react";
 
-import { ButtonAnchor } from "../Button/Button";
+import { ButtonAnchor } from "@repo/dashboard-ui";
 
 const CreatedButtonLink = createLink(ButtonAnchor);
 

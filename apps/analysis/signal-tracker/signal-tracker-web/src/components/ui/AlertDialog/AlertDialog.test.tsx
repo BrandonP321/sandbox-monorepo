@@ -6,7 +6,7 @@ import {
   AlertDialogContent,
   AlertDialogTrigger
 } from "./AlertDialog";
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 import { useDialogContext } from "../Dialog";
 
 function wait(milliseconds = 1000) {

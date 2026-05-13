@@ -1,6 +1,6 @@
 import { useId, type ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 type IconStackItem = {
   icon: ReactNode;

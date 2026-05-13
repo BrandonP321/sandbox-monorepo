@@ -3,7 +3,7 @@ import {
   type NotificationType
 } from "@repo/ui-base/notifications";
 
-import { Alert } from "../Alert";
+import { Alert } from "@repo/dashboard-ui";
 
 const alertVariantByNotificationType = {
   error: "danger",

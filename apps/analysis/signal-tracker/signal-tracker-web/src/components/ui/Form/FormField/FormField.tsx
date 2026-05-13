@@ -1,7 +1,7 @@
 import type * as React from "react";
 import { useRef } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 let nextFormFieldId = 1;
 

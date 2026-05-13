@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 type ResourceNotFoundNativeProps = Pick<
   React.ComponentProps<"section">,

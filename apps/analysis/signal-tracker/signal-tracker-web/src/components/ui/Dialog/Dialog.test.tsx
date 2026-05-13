@@ -8,7 +8,7 @@ import {
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { useNotifications } from "@repo/ui-base/notifications";
 
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 import {
   Dialog,
   DialogClose,

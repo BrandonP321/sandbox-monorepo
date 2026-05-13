@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
-import { Alert, type AlertProps } from "../Alert";
-import { Button } from "../Button";
-import type { ButtonProps } from "../Button";
+import { Alert, type AlertProps } from "@repo/dashboard-ui";
+import { Button } from "@repo/dashboard-ui";
+import type { ButtonProps } from "@repo/dashboard-ui";
 import {
   Dialog,
   DialogClose,

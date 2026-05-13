@@ -10,7 +10,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Bell, LayoutDashboard, Settings } from "lucide-react";
 
 import { AppShell, defineAppShellRoutes } from "../AppShell";
-import { Button } from "../Button";
+import { Button } from "@repo/dashboard-ui";
 import { Flashbar, type FlashbarProps } from "./Flashbar";
 
 const meta = {

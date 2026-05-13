@@ -6,9 +6,9 @@ import { useNotifications } from "@repo/ui-base/notifications";
 import type { FieldValues } from "react-hook-form";
 import { useCallback, type ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
-import { Alert } from "../../Alert";
+import { Alert } from "@repo/dashboard-ui";
 import { NotificationAlerts } from "../../Notifications";
 
 type FormProps<T extends FieldValues> = BaseFormProps<T> & {

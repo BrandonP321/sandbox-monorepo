@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
 const formControlBaseClassName = cn(
   "border-input bg-card text-foreground placeholder:text-muted-foreground",

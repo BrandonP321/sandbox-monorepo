@@ -1,9 +1,9 @@
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import type * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@repo/dashboard-ui";
 
-import { Button } from "../../Button";
+import { Button } from "@repo/dashboard-ui";
 import { useAppShellContext } from "../hooks";
 
 type AppShellSidebarToggleProps = Pick<
