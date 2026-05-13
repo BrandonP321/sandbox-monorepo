@@ -9,6 +9,29 @@ Also follow the repo root `AGENTS.md` for shared-package boundaries, testing, an
 - Do not add product-specific concepts, visual styling, design tokens, or app route/domain assumptions.
 - Keep public APIs small and general. Validate new shared behavior with focused tests before exporting it from `src/index.ts`.
 
+## Public Subpaths
+
+- Keep optional or dependency-heavy surfaces behind package subpaths when not
+  every `@repo/ui-base` consumer should load them.
+- `@repo/ui-base/notifications` owns notification behavior, not visual
+  notification renderers.
+- `@repo/ui-base/routing` owns framework-neutral route registry helpers, not
+  router adapters or app route values.
+- `@repo/ui-base/rtk-query` owns RTK Query wrapper mechanics, not endpoint
+  definitions or app notification copy.
+- Do not re-export RTK Query or router-specific helpers from the root
+  `@repo/ui-base` barrel unless every UI-base consumer should pay that
+  dependency and policy cost.
+
+## Notifications
+
+- `@repo/ui-base/notifications` owns notification providers, context, action
+  and message types, input normalization, nearest-provider clearing, and
+  unsupported-message escalation.
+- Do not import dashboard alerts, flashbars, icons, Tailwind classes, or app
+  copy into notification behavior.
+- Visual renderers belong in designed packages such as `@repo/dashboard-ui`.
+
 ## Routing
 
 - `@repo/ui-base/routing` owns framework-neutral route registry and route path

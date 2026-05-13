@@ -17,7 +17,21 @@ Use `signal-tracker-shared` before promoting Signal Tracker-only contracts to re
 
 Signal Tracker uses Tailwind CSS as its styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer underneath many shadcn/ui components. Signal Tracker is not choosing between shadcn/ui and Radix UI; the intended relationship is layered. Use shadcn/ui first for common app components. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 
-Signal Tracker uses `@repo/dashboard-ui` for extracted dashboard primitives and `@repo/ui-base` for shared behavior abstractions. Product-specific UI components belong inside `signal-tracker-web`.
+Signal Tracker uses `@repo/dashboard-ui` for extracted dashboard primitives and
+`@repo/ui-base` for shared behavior abstractions. Product-specific UI
+components belong inside `signal-tracker-web`.
+
+Import `@repo/dashboard-ui/styles` once from the web app CSS entrypoint, then
+apply any Signal Tracker CSS variable overrides locally. Use the root
+`@repo/dashboard-ui` export for route-agnostic primitives and
+`@repo/dashboard-ui/tanstack-router` for TanStack-aware shell, breadcrumbs,
+links, and route-aware not-found UI.
+
+Use `@repo/ui-base/notifications` for notification state/providers,
+`@repo/ui-base/rtk-query` for shared RTK Query hook mechanics, and
+`@repo/ui-base/routing` for framework-neutral route registry helpers. Keep
+actual Signal Tracker routes, endpoint modules, cache tag names, notification
+copy, and product workflow components in the web app.
 
 Avoid mixing multiple primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented. Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 

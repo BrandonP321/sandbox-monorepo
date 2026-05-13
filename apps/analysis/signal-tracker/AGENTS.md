@@ -22,9 +22,18 @@
 - Use Radix UI as the accessible primitive layer, usually through shadcn/ui. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 - Signal Tracker UI may import `@repo/dashboard-ui` for extracted dashboard primitives and styles.
+- Import `@repo/dashboard-ui/styles` once from the web app CSS entrypoint before
+  app-local CSS variable overrides. Do not duplicate the dashboard theme or
+  extracted primitive styles inside Signal Tracker.
+- Use `@repo/dashboard-ui/tanstack-router` for TanStack-aware dashboard shell,
+  breadcrumb, button-link, and not-found adapters. Keep actual Signal Tracker
+  route values and product navigation app-local.
 - Do not add a new styled shared UI package for Signal Tracker work unless the user or issue explicitly requires it.
 - Keep product-specific Signal Tracker components app-local in `signal-tracker-web`.
 - Use `@repo/ui-base` when a UI behavior abstraction is useful, especially for form wiring or other behavior-only primitives.
+- Use `@repo/ui-base/notifications`, `@repo/ui-base/rtk-query`, and
+  `@repo/ui-base/routing` for the extracted shared behavior boundaries; keep
+  endpoint definitions, notification copy, and route values in Signal Tracker.
 - Use `@repo/ui-base` responsive hooks only for runtime behavior changes that CSS cannot express. Do not use these hooks as the default styling or layout mechanism.
 - Do not create app-local responsive hook duplicates when `@repo/ui-base` already provides the needed behavior.
 - Keep generic copy-owned UI primitives product-agnostic in a local web-app layer such as `src/components/ui/`.

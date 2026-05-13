@@ -16,6 +16,19 @@ and dependency direction.
   put TanStack Router `Link`, `Outlet`, router-state, and route-param typing
   adapters under `src/tanstack-router`.
 
+## Public Surfaces
+
+- The root `@repo/dashboard-ui` export is for route-agnostic dashboard
+  primitives, composed dashboard components, visual notification renderers, and
+  styling helpers.
+- `@repo/dashboard-ui/styles` is the only stylesheet export. It should contain
+  the dashboard Tailwind theme, CSS variables, base styles, and package source
+  directives.
+- `@repo/dashboard-ui/tanstack-router` is the only place for TanStack
+  Router-aware dashboard adapters.
+- Do not add app-specific subpaths. Add a package subpath only when it keeps a
+  meaningful optional dependency or framework adapter out of the root surface.
+
 ## Components
 
 - Keep each standalone primitive in its own PascalCase folder with colocated

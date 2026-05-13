@@ -33,8 +33,18 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Treat Tailwind Plus and Catalyst as reference or pattern sources only, not as the controlling design system.
 - Use `@repo/dashboard-ui` for extracted dashboard primitives and styles.
+- Import `@repo/dashboard-ui/styles` only from `src/index.css`, before app-local
+  CSS variable overrides or app-only source directives.
+- Import route-agnostic shared primitives from `@repo/dashboard-ui` or the
+  local `@/components/ui` compatibility barrel. Import route-aware shell,
+  breadcrumb, button-link, and route-aware not-found adapters from
+  `@repo/dashboard-ui/tanstack-router`.
 - Keep product-specific Signal Tracker UI app-local until a primitive clearly belongs in `@repo/dashboard-ui` or an issue explicitly requests extraction.
 - Use `@repo/ui-base` only for behavior abstractions with small APIs and tests.
+- Use `@repo/ui-base/notifications`, `@repo/ui-base/rtk-query`, and
+  `@repo/ui-base/routing` for shared notification behavior, RTK Query wrapper
+  mechanics, and route registry typing. Keep product copy, endpoint modules,
+  cache tag names, and route values in this app.
 - Keep generic copy-owned UI primitives product-agnostic in `src/components/ui/` and keep Signal Tracker-specific components in `src/components/signal-tracker/`.
 - Signal Tracker-specific components should encode product concepts such as topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
 - Do not mix shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another UI system interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.

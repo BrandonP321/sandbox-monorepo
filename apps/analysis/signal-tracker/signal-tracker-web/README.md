@@ -18,7 +18,21 @@ Tailwind Plus and Catalyst, if used, should be treated as reference libraries an
 
 Avoid mixing multiple primitive systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component system interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented.
 
-Reusable dashboard primitives live in `@repo/dashboard-ui`; behavior abstractions live in `@repo/ui-base`. Product-specific Signal Tracker UI stays inside this app until a primitive clearly belongs in the shared dashboard package or an issue explicitly asks for extraction.
+Reusable dashboard primitives live in `@repo/dashboard-ui`; behavior
+abstractions live in `@repo/ui-base`. Product-specific Signal Tracker UI stays
+inside this app until a primitive clearly belongs in the shared dashboard
+package or an issue explicitly asks for extraction.
+
+The app imports `@repo/dashboard-ui/styles` from `src/index.css`; keep that as
+the single dashboard stylesheet import. Route-agnostic shared primitives come
+from `@repo/dashboard-ui` or the local `@/components/ui` compatibility barrel.
+TanStack-aware shell, breadcrumb, link, and route-aware not-found adapters come
+from `@repo/dashboard-ui/tanstack-router`.
+
+Use `@repo/ui-base/notifications`, `@repo/ui-base/rtk-query`, and
+`@repo/ui-base/routing` for shared behavior. Keep actual routes, endpoint
+modules, cache tags, notification copy, and Signal Tracker product workflow
+components in this app.
 
 ## Component organization
 

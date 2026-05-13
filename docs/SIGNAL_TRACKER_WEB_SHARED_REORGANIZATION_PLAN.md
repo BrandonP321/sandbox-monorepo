@@ -101,13 +101,13 @@ larger batch.
 
 ### Phase 7 - Documentation And Guidance
 
-- [ ] Update `docs/REPO_MAP.md` with `@repo/dashboard-ui` and new
+- [x] Update `docs/REPO_MAP.md` with `@repo/dashboard-ui` and new
       `@repo/ui-base` subpaths.
-- [ ] Update `docs/SHARED_CODE_PLAYBOOK.md` for the approved extraction
+- [x] Update `docs/SHARED_CODE_PLAYBOOK.md` for the approved extraction
       boundaries.
-- [ ] Update Signal Tracker AGENTS/README guidance so Signal Tracker can import
+- [x] Update Signal Tracker AGENTS/README guidance so Signal Tracker can import
       `@repo/dashboard-ui`.
-- [ ] Add package-level AGENTS guidance for `@repo/dashboard-ui` and any new
+- [x] Add package-level AGENTS guidance for `@repo/dashboard-ui` and any new
       `@repo/ui-base` subpath conventions.
 
 ### Phase 8 - Final Cleanup And Full Validation
