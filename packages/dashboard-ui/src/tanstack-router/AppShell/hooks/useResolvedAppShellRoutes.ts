@@ -69,6 +69,9 @@ function resolveAppShellRoutes(
           ? resolveRouteValue(route.breadcrumbTitle, context)
           : title,
         children: children.length > 0 ? children : undefined,
+        description: route.description
+          ? resolveRouteValue(route.description, context)
+          : undefined,
         icon: route.icon,
         id: route.id ?? route.path,
         navLinkTitle: route.navLinkTitle

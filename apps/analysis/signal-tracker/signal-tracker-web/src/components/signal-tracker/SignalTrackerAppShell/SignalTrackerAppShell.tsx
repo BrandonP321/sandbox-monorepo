@@ -5,6 +5,7 @@ import { signalTrackerAppShellRoutes } from "./routes";
 function SignalTrackerAppShell() {
   return (
     <AppShell
+      appName="Signal Tracker"
       contentClassName="pt-0 sm:pt-0 lg:pt-0"
       notificationFlashbarClassName="mx-auto w-full max-w-6xl"
       routes={signalTrackerAppShellRoutes}

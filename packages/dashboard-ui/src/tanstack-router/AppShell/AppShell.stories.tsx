@@ -33,6 +33,7 @@ const contentBlocks = Array.from({ length: 14 }, (_, index) => ({
 
 const routes = defineAppShellRoutes([
   {
+    description: "Monitor the current dashboard overview.",
     icon: <LayoutDashboard className="size-4" />,
     id: "overview",
     path: "/overview",
@@ -41,6 +42,7 @@ const routes = defineAppShellRoutes([
   {
     children: [
       {
+        description: "Review the current topic workspace.",
         id: "workspace-current",
         path: "/workspace/current",
         title: "Current topic"
@@ -52,6 +54,7 @@ const routes = defineAppShellRoutes([
     title: "Workspace"
   },
   {
+    description: "Adjust dashboard workspace settings.",
     icon: <Settings className="size-4" />,
     id: "settings",
     path: "/settings",
@@ -96,6 +99,7 @@ const longLabelRoutes = defineAppShellRoutes([
 ]);
 
 const baseArgs = {
+  appName: "Workspace",
   children: <AppShellStoryContent />,
   className: "w-screen",
   routes,

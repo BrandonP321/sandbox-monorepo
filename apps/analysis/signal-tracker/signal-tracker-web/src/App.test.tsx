@@ -289,6 +289,12 @@ describe("App", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Create topic" })).toBeEnabled();
     expect(screen.queryByText("Workspace surfaces")).not.toBeInTheDocument();
+    expect(document.title).toBe("Topics | Signal Tracker");
+    expect(
+      document.head
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content")
+    ).toBe("Track continuity signals across active topics.");
   });
 
   it("opens and cancels the create topic dialog without preserving draft input", async () => {
@@ -606,6 +612,12 @@ describe("App", () => {
     expect(
       breadcrumbs.getByRole("link", { name: "Iran strike risk" })
     ).toHaveAttribute("href", "/topics/topic-1/Iran%20strike%20risk");
+    expect(document.title).toBe("Topic: Iran strike risk | Signal Tracker");
+    expect(
+      document.head
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content")
+    ).toBe("Review continuity signals for Iran strike risk.");
     expect(
       screen.getByText("Will the conflict expand over the next month?")
     ).toBeInTheDocument();

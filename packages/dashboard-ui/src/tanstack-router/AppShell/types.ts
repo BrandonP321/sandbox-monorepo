@@ -24,6 +24,7 @@ type AppShellRouteValue<TValue, TPath extends string = string> =
 
 type AppShellRoute<TPath extends string = string> = {
   children?: readonly AnyAppShellRoute[];
+  description?: AppShellRouteValue<string | undefined, TPath>;
   icon?: React.ReactNode;
   id?: string;
   params?: AppShellRouteValue<AppShellRouteParams<TPath>, TPath>;
@@ -40,6 +41,7 @@ type AppShellRoute<TPath extends string = string> = {
 
 type AnyAppShellRoute = {
   children?: readonly AnyAppShellRoute[];
+  description?: AnyAppShellRouteValue<string | undefined>;
   icon?: React.ReactNode;
   id?: string;
   params?: AnyAppShellRouteValue<AppShellRouteParams>;
@@ -53,6 +55,7 @@ type AnyAppShellRoute = {
 
 type AppShellResolvedRoute = {
   children?: readonly AppShellResolvedRoute[];
+  description?: string | undefined;
   icon?: React.ReactNode;
   id: string;
   params?: AppShellRouteParams;

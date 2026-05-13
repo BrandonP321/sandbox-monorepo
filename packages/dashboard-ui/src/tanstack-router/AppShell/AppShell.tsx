@@ -3,6 +3,7 @@ import type * as React from "react";
 import { Outlet } from "@tanstack/react-router";
 import { useMinBreakpoint } from "@repo/ui-base";
 import { NotificationProvider } from "@repo/ui-base/notifications";
+import { PageSeo, type PageSeoProps } from "@repo/ui-base/seo";
 
 import { NotificationFlashbar } from "../../components/Notifications";
 import { cn } from "../../lib/utils";
@@ -23,12 +24,16 @@ import type { AnyAppShellRoute } from "./types";
 
 const HEADER_SCROLLED_OFFSET_PX = 8;
 
+type AppShellAppNamePlacement = "prefix" | "suffix";
+
 type AppShellNativeProps = Pick<
   React.ComponentProps<"div">,
   "children" | "className"
 >;
 
 type AppShellProps = AppShellNativeProps & {
+  appName?: string;
+  appNamePlacement?: AppShellAppNamePlacement;
   contentClassName?: string;
   defaultSidebarOpen?: boolean;
   notificationFlashbarClassName?: string;
@@ -40,6 +45,8 @@ type AppShellProps = AppShellNativeProps & {
 };
 
 function AppShell({
+  appName,
+  appNamePlacement = "suffix",
   children,
   className,
   contentClassName,
@@ -135,6 +142,13 @@ function AppShell({
 
   return (
     <NotificationProvider mode="multiple">
+      {activeRoute ? (
+        <PageSeo
+          {...getAppShellPageSeoTitleAffixes(appName, appNamePlacement)}
+          description={activeRoute.description}
+          title={activeRoute.title}
+        />
+      ) : null}
       <AppShellContext.Provider value={contextValue}>
         <div
           data-slot="app-shell"
@@ -174,4 +188,18 @@ function AppShell({
   );
 }
 
-export { AppShell, type AppShellProps };
+function getAppShellPageSeoTitleAffixes(
+  appName: string | undefined,
+  appNamePlacement: AppShellAppNamePlacement
+): Pick<PageSeoProps, "titlePrefix" | "titleSuffix"> {
+  if (!appName) {
+    return {};
+  }
+
+  return appNamePlacement === "prefix"
+    ? { titlePrefix: appName }
+    : { titleSuffix: appName };
+}
+
+export { AppShell };
+export type { AppShellAppNamePlacement, AppShellProps };

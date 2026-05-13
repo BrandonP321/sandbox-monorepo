@@ -20,6 +20,7 @@ import {
 
 const routes = defineAppShellRoutes([
   {
+    description: "Review active workspace topics.",
     id: "topics",
     path: "/topics",
     title: "Topics"
@@ -57,6 +58,8 @@ const nestedRoutes = defineAppShellRoutes([
           topicTitle: params.topicTitle
         }),
         path: "/topics/$topicId/$topicTitle",
+        description: ({ params }) =>
+          `Review continuity signals for ${params.topicTitle}.`,
         title: ({ params }) => `Topic: ${params.topicTitle}`,
         breadcrumbTitle: ({ params }) => params.topicTitle,
         navLinkTitle: ({ params }) => params.topicTitle,
@@ -177,6 +180,21 @@ describe("AppShell", () => {
     ).toHaveAttribute("aria-current", "page");
   });
 
+  it("sets page metadata from the active route and app name", async () => {
+    await renderAppShell({
+      appName: "Signal Tracker",
+      initialPath: "/topics",
+      routes
+    });
+
+    expect(document.title).toBe("Topics | Signal Tracker");
+    expect(
+      document.head
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content")
+    ).toBe("Review active workspace topics.");
+  });
+
   it("constrains long sidebar labels so navigation text can truncate", async () => {
     await renderAppShell({ initialPath: "/topics", routes: longLabelRoutes });
 
@@ -236,6 +254,8 @@ describe("AppShell", () => {
 
   it("uses route-specific labels for nested links and active header titles", async () => {
     await renderAppShell({
+      appName: "Signal Tracker",
+      appNamePlacement: "prefix",
       initialPath: "/topics/topic-1/Iran%20strike%20risk",
       routes: nestedRoutes
     });
@@ -261,6 +281,12 @@ describe("AppShell", () => {
     expect(
       header.getByRole("link", { name: "Iran strike risk" })
     ).toHaveAttribute("href", "/topics/topic-1/Iran%20strike%20risk");
+    expect(document.title).toBe("Signal Tracker | Topic: Iran strike risk");
+    expect(
+      document.head
+        .querySelector('meta[name="description"]')
+        ?.getAttribute("content")
+    ).toBe("Review continuity signals for Iran strike risk.");
   });
 
   it("renders route icons only for parent navigation links and aligns child labels with parent labels", async () => {
@@ -535,6 +561,8 @@ describe("AppShell", () => {
 });
 
 type RenderAppShellOptions = {
+  appName?: string;
+  appNamePlacement?: "prefix" | "suffix";
   children?: React.ReactNode;
   contentClassName?: string;
   defaultSidebarOpen?: boolean;
@@ -549,6 +577,8 @@ type RenderAppShellOptions = {
 };
 
 async function renderAppShell({
+  appName,
+  appNamePlacement,
   children = "Main content",
   contentClassName,
   defaultSidebarOpen = true,
@@ -566,6 +596,8 @@ async function renderAppShell({
   const rootRoute = createRootRoute({
     component: () => (
       <AppShell
+        appName={appName}
+        appNamePlacement={appNamePlacement}
         contentClassName={contentClassName}
         {...(useResponsiveSidebarDefault ? {} : { defaultSidebarOpen })}
         notificationFlashbarClassName={notificationFlashbarClassName}

@@ -17,6 +17,8 @@ const signalTrackerAppShellRoutes = defineAppShellRoutes([
           topicTitle: params.topicTitle
         }),
         path: appRoutes.topicDetails.path,
+        description: ({ params }) =>
+          `Review continuity signals for ${params.topicTitle}.`,
         title: ({ params }) => `Topic: ${params.topicTitle}`,
         navLinkTitle: ({ params }) => params.topicTitle,
         breadcrumbTitle: ({ params }) => params.topicTitle,
@@ -25,6 +27,7 @@ const signalTrackerAppShellRoutes = defineAppShellRoutes([
     ],
     icon: createElement(Icons.topic),
     path: appRoutes.listTopics.path,
+    description: "Track continuity signals across active topics.",
     title: "Topics"
   }
 ]);

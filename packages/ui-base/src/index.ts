@@ -43,4 +43,5 @@ export { splitTextareaLines } from "./form-values/textareaLines";
 export { useDebouncedValue } from "./hooks/useDebouncedValue";
 export { useMediaQuery } from "./hooks/useMediaQuery";
 export { useMinBreakpoint } from "./hooks/useMinBreakpoint";
+export { PageSeo, type PageSeoProps } from "./seo";
 export { getGoogleFaviconUrl, getUrlHostname } from "./url";
