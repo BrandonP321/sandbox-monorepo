@@ -14,6 +14,13 @@ import {
   parseSignalTrackerRouteResponse
 } from "./routeContract";
 import { getQuery } from "@repo/ui-base/rtk-query";
+import {
+  isPersistenceUnavailableApiError,
+  persistenceRetryScheduled,
+  waitForPersistenceRetryBackoff
+} from "./persistenceRetry";
+
+const maxPersistenceUnavailableRetries = 4;
 
 let cachedConfig: RuntimeConfig | null = null;
 let configPromise: Promise<RuntimeConfig> | null = null;
@@ -44,9 +51,45 @@ const dynamicBaseQuery: BaseQueryFn<
   return rawBaseQuery(args, api, extraOptions);
 };
 
+const retryingBaseQuery: BaseQueryFn<
+  string | FetchArgs,
+  unknown,
+  FetchBaseQueryError
+> = async (args, api, extraOptions) => {
+  for (let attempt = 0; ; attempt += 1) {
+    const result = await dynamicBaseQuery(args, api, extraOptions);
+
+    if (
+      !result.error ||
+      !isPersistenceUnavailableApiError(result.error) ||
+      attempt >= maxPersistenceUnavailableRetries
+    ) {
+      return result;
+    }
+
+    const retryAttempt = attempt + 1;
+
+    if (retryAttempt === 1) {
+      api.dispatch(
+        persistenceRetryScheduled({
+          attempt: retryAttempt,
+          endpointName: api.endpoint,
+          requestType: api.type
+        })
+      );
+    }
+
+    await waitForPersistenceRetryBackoff(
+      retryAttempt,
+      maxPersistenceUnavailableRetries,
+      api.signal
+    );
+  }
+};
+
 export const signalTrackerApi = createApi({
   reducerPath: "signalTrackerApi",
-  baseQuery: dynamicBaseQuery,
+  baseQuery: retryingBaseQuery,
   tagTypes: [
     "EntryCitation",
     "EntryCitations",

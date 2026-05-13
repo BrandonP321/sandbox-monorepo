@@ -1,5 +1,7 @@
 import { AppShell } from "@repo/dashboard-ui/tanstack-router";
+import { Outlet } from "@tanstack/react-router";
 
+import { PersistenceRetryNotificationBridge } from "./PersistenceRetryNotificationBridge";
 import { signalTrackerAppShellRoutes } from "./routes";
 
 function SignalTrackerAppShell() {
@@ -11,7 +13,10 @@ function SignalTrackerAppShell() {
       routes={signalTrackerAppShellRoutes}
       sidebarBrand={<SignalTrackerSidebarBrand />}
       sidebarLabel="Signal Tracker navigation"
-    />
+    >
+      <PersistenceRetryNotificationBridge />
+      <Outlet />
+    </AppShell>
   );
 }
 

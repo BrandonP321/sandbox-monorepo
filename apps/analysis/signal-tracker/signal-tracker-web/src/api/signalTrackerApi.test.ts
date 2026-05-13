@@ -2,6 +2,8 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { signalTrackerApiErrorCodes } from "@repo/signal-tracker-shared";
+
 import { loadRuntimeConfig } from "../config";
 import { makeStore } from "../store";
 import {
@@ -10,6 +12,10 @@ import {
   expectRouteRequest,
   stubRouteResponse
 } from "./apiTestData";
+import {
+  persistenceRetryDelaysMs,
+  selectPendingPersistenceRetryNotification
+} from "./persistenceRetry";
 import { signalTrackerApi } from ".";
 
 vi.mock("../config", () => ({
@@ -40,6 +46,71 @@ describe("signalTrackerApi", () => {
     await expectRouteRequest(fetchMock, "getHealth", {});
   });
 
+  it("retries persistence unavailable errors with backoff", async () => {
+    vi.useFakeTimers();
+    try {
+      loadRuntimeConfigMock.mockResolvedValue({
+        apiBaseUrl
+      });
+      const fetchMock = vi
+        .fn()
+        .mockResolvedValueOnce(
+          createApiErrorResponse(
+            signalTrackerApiErrorCodes.persistenceUnavailable,
+            "Topic persistence is temporarily unavailable"
+          )
+        )
+        .mockResolvedValueOnce(createJsonResponse({ ok: true }));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const store = makeStore();
+      const resultPromise = store
+        .dispatch(signalTrackerApi.endpoints.getHealth.initiate())
+        .unwrap();
+
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(
+        selectPendingPersistenceRetryNotification(store.getState())
+      ).toMatchObject({
+        attempt: 1,
+        endpointName: "getHealth",
+        requestType: "query"
+      });
+
+      await vi.advanceTimersByTimeAsync(persistenceRetryDelaysMs[0]);
+
+      await expect(resultPromise).resolves.toEqual({ ok: true });
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("does not retry other API errors", async () => {
+    loadRuntimeConfigMock.mockResolvedValue({
+      apiBaseUrl
+    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        createApiErrorResponse(
+          signalTrackerApiErrorCodes.databaseUnavailable,
+          "Database unavailable"
+        )
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      makeStore()
+        .dispatch(signalTrackerApi.endpoints.getHealth.initiate())
+        .unwrap()
+    ).rejects.toMatchObject({ status: 503 });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects health responses that do not match the shared contract", async () => {
     const consoleErrorSpy = vi
       .spyOn(console, "error")
@@ -64,3 +135,20 @@ describe("signalTrackerApi", () => {
     }
   });
 });
+
+function createApiErrorResponse(code: string, message: string): Response {
+  return new Response(
+    JSON.stringify({
+      error: {
+        code,
+        message
+      }
+    }),
+    {
+      status: 503,
+      headers: {
+        "content-type": "application/json"
+      }
+    }
+  );
+}

@@ -15,3 +15,9 @@ Also follow `../../AGENTS.md` for Signal Tracker web data/state conventions.
 - Configure success notifications on mutation hooks when the completed action should produce user feedback. Success messages normally pass through form-local error providers and display in the root flashbar.
 - Use `displayError: false` only for hooks whose failures are already rendered by a dedicated page/section state, intentionally hidden by default, or otherwise not suitable for automatic notification display.
 - Keep endpoint definitions, Signal Tracker route binding, cache tag names, and notification copy in this app. Put reusable RTK mechanics in `@repo/ui-base/rtk-query`.
+
+## Persistence Retry UX
+
+- `PERSISTENCE_UNAVAILABLE` retry handling belongs in the Signal Tracker base-query path, not in `getQuery`/`getMutation` wrappers or page components.
+- Keep retry policy app-local in `src/api/persistenceRetry.ts` unless another app needs the same API-code-specific behavior.
+- Bridge retry-status notifications through the Signal Tracker shell so users see one info flashbar while final success/error handling remains owned by the wrapped RTK Query hooks.

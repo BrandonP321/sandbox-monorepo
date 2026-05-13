@@ -6,7 +6,9 @@ import {
   waitFor,
   within
 } from "@testing-library/react";
+import { configureStore } from "@reduxjs/toolkit";
 import { useState } from "react";
+import { Provider } from "react-redux";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type {
@@ -26,6 +28,9 @@ import type {
 import { useNotifications } from "@repo/ui-base/notifications";
 
 import { getApiErrorMessage } from "./api/apiError";
+import persistenceRetryReducer, {
+  persistenceRetrySliceName
+} from "./api/persistenceRetry";
 import App from "./App";
 
 const apiMocks = vi.hoisted(() => ({
@@ -1843,7 +1848,17 @@ function mockListTopicTimelineQuery(
 }
 
 function renderApp() {
-  return render(<App />);
+  const store = configureStore({
+    reducer: {
+      [persistenceRetrySliceName]: persistenceRetryReducer
+    }
+  });
+
+  return render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
 }
 
 function installMatchMediaMock(matches: boolean) {

@@ -2,10 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 
 import { signalTrackerApi } from "./api";
+import persistenceRetryReducer, {
+  persistenceRetrySliceName
+} from "./api/persistenceRetry";
 
 export function makeStore() {
   return configureStore({
     reducer: {
+      [persistenceRetrySliceName]: persistenceRetryReducer,
       [signalTrackerApi.reducerPath]: signalTrackerApi.reducer
     },
     middleware: (getDefaultMiddleware) =>
