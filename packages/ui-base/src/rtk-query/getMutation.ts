@@ -9,8 +9,8 @@ import type {
   TypedUseMutationResult
 } from "@reduxjs/toolkit/query/react";
 import { useCallback } from "react";
-import { useNotifications } from "@repo/ui-base/notifications";
 
+import { useNotifications } from "../notifications";
 import {
   notifyApiError,
   notifyApiSuccess,
@@ -133,3 +133,8 @@ function getMutation<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
 }
 
 export { getMutation };
+export type {
+  MutationHookOptions,
+  MutationHookResultWithErrorMessage,
+  MutationHookWithErrorMessage
+};

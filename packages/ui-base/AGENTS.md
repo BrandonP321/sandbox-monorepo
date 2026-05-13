@@ -18,6 +18,16 @@ Also follow the repo root `AGENTS.md` for shared-package boundaries, testing, an
 - Keep each app's actual route values app-local; shared routing helpers should
   preserve literal types and extract path params without knowing the app.
 
+## RTK Query
+
+- `@repo/ui-base/rtk-query` owns reusable RTK Query hook wrapping mechanics,
+  `errorMessage` derivation, success-only invalidation helpers, and notification
+  dispatch through `@repo/ui-base/notifications`.
+- Do not import app endpoint modules, app route registries, cache tag unions,
+  domain error-code unions, or visual notification renderers into RTK helpers.
+- Keep endpoint definitions, cache tag names, and user-facing notification copy
+  in the consuming app.
+
 ## Hooks
 
 - Shared hooks should be framework-level React behavior, not app workflow policy.

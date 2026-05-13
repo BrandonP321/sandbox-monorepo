@@ -7,8 +7,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
-import { invalidateTagsOnSuccess } from "../cacheTags";
-import { getMutation } from "../rtkQueryHooks";
+import { getMutation, invalidateTagsOnSuccess } from "@repo/ui-base/rtk-query";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const assessmentApi = signalTrackerApi.injectEndpoints({

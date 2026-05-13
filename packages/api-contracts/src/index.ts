@@ -1,10 +1,20 @@
-import { z } from "zod";
-
-export const apiErrorSchema = z.object({
-  error: z.object({
-    code: z.string(),
-    message: z.string()
-  })
-});
-
-export type ApiError = z.infer<typeof apiErrorSchema>;
+export {
+  apiErrorSchema,
+  fallbackApiErrorMessage,
+  getApiErrorMessage,
+  isApiErrorCode
+} from "./api-error.js";
+export type { ApiError } from "./api-error.js";
+export {
+  buildRouteContractRequest,
+  parseRouteContractResponse
+} from "./route-contract.js";
+export type {
+  RouteContract,
+  RouteContractName,
+  RouteContractRegistry,
+  RouteContractRequest,
+  RouteContractResponse,
+  RouteContractSpec,
+  RouteContractTransportRequest
+} from "./route-contract.js";

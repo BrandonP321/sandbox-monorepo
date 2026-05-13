@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
+import { getApiErrorMessage } from "@repo/api-contracts";
+
 import type {
   NotificationContextValue,
   NotificationMessageInput
-} from "@repo/ui-base/notifications";
-import { useNotifications } from "@repo/ui-base/notifications";
-
-import { getApiErrorMessage } from "../apiError";
+} from "../notifications";
+import { useNotifications } from "../notifications";
 
 type RtkQuerySuccessMessage<TResultType> =
   | NotificationMessageInput

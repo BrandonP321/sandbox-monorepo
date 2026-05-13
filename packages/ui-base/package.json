@@ -10,6 +10,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./notifications": "./src/notifications/index.ts",
+    "./rtk-query": "./src/rtk-query/index.ts",
     "./routing": "./src/routing/index.ts"
   },
   "scripts": {
@@ -20,6 +21,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@reduxjs/toolkit": "^2.11.2",
+    "@repo/api-contracts": "workspace:*",
     "lucide-react": "^0.577.0",
     "react-hook-form": "^7.71.2",
     "zod": "^4.1.12"
@@ -39,6 +42,7 @@
     "jsdom": "^26.1.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-redux": "^9.2.0",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
   }

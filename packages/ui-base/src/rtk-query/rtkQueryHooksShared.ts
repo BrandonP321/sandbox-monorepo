@@ -1,4 +1,4 @@
-import { getApiErrorMessage } from "../apiError";
+import { getApiErrorMessage } from "@repo/api-contracts";
 
 type WithErrorMessage<TResult> = TResult extends unknown
   ? TResult & {

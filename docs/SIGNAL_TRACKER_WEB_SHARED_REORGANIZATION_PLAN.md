@@ -77,17 +77,17 @@ larger batch.
 
 ### Phase 5 - RTK Query And API Contracts
 
-- [ ] Extend `@repo/api-contracts` with generic API error message/code helpers.
-- [ ] Move generic route-contract request/response helpers into
+- [x] Extend `@repo/api-contracts` with generic API error message/code helpers.
+- [x] Move generic route-contract request/response helpers into
       `@repo/api-contracts` without RTK-specific return types.
-- [ ] Add `@repo/ui-base/rtk-query` with `withErrorMessage`, query/mutation
+- [x] Add `@repo/ui-base/rtk-query` with `withErrorMessage`, query/mutation
       wrappers, notification options, and success-only invalidation helpers.
-- [ ] Wire RTK Query notifications through `@repo/ui-base/notifications` without
+- [x] Wire RTK Query notifications through `@repo/ui-base/notifications` without
       importing `@repo/dashboard-ui`.
-- [ ] Update Signal Tracker endpoint modules to use the shared RTK Query and API
+- [x] Update Signal Tracker endpoint modules to use the shared RTK Query and API
       contract helpers while keeping endpoint definitions and notification copy
       app-local.
-- [ ] Verify the existing `errorMessage` contract, success notifications,
+- [x] Verify the existing `errorMessage` contract, success notifications,
       failure notifications, and success-only invalidation behavior.
 
 ### Phase 6 - Shared Test Setup

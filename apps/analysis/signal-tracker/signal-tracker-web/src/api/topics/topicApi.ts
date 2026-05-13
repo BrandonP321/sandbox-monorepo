@@ -17,9 +17,12 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
-import { invalidateTagsOnSuccess } from "../cacheTags";
+import {
+  getMutation,
+  getQuery,
+  invalidateTagsOnSuccess
+} from "@repo/ui-base/rtk-query";
 import { signalTrackerApi } from "../signalTrackerApi";
-import { getMutation, getQuery } from "../rtkQueryHooks";
 
 const defaultListTopicsRequest = {
   query: undefined

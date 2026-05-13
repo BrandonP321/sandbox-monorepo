@@ -13,7 +13,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "./routeContract";
-import { getQuery } from "./rtkQueryHooks";
+import { getQuery } from "@repo/ui-base/rtk-query";
 
 let cachedConfig: RuntimeConfig | null = null;
 let configPromise: Promise<RuntimeConfig> | null = null;

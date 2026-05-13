@@ -7,7 +7,7 @@ import {
   buildSignalTrackerRouteRequest,
   parseSignalTrackerRouteResponse
 } from "../routeContract";
-import { getQuery } from "../rtkQueryHooks";
+import { getQuery } from "@repo/ui-base/rtk-query";
 import { signalTrackerApi } from "../signalTrackerApi";
 
 export const timelineApi = signalTrackerApi.injectEndpoints({

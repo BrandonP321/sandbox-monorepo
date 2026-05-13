@@ -1,15 +1,22 @@
+// @vitest-environment jsdom
 import { configureStore } from "@reduxjs/toolkit";
 import { createApi, type BaseQueryFn } from "@reduxjs/toolkit/query/react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { useState, type PropsWithChildren } from "react";
 import { Provider } from "react-redux";
 import { describe, expect, it } from "vitest";
-import { NotificationProvider } from "@repo/ui-base/notifications";
 
-import { NotificationFlashbar } from "@/components/ui";
-
-import { getMutation } from "./getMutation";
-import { getQuery } from "./getQuery";
+import {
+  NotificationProvider,
+  useNotifications,
+  type Notification
+} from "../notifications";
+import {
+  getMutation,
+  getQuery,
+  invalidateTagsOnSuccess,
+  withErrorMessage
+} from "./index";
 
 const apiErrorMessage = "Database is waking up.";
 
@@ -82,100 +89,145 @@ const useGetThingWithNotificationsQuery = getQuery(
   }
 );
 
-describe("RTK Query notification hooks", () => {
+describe("RTK Query helpers", () => {
+  it("adds errorMessage without replacing the original error", () => {
+    const result = withErrorMessage({
+      error: {
+        status: 400,
+        data: {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Enter a topic title."
+          }
+        }
+      },
+      isError: true
+    });
+
+    expect(result.errorMessage).toBe("Enter a topic title.");
+    expect(result.error).toEqual({
+      status: 400,
+      data: {
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Enter a topic title."
+        }
+      }
+    });
+  });
+
+  it("invalidates mutation tags only after successful server work", () => {
+    expect(
+      invalidateTagsOnSuccess({ id: "entry-1" }, undefined, "topic-1", () => [
+        { type: "Entry", id: "entry-1" }
+      ])
+    ).toEqual([{ type: "Entry", id: "entry-1" }]);
+    expect(
+      invalidateTagsOnSuccess(undefined, undefined, "topic-1", () => [
+        { type: "Entry", id: "entry-1" }
+      ])
+    ).toEqual([]);
+    expect(
+      invalidateTagsOnSuccess(
+        { id: "entry-1" },
+        "Request failed",
+        "topic-1",
+        () => [{ type: "Entry", id: "entry-1" }]
+      )
+    ).toEqual([]);
+  });
+
   it("reports query API errors through the nearest notification provider", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <QueryErrorProbe />
       </RtkQueryHooksTestProviders>
     );
 
-    expect(await screen.findByText(apiErrorMessage)).toBeInTheDocument();
+    expect(await screen.findByText(apiErrorMessage)).toBeTruthy();
   });
 
   it("reports mutation API errors through the nearest notification provider", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <MutationErrorProbe />
       </RtkQueryHooksTestProviders>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
 
-    expect(await screen.findByText(apiErrorMessage)).toBeInTheDocument();
+    expect(await screen.findByText(apiErrorMessage)).toBeTruthy();
   });
 
   it("adds a configured title to mutation API error notifications", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <MutationErrorWithTitleProbe />
       </RtkQueryHooksTestProviders>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
 
-    expect(
-      await screen.findByText("Unable to create thing")
-    ).toBeInTheDocument();
-    expect(screen.getByText(apiErrorMessage)).toBeInTheDocument();
+    expect(await screen.findByText("Unable to create thing")).toBeTruthy();
+    expect(screen.getByText(apiErrorMessage)).toBeTruthy();
   });
 
   it("suppresses mutation API error notifications when displayError is false", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <SuppressedMutationErrorProbe />
       </RtkQueryHooksTestProviders>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
 
-    expect(await screen.findByText("Request finished")).toBeInTheDocument();
-    expect(screen.queryByText(apiErrorMessage)).not.toBeInTheDocument();
+    expect(await screen.findByText("Request finished")).toBeTruthy();
+    expect(screen.queryByText(apiErrorMessage)).toBeNull();
   });
 
   it("reports mutation success notifications when a success message is configured", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <MutationSuccessProbe />
       </RtkQueryHooksTestProviders>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
 
-    expect(await screen.findByText("Thing created.")).toBeInTheDocument();
-    expect(screen.getByText("Created thing")).toBeInTheDocument();
+    expect(await screen.findByText("Thing created.")).toBeTruthy();
+    expect(screen.getByText("Created thing")).toBeTruthy();
   });
 
   it("reports mutation success before a caller unmounts after unwrap", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <MutationSuccessUnmountProbe />
       </RtkQueryHooksTestProviders>
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Create thing" }));
 
-    expect(await screen.findByText("Request finished")).toBeInTheDocument();
-    expect(await screen.findByText("Thing created.")).toBeInTheDocument();
-    expect(screen.getByText("Created thing")).toBeInTheDocument();
+    expect(await screen.findByText("Request finished")).toBeTruthy();
+    expect(await screen.findByText("Thing created.")).toBeTruthy();
+    expect(screen.getByText("Created thing")).toBeTruthy();
   });
 
   it("reports query success notifications when a success message is configured", async () => {
     render(
       <RtkQueryHooksTestProviders>
-        <NotificationFlashbar />
+        <NotificationList />
         <QuerySuccessProbe />
       </RtkQueryHooksTestProviders>
     );
 
-    expect(await screen.findByText("Thing loaded.")).toBeInTheDocument();
-    expect(screen.getByText("Created thing")).toBeInTheDocument();
+    expect(await screen.findByText("Thing loaded.")).toBeTruthy();
+    expect(screen.getByText("Created thing")).toBeTruthy();
   });
 });
 
@@ -192,6 +244,27 @@ function RtkQueryHooksTestProviders({ children }: PropsWithChildren) {
     <Provider store={store}>
       <NotificationProvider mode="multiple">{children}</NotificationProvider>
     </Provider>
+  );
+}
+
+function NotificationList() {
+  const { notifications } = useNotifications();
+
+  return (
+    <div aria-label="Notifications" role="region">
+      {notifications.map((notification) => (
+        <NotificationItem key={notification.id} notification={notification} />
+      ))}
+    </div>
+  );
+}
+
+function NotificationItem({ notification }: { notification: Notification }) {
+  return (
+    <article>
+      {notification.header ? <h2>{notification.header}</h2> : null}
+      <div>{notification.content}</div>
+    </article>
   );
 }
 

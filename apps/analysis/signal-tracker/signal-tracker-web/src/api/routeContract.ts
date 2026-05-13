@@ -1,4 +1,7 @@
-import type { FetchArgs } from "@reduxjs/toolkit/query";
+import {
+  buildRouteContractRequest,
+  parseRouteContractResponse
+} from "@repo/api-contracts";
 
 import {
   signalTrackerRouteContracts,
@@ -7,22 +10,26 @@ import {
   type SignalTrackerRouteResponse
 } from "@repo/signal-tracker-shared";
 
-export function buildSignalTrackerRouteRequest<
-  TName extends SignalTrackerRouteName
->(routeName: TName, request: SignalTrackerRouteRequest<TName>): FetchArgs {
-  const contract = signalTrackerRouteContracts[routeName];
-
-  return {
-    url: contract.route.path,
-    method: contract.route.method,
-    body: contract.requestSchema.parse(request)
-  };
+function buildSignalTrackerRouteRequest<TName extends SignalTrackerRouteName>(
+  routeName: TName,
+  request: SignalTrackerRouteRequest<TName>
+) {
+  return buildRouteContractRequest(
+    signalTrackerRouteContracts,
+    routeName,
+    request
+  );
 }
 
-export function parseSignalTrackerRouteResponse<
-  TName extends SignalTrackerRouteName
->(routeName: TName, response: unknown): SignalTrackerRouteResponse<TName> {
-  return signalTrackerRouteContracts[routeName].responseSchema.parse(
+function parseSignalTrackerRouteResponse<TName extends SignalTrackerRouteName>(
+  routeName: TName,
+  response: unknown
+): SignalTrackerRouteResponse<TName> {
+  return parseRouteContractResponse(
+    signalTrackerRouteContracts,
+    routeName,
     response
   ) as SignalTrackerRouteResponse<TName>;
 }
+
+export { buildSignalTrackerRouteRequest, parseSignalTrackerRouteResponse };

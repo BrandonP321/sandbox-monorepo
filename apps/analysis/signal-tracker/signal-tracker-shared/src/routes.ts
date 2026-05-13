@@ -1,4 +1,8 @@
 import { z } from "zod";
+import type {
+  RouteContractRequest,
+  RouteContractResponse
+} from "@repo/api-contracts";
 
 import {
   createAssessmentUpdateRequestSchema,
@@ -361,7 +365,7 @@ export const signalTrackerRouteContractEntries = Object.entries(
 >;
 
 export type SignalTrackerRouteRequest<TName extends SignalTrackerRouteName> =
-  z.infer<(typeof signalTrackerRouteContracts)[TName]["requestSchema"]>;
+  RouteContractRequest<typeof signalTrackerRouteContracts, TName>;
 
 export type SignalTrackerRouteResponse<TName extends SignalTrackerRouteName> =
-  z.infer<(typeof signalTrackerRouteContracts)[TName]["responseSchema"]>;
+  RouteContractResponse<typeof signalTrackerRouteContracts, TName>;

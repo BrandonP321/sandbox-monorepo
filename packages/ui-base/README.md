@@ -35,6 +35,14 @@ Route registry helpers live in `@repo/ui-base/routing`:
 - `StaticAppRoutePath`
 - `RoutePathParams`
 
+RTK Query behavior helpers live in `@repo/ui-base/rtk-query`:
+
+- `getQuery`
+- `getMutation`
+- `withErrorMessage`
+- `invalidateTagsOnSuccess`
+- `RtkQueryNotificationOptions`
+
 These exports do not ship styles or field chrome. Designed packages such as
 `@repo/ui` or `@repo/dashboard-ui` inject their own rendering components and
 keep ownership of layout, icons, labels, options, comparison logic, and visual
@@ -58,5 +66,8 @@ Shared type helpers for these render contracts live in
   domain model.
 - Keep notification state and actions here, but render notification surfaces in
   a designed package.
+- Keep RTK Query wrappers generic and notification-state-only. Endpoint
+  definitions, route registries, cache tag names, and notification copy belong
+  in the consuming app.
 - Keep route helpers framework-neutral. Router-specific adapters belong in a
   designed package subpath, such as `@repo/dashboard-ui/tanstack-router`.

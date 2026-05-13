@@ -99,3 +99,8 @@ function getQuery<TResultType, TQueryArg, TBaseQuery extends BaseQueryFn>(
 }
 
 export { getQuery };
+export type {
+  QueryHookOptionsWithSelectedResult,
+  QueryHookOptionsWithoutSelectedResult,
+  QueryHookWithErrorMessage
+};
