@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import {
   createTopicRequestSchema,
@@ -19,7 +20,9 @@ function CreateTopicDialog() {
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant="outline">Create topic</Button>
+        <Button iconLeft={<Plus aria-hidden="true" className="size-4" />}>
+          Create topic
+        </Button>
       </DialogTrigger>
       <CreateTopicDialogContent />
     </Dialog>

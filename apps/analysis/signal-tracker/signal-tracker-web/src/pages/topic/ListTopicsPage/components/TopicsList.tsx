@@ -1,7 +1,6 @@
 import {
   Alert,
   Button,
-  ContentHeader,
   FormProvider,
   FormTextInput,
   LoadingState
@@ -21,20 +20,15 @@ function TopicsListContent() {
 
   return (
     <section className="py-5">
-      <ContentHeader
-        actions={
-          <FormTextInput<TopicsListFormValues>
-            name="query"
-            label="Search topics"
-            placeholder="Filter by title or framing question"
-          />
-        }
+      <FormTextInput<TopicsListFormValues>
+        className="w-full max-w-xl"
+        name="query"
+        label="Search topics"
+        placeholder="Filter by title or framing question"
         description="Titles, framing questions, and compact scope notes only."
-        headingLevel={2}
-        title="Active topics"
       />
 
-      <div className="mt-4">
+      <div className="mt-5">
         {isLoading ? <LoadingState label="Loading active topics" /> : null}
 
         {!isLoading && isError ? (

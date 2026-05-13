@@ -287,12 +287,19 @@ describe("App", () => {
     );
     expect(screen.getByRole("main")).not.toHaveClass("pt-5");
     expect(
-      screen.getByRole("heading", { level: 2, name: "Active topics" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("textbox", { name: "Search topics" })
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create topic" })).toBeEnabled();
+      screen.queryByRole("heading", { level: 2, name: "Active topics" })
+    ).not.toBeInTheDocument();
+    const searchInput = screen.getByRole("textbox", { name: "Search topics" });
+    expect(searchInput).toBeInTheDocument();
+    expect(searchInput.closest("[data-slot='form-field']")).toHaveClass(
+      "max-w-xl"
+    );
+    const createTopicButton = screen.getByRole("button", {
+      name: "Create topic"
+    });
+    expect(createTopicButton).toBeEnabled();
+    expect(createTopicButton).toHaveClass("bg-primary");
+    expect(createTopicButton.querySelector("svg")).toBeInTheDocument();
     expect(screen.queryByText("Workspace surfaces")).not.toBeInTheDocument();
     expect(document.title).toBe("Topics | Signal Tracker");
     expect(
@@ -512,7 +519,12 @@ describe("App", () => {
 
     expect(await screen.findByText("Iran strike risk")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /Iran strike risk/ })).toHaveClass(
-      "block"
+      "block",
+      "bg-white",
+      "hover:border-primary",
+      "hover:border-l-4",
+      "duration-150",
+      "ease-linear"
     );
     expect(
       screen.getByText("Will the conflict expand over the next month?")
