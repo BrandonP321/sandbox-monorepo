@@ -92,12 +92,12 @@ larger batch.
 
 ### Phase 6 - Shared Test Setup
 
-- [ ] Add a shared DOM setup export to `@repo/config-test`.
-- [ ] Move Testing Library matcher registration, `matchMedia`, and `scrollTo`
+- [x] Add a shared DOM setup export to `@repo/config-test`.
+- [x] Move Testing Library matcher registration, `matchMedia`, and `scrollTo`
       setup into the shared DOM setup.
-- [ ] Update Signal Tracker, Hello World, and browser extension Vitest configs
+- [x] Update Signal Tracker, Hello World, and browser extension Vitest configs
       or setup files to use the shared setup where applicable.
-- [ ] Verify app test suites still receive DOM matchers and browser polyfills.
+- [x] Verify app test suites still receive DOM matchers and browser polyfills.
 
 ### Phase 7 - Documentation And Guidance
 

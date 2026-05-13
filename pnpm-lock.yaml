@@ -242,9 +242,6 @@ importers:
       "@tailwindcss/vite":
         specifier: ^4.2.4
         version: 4.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3))
-      "@testing-library/jest-dom":
-        specifier: ^6.8.0
-        version: 6.9.1
       "@testing-library/react":
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -303,9 +300,6 @@ importers:
       "@repo/config-ts":
         specifier: workspace:*
         version: link:../../../../packages/config-ts
-      "@testing-library/jest-dom":
-        specifier: ^6.8.0
-        version: 6.9.1
       "@testing-library/react":
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -490,9 +484,6 @@ importers:
       "@repo/config-ts":
         specifier: workspace:*
         version: link:../../../../packages/config-ts
-      "@testing-library/jest-dom":
-        specifier: ^6.8.0
-        version: 6.9.1
       "@testing-library/react":
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -600,7 +591,11 @@ importers:
         specifier: ^8.47.0
         version: 8.54.0(eslint@9.39.2(jiti@2.6.1))(typescript@5.9.3)
 
-  packages/config-test: {}
+  packages/config-test:
+    dependencies:
+      "@testing-library/jest-dom":
+        specifier: ^6.8.0
+        version: 6.9.1
 
   packages/config-ts: {}
 
@@ -667,9 +662,6 @@ importers:
       "@tailwindcss/vite":
         specifier: ^4.2.4
         version: 4.2.4(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3))
-      "@testing-library/jest-dom":
-        specifier: ^6.8.0
-        version: 6.9.1
       "@testing-library/react":
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)

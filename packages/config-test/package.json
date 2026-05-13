@@ -3,5 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "main": "index.cjs",
-  "types": "index.d.ts"
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "default": "./index.cjs"
+    },
+    "./setup-dom": {
+      "types": "./setup-dom.d.ts",
+      "import": "./setup-dom.mjs",
+      "default": "./setup-dom.mjs"
+    }
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "^6.8.0"
+  }
 }
