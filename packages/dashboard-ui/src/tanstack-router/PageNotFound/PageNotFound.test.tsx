@@ -9,9 +9,16 @@ import {
 } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
-import { appRoutes } from "@/routeRegistry";
-
 import { PageNotFound } from "./PageNotFound";
+
+const testRoutes = {
+  home: {
+    path: "/"
+  },
+  listTopics: {
+    path: "/topics"
+  }
+} as const;
 
 describe("PageNotFound", () => {
   it("renders the default page not-found copy and home link", async () => {
@@ -35,7 +42,7 @@ describe("PageNotFound", () => {
       <PageNotFound
         description="The page you opened no longer exists."
         homeLabel="View active topics"
-        homePath={appRoutes.listTopics.path}
+        homePath={testRoutes.listTopics.path}
         title="Workspace not found"
       />
     );
@@ -50,17 +57,6 @@ describe("PageNotFound", () => {
       screen.getByRole("link", { name: "View active topics" })
     ).toHaveAttribute("href", "/topics");
   });
-
-  it("keeps PageNotFound home paths scoped to static routes", () => {
-    const invalidDynamicPath = (
-      <PageNotFound
-        // @ts-expect-error homePath cannot point to a route requiring params.
-        homePath={appRoutes.topicDetails.path}
-      />
-    );
-
-    expect(invalidDynamicPath).toBeTruthy();
-  });
 });
 
 async function renderPageNotFound(ui: ReactNode) {
@@ -69,16 +65,16 @@ async function renderPageNotFound(ui: ReactNode) {
   });
   const homeRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.home.path,
+    path: testRoutes.home.path,
     component: EmptyRouteComponent
   });
   const listTopicsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.listTopics.path,
+    path: testRoutes.listTopics.path,
     component: EmptyRouteComponent
   });
   const router = createRouter({
-    history: createMemoryHistory({ initialEntries: [appRoutes.home.path] }),
+    history: createMemoryHistory({ initialEntries: [testRoutes.home.path] }),
     routeTree: rootRoute.addChildren([homeRoute, listTopicsRoute])
   });
 

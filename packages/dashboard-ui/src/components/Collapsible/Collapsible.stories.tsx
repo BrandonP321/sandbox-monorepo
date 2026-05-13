@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { Button } from "@repo/dashboard-ui";
+import { Button } from "../Button";
 import {
   Collapsible,
   CollapsibleContent,

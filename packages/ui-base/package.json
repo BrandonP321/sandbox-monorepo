@@ -11,7 +11,8 @@
     ".": "./src/index.ts",
     "./notifications": "./src/notifications/index.ts",
     "./rtk-query": "./src/rtk-query/index.ts",
-    "./routing": "./src/routing/index.ts"
+    "./routing": "./src/routing/index.ts",
+    "./url": "./src/url/index.ts"
   },
   "scripts": {
     "lint": "eslint .",

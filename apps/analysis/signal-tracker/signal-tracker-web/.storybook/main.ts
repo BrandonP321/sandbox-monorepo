@@ -11,7 +11,6 @@ const dirname =
 
 const config: StorybookConfig = {
   stories: [
-    "../src/components/ui/**/*.stories.@(ts|tsx)",
     "../src/components/signal-tracker/**/*.stories.@(ts|tsx)",
     "../src/storybook/**/*.stories.@(ts|tsx)"
   ],

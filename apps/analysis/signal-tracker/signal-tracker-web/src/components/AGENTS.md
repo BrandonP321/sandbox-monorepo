@@ -14,18 +14,36 @@ Also follow `../../AGENTS.md` for the Signal Tracker web UI foundation, componen
 - Avoid generic prop pass-throughs and broad `aria-*`, `data-*`, `id`, `asChild`, or similar escape hatches unless a concrete Signal Tracker caller needs them.
 - Use component variants for repeated styling patterns instead of pasting the same long Tailwind class strings across call sites.
 - Prefer reusable layout primitives or small local layout components for repeated arrangements. Avoid long one-off class strings when a pattern has already appeared in multiple call sites.
-- Use the local `Layout` primitive family from `src/components/ui/` for repeated vertical stacks, inline action rows, auto grids, and main/aside layouts before adding new ad hoc layout class strings.
-- For repeated Lucide icon choices, prefer semantic icon registries over repeated direct imports. Keep generic lower-camel keys in `src/components/ui/semanticIcons.ts`, keep Signal Tracker domain keys in `src/components/signal-tracker/signalTrackerIcons.ts`, and store icon component references rather than rendered JSX so each caller owns size, stroke width, accessibility, and layout props. At call sites, prefer importing the registry as `Icons` and rendering JSX members such as `<Icons.settings />`; use a local component alias only when one icon repeats enough in a dense block to improve readability.
+- Use the shared `Layout` primitive family from `@repo/dashboard-ui` or the
+  `@/components/ui` compatibility barrel for repeated vertical stacks, inline
+  action rows, auto grids, and main/aside layouts before adding new ad hoc
+  layout class strings.
+- For repeated Lucide icon choices, prefer semantic icon registries over
+  repeated direct imports. Keep generic lower-camel keys in the
+  `@repo/dashboard-ui` `dashboardIcons` registry, keep Signal Tracker domain
+  keys in `src/components/signal-tracker/signalTrackerIcons.ts`, and store icon
+  component references rather than rendered JSX so each caller owns size,
+  stroke width, accessibility, and layout props. At call sites, prefer
+  importing the registry as `Icons` and rendering JSX members such as
+  `<Icons.settings />`; use a local component alias only when one icon repeats
+  enough in a dense block to improve readability.
 - Keep width decisions at the field, form, or layout wrapper layer. Do not add fixed widths to reusable controls unless the control's own behavior requires it.
 - Use viewport breakpoints for page and shell layouts. Use container queries for reusable component internals so components adapt to the space they are placed in.
 - Use JavaScript media-query hooks only for runtime behavior that CSS cannot express, not for presentation-only layout changes.
 - Do not add broad `useResponsive`, `useBreakpoint`, or presentation-only `useMediaQuery` hooks for styling, spacing, reflow, or ordinary show/hide behavior. Use Tailwind viewport breakpoints or container queries for those cases.
-- Use `ContentHeader` from `src/components/ui/` for page, section, card, dialog, and form-section headings instead of raw `h1`-`h6` markup. Keep semantic `headingLevel` correct, and use `headingSize` values such as `h1`, `h2`, or `h5` when a heading should follow a different visual scale.
+- Use `ContentHeader` from `@repo/dashboard-ui` or the `@/components/ui`
+  compatibility barrel for page, section, card, dialog, and form-section
+  headings instead of raw `h1`-`h6` markup. Keep semantic `headingLevel`
+  correct, and use `headingSize` values such as `h1`, `h2`, or `h5` when a
+  heading should follow a different visual scale.
 - Do not add `aria-labelledby` wiring around ordinary `ContentHeader` sections for now; keep the markup uncluttered until Signal Tracker takes on a dedicated accessibility pass.
 - Use semantic HTML, labels, keyboard-safe primitives, and accessibility behavior provided by shadcn/ui or Radix. Avoid bespoke exhaustive ARIA APIs by default.
 - Keep React context hooks, shared behavior helpers, and non-component exports in separate files from component modules when exporting them would violate Fast Refresh lint rules.
 - Use PascalCase filenames for React component files that export a component, such as `Button.tsx`. Keep non-component utility filenames lower-case or domain-named.
-- Keep `src/components/ui/` product-agnostic. Copy-owned shadcn-style primitives belong there.
+- Keep `src/components/ui/` as an app-facing compatibility barrel for shared
+  dashboard UI. New reusable dashboard primitives belong in
+  `@repo/dashboard-ui`, and new app-specific product UI belongs outside this
+  directory.
 - Keep Signal Tracker product concepts in `src/components/signal-tracker/`, including topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
 - Keep primitive responsibilities separate: positioned content, command menus, disclosure sections, dialogs, and confirmation dialogs should not borrow behavior from each other unless one is intentionally implemented as a thin specialization of another.
 - Do not add richer APIs such as checkbox/radio menu items, submenus, accordion grouping, broad positioning controls, or form-specific behavior to primitives until a concrete caller needs them.

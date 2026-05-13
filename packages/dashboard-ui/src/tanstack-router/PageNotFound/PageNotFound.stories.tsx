@@ -8,9 +8,16 @@ import {
   RouterProvider
 } from "@tanstack/react-router";
 
-import { appRoutes } from "@/routeRegistry";
-
 import { PageNotFound } from "./PageNotFound";
+
+const testRoutes = {
+  home: {
+    path: "/"
+  },
+  listTopics: {
+    path: "/topics"
+  }
+} as const;
 
 const meta = {
   title: "UI/PageNotFound",
@@ -38,7 +45,7 @@ export const Default: Story = {};
 export const TopicsHome: Story = {
   args: {
     homeLabel: "View active topics",
-    homePath: appRoutes.listTopics.path
+    homePath: testRoutes.listTopics.path
   }
 };
 
@@ -48,16 +55,16 @@ function PageNotFoundStoryRouter({ children }: { children: ReactNode }) {
   });
   const homeRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.home.path,
+    path: testRoutes.home.path,
     component: EmptyRouteComponent
   });
   const listTopicsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.listTopics.path,
+    path: testRoutes.listTopics.path,
     component: EmptyRouteComponent
   });
   const router = createRouter({
-    history: createMemoryHistory({ initialEntries: [appRoutes.home.path] }),
+    history: createMemoryHistory({ initialEntries: [testRoutes.home.path] }),
     routeTree: rootRoute.addChildren([homeRoute, listTopicsRoute])
   });
 

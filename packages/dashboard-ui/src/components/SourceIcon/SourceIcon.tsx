@@ -2,7 +2,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { Globe2 } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
-import { getGoogleFaviconUrl } from "@/lib/url";
+import { getGoogleFaviconUrl } from "@repo/ui-base/url";
 
 const sourceIconVariants = cva(
   "text-muted-foreground inline-flex shrink-0 items-center justify-center [&>svg]:size-full",

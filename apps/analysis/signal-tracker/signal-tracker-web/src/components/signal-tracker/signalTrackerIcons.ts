@@ -1,12 +1,12 @@
 import { FolderKanban, Radar, type LucideIcon } from "lucide-react";
 
-import { uiIcons } from "@/components/ui/semanticIcons";
+import { dashboardIcons } from "@repo/dashboard-ui";
 
 const signalTrackerIcons = {
-  ...uiIcons,
+  ...dashboardIcons,
   topic: FolderKanban,
   topicEmptyState: Radar
-} satisfies typeof uiIcons & Record<string, LucideIcon>;
+} satisfies typeof dashboardIcons & Record<string, LucideIcon>;
 
 type SignalTrackerIconName = keyof typeof signalTrackerIcons;
 type SignalTrackerIcon = (typeof signalTrackerIcons)[SignalTrackerIconName];

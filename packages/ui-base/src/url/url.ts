@@ -1,15 +1,3 @@
-function getGoogleFaviconUrl(url: string | undefined) {
-  const hostname = getUrlHostname(url);
-
-  if (!hostname) {
-    return undefined;
-  }
-
-  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(
-    hostname
-  )}&sz=32`;
-}
-
 function getUrlHostname(url: string | undefined) {
   if (!url) {
     return undefined;
@@ -22,6 +10,18 @@ function getUrlHostname(url: string | undefined) {
   } catch {
     return undefined;
   }
+}
+
+function getGoogleFaviconUrl(url: string | undefined) {
+  const hostname = getUrlHostname(url);
+
+  if (!hostname) {
+    return undefined;
+  }
+
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(
+    hostname
+  )}&sz=32`;
 }
 
 export { getGoogleFaviconUrl, getUrlHostname };

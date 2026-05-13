@@ -1,9 +1,8 @@
 import type { CSSProperties, Key, ReactNode } from "react";
 import type * as React from "react";
 
-import { cn } from "@repo/dashboard-ui";
-
-import { Button } from "@repo/dashboard-ui";
+import { Button } from "../Button";
+import { cn } from "../../lib/utils";
 
 type AttributeEditorNativeProps = Pick<
   React.ComponentProps<"div">,

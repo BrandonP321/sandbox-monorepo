@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { Button } from "@repo/dashboard-ui";
+import { Button } from "../Button";
 import { ResourceNotFound } from "./ResourceNotFound";
 
 describe("ResourceNotFound", () => {

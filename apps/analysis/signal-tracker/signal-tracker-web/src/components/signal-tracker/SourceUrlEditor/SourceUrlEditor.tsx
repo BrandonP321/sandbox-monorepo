@@ -16,7 +16,7 @@ import {
   FormTextInput,
   SourceIcon
 } from "@/components/ui";
-import { getUrlHostname } from "@/lib/url";
+import { getUrlHostname } from "@repo/ui-base/url";
 
 type SourceUrlEditorNativeProps = Pick<
   React.ComponentProps<"div">,
