@@ -14,6 +14,7 @@ phases:
       - npm install --global --prefix "${PNPM_HOME}" "pnpm@${PNPM_VERSION}"
       - pnpm config set store-dir .pnpm-store
       - pnpm install --frozen-lockfile
+      - pnpm --filter @repo/dashboard-ui exec playwright install chromium
   build:
     commands:
       - pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
