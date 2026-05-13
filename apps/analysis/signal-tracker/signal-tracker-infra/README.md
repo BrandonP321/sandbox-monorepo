@@ -167,10 +167,17 @@ The validate buildspec executes:
 ```bash
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run lint
 pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run typecheck
-pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... run test
+pnpm -r --filter signal-tracker-web... --filter signal-tracker-api... --filter signal-tracker-infra... --filter '!@repo/dashboard-ui' run test
+pnpm --filter @repo/dashboard-ui run test:unit
 pnpm --filter signal-tracker-web run build
 pnpm -r --workspace-concurrency=1 --filter signal-tracker-api... --filter signal-tracker-infra... run build
 ```
+
+`@repo/dashboard-ui` Storybook browser tests are excluded from the Signal
+Tracker Lambda validate runner because the AWS-managed Lambda CodeBuild image
+does not include the full Chromium shared-library stack. The validate runner
+still executes `@repo/dashboard-ui` unit tests, plus recursive lint/typecheck
+and the Signal Tracker app build.
 
 The deploy buildspec executes:
 
