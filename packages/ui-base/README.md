@@ -44,12 +44,11 @@ RTK Query behavior helpers live in `@repo/ui-base/rtk-query`:
 - `RtkQueryNotificationOptions`
 
 These exports do not ship styles or field chrome. Designed packages such as
-`@repo/ui` or `@repo/dashboard-ui` inject their own rendering components and
-keep ownership of layout, icons, labels, options, comparison logic, and visual
-treatment. The current control contracts are intentionally small and
-functional-only. Each control uses a `children` render function to hand resolved
-field props into the designed component rather than exposing a large native prop
-surface.
+`@repo/dashboard-ui` inject their own rendering components and keep ownership of
+layout, icons, labels, options, comparison logic, and visual treatment. The
+current control contracts are intentionally small and functional-only. Each
+control uses a `children` render function to hand resolved field props into the
+designed component rather than exposing a large native prop surface.
 
 Shared type helpers for these render contracts live in
 [`src/components/FormControl.types.ts`](./src/components/FormControl.types.ts).

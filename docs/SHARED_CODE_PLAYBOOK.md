@@ -14,6 +14,7 @@ Extract to `packages/*` when any of these are true:
 - `@repo/api-contracts`: repo-wide web+api schemas/types.
 - `@repo/frontend-config`: browser-safe frontend environment/stage config helpers.
 - `@repo/infra-patterns`: CDK constructs for API + SPA deployment defaults.
+- `@repo/dashboard-ui`: reusable dashboard-oriented React UI primitives and styles.
 - `@repo/ui-base`: behavior-only UI primitives and form wiring.
 
 ## Contract naming to avoid collisions
@@ -22,7 +23,7 @@ Keep project-specific contracts in `<project>-shared`. Use `@repo/api-contracts`
 
 ## Signal Tracker reuse rule
 
-For `apps/analysis/signal-tracker`, keep product-specific UI components inside `signal-tracker-web` and do not import `@repo/ui` or other styled shared UI packages. Use `@repo/ui-base` for behavior-only UI abstractions.
+For `apps/analysis/signal-tracker`, keep product-specific UI components inside `signal-tracker-web`. Use `@repo/dashboard-ui` for reusable dashboard primitives and `@repo/ui-base` for behavior-only UI abstractions.
 
 When Signal Tracker work reveals reusable behavior that belongs in `@repo/ui-base` or another shared package it already depends on, prefer a small tested shared-package expansion over repeated app-local code. Keep style, markup, and product-specific composition out of `@repo/ui-base`.
 

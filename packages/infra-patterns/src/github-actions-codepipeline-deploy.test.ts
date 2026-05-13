@@ -10,32 +10,31 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      buildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
-      connectionName: "hello-world-prod-source",
-      deployStackName: "HelloWorldStack",
+      buildSpecPath: "apps/example/example-infra/buildspec.prod.yml",
+      connectionName: "example-prod-source",
+      deployStackName: "ExampleStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubBranch: "main",
       githubOwner: "BrandonP321",
       githubRepo: "sandbox-monorepo",
-      pipelineName: "hello-world-prod",
-      projectName: "hello-world-prod-deploy",
+      pipelineName: "example-prod",
+      projectName: "example-prod-deploy",
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml"
+        "apps/example/example-infra/buildspec.validate.yml"
     });
 
     const template = Template.fromStack(stack);
 
     template.hasResourceProperties("AWS::CodeConnections::Connection", {
-      ConnectionName: "hello-world-prod-source",
+      ConnectionName: "example-prod-source",
       ProviderType: "GitHub"
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "hello-world-prod-deploy",
+      Name: "example-prod-deploy",
       Cache: Match.objectLike({
         Modes: ["LOCAL_CUSTOM_CACHE"],
         Type: "LOCAL"
@@ -48,19 +47,18 @@ describe("GitHubActionsCodePipelineDeploy", () => {
           Match.objectLike({
             Name: "STACK_NAME",
             Type: "PLAINTEXT",
-            Value: "HelloWorldStack"
+            Value: "ExampleStack"
           })
         ])
       }),
       Source: Match.objectLike({
-        BuildSpec:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
+        BuildSpec: "apps/example/example-infra/buildspec.prod.yml",
         Type: "CODEPIPELINE"
       })
     });
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
-      Name: "hello-world-prod-validate",
+      Name: "example-prod-validate",
       Cache: Match.objectLike({
         Modes: ["LOCAL_CUSTOM_CACHE"],
         Type: "LOCAL"
@@ -71,14 +69,13 @@ describe("GitHubActionsCodePipelineDeploy", () => {
         Type: "LINUX_CONTAINER"
       }),
       Source: Match.objectLike({
-        BuildSpec:
-          "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        BuildSpec: "apps/example/example-infra/buildspec.validate.yml",
         Type: "CODEPIPELINE"
       })
     });
 
     template.hasResourceProperties("AWS::CodePipeline::Pipeline", {
-      Name: "hello-world-prod",
+      Name: "example-prod",
       Stages: Match.arrayWith([
         Match.objectLike({
           Name: "Source",
@@ -129,7 +126,7 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     });
 
     template.hasResourceProperties("AWS::IAM::Role", {
-      RoleName: "hello-world-prod-starter",
+      RoleName: "example-prod-starter",
       AssumeRolePolicyDocument: Match.objectLike({
         Statement: Match.arrayWith([
           Match.objectLike({
@@ -206,28 +203,27 @@ describe("GitHubActionsCodePipelineDeploy", () => {
     const stack = new cdk.Stack(app, "TestStack");
 
     new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
-      buildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.prod.yml",
-      connectionName: "hello-world-prod-source",
-      deployStackName: "HelloWorldStack",
+      buildSpecPath: "apps/example/example-infra/buildspec.prod.yml",
+      connectionName: "example-prod-source",
+      deployStackName: "ExampleStack",
       githubActionsBranch: "main",
       githubActionsRepo: "BrandonP321/sandbox-monorepo",
       githubBranch: "main",
       githubOwner: "BrandonP321",
       githubRepo: "sandbox-monorepo",
-      pipelineName: "hello-world-prod",
-      projectName: "hello-world-prod-deploy",
+      pipelineName: "example-prod",
+      projectName: "example-prod-deploy",
       region: "us-east-1",
       sourceActionName: "Source",
       validationBuildSpecPath:
-        "apps/portfolio/hello-world/hello-world-infra/buildspec.validate.yml",
+        "apps/example/example-infra/buildspec.validate.yml",
       validationProjectConstructId: "ValidationProject"
     });
 
     const template = Template.fromStack(stack);
     const validationProjectLogicalIds = Object.keys(
       template.findResources("AWS::CodeBuild::Project", {
-        Properties: { Name: "hello-world-prod-validate" }
+        Properties: { Name: "example-prod-validate" }
       })
     );
 

@@ -8,7 +8,7 @@ Default approach: multiple apps in /apps and reusable code/config in /packages.
 - Node + TypeScript
 - pnpm workspaces
 - Turborepo task runner
-- Shared local UI foundation in `packages/ui` built incrementally with SCSS tokens and local React primitives
+- Shared dashboard UI in `packages/dashboard-ui` and behavior-only UI helpers in `packages/ui-base`
 
 ## Local Prerequisites
 
@@ -63,7 +63,6 @@ See REPO_MAP.md for details.
    - pnpm install
 2. Run tasks:
    - pnpm dev
-   - pnpm dev:hello (web + api only)
    - pnpm dev:signal-tracker:lan (web + api for another device on the same network)
    - pnpm test
    - pnpm lint
@@ -87,32 +86,3 @@ LAN_DEV_IP=192.168.1.50 pnpm dev:signal-tracker:lan
 ## How work gets done here
 
 Agent/Codex guidance lives in AGENTS.md.
-
-## Hello World Deploy
-
-The current CDK-backed example app is `hello-world`.
-
-For the first deploy in an account/region:
-
-- `pnpm --filter hello-world-infra exec cdk bootstrap aws://498283327683/us-east-1`
-
-For Codex or any other non-interactive terminal:
-
-- `pnpm --filter hello-world-infra run deploy:ci`
-
-## Hello World CI/CD
-
-`hello-world` now uses a hybrid CI/CD model:
-
-- GitHub Actions owns monorepo-aware triggering and starts the AWS pipeline.
-- AWS CodePipeline owns validation and the Prod deployment flow.
-
-The workflow only runs when a change touches `apps/portfolio/hello-world/**` or any path outside `apps/**`.
-Pushes to `main` start the `hello-world-prod` pipeline with the exact Git commit SHA. The detailed validation and deploy logs now live in CodePipeline/CodeBuild instead of GitHub Actions.
-
-One-time setup after deploying `hello-world-infra`:
-
-1. Open the AWS CodeConnections console in `us-east-1` and finish the `hello-world-prod-source` GitHub connection handshake if the stack output still shows `PENDING`.
-2. In GitHub repository variables, set `AWS_ACCOUNT_ID=498283327683` so Actions can assume the starter role created by the stack.
-
-See [apps/portfolio/hello-world/hello-world-infra/README.md](/c:/Users/brand/code/personal/sandbox-monorepo/apps/portfolio/hello-world/hello-world-infra/README.md) for the app-specific CI/CD details.

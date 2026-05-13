@@ -8,12 +8,6 @@ const require = createRequire(import.meta.url);
 const qrCode = require("qrcode-terminal");
 
 export const lanDevProjects = {
-  "hello-world": {
-    apiFilter: "hello-world-api",
-    apiPort: 3001,
-    webFilter: "hello-world-web",
-    webPort: 5173
-  },
   "signal-tracker": {
     apiFilter: "signal-tracker-api",
     apiPort: 3001,

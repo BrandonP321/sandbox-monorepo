@@ -121,7 +121,8 @@ Consult these files first:
 - docs/WORKFLOW.md (standard development loop)
 - docs/REPO_MAP.md (where to put things)
 - docs/SHARED_CODE_PLAYBOOK.md (how to factor shared code)
-- packages/ui/README.md (current shared UI package contract and direction)
+- packages/dashboard-ui/README.md (shared dashboard UI package contract and direction)
+- packages/ui-base/README.md (shared UI behavior package contract and direction)
 
 ## Project-Specific Agent Guidance
 
@@ -129,12 +130,12 @@ Consult these files first:
 - Before substantive Signal Tracker implementation work, read `apps/analysis/signal-tracker/AGENTS.md`.
 - Signal Tracker product direction lives in Google Drive. Use the Google Drive plugin/connector when product context is needed, following the Drive navigation rules in `apps/analysis/signal-tracker/AGENTS.md`.
 - Signal Tracker GitHub Issues are build-ready feature specs; the GitHub Project named `Signal Tracker` tracks execution.
-- Signal Tracker UI must not import `@repo/ui` or other styled shared UI packages. Use `@repo/ui-base` only for behavior abstractions, and keep Signal Tracker-specific UI components inside `signal-tracker-web`.
+- Signal Tracker UI may import `@repo/dashboard-ui` for reusable dashboard primitives and `@repo/ui-base` for behavior abstractions. Keep Signal Tracker-specific UI components inside `signal-tracker-web`.
 - Signal Tracker work should keep a senior-SDE refactoring posture: look for duplication, weak boundaries, and reusable abstractions as implementation proceeds; make small sustainability refactors when they are needed for the task, and extend shared packages only when the abstraction is general enough and tested.
 
 ## UI package note
 
-- `packages/ui` is currently an incremental SCSS-based design-system foundation.
+- `packages/dashboard-ui` is the shared dashboard-oriented React primitive and style package.
+- `packages/ui-base` is the shared behavior-only UI helper package.
 - Prefer extending tokens, shared styles, and small owned primitives over introducing a large UI framework by default.
 - Do not assume dark mode support unless explicitly requested.
-- When app code needs shared icons, import them from `@repo/ui/icons` rather than `lucide-react` directly.

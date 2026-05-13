@@ -32,8 +32,8 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Use Tailwind CSS as the styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer usually consumed through shadcn/ui.
 - Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Treat Tailwind Plus and Catalyst as reference or pattern sources only, not as the controlling design system.
-- Do not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
-- Keep styled UI primitives app-local until they stabilize through real use across more than one app, or until the user or issue explicitly requests extraction.
+- Use `@repo/dashboard-ui` for extracted dashboard primitives and styles.
+- Keep product-specific Signal Tracker UI app-local until a primitive clearly belongs in `@repo/dashboard-ui` or an issue explicitly requests extraction.
 - Use `@repo/ui-base` only for behavior abstractions with small APIs and tests.
 - Keep generic copy-owned UI primitives product-agnostic in `src/components/ui/` and keep Signal Tracker-specific components in `src/components/signal-tracker/`.
 - Signal Tracker-specific components should encode product concepts such as topics, entries, assessments, evidence, citations, source previews, uncited state, review state, and related workflows.
@@ -49,9 +49,9 @@ Also follow `../AGENTS.md` for Signal Tracker product scope, Google Drive source
 - Use TanStack Router for Signal Tracker page routing. Keep the route tree app-local and code-based unless the route set grows enough to justify file-route generation.
 - Add app routes to the typed route registry in `src/routeRegistry.ts`, and reuse those registry values in router definitions, `Link` targets, and route hooks such as `useParams` instead of re-entering route path strings.
 - Prefer nested route paths that build directly on parent paths and keep display-only path params required when they help shell navigation or future breadcrumbs, such as `/topics/$topicId/$topicName` and later children like `/topics/$topicId/$topicName/edit`.
-- Configure shared app chrome as a TanStack Router parent/root component through `src/components/signal-tracker/SignalTrackerAppShell`. Keep `AppShell` product-agnostic but TanStack-aware in `src/components/ui/`; it owns `<Outlet />`, active route detection, header title selection, and sidebar link rendering.
+- Configure shared app chrome as a TanStack Router parent/root component through `src/components/signal-tracker/SignalTrackerAppShell`. Use the TanStack-aware `AppShell` from `@repo/dashboard-ui/tanstack-router`; it owns `<Outlet />`, active route detection, header title selection, and sidebar link rendering.
 - Add sidebar navigation through the Signal Tracker route model in `src/components/signal-tracker/SignalTrackerAppShell/routes.ts`; use route-level `visibleWhen`, `path`, `title`, `params`, and `children` definitions instead of adding route-specific link branches to the shell component.
-- Keep Storybook stories focused on generic UI primitives in `src/components/ui/`; do not use Storybook stories for product workflows unless that scope is explicitly expanded.
+- Keep generic dashboard primitive stories in `@repo/dashboard-ui`; use Signal Tracker Storybook stories for product workflows only when that scope is explicitly expanded.
 
 ## Component Interfaces
 

@@ -1,4 +1,4 @@
 {
   "extends": "@repo/config-ts/tsconfig.react.json",
-  "include": ["src", "vitest.config.ts"]
+  "include": ["src", ".storybook", "vitest.config.ts"]
 }

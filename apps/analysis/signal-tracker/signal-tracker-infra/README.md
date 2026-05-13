@@ -103,7 +103,7 @@ or deploy runner.
 
 ## CI/CD
 
-`signal-tracker` uses the same hybrid pipeline pattern as `hello-world`:
+`signal-tracker` uses the repo's hybrid pipeline pattern:
 
 - GitHub Actions handles monorepo-aware change detection and starts the AWS pipeline for qualifying pushes to `main`.
 - AWS CodePipeline owns the detailed validation and Prod deployment flow.

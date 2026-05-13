@@ -17,7 +17,7 @@ Use `signal-tracker-shared` before promoting Signal Tracker-only contracts to re
 
 Signal Tracker uses Tailwind CSS as its styling foundation, shadcn/ui as the default local component layer, and Radix UI as the accessible primitive layer underneath many shadcn/ui components. Signal Tracker is not choosing between shadcn/ui and Radix UI; the intended relationship is layered. Use shadcn/ui first for common app components. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 
-Signal Tracker should continue to use `@repo/ui-base` for shared behavior abstractions only. Do not import `@repo/ui` or other styled shared UI packages into Signal Tracker. Product-specific UI components belong inside `signal-tracker-web`.
+Signal Tracker uses `@repo/dashboard-ui` for extracted dashboard primitives and `@repo/ui-base` for shared behavior abstractions. Product-specific UI components belong inside `signal-tracker-web`.
 
 Avoid mixing multiple primitive or component systems for the same interaction type. Do not use shadcn/Radix, raw Radix, Headless UI, MUI, Ant Design, Mantine, or another component library interchangeably for the same dialog, popover, dropdown, tooltip, tab, or collapsible behavior unless a specific exception is documented. Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
 

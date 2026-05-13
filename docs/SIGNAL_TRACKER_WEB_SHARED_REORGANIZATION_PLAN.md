@@ -95,7 +95,7 @@ larger batch.
 - [x] Add a shared DOM setup export to `@repo/config-test`.
 - [x] Move Testing Library matcher registration, `matchMedia`, and `scrollTo`
       setup into the shared DOM setup.
-- [x] Update Signal Tracker, Hello World, and browser extension Vitest configs
+- [x] Update Signal Tracker and browser extension Vitest configs
       or setup files to use the shared setup where applicable.
 - [x] Verify app test suites still receive DOM matchers and browser polyfills.
 
@@ -106,8 +106,7 @@ larger batch.
 - [ ] Update `docs/SHARED_CODE_PLAYBOOK.md` for the approved extraction
       boundaries.
 - [ ] Update Signal Tracker AGENTS/README guidance so Signal Tracker can import
-      `@repo/dashboard-ui` while still avoiding the older `@repo/ui` styled
-      package.
+      `@repo/dashboard-ui`.
 - [ ] Add package-level AGENTS guidance for `@repo/dashboard-ui` and any new
       `@repo/ui-base` subpath conventions.
 
@@ -146,8 +145,8 @@ Name rationale:
 - The current components are dense app/dashboard primitives: shell, flashbar,
   alerts, cards, forms, page/section headers, badges, layout helpers, dialogs,
   menus, popovers, and empty/loading/not-found states.
-- It avoids overloading the existing `@repo/ui` package, which currently owns
-  a separate SCSS-based Analyst Core design-system track.
+- It keeps the dashboard primitives on the current shared dashboard UI track
+  instead of reviving the removed SCSS-based design-system track.
 
 Initial package contract:
 
@@ -280,7 +279,7 @@ apps/* -> @repo/dashboard-ui, @repo/ui-base, @repo/api-contracts,
 
 Guardrails:
 
-- `@repo/ui-base` must not import `@repo/dashboard-ui`, `@repo/ui`, or any app
+- `@repo/ui-base` must not import `@repo/dashboard-ui` or any app
   package.
 - `@repo/dashboard-ui` must not import Signal Tracker packages.
 - `@repo/api-contracts` must not import `@repo/ui-base` or visual UI packages.
@@ -459,13 +458,13 @@ Target split:
   - set `setupFiles` to `@repo/config-test/setup-dom`
   - keep app-specific test fixtures and render helpers local until repeated
 
-The shared DOM setup should cover both Signal Tracker and Hello World's current
-`matchMedia` setup. Signal Tracker's `scrollTo` no-op should move there too.
+The shared DOM setup should cover repeated browser test setup such as
+`matchMedia` and `scrollTo` polyfills.
 
 ## Suggested Extraction Sequence
 
 1. Create `@repo/dashboard-ui` skeleton.
-   - Copy package shape from `packages/ui`.
+   - Copy package shape from another shared React package.
    - Use Tailwind/Radix/CVA dependencies from `signal-tracker-web`.
    - Add package-level Storybook and focused unit tests.
    - Add `AGENTS.md` documenting the dashboard UI boundary.
@@ -511,9 +510,8 @@ The shared DOM setup should cover both Signal Tracker and Hello World's current
 8. Update guidance and repo docs.
    - Update `docs/REPO_MAP.md`.
    - Update `docs/SHARED_CODE_PLAYBOOK.md`.
-   - Update Signal Tracker AGENTS/README rules that currently say styled shared
-     UI packages are forbidden. The new rule should forbid `@repo/ui` for
-     Signal Tracker, but allow the explicitly extracted `@repo/dashboard-ui`.
+   - Update Signal Tracker AGENTS/README rules to allow the explicitly
+     extracted `@repo/dashboard-ui`.
 
 ## Validation Expectations
 
@@ -543,8 +541,8 @@ affected stories through Playwright at narrow and wide widths.
   should own state and actions, while `@repo/dashboard-ui` should only render
   those notifications. Do not let `@repo/ui-base` import dashboard alerts or
   flashbars.
-- `@repo/ui` and `@repo/dashboard-ui` will coexist. Do not try to merge them as
-  part of this plan; they serve different styling tracks today.
+- `@repo/dashboard-ui` is the styling track for this dashboard foundation. Do
+  not reintroduce removed styled UI packages as part of this plan.
 - Move product-neutral primitives only. Product workflows, Signal Tracker route
   names, domain icon choices, API endpoint definitions, and contract-backed form
   schemas stay in Signal Tracker packages.

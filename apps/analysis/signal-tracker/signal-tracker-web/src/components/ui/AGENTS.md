@@ -24,9 +24,8 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 - UI primitive implementations in shared packages should import sibling
   primitives from their folder barrels, such as `../Button`, instead of
   importing through the root package barrel.
-- Do not move styled primitives to `@repo/ui`. Shared dashboard primitives
-  belong in `@repo/dashboard-ui`; behavior-only helpers belong in
-  `@repo/ui-base`.
+- Shared dashboard primitives belong in `@repo/dashboard-ui`; behavior-only
+  helpers belong in `@repo/ui-base`.
 
 ## Dialogs
 

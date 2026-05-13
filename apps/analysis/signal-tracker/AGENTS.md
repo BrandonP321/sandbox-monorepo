@@ -21,8 +21,9 @@
 - Use shadcn/ui as the default local component layer for common app components. Treat copied shadcn-style primitives as app-owned code.
 - Use Radix UI as the accessible primitive layer, usually through shadcn/ui. Use Radix UI directly only when shadcn/ui does not provide the needed primitive or when a Signal Tracker-specific interaction needs lower-level control.
 - Tailwind Plus and Catalyst, if used, are reference or pattern sources only, not the controlling design system.
-- Signal Tracker UI must not import `@repo/ui`, `packages/ui`, or other styled shared UI packages.
-- Keep styled Signal Tracker UI primitives app-local in `signal-tracker-web` until they stabilize through real use across more than one app, or until the user or issue explicitly requests extraction.
+- Signal Tracker UI may import `@repo/dashboard-ui` for extracted dashboard primitives and styles.
+- Do not add a new styled shared UI package for Signal Tracker work unless the user or issue explicitly requires it.
+- Keep product-specific Signal Tracker components app-local in `signal-tracker-web`.
 - Use `@repo/ui-base` when a UI behavior abstraction is useful, especially for form wiring or other behavior-only primitives.
 - Use `@repo/ui-base` responsive hooks only for runtime behavior changes that CSS cannot express. Do not use these hooks as the default styling or layout mechanism.
 - Do not create app-local responsive hook duplicates when `@repo/ui-base` already provides the needed behavior.
@@ -37,7 +38,7 @@
 
 ## Frontend Data And State
 
-- Keep Signal Tracker UI work app-local unless a behavior abstraction clearly belongs in `@repo/ui-base` or an issue explicitly requires broader shared-package work.
+- Keep Signal Tracker product UI work app-local unless a dashboard primitive clearly belongs in `@repo/dashboard-ui`, a behavior abstraction clearly belongs in `@repo/ui-base`, or an issue explicitly requires broader shared-package work.
 - Use route contracts, request/response schemas, and domain types from `@repo/signal-tracker-shared`; do not duplicate API shapes in the web app.
 - Use RTK Query as the server-state layer. Do not store server data or derived server data in standalone Redux slices.
 - Async UI must account for loading, error, empty, and success states, even when shared components render those states.
