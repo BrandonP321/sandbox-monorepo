@@ -2,9 +2,8 @@
   "extends": "@repo/config-ts/tsconfig.react.json",
   "compilerOptions": {
     "allowImportingTsExtensions": true,
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     },
     "types": ["vitest/globals", "vite/client"]
   },

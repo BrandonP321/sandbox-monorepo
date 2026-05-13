@@ -44,5 +44,9 @@ and dependency direction.
 
 - Add focused tests for behavior a user or consuming component can observe.
 - Add Storybook stories for visual states and layout-sensitive variants.
+- In Storybook Vite config, merge only package-specific needs such as the
+  Tailwind plugin and local aliases. Do not merge the package Vite config
+  wholesale, because `@storybook/react-vite` already owns the React plugin and
+  React Refresh wiring in dev.
 - Run package `lint`, `typecheck`, `test`, and `build-storybook` after changing
   public component behavior or styling.
