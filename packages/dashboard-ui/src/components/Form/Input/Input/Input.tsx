@@ -2,7 +2,10 @@ import type * as React from "react";
 
 import { cn } from "../../../../lib/utils";
 
-import { textInputClassName } from "../../form-control-styles";
+import {
+  dateInputClassName,
+  textInputClassName
+} from "../../form-control-styles";
 
 type SharedNativeInputProps = Pick<
   React.ComponentPropsWithRef<"input">,
@@ -52,12 +55,15 @@ type InputProps =
   | TextInputNativeProps;
 
 function Input({ className, type = "text", ...inputProps }: InputProps) {
+  const inputClassName =
+    type === "date" ? dateInputClassName : textInputClassName;
+
   return (
     <input
       {...inputProps}
       data-slot="input"
       type={type}
-      className={cn(textInputClassName, className)}
+      className={cn(inputClassName, className)}
     />
   );
 }

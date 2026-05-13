@@ -14,7 +14,10 @@ describe("AutoGrid", () => {
 
     expect(screen.getByText("First field")).toBeInTheDocument();
     expect(screen.getByText("Second field")).toBeInTheDocument();
-    expect(container.querySelector('[data-slot="auto-grid"]')).toHaveStyle({
+    const grid = container.querySelector('[data-slot="auto-grid"]');
+
+    expect(grid).toHaveClass("min-w-0", "[&>*]:min-w-0");
+    expect(grid).toHaveStyle({
       gridTemplateColumns: "repeat(auto-fit, minmax(min(16rem, 100%), 1fr))"
     });
   });

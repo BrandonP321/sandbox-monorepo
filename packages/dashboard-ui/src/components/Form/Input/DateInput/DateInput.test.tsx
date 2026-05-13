@@ -26,6 +26,16 @@ describe("DateInput", () => {
     expect(input).toHaveValue("2026-05-06");
     expect(input).toHaveAttribute("min", "2026-01-01");
     expect(input).toHaveAttribute("max", "2026-12-31");
+    expect(input).toHaveClass(
+      "appearance-none",
+      "block",
+      "max-w-full",
+      "min-w-0",
+      "[inline-size:100%]",
+      "[max-inline-size:100%]",
+      "[min-inline-size:0]"
+    );
+    expect(input).not.toHaveClass("flex");
     expect(handleChange).toHaveBeenCalledTimes(1);
   });
 

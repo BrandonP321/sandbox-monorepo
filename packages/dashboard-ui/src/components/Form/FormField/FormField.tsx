@@ -50,7 +50,10 @@ function FormField({
   const describedBy = [descriptionId, errorId].filter(Boolean).join(" ");
 
   return (
-    <div className={cn("grid gap-2.5", className)} data-slot="form-field">
+    <div
+      className={cn("grid min-w-0 gap-2.5", className)}
+      data-slot="form-field"
+    >
       {label ? (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <label

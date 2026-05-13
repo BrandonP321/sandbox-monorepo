@@ -5,6 +5,7 @@ import { z } from "zod";
 import { useNotifications } from "@repo/ui-base/notifications";
 
 import { Button } from "../../Button";
+import { AutoGrid } from "../../Layout";
 import { Form } from "./Form";
 import { FormDateInput } from "../FormDateInput";
 import { FormNumberInput } from "../FormNumberInput";
@@ -205,6 +206,36 @@ function FormDateInputExample() {
   );
 }
 
+function FormDateInputNarrowGridExample() {
+  return (
+    <div className="border-border w-[14rem] rounded-xl border p-4">
+      <FormProvider
+        defaultValues={{
+          assessmentDate: "2026-05-05",
+          targetResolutionDate: ""
+        }}
+        schema={dateFormSchema}
+      >
+        <Form<DateFormValues>
+          className="w-full"
+          onSubmit={async () => undefined}
+        >
+          <AutoGrid>
+            <FormDateInput<DateFormValues>
+              label="Assessment date"
+              name="assessmentDate"
+            />
+            <FormDateInput<DateFormValues>
+              label="Target date"
+              name="targetResolutionDate"
+            />
+          </AutoGrid>
+        </Form>
+      </FormProvider>
+    </div>
+  );
+}
+
 function FormNumberInputExample() {
   const [submittedValues, setSubmittedValues] =
     useState<NumberFormValues | null>(null);
@@ -265,6 +296,10 @@ export const FormTextInputControl: Story = {
 
 export const FormDateInputControl: Story = {
   render: () => <FormDateInputExample />
+};
+
+export const FormDateInputNarrowGrid: Story = {
+  render: () => <FormDateInputNarrowGridExample />
 };
 
 export const FormNumberInputControl: Story = {

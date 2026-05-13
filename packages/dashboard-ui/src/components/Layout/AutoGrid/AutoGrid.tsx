@@ -53,7 +53,7 @@ function AutoGrid({
       {...autoGridProps}
       data-slot="auto-grid"
       className={cn(
-        "grid",
+        "grid min-w-0 [&>*]:min-w-0",
         gapClassNameBySize[gap],
         autoGridAlignClassNameByValue[align],
         className

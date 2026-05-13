@@ -75,4 +75,18 @@ describe("FormField", () => {
 
     expect(screen.getByText("Title")).toHaveClass("font-normal");
   });
+
+  it("allows fields to shrink inside constrained layouts", () => {
+    const { container } = render(
+      <FormField label="Title">
+        {(fieldProps) => (
+          <TextInput {...fieldProps} onChange={() => {}} value="" />
+        )}
+      </FormField>
+    );
+
+    expect(container.querySelector('[data-slot="form-field"]')).toHaveClass(
+      "min-w-0"
+    );
+  });
 });

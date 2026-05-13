@@ -45,6 +45,31 @@ describe("Input", () => {
     expect(input).toBeInvalid();
   });
 
+  it("uses native sizing overrides for date inputs", () => {
+    render(
+      <>
+        <label htmlFor="assessment-date">Assessment date</label>
+        <Input
+          id="assessment-date"
+          onChange={() => {}}
+          type="date"
+          value="2026-05-13"
+        />
+      </>
+    );
+
+    const input = screen.getByLabelText("Assessment date");
+
+    expect(input).toHaveClass(
+      "appearance-none",
+      "block",
+      "[inline-size:100%]",
+      "[max-inline-size:100%]",
+      "[min-inline-size:0]"
+    );
+    expect(input).not.toHaveClass("flex");
+  });
+
   it("keeps value types scoped to the input type", () => {
     const dateProps = {
       type: "date",
