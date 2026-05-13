@@ -9,7 +9,7 @@ import {
   FormSelect,
   FormTextInput,
   SubmitButton
-} from "../Form";
+} from "@repo/dashboard-ui";
 import { AttributeEditor } from "./AttributeEditor";
 
 const meta = {

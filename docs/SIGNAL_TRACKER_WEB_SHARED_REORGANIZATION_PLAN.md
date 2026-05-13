@@ -48,17 +48,17 @@ larger batch.
 
 ### Phase 3 - Forms, Overlays, And Notification Renderers
 
-- [ ] Move dashboard form visual wrappers and field chrome into
+- [x] Move dashboard form visual wrappers and field chrome into
       `@repo/dashboard-ui`.
-- [ ] Move dialog, alert dialog, dropdown menu, popover, and related overlay
+- [x] Move dialog, alert dialog, dropdown menu, popover, and related overlay
       primitives into `@repo/dashboard-ui`.
-- [ ] Move `Flashbar`, `NotificationAlerts`, and `NotificationFlashbar` into
+- [x] Move `Flashbar`, `NotificationAlerts`, and `NotificationFlashbar` into
       `@repo/dashboard-ui`, backed by `@repo/ui-base/notifications`.
-- [ ] Preserve current form-local error behavior, root flashbar stacking, and
+- [x] Preserve current form-local error behavior, root flashbar stacking, and
       unsupported-message pass-through semantics.
-- [ ] Add or move focused tests and Storybook stories for the migrated form,
+- [x] Add or move focused tests and Storybook stories for the migrated form,
       overlay, and notification-rendering surfaces.
-- [ ] Run targeted package and Signal Tracker validation, including visual
+- [x] Run targeted package and Signal Tracker validation, including visual
       checks for layout-sensitive stories.
 
 ### Phase 4 - Routing And App Shell

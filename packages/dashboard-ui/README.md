@@ -42,14 +42,22 @@ the package's own component files. Consuming apps should keep their own
 ## Current Surface
 
 - `Alert`
+- `AlertDialog`, `DeleteConfirmationDialog`
 - `Badge`
 - `Button`
 - `Card`
 - `Chip`
 - `ContentHeader`
+- `Dialog`
+- `DropdownMenu`
 - layout helpers: `AutoGrid`, `Inline`, `Stack`, `WithAside`
 - `EmptyState`
+- form components: `Form`, `FormProvider`, `FormField`, inputs, selects, and
+  submit buttons
+- `Flashbar`
 - `LoadingState`
+- notification renderers: `NotificationAlerts`, `NotificationFlashbar`
+- `Popover`
 - `Skeleton`
 - `cn`
 
@@ -59,4 +67,4 @@ the package's own component files. Consuming apps should keep their own
 - Keep TanStack Router adapters out of the root export; use a future
   `@repo/dashboard-ui/tanstack-router` subpath for route-aware adapters.
 - Keep notification state/providers in `@repo/ui-base/notifications`; this
-  package should only render notification UI when that phase is extracted.
+  package owns only the dashboard notification renderers.

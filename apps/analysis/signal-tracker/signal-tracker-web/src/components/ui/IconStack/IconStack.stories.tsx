@@ -2,7 +2,7 @@ import { Building2, FileText, Globe2, Landmark } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { NumberInput } from "../Form";
+import { NumberInput } from "@repo/dashboard-ui";
 import { IconStack } from "./IconStack";
 
 const meta = {
