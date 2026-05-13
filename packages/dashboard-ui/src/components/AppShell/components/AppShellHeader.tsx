@@ -1,6 +1,6 @@
 import type * as React from "react";
 
-import { cn } from "@repo/dashboard-ui";
+import { cn } from "../../../lib/utils";
 
 type AppShellHeaderProps = Pick<
   React.ComponentProps<"header">,

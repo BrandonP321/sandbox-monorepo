@@ -1,9 +1,9 @@
 import type * as React from "react";
-import type { ResolveParams } from "@tanstack/react-router";
+import type { RoutePathParams } from "@repo/ui-base/routing";
 
 type AppShellRouteParams<TPath extends string = string> = string extends TPath
   ? Record<string, string | undefined>
-  : ResolveParams<TPath>;
+  : RoutePathParams<TPath>;
 
 type AppShellRouteContext<TPath extends string = string> = {
   activePath: string | undefined;

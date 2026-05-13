@@ -1,12 +1,9 @@
-type AppRouteDefinition = {
-  path: `/${string}`;
-};
-
-function defineAppRoutes<
-  const TRoutes extends Record<string, AppRouteDefinition>
->(routes: TRoutes) {
-  return routes;
-}
+import {
+  defineAppRoutes,
+  type AppRouteKey as SharedAppRouteKey,
+  type AppRoutePath as SharedAppRoutePath,
+  type StaticAppRoutePath as SharedStaticAppRoutePath
+} from "@repo/ui-base/routing";
 
 export const appRoutes = defineAppRoutes({
   home: {
@@ -20,10 +17,6 @@ export const appRoutes = defineAppRoutes({
   }
 });
 
-export type AppRouteKey = keyof typeof appRoutes;
-export type AppRoutePath = (typeof appRoutes)[AppRouteKey]["path"];
-export type StaticAppRoutePath = {
-  [TKey in AppRouteKey]: (typeof appRoutes)[TKey]["path"] extends `${string}$${string}`
-    ? never
-    : (typeof appRoutes)[TKey]["path"];
-}[AppRouteKey];
+export type AppRouteKey = SharedAppRouteKey<typeof appRoutes>;
+export type AppRoutePath = SharedAppRoutePath<typeof appRoutes>;
+export type StaticAppRoutePath = SharedStaticAppRoutePath<typeof appRoutes>;

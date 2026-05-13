@@ -1,4 +1,4 @@
-import { AppShell } from "@/components/ui";
+import { AppShell } from "@repo/dashboard-ui/tanstack-router";
 
 import { signalTrackerAppShellRoutes } from "./routes";
 

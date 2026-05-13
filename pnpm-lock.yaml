@@ -615,6 +615,9 @@ importers:
       "@repo/ui-base":
         specifier: workspace:*
         version: link:../ui-base
+      "@tanstack/react-router":
+        specifier: ^1.169.1
+        version: 1.169.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

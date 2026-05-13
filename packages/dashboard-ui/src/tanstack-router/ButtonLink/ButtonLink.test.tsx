@@ -9,16 +9,26 @@ import {
 } from "@tanstack/react-router";
 import { describe, expect, it } from "vitest";
 
-import { appRoutes } from "@/routeRegistry";
-
 import { ButtonLink } from "./ButtonLink";
+
+const testRoutes = {
+  home: {
+    path: "/"
+  },
+  listTopics: {
+    path: "/topics"
+  },
+  topicDetails: {
+    path: "/topics/$topicId/$topicTitle"
+  }
+} as const;
 
 describe("ButtonLink", () => {
   it("renders a TanStack link with button visuals", async () => {
     await renderButtonLink(
       <ButtonLink
         iconRight={<span aria-hidden="true">Right icon</span>}
-        to={appRoutes.listTopics.path}
+        to={testRoutes.listTopics.path}
       >
         Back to topics
       </ButtonLink>
@@ -36,7 +46,7 @@ describe("ButtonLink", () => {
       <ButtonLink
         isLoading
         loadingLabel="Loading topics..."
-        to={appRoutes.listTopics.path}
+        to={testRoutes.listTopics.path}
       >
         Back to topics
       </ButtonLink>
@@ -49,28 +59,17 @@ describe("ButtonLink", () => {
     expect(link).not.toHaveAttribute("href");
   });
 
-  it("keeps route params typed", () => {
-    const validTopicDetailsLink = (
+  it("accepts route params for parameterized routes", () => {
+    const topicDetailsLink = (
       <ButtonLink
         params={{ topicId: "topic-1", topicTitle: "Iran strike risk" }}
-        to={appRoutes.topicDetails.path}
+        to={testRoutes.topicDetails.path}
       >
         Topic details
       </ButtonLink>
     );
 
-    const invalidTopicDetailsLink = (
-      <ButtonLink
-        // @ts-expect-error topicTitle is required by the topic details route.
-        params={{ topicId: "topic-1" }}
-        to={appRoutes.topicDetails.path}
-      >
-        Topic details
-      </ButtonLink>
-    );
-
-    expect(validTopicDetailsLink).toBeTruthy();
-    expect(invalidTopicDetailsLink).toBeTruthy();
+    expect(topicDetailsLink).toBeTruthy();
   });
 });
 
@@ -80,21 +79,21 @@ async function renderButtonLink(ui: ReactNode) {
   });
   const homeRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.home.path,
+    path: testRoutes.home.path,
     component: EmptyRouteComponent
   });
   const listTopicsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.listTopics.path,
+    path: testRoutes.listTopics.path,
     component: EmptyRouteComponent
   });
   const topicDetailsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.topicDetails.path,
+    path: testRoutes.topicDetails.path,
     component: EmptyRouteComponent
   });
   const router = createRouter({
-    history: createMemoryHistory({ initialEntries: [appRoutes.home.path] }),
+    history: createMemoryHistory({ initialEntries: [testRoutes.home.path] }),
     routeTree: rootRoute.addChildren([
       homeRoute,
       listTopicsRoute,

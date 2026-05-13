@@ -63,16 +63,16 @@ larger batch.
 
 ### Phase 4 - Routing And App Shell
 
-- [ ] Add `@repo/ui-base/routing` with route registry and path helper types.
-- [ ] Move the generic route registry helper out of `signal-tracker-web` while
+- [x] Add `@repo/ui-base/routing` with route registry and path helper types.
+- [x] Move the generic route registry helper out of `signal-tracker-web` while
       keeping actual Signal Tracker route values app-local.
-- [ ] Split `AppShell` into route-agnostic dashboard shell pieces and
+- [x] Split `AppShell` into route-agnostic dashboard shell pieces and
       TanStack-aware adapter pieces where needed.
-- [ ] Move TanStack-aware `AppShell`, `Breadcrumbs`, and `ButtonLink` adapters
+- [x] Move TanStack-aware `AppShell`, `Breadcrumbs`, and `ButtonLink` adapters
       behind `@repo/dashboard-ui/tanstack-router`.
-- [ ] Update Signal Tracker router, shell, links, and breadcrumbs to use the
+- [x] Update Signal Tracker router, shell, links, and breadcrumbs to use the
       shared routing helpers and dashboard adapters.
-- [ ] Verify routing behavior, active navigation, breadcrumbs, page titles, and
+- [x] Verify routing behavior, active navigation, breadcrumbs, page titles, and
       app shell responsive behavior.
 
 ### Phase 5 - RTK Query And API Contracts

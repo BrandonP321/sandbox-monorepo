@@ -4,18 +4,20 @@ import { Outlet } from "@tanstack/react-router";
 import { useMinBreakpoint } from "@repo/ui-base";
 import { NotificationProvider } from "@repo/ui-base/notifications";
 
-import { cn, NotificationFlashbar } from "@repo/dashboard-ui";
+import { NotificationFlashbar } from "../../components/Notifications";
+import { cn } from "../../lib/utils";
 
 import { Breadcrumbs, type BreadcrumbsItem } from "../Breadcrumbs";
 import {
+  AppShellContext,
   AppShellContent,
   AppShellHeader,
   AppShellMain,
-  AppShellNavigation,
   AppShellSidebar,
-  AppShellSidebarToggle
-} from "./components";
-import { AppShellContext, type AppShellContextValue } from "./context";
+  AppShellSidebarToggle,
+  type AppShellContextValue
+} from "../../components/AppShell";
+import { AppShellNavigation } from "./components";
 import { useResolvedAppShellRoutes } from "./hooks/useResolvedAppShellRoutes";
 import type { AnyAppShellRoute } from "./types";
 

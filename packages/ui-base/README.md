@@ -27,6 +27,14 @@ It also exposes shared notification behavior from `@repo/ui-base/notifications`:
 - `useNotifications`
 - notification action, message, and state types
 
+Route registry helpers live in `@repo/ui-base/routing`:
+
+- `defineAppRoutes`
+- `AppRouteKey`
+- `AppRoutePath`
+- `StaticAppRoutePath`
+- `RoutePathParams`
+
 These exports do not ship styles or field chrome. Designed packages such as
 `@repo/ui` or `@repo/dashboard-ui` inject their own rendering components and
 keep ownership of layout, icons, labels, options, comparison logic, and visual
@@ -50,3 +58,5 @@ Shared type helpers for these render contracts live in
   domain model.
 - Keep notification state and actions here, but render notification surfaces in
   a designed package.
+- Keep route helpers framework-neutral. Router-specific adapters belong in a
+  designed package subpath, such as `@repo/dashboard-ui/tanstack-router`.

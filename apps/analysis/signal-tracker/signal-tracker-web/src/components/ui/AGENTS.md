@@ -4,21 +4,31 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 
 ## Directory Layout
 
-- Keep each standalone primitive in its own PascalCase folder, such as `Button/`, `Badge/`, or `DropdownMenu/`.
-- Keep tightly related primitive families in one folder when they share ownership or are normally consumed together. For example, `Form/` owns `FormField`, `FormInput`, `FormSelect`, and `FormTextarea`; `Dialog/` owns `DialogContext`.
-- `AppShell` owns the root `NotificationProvider` and page-level `NotificationFlashbar`. Product shells should not wrap `AppShell` in a second root notification provider or render another page-level flashbar unless a specific nested notification boundary is needed.
-- Follow `Notifications/AGENTS.md` for notification-provider boundaries, stacked flashbar behavior, and local alert rendering.
+- Most reusable dashboard primitives now live in `@repo/dashboard-ui`. Keep only
+  Signal Tracker-specific or still-app-local primitives here.
+- Keep each remaining standalone primitive in its own PascalCase folder.
+- The TanStack-aware `AppShell` from `@repo/dashboard-ui/tanstack-router` owns
+  the root `NotificationProvider` and page-level `NotificationFlashbar`.
+  Product shells should not wrap it in a second root notification provider or
+  render another page-level flashbar unless a specific nested notification
+  boundary is needed.
 - Keep each component's implementation, tests, and stories together in the owning folder.
 - Add an `index.ts` file to each component folder and export only the intentional public surface for that primitive or family.
-- Keep `src/components/ui/index.ts` as the app-facing barrel that re-exports component-folder public APIs.
+- Keep `src/components/ui/index.ts` as the app-facing compatibility barrel for
+  shared dashboard UI plus remaining app-local public APIs.
 
 ## Import Boundaries
 
 - Product components may import generic primitives from `@/components/ui`.
+- App shell, route-aware links, and route-aware breadcrumbs may import directly
+  from `@repo/dashboard-ui/tanstack-router` when the route-aware boundary is
+  important.
 - UI primitive implementations should import sibling primitives from their folder barrels, such as `../Button`, instead of importing through the root `@/components/ui` barrel.
 - Keep private helper files inside the owning folder. Export helpers from that folder only when another primitive or product component has a concrete need for them.
 - Keep primitives generic and product-agnostic. Product language, topic workflows, source/citation behavior, and assessment-specific UI belong outside `src/components/ui/`.
-- Do not move styled primitives to `@repo/ui` or another shared styled package unless reuse across more than one app is proven or the user explicitly asks for extraction.
+- Do not move styled primitives to `@repo/ui`. Shared dashboard primitives
+  belong in `@repo/dashboard-ui`; behavior-only helpers belong in
+  `@repo/ui-base`.
 
 ## Dialogs
 
@@ -27,7 +37,7 @@ Also follow `../AGENTS.md` for component interface rules, product boundaries, an
 
 ## Notifications
 
-- The root `AppShell` notification provider uses multiple-message mode and renders the page-level `NotificationFlashbar`; this is the only surface that should stack notifications.
+- The shared TanStack `AppShell` notification provider uses multiple-message mode and renders the page-level `NotificationFlashbar`; this is the only surface that should stack notifications.
 - Nested notification providers should use single-message behavior unless a concrete product workflow requires a different local surface. `ErrorNotificationProvider` is the default form/local boundary for API failures.
 - `NotificationAlerts` is a latest-message local alert renderer, not a stacked list. Use it for nested contexts such as forms where repeated errors should replace the previous message.
 - Unsupported notification types should pass upward to the parent provider. This lets form-local providers catch errors while success/info/warning messages continue to the root flashbar.

@@ -1,4 +1,6 @@
-import { ButtonLink, ResourceNotFound } from "@/components/ui";
+import { ButtonLink } from "@repo/dashboard-ui/tanstack-router";
+
+import { ResourceNotFound } from "@/components/ui";
 import { appRoutes } from "@/routeRegistry";
 
 type TopicDetailsNotFoundStateProps = {

@@ -15,6 +15,12 @@ Use the root export for route-agnostic dashboard primitives:
 import { Button, Card, ContentHeader } from "@repo/dashboard-ui";
 ```
 
+Use the TanStack Router subpath for route-aware dashboard adapters:
+
+```tsx
+import { AppShell, ButtonLink } from "@repo/dashboard-ui/tanstack-router";
+```
+
 Import the stylesheet once from the app CSS entrypoint:
 
 ```css
@@ -55,16 +61,20 @@ the package's own component files. Consuming apps should keep their own
 - form components: `Form`, `FormProvider`, `FormField`, inputs, selects, and
   submit buttons
 - `Flashbar`
+- route-agnostic app shell building blocks: content, header, main, sidebar,
+  sidebar toggle, shell context, and shell context hook
 - `LoadingState`
 - notification renderers: `NotificationAlerts`, `NotificationFlashbar`
 - `Popover`
 - `Skeleton`
 - `cn`
+- TanStack Router adapters from `@repo/dashboard-ui/tanstack-router`:
+  `AppShell`, `Breadcrumbs`, `ButtonLink`, and app shell route helpers
 
 ## Boundaries
 
 - Do not import app code or Signal Tracker packages here.
-- Keep TanStack Router adapters out of the root export; use a future
-  `@repo/dashboard-ui/tanstack-router` subpath for route-aware adapters.
+- Keep TanStack Router adapters out of the root export; use
+  `@repo/dashboard-ui/tanstack-router` for route-aware adapters.
 - Keep notification state/providers in `@repo/ui-base/notifications`; this
   package owns only the dashboard notification renderers.

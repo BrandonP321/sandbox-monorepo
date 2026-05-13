@@ -1,9 +1,8 @@
 import type * as React from "react";
 import { X } from "lucide-react";
 
-import { cn } from "@repo/dashboard-ui";
-
-import { Button } from "@repo/dashboard-ui";
+import { Button } from "../../Button";
+import { cn } from "../../../lib/utils";
 import { useAppShellContext } from "../hooks";
 
 type AppShellSidebarProps = Pick<

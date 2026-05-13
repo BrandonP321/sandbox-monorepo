@@ -1,6 +1,9 @@
 import { createElement } from "react";
 
-import { defineAppShellRoute, defineAppShellRoutes } from "@/components/ui";
+import {
+  defineAppShellRoute,
+  defineAppShellRoutes
+} from "@repo/dashboard-ui/tanstack-router";
 import { appRoutes } from "@/routeRegistry";
 
 import { signalTrackerIcons as Icons } from "../signalTrackerIcons";

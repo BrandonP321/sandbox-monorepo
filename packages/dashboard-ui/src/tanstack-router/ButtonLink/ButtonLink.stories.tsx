@@ -9,9 +9,16 @@ import {
 } from "@tanstack/react-router";
 import { ArrowRight, Plus } from "lucide-react";
 
-import { appRoutes } from "@/routeRegistry";
-
 import { ButtonLink } from "./ButtonLink";
+
+const testRoutes = {
+  home: {
+    path: "/"
+  },
+  listTopics: {
+    path: "/topics"
+  }
+} as const;
 
 const meta = {
   title: "UI/ButtonLink",
@@ -33,30 +40,30 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   render: () => (
-    <ButtonLink to={appRoutes.listTopics.path}>Back to topics</ButtonLink>
+    <ButtonLink to={testRoutes.listTopics.path}>Back to topics</ButtonLink>
   )
 };
 
 export const Variants: Story = {
   render: () => (
     <div className="flex w-full max-w-md flex-wrap items-center gap-2">
-      <ButtonLink to={appRoutes.listTopics.path}>Default link</ButtonLink>
-      <ButtonLink to={appRoutes.listTopics.path} variant="secondary">
+      <ButtonLink to={testRoutes.listTopics.path}>Default link</ButtonLink>
+      <ButtonLink to={testRoutes.listTopics.path} variant="secondary">
         Secondary link
       </ButtonLink>
-      <ButtonLink to={appRoutes.listTopics.path} variant="outline">
+      <ButtonLink to={testRoutes.listTopics.path} variant="outline">
         Outline link
       </ButtonLink>
       <ButtonLink
         iconRight={<ArrowRight aria-hidden="true" className="size-4" />}
-        to={appRoutes.listTopics.path}
+        to={testRoutes.listTopics.path}
         variant="ghost"
       >
         Ghost link
       </ButtonLink>
       <ButtonLink
         iconLeft={<Plus aria-hidden="true" className="size-4" />}
-        to={appRoutes.listTopics.path}
+        to={testRoutes.listTopics.path}
       >
         New topic
       </ButtonLink>
@@ -69,7 +76,7 @@ export const Loading: Story = {
     <ButtonLink
       isLoading
       loadingLabel="Loading..."
-      to={appRoutes.listTopics.path}
+      to={testRoutes.listTopics.path}
     >
       Back to topics
     </ButtonLink>
@@ -82,16 +89,16 @@ function ButtonLinkStoryRouter({ children }: { children: ReactNode }) {
   });
   const homeRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.home.path,
+    path: testRoutes.home.path,
     component: EmptyRouteComponent
   });
   const listTopicsRoute = createRoute({
     getParentRoute: () => rootRoute,
-    path: appRoutes.listTopics.path,
+    path: testRoutes.listTopics.path,
     component: EmptyRouteComponent
   });
   const router = createRouter({
-    history: createMemoryHistory({ initialEntries: [appRoutes.home.path] }),
+    history: createMemoryHistory({ initialEntries: [testRoutes.home.path] }),
     routeTree: rootRoute.addChildren([homeRoute, listTopicsRoute])
   });
 

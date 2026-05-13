@@ -1,12 +1,16 @@
 export { AppShell, type AppShellProps } from "./AppShell";
-export { AppShellContext, type AppShellContextValue } from "./context";
+export {
+  AppShellContext,
+  useAppShellContext,
+  type AppShellContextValue
+} from "../../components/AppShell";
 export {
   defineAppShellRoute,
   defineAppShellRoutes
 } from "./defineAppShellRoutes";
-export { useAppShellContext } from "./hooks";
 export {
   type AnyAppShellRoute,
+  type AppShellResolvedRoute,
   type AppShellRoute,
   type AppShellRouteContext,
   type AppShellRouteParams

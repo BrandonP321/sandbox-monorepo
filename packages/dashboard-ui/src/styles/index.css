@@ -2,6 +2,7 @@
 
 @source "../components";
 @source "../lib";
+@source "../tanstack-router";
 
 @theme inline {
   --color-background: var(--background);

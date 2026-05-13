@@ -9,6 +9,15 @@ Also follow the repo root `AGENTS.md` for shared-package boundaries, testing, an
 - Do not add product-specific concepts, visual styling, design tokens, or app route/domain assumptions.
 - Keep public APIs small and general. Validate new shared behavior with focused tests before exporting it from `src/index.ts`.
 
+## Routing
+
+- `@repo/ui-base/routing` owns framework-neutral route registry and route path
+  helper types only.
+- Do not import TanStack Router, React Router, app route registries, app route
+  values, visual components, or app shell code into routing helpers.
+- Keep each app's actual route values app-local; shared routing helpers should
+  preserve literal types and extract path params without knowing the app.
+
 ## Hooks
 
 - Shared hooks should be framework-level React behavior, not app workflow policy.

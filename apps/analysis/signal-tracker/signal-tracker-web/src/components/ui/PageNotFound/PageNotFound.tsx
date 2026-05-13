@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 
 import { appRoutes, type StaticAppRoutePath } from "@/routeRegistry";
 
-import { ButtonLink } from "../ButtonLink";
+import { ButtonLink } from "@repo/dashboard-ui/tanstack-router";
 import {
   ResourceNotFound,
   type ResourceNotFoundProps

@@ -12,6 +12,9 @@ and dependency direction.
 - Put behavior-only frontend patterns in `@repo/ui-base`, not here.
 - Keep route-aware adapters out of the root export. TanStack Router-specific UI
   belongs in a dedicated subpath such as `@repo/dashboard-ui/tanstack-router`.
+- Keep route-agnostic shell layout pieces in the root component surface and
+  put TanStack Router `Link`, `Outlet`, router-state, and route-param typing
+  adapters under `src/tanstack-router`.
 
 ## Components
 
@@ -32,6 +35,8 @@ and dependency direction.
   CSS variables, base styles, and package source directives.
 - Apps should import `@repo/dashboard-ui/styles` before any app-level variable
   overrides.
+- Keep package source directives aligned with every folder that contains
+  durable Tailwind classes, including route-aware adapter subpaths.
 - Do not add dark mode, broad theming machinery, or new design tokens unless a
   concrete consuming app requires them.
 
