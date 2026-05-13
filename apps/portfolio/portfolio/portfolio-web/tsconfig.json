@@ -1,0 +1,10 @@
+{
+  "extends": "@repo/config-ts/tsconfig.react.json",
+  "compilerOptions": {
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["vitest/globals", "vite/client"]
+  },
+  "include": ["src"]
+}

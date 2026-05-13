@@ -1,0 +1,30 @@
+name: portfolio
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/portfolio/portfolio/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/portfolio/portfolio/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  portfolio:
+    uses: ./.github/workflows/project-cicd.yml
+    with:
+      aws_region: us-east-1
+      deploy_pipeline_name: portfolio-prod
+      deploy_pipeline_source_action_name: Source
+      project_root: apps/portfolio/portfolio

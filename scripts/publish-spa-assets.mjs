@@ -1,50 +1,73 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const args = parseArgs(process.argv.slice(2));
+export function publishSpaAssets(rawArgs, options = {}) {
+  const args = parseArgs(rawArgs);
+  const env = options.env ?? process.env;
+  const logger = options.logger ?? console;
 
-const stackName = requireArg(args, "stack-name");
-const webFilter = requireArg(args, "web-filter");
-const distPath = requireArg(args, "dist-path");
+  const stackName = requireArg(args, "stack-name");
+  const webFilter = requireArg(args, "web-filter");
+  const distPath = requireArg(args, "dist-path");
+  const shouldReadApiBaseUrl = !args.has("skip-api-base-url");
+  const readStackOutput =
+    options.readStackOutput ??
+    ((outputName) => readOutput({ env, outputName, stackName }));
 
-const apiBaseUrl = readOutput("API_BASE_URL", "ApiBaseUrl");
-const webBucketName = readOutput("WEB_BUCKET_NAME", "WebBucketName");
-const webDistributionId = readOutput(
-  "WEB_DISTRIBUTION_ID",
-  "WebDistributionId"
-);
-const webUrl = readOutput("WEB_URL", "WebUrl");
+  const apiBaseUrl = shouldReadApiBaseUrl
+    ? readStackOutput("ApiBaseUrl")
+    : undefined;
+  const webBucketName = readStackOutput("WebBucketName");
+  const webDistributionId = readStackOutput("WebDistributionId");
+  const webUrl = readStackOutput("WebUrl");
+  const buildEnv = apiBaseUrl ? { ...env, VITE_API_BASE_URL: apiBaseUrl } : env;
+  const runner = options.runner ?? run;
 
-run("pnpm", ["--filter", webFilter, "run", "build"], {
-  ...process.env,
-  VITE_API_BASE_URL: apiBaseUrl
-});
-run("aws", ["s3", "sync", distPath, `s3://${webBucketName}`, "--delete"]);
-run("aws", [
-  "cloudfront",
-  "create-invalidation",
-  "--distribution-id",
-  webDistributionId,
-  "--paths",
-  "/*"
-]);
+  runner("pnpm", ["--filter", webFilter, "run", "build"], buildEnv);
+  runner("aws", ["s3", "sync", distPath, `s3://${webBucketName}`, "--delete"]);
+  runner("aws", [
+    "cloudfront",
+    "create-invalidation",
+    "--distribution-id",
+    webDistributionId,
+    "--paths",
+    "/*"
+  ]);
 
-console.log(`Published ${webFilter} to ${webUrl}`);
-console.log(`API URL: ${apiBaseUrl}`);
+  logger.log(`Published ${webFilter} to ${webUrl}`);
+  if (apiBaseUrl) {
+    logger.log(`API URL: ${apiBaseUrl}`);
+  }
+}
 
 function parseArgs(rawArgs) {
   const parsed = new Map();
 
-  for (let index = 0; index < rawArgs.length; index += 2) {
+  for (let index = 0; index < rawArgs.length; ) {
     const key = rawArgs[index];
-    const value = rawArgs[index + 1];
 
-    if (!key?.startsWith("--") || !value) {
+    if (!key?.startsWith("--")) {
       throw new Error(`Invalid argument list: ${rawArgs.join(" ")}`);
     }
 
-    parsed.set(key.slice(2), value);
+    const name = key.slice(2);
+
+    if (name === "skip-api-base-url") {
+      parsed.set(name, true);
+      index += 1;
+      continue;
+    }
+
+    const value = rawArgs[index + 1];
+
+    if (!value || value.startsWith("--")) {
+      throw new Error(`Invalid argument list: ${rawArgs.join(" ")}`);
+    }
+
+    parsed.set(name, value);
+    index += 2;
   }
 
   return parsed;
@@ -60,8 +83,16 @@ function requireArg(argsByName, name) {
   return value;
 }
 
-function readOutput(envName, outputName) {
-  const envValue = process.env[envName]?.trim();
+function readOutput({ env, outputName, stackName }) {
+  const envNameByOutputName = {
+    ApiBaseUrl: "API_BASE_URL",
+    WebBucketName: "WEB_BUCKET_NAME",
+    WebDistributionId: "WEB_DISTRIBUTION_ID",
+    WebUrl: "WEB_URL"
+  };
+  const envName = envNameByOutputName[outputName];
+  const envValue = envName ? env[envName]?.trim() : undefined;
+
   if (envValue && envValue !== "None") {
     return envValue;
   }
@@ -101,4 +132,8 @@ function run(command, commandArgs, env = process.env) {
   if (result.status !== 0) {
     throw new Error(`${command} ${commandArgs.join(" ")} failed`);
   }
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  publishSpaAssets(process.argv.slice(2));
 }

@@ -33,6 +33,10 @@
   signal-tracker-api     # Lambda-style TypeScript API
   signal-tracker-shared  # Signal Tracker scoped routes, schemas, and shared types
   signal-tracker-infra   # AWS CDK deployment package
+
+/apps/portfolio/portfolio
+  portfolio-web           # React/Vite portfolio site
+  portfolio-infra         # AWS CDK static SPA hosting and deploy pipeline
 ```
 
 Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AGENTS.md`.
@@ -40,6 +44,8 @@ Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AG
 Signal Tracker UI may use `@repo/dashboard-ui` for the extracted dashboard
 primitive system and `@repo/ui-base` for behavior-only primitives. Signal
 Tracker-specific components belong in `signal-tracker-web`.
+
+Portfolio-specific agent guidance lives in `apps/portfolio/portfolio/AGENTS.md`.
 
 ## Shared Frontend Surfaces
 

@@ -1,0 +1,147 @@
+:root {
+  color: #17201b;
+  background: #f6f7f4;
+  font-family:
+    Inter,
+    "SF Pro Text",
+    "SF Pro Display",
+    "Segoe UI",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(90deg, rgb(23 32 27 / 0.07) 1px, transparent 1px),
+    linear-gradient(180deg, #f9faf7 0%, #eef3ee 100%);
+  background-size:
+    3.5rem 3.5rem,
+    auto;
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.portfolio-shell {
+  width: min(100% - 2rem, 68rem);
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 6rem 0 4rem;
+}
+
+.portfolio-hero {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 48rem;
+}
+
+.portfolio-kicker,
+.portfolio-summary,
+.portfolio-section p {
+  margin: 0;
+}
+
+.portfolio-kicker {
+  color: #3d6f61;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.portfolio-hero h1 {
+  max-width: 11ch;
+  margin: 0;
+  font-size: 5.5rem;
+  line-height: 0.96;
+}
+
+.portfolio-summary {
+  max-width: 38rem;
+  color: #314139;
+  font-size: 1.5rem;
+  line-height: 1.35;
+}
+
+.portfolio-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.portfolio-nav a {
+  min-height: 2.5rem;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid rgb(23 32 27 / 0.18);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.75);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.portfolio-nav a:focus-visible {
+  outline: 3px solid #d29f3f;
+  outline-offset: 3px;
+}
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 5rem;
+}
+
+.portfolio-section {
+  min-height: 13rem;
+  padding: 1.5rem;
+  border: 1px solid rgb(23 32 27 / 0.12);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.82);
+}
+
+.portfolio-section h2 {
+  margin: 0 0 1rem;
+  color: #17201b;
+  font-size: 1rem;
+}
+
+.portfolio-section p {
+  color: #485750;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 720px) {
+  .portfolio-shell {
+    width: min(100% - 1.25rem, 68rem);
+    padding-top: 3rem;
+  }
+
+  .portfolio-grid {
+    grid-template-columns: 1fr;
+    margin-top: 3rem;
+  }
+
+  .portfolio-hero h1 {
+    font-size: 3rem;
+  }
+
+  .portfolio-summary {
+    font-size: 1.25rem;
+  }
+}
