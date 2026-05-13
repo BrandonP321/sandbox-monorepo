@@ -1,6 +1,9 @@
+import {
+  useNotifications,
+  type NotificationType
+} from "@repo/ui-base/notifications";
+
 import { Alert } from "../Alert";
-import { useNotifications } from "./useNotifications";
-import type { NotificationType } from "./types";
 
 const alertVariantByNotificationType = {
   error: "danger",

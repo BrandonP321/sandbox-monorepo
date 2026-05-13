@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useWatch } from "react-hook-form";
 import { z } from "zod";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { Button } from "../../Button";
-import { useNotifications } from "../../Notifications";
 import { Form } from "./Form";
 import { FormDateInput } from "../FormDateInput";
 import { FormNumberInput } from "../FormNumberInput";

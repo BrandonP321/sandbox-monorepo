@@ -12,9 +12,9 @@ import type {
   CreateAssessmentUpdateRequest,
   CreateAssessmentUpdateResponse
 } from "@repo/signal-tracker-shared";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { getApiErrorMessage } from "@/api/apiError";
-import { useNotifications } from "@/components/ui";
 
 import { AssessmentUpdateDialog } from "./AssessmentUpdateDialog";
 

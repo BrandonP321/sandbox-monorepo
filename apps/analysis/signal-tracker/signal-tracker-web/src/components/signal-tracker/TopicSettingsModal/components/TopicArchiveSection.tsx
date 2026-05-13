@@ -1,10 +1,10 @@
 import { useNavigate } from "@tanstack/react-router";
+import { ErrorNotificationProvider } from "@repo/ui-base/notifications";
 
 import { useArchiveTopicMutation } from "@/api";
 import {
   Button,
   ContentHeader,
-  ErrorNotificationProvider,
   NotificationAlerts,
   useDialogContext
 } from "@/components/ui";

@@ -8,8 +8,8 @@ import {
   RouterProvider
 } from "@tanstack/react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { useNotifications } from "@repo/ui-base/notifications";
 
-import { useNotifications } from "../Notifications";
 import {
   AppShell,
   type AnyAppShellRoute,

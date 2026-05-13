@@ -12,10 +12,10 @@ import type {
   CreateEventEntryResponse,
   UpdateEventEntryResponse
 } from "@repo/signal-tracker-shared";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { getApiErrorMessage } from "@/api/apiError";
 import { eventEntryReadModel } from "@/api/apiTestData";
-import { useNotifications } from "@/components/ui";
 
 import { EventEntryDialog } from "./EventEntryDialog";
 

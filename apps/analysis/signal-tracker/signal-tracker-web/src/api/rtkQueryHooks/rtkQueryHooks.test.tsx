@@ -4,8 +4,9 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { useState, type PropsWithChildren } from "react";
 import { Provider } from "react-redux";
 import { describe, expect, it } from "vitest";
+import { NotificationProvider } from "@repo/ui-base/notifications";
 
-import { NotificationFlashbar, NotificationProvider } from "@/components/ui";
+import { NotificationFlashbar } from "@/components/ui";
 
 import { getMutation } from "./getMutation";
 import { getQuery } from "./getQuery";

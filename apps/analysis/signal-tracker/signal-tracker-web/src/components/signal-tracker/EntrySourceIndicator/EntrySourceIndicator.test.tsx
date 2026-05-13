@@ -15,8 +15,7 @@ import type {
   EvidenceRecord,
   ReplaceEntrySourcesResponse
 } from "@repo/signal-tracker-shared";
-
-import { useNotifications } from "@/components/ui";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { EntrySourceIndicator } from "./EntrySourceIndicator";
 

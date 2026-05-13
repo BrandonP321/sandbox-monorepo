@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { ReactNode } from "react";
-
-import { useNotifications } from "@/components/ui/Notifications";
 import type {
   NotificationContextValue,
   NotificationMessageInput
-} from "@/components/ui/Notifications";
+} from "@repo/ui-base/notifications";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { getApiErrorMessage } from "../apiError";
 

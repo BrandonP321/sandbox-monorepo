@@ -1,13 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
-import { Button } from "../Button";
 import {
   ErrorNotificationProvider,
-  NotificationAlerts,
-  NotificationFlashbar,
   NotificationProvider,
   useNotifications
-} from "./index";
+} from "@repo/ui-base/notifications";
+
+import { Button } from "../Button";
+import { NotificationAlerts, NotificationFlashbar } from "./index";
 
 const meta = {
   title: "UI/Notifications",

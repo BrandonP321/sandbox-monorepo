@@ -6,9 +6,9 @@ import {
   waitFor
 } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { Button } from "../Button";
-import { useNotifications } from "../Notifications";
 import {
   Dialog,
   DialogClose,

@@ -2,11 +2,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type * as React from "react";
 import { Outlet } from "@tanstack/react-router";
 import { useMinBreakpoint } from "@repo/ui-base";
+import { NotificationProvider } from "@repo/ui-base/notifications";
 
 import { cn } from "@/lib/utils";
 
 import { Breadcrumbs, type BreadcrumbsItem } from "../Breadcrumbs";
-import { NotificationFlashbar, NotificationProvider } from "../Notifications";
+import { NotificationFlashbar } from "../Notifications";
 import {
   AppShellContent,
   AppShellHeader,

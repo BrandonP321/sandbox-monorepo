@@ -23,10 +23,10 @@ import type {
   UpdateEventEntryResponse,
   UpdateTopicResponse
 } from "@repo/signal-tracker-shared";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { getApiErrorMessage } from "./api/apiError";
 import App from "./App";
-import { useNotifications } from "./components/ui";
 
 const apiMocks = vi.hoisted(() => ({
   useArchiveTopicMutation: vi.fn(),

@@ -2,12 +2,12 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
-
 import {
-  NotificationFlashbar,
   NotificationProvider,
   useNotifications
-} from "../../Notifications";
+} from "@repo/ui-base/notifications";
+
+import { NotificationFlashbar } from "../../Notifications";
 import { Form } from "./Form";
 import { FormProvider } from "../FormProvider";
 

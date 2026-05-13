@@ -1,15 +1,10 @@
-export { NotificationAlerts } from "./NotificationAlerts";
-export {
-  NotificationFlashbar,
-  type NotificationFlashbarProps
-} from "./NotificationFlashbar";
 export {
   ErrorNotificationProvider,
   NotificationProvider,
-  useNotifications,
   type NotificationProviderMode,
   type NotificationProviderProps
-} from "@repo/ui-base/notifications";
+} from "./NotificationProvider";
+export { useNotifications } from "./useNotifications";
 export type {
   Notification,
   NotificationActions,
@@ -18,4 +13,4 @@ export type {
   NotificationInput,
   NotificationMessageInput,
   NotificationType
-} from "@repo/ui-base/notifications";
+} from "./types";

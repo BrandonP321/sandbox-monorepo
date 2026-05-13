@@ -9,8 +9,7 @@ import type {
   TypedUseMutationResult
 } from "@reduxjs/toolkit/query/react";
 import { useCallback } from "react";
-
-import { useNotifications } from "@/components/ui/Notifications";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import {
   notifyApiError,

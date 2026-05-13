@@ -1,14 +1,13 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
-
-import { Button } from "../Button";
 import {
   ErrorNotificationProvider,
-  NotificationAlerts,
-  NotificationFlashbar,
   NotificationProvider,
   useNotifications
-} from "./index";
+} from "@repo/ui-base/notifications";
+
+import { Button } from "../Button";
+import { NotificationAlerts, NotificationFlashbar } from "./index";
 
 describe("Notifications", () => {
   it("displays success messages through the notification actions", () => {

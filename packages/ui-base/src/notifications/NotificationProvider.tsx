@@ -147,5 +147,5 @@ function ErrorNotificationProvider({ children }: PropsWithChildren) {
   );
 }
 
-export { NotificationProvider, ErrorNotificationProvider };
+export { ErrorNotificationProvider, NotificationProvider };
 export type { NotificationProviderMode, NotificationProviderProps };

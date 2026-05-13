@@ -1,9 +1,10 @@
+import { useNotifications } from "@repo/ui-base/notifications";
+
 import {
   Flashbar,
   type FlashbarNotification,
   type FlashbarProps
 } from "../Flashbar";
-import { useNotifications } from "./useNotifications";
 
 type NotificationFlashbarProps = Pick<FlashbarProps, "className">;
 

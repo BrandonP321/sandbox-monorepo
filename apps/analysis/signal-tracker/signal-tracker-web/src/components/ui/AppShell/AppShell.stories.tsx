@@ -8,9 +8,9 @@ import {
 } from "@tanstack/react-router";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Activity, LayoutDashboard, Settings } from "lucide-react";
+import { useNotifications } from "@repo/ui-base/notifications";
 
 import { Button } from "../Button";
-import { useNotifications } from "../Notifications";
 import { AppShell, defineAppShellRoutes, type AppShellProps } from "./index";
 
 const meta = {

@@ -2,16 +2,14 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import type * as React from "react";
+import { ErrorNotificationProvider } from "@repo/ui-base/notifications";
 
 import { cn } from "@/lib/utils";
 
 import { Alert } from "../Alert";
 import { Button } from "../Button";
 import { ContentHeader } from "../ContentHeader";
-import {
-  ErrorNotificationProvider,
-  NotificationAlerts
-} from "../Notifications";
+import { NotificationAlerts } from "../Notifications";
 import {
   DialogContext,
   useDialogContext,
