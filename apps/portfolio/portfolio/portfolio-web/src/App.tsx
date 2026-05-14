@@ -1,6 +1,6 @@
 import { PageSeo } from "@repo/ui-base/seo";
 
-import { HeroSection } from "./components";
+import { ContentHeader, HeroSection } from "./components";
 
 const placeholderSections = [
   {
@@ -20,6 +20,13 @@ const placeholderSections = [
   }
 ] as const;
 
+const placeholderSectionInstances = [
+  { ariaLabel: "Portfolio preview content", id: "preview-1" },
+  { ariaLabel: "Portfolio preview content 2", id: "preview-2" },
+  { ariaLabel: "Portfolio preview content 3", id: "preview-3" },
+  { ariaLabel: "Portfolio preview content 4", id: "preview-4" }
+] as const;
+
 export default function App() {
   return (
     <>
@@ -34,34 +41,52 @@ export default function App() {
           title="Transform The Way You Think With Loopy"
         />
 
-        <section
-          aria-label="Portfolio preview content"
-          className="portfolio-scroll-preview"
-        >
-          <div className="portfolio-scroll-preview__header">
-            <p className="portfolio-scroll-preview__eyebrow">Placeholder</p>
-            <h2>Below the fold</h2>
-            <p>
-              Temporary content for reviewing how the hero graphic reveals
-              itself while scrolling.
-            </p>
-          </div>
-
-          <div className="portfolio-grid">
-            {placeholderSections.map((section) => (
-              <article
-                aria-labelledby={`${section.id}-title`}
-                className="portfolio-section"
-                id={section.id}
-                key={section.id}
-              >
-                <h3 id={`${section.id}-title`}>{section.title}</h3>
-                <p>{section.body}</p>
-              </article>
-            ))}
-          </div>
-        </section>
+        {placeholderSectionInstances.map((section) => (
+          <PlaceholderSection
+            ariaLabel={section.ariaLabel}
+            idPrefix={section.id}
+            key={section.id}
+          />
+        ))}
       </main>
     </>
+  );
+}
+
+type PlaceholderSectionProps = {
+  ariaLabel: string;
+  idPrefix: string;
+};
+
+function PlaceholderSection({ ariaLabel, idPrefix }: PlaceholderSectionProps) {
+  return (
+    <section aria-label={ariaLabel} className="portfolio-scroll-preview">
+      <div className="portfolio-scroll-preview__glass">
+        <ContentHeader
+          title="Below the fold"
+          headingLevel={2}
+          description="Temporary content for reviewing how the hero graphic reveals itself while scrolling."
+        />
+
+        <div className="portfolio-grid">
+          {placeholderSections.map((section) => {
+            const sectionId = `${idPrefix}-${section.id}`;
+            const headingId = `${sectionId}-title`;
+
+            return (
+              <article
+                aria-labelledby={headingId}
+                className="portfolio-section"
+                id={sectionId}
+                key={section.id}
+              >
+                <h3 id={headingId}>{section.title}</h3>
+                <p>{section.body}</p>
+              </article>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }

@@ -23,22 +23,25 @@ describe("App", () => {
       screen.getByRole("region", { name: "Portfolio preview content" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Below the fold" })
-    ).toBeInTheDocument();
+      screen.getAllByRole("region", { name: /^Portfolio preview content/ })
+    ).toHaveLength(4);
     expect(
-      screen.getByRole("heading", { level: 3, name: "Experience" })
-    ).toBeInTheDocument();
+      screen.getAllByRole("heading", { level: 2, name: "Below the fold" })
+    ).toHaveLength(4);
     expect(
-      screen.getByRole("heading", { level: 3, name: "Projects" })
-    ).toBeInTheDocument();
+      screen.getAllByRole("heading", { level: 3, name: "Experience" })
+    ).toHaveLength(4);
     expect(
-      screen.getByRole("heading", { level: 3, name: "Writing" })
-    ).toBeInTheDocument();
+      screen.getAllByRole("heading", { level: 3, name: "Projects" })
+    ).toHaveLength(4);
     expect(
-      screen.getByText(
+      screen.getAllByRole("heading", { level: 3, name: "Writing" })
+    ).toHaveLength(4);
+    expect(
+      screen.getAllByText(
         "Temporary content for reviewing how the hero graphic reveals itself while scrolling."
       )
-    ).toBeInTheDocument();
+    ).toHaveLength(4);
   });
 
   it("sets page metadata through ui-base", () => {
