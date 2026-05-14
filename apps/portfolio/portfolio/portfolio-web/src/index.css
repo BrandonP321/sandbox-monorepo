@@ -572,7 +572,7 @@ a {
   }
 }
 
-.portfolio-scroll-preview__glass {
+.portfolio-glass-container {
   position: relative;
   isolation: isolate;
   overflow: hidden;
@@ -590,8 +590,8 @@ a {
   backdrop-filter: blur(26px) saturate(140%);
 }
 
-.portfolio-scroll-preview__glass::before,
-.portfolio-scroll-preview__glass::after {
+.portfolio-glass-container::before,
+.portfolio-glass-container::after {
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -600,7 +600,7 @@ a {
   z-index: 0;
 }
 
-.portfolio-scroll-preview__glass::before {
+.portfolio-glass-container::before {
   padding: 1px;
   background: linear-gradient(
     135deg,
@@ -619,7 +619,7 @@ a {
   mask-composite: exclude;
 }
 
-.portfolio-scroll-preview__glass::after {
+.portfolio-glass-container::after {
   background:
     radial-gradient(circle at 0 0, rgb(255 255 255 / 0.1), transparent 18rem),
     radial-gradient(
@@ -631,13 +631,13 @@ a {
   opacity: 0.82;
 }
 
-.portfolio-scroll-preview__glass > * {
+.portfolio-glass-container > * {
   position: relative;
   z-index: 1;
 }
 
 @media (max-width: 720px) {
-  .portfolio-scroll-preview__glass {
+  .portfolio-glass-container {
     padding: clamp(1.25rem, 7vw, 2rem);
     border-radius: 1.5rem;
   }

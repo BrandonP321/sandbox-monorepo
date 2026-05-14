@@ -1,6 +1,11 @@
 import { PageSeo } from "@repo/ui-base/seo";
 
-import { ContentHeader, GlassButton, HeroSection } from "./components";
+import {
+  ContentHeader,
+  GlassButton,
+  GlassContainer,
+  HeroSection
+} from "./components";
 
 const placeholderSections = [
   {
@@ -72,7 +77,7 @@ function PlaceholderSection({ ariaLabel, idPrefix }: PlaceholderSectionProps) {
         <GlassButton variant="primary">Primary</GlassButton>
         <GlassButton variant="secondary">Secondary</GlassButton>
       </div>
-      <div className="portfolio-scroll-preview__glass">
+      <GlassContainer>
         <ContentHeader
           title="Below the fold"
           headingLevel={2}
@@ -97,7 +102,7 @@ function PlaceholderSection({ ariaLabel, idPrefix }: PlaceholderSectionProps) {
             );
           })}
         </div>
-      </div>
+      </GlassContainer>
     </section>
   );
 }
