@@ -32,6 +32,9 @@ describe("HeroSection", () => {
     expect(
       container.querySelector('[data-slot="hero-black-hole"]')
     ).toHaveAttribute("aria-hidden", "true");
+    expect(
+      container.querySelector('[data-slot="hero-black-hole-image"]')
+    ).toBeInTheDocument();
   });
 
   it("provides a small-screen black hole source", () => {

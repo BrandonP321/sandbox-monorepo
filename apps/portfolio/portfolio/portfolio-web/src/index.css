@@ -71,7 +71,8 @@ body {
   min-height: 100%;
   margin: 0;
   background-color: #030014;
-  background:
+  /* TODO: Consider adding above hero black hole image */
+  /* background:
     radial-gradient(
       circle at 50% -12rem,
       rgb(119 68 199 / 0.3),
@@ -86,7 +87,7 @@ body {
       180deg,
       var(--portfolio-background) 0%,
       var(--portfolio-background-deep) 100%
-    );
+    ); */
 }
 
 a {
@@ -99,6 +100,10 @@ a {
 
 #storybook-root {
   min-height: 100vh;
+}
+
+.portfolio-page {
+  padding-bottom: 100vh;
 }
 
 .portfolio-story-preview {
@@ -159,6 +164,193 @@ a {
 .portfolio-button:focus-visible {
   outline: 3px solid var(--portfolio-focus);
   outline-offset: 3px;
+}
+
+.portfolio-glass-button {
+  --portfolio-glass-button-accent-angle: 180deg;
+  --portfolio-glass-button-accent-edge: rgb(255 255 255 / 0.16);
+  --portfolio-glass-button-accent-glow: rgb(255 255 255 / 0.08);
+  --portfolio-glass-button-accent-rgb: 255 255 255;
+  --portfolio-glass-button-accent-strong: rgb(255 255 255 / 0.3);
+  --portfolio-glass-button-bg: color-mix(
+    in srgb,
+    var(--portfolio-background) 50%,
+    transparent
+  );
+  --portfolio-glass-button-border: rgb(255 255 255 / 0.14);
+  --portfolio-glass-button-glow-boost-alpha: 0;
+  --portfolio-glass-button-glow-boost-shadow: inset
+    calc(var(--portfolio-glass-button-glow-shadow-x) * -0.65rem)
+    calc(var(--portfolio-glass-button-glow-shadow-y) * -0.65rem)
+    1.55rem -0.08rem
+    rgb(
+      var(--portfolio-glass-button-accent-rgb) /
+        var(--portfolio-glass-button-glow-boost-alpha)
+    );
+  --portfolio-glass-button-glow-shadow-x: 0;
+  --portfolio-glass-button-glow-shadow-y: 1;
+  --portfolio-glass-button-glow-strength: 1;
+  --portfolio-glass-button-icon-bg: rgb(255 255 255 / 0.09);
+  --portfolio-glass-button-icon-border: rgb(255 255 255 / 0.16);
+  --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.2);
+  --portfolio-glass-button-rim-boost-gradient: conic-gradient(
+    from calc(var(--portfolio-glass-button-accent-angle) - 34deg),
+    transparent 0deg,
+    rgb(
+        var(--portfolio-glass-button-accent-rgb) /
+          var(--portfolio-glass-button-glow-boost-alpha)
+      )
+      8deg,
+    rgb(
+        var(--portfolio-glass-button-accent-rgb) /
+          var(--portfolio-glass-button-glow-boost-alpha)
+      )
+      46deg,
+    transparent 68deg
+  );
+  --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.34);
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3.05rem;
+  gap: 0.7rem;
+  padding: 0.82rem 1.4rem;
+  overflow: hidden;
+  border: 1px solid var(--portfolio-glass-button-border);
+  border-radius: 999px;
+  background: var(--portfolio-glass-button-bg);
+  box-shadow:
+    inset 0 0.85rem 1.45rem rgb(255 255 255 / 0.035),
+    inset 0 -0.75rem 1.4rem rgb(1 0 8 / 0.44),
+    inset 0 1px 0 rgb(255 255 255 / 0.18),
+    0 0.8rem 1.7rem rgb(0 0 0 / 0.24),
+    0 0.16rem 0.95rem var(--portfolio-glass-button-accent-glow);
+  color: var(--portfolio-foreground);
+  cursor: pointer;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 650;
+  isolation: isolate;
+  -webkit-backdrop-filter: blur(5px) saturate(200%);
+  backdrop-filter: blur(5px) saturate(200%);
+}
+
+.portfolio-glass-button > * {
+  position: relative;
+  z-index: 2;
+}
+
+.portfolio-glass-button::after,
+.portfolio-glass-button::before {
+  position: absolute;
+  border-radius: inherit;
+  content: "";
+  pointer-events: none;
+}
+
+.portfolio-glass-button::before {
+  inset: 0;
+  padding: 1px;
+  background:
+    var(--portfolio-glass-button-rim-boost-gradient),
+    var(--portfolio-glass-button-rim-boost-gradient),
+    conic-gradient(
+      from calc(var(--portfolio-glass-button-accent-angle) - 34deg),
+      transparent 0deg,
+      var(--portfolio-glass-button-accent-edge) 8deg,
+      var(--portfolio-glass-button-accent-strong) 28deg,
+      var(--portfolio-glass-button-accent-edge) 46deg,
+      transparent 68deg
+    ),
+    linear-gradient(
+      135deg,
+      var(--portfolio-glass-button-rim-start),
+      rgb(255 255 255 / 0.08) 32%,
+      rgb(255 255 255 / 0.04) 62%,
+      var(--portfolio-glass-button-rim-end)
+    );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  z-index: 1;
+}
+
+.portfolio-glass-button::after {
+  inset: 0;
+  box-shadow:
+    var(--portfolio-glass-button-glow-boost-shadow),
+    var(--portfolio-glass-button-glow-boost-shadow),
+    inset calc(var(--portfolio-glass-button-glow-shadow-x) * -0.5rem)
+      calc(var(--portfolio-glass-button-glow-shadow-y) * -0.5rem)
+      1.6rem -0.08rem var(--portfolio-glass-button-accent-glow);
+  opacity: 1;
+  z-index: 0;
+}
+
+.portfolio-glass-button--primary {
+  --portfolio-glass-button-accent-edge: rgb(185 111 255 / 0.34);
+  --portfolio-glass-button-accent-glow: rgb(185 111 255 / 0.42);
+  --portfolio-glass-button-accent-rgb: 185 111 255;
+  --portfolio-glass-button-accent-strong: rgb(226 160 255 / 0.88);
+  --portfolio-glass-button-border: rgb(160 96 255 / 0.34);
+  --portfolio-glass-button-icon-bg: rgb(228 195 249 / 0.13);
+  --portfolio-glass-button-icon-border: rgb(228 195 249 / 0.24);
+  --portfolio-glass-button-rim-end: rgb(226 160 255 / 0.42);
+  --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.26);
+}
+
+.portfolio-glass-button--secondary {
+  --portfolio-glass-button-accent-edge: rgb(255 255 255 / 0.13);
+  --portfolio-glass-button-accent-glow: rgb(255 255 255 / 0.08);
+  --portfolio-glass-button-accent-rgb: 255 255 255;
+  --portfolio-glass-button-accent-strong: rgb(255 255 255 / 0.3);
+  --portfolio-glass-button-border: rgb(255 255 255 / 0.13);
+  --portfolio-glass-button-icon-bg: rgb(255 255 255 / 0.07);
+  --portfolio-glass-button-icon-border: rgb(255 255 255 / 0.12);
+  --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.18);
+  --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.3);
+}
+
+.portfolio-glass-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+
+.portfolio-glass-button:focus-visible {
+  outline: 3px solid var(--portfolio-focus);
+  outline-offset: 3px;
+}
+
+.portfolio-glass-button__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  flex: 0 0 auto;
+  border: 1px solid var(--portfolio-glass-button-icon-border);
+  border-radius: 999px;
+  background: var(--portfolio-glass-button-icon-bg);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
+  color: var(--portfolio-accent);
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.portfolio-glass-button__icon > svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.portfolio-glass-button__label {
+  min-width: 0;
 }
 
 .portfolio-content-header {

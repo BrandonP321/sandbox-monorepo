@@ -1,6 +1,6 @@
 import { PageSeo } from "@repo/ui-base/seo";
 
-import { ContentHeader, HeroSection } from "./components";
+import { ContentHeader, GlassButton, HeroSection } from "./components";
 
 const placeholderSections = [
   {
@@ -38,7 +38,7 @@ export default function App() {
       <main className="portfolio-page" data-slot="portfolio-scroll-container">
         <HeroSection
           description="Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
-          title="Transform The Way You Think With Loopy"
+          title="Brandon Phillips"
         />
 
         {placeholderSectionInstances.map((section) => (
@@ -61,6 +61,17 @@ type PlaceholderSectionProps = {
 function PlaceholderSection({ ariaLabel, idPrefix }: PlaceholderSectionProps) {
   return (
     <section aria-label={ariaLabel} className="portfolio-scroll-preview">
+      <div
+        style={{
+          display: "flex",
+          gap: "1rem",
+          paddingBottom: "2rem",
+          justifyContent: "end"
+        }}
+      >
+        <GlassButton variant="primary">Primary</GlassButton>
+        <GlassButton variant="secondary">Secondary</GlassButton>
+      </div>
       <div className="portfolio-scroll-preview__glass">
         <ContentHeader
           title="Below the fold"

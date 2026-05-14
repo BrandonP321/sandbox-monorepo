@@ -10,7 +10,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Transform The Way You Think With Loopy"
+        name: "Brandon Phillips"
       })
     ).toBeInTheDocument();
     expect(

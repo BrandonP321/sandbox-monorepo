@@ -90,6 +90,7 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
           <img
             alt=""
             className="portfolio-hero-section__black-hole-image"
+            data-slot="hero-black-hole-image"
             src={desktopBlackHoleUrl}
           />
         </picture>
