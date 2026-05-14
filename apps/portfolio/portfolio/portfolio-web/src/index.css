@@ -206,19 +206,22 @@ a {
 
 .portfolio-hero-section__black-hole {
   position: absolute;
+  inset: 0;
   z-index: 0;
-  bottom: 0;
-  left: 50%;
-  width: min(104rem, 122vw);
-  min-width: 42rem;
   pointer-events: none;
-  transform: translate(-50%, 50%);
 }
 
 .portfolio-hero-section__black-hole-image {
   display: block;
-  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 50%;
+  width: min(104rem, 122vw);
+  min-width: 42rem;
   height: auto;
+  transform: translate3d(-50%, var(--portfolio-black-hole-center-y, 100svh), 0)
+    translateY(-50%);
+  will-change: transform;
 }
 
 @supports not ((background-clip: text) or (-webkit-background-clip: text)) {
@@ -324,7 +327,7 @@ a {
     font-size: 1.1rem;
   }
 
-  .portfolio-hero-section__black-hole {
+  .portfolio-hero-section__black-hole-image {
     width: 178vw;
     min-width: 0;
   }
