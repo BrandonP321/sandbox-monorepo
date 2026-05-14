@@ -15,6 +15,9 @@
 - `@repo/ui-base` is allowed for style-free behavior and helper components.
 - Keep portfolio-specific visual components inside `portfolio-web` until reuse
   across multiple apps is real.
+- `portfolio-web` uses Tailwind CSS v4 through `@tailwindcss/vite`. Keep
+  portfolio theme tokens in `src/index.css` and extend those tokens before
+  adding another styling system.
 
 ## Infra
 
