@@ -10,20 +10,34 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", {
         level: 1,
-        name: "Brandon Phillips"
+        name: "Transform The Way You Think With Loopy"
       })
     ).toBeInTheDocument();
-    expect(screen.getByRole("navigation")).toHaveAccessibleName(
-      "Portfolio sections"
-    );
     expect(
-      screen.getByRole("heading", { level: 2, name: "Experience" })
+      screen.getByText(
+        "Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Portfolio preview content" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Projects" })
+      screen.getByRole("heading", { level: 2, name: "Below the fold" })
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { level: 2, name: "Writing" })
+      screen.getByRole("heading", { level: 3, name: "Experience" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Projects" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { level: 3, name: "Writing" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Temporary content for reviewing how the hero graphic reveals itself while scrolling."
+      )
     ).toBeInTheDocument();
   });
 

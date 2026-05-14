@@ -7,10 +7,15 @@ import "../src/index.css";
 
 const preview: Preview = {
   decorators: [
-    (Story) =>
+    (Story, context) =>
       createElement(
         "div",
-        { className: "portfolio-story-preview" },
+        {
+          className:
+            context.parameters.portfolioPreview === "fullscreen"
+              ? "portfolio-story-preview portfolio-story-preview--fullscreen"
+              : "portfolio-story-preview"
+        },
         createElement(Story)
       )
   ],
