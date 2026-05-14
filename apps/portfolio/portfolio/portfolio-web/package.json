@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
+    "lan": "node ../../../../scripts/dev-lan.mjs portfolio",
     "storybook": "storybook dev -p 6010 -c .storybook",
     "storybook:ci": "storybook dev -p 6010 -c .storybook --ci --no-open",
     "build": "vite build",

@@ -17,6 +17,13 @@ This app does not have an API package.
 pnpm --filter portfolio-web dev
 ```
 
+For phone testing on the same network, run the LAN helper and scan the printed
+QR code:
+
+```bash
+pnpm --filter portfolio-web lan
+```
+
 ## Validation
 
 ```bash

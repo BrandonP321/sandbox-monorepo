@@ -60,6 +60,25 @@ test("buildLanDevPlan wires the local API URL into the web command", () => {
   ]);
 });
 
+test("buildLanDevPlan supports a web-only Portfolio server", () => {
+  const plan = buildLanDevPlan("portfolio", {
+    env: { LAN_DEV_IP: "10.0.0.42" }
+  });
+
+  assert.equal(plan.apiBaseUrl, undefined);
+  assert.equal(plan.webUrl, "http://10.0.0.42:5174");
+  assert.deepEqual(plan.args, [
+    "exec",
+    "concurrently",
+    "--kill-others-on-fail",
+    "-n",
+    "WEB",
+    "-c",
+    "cyan",
+    "pnpm --filter portfolio-web exec vite --host 0.0.0.0 --port 5174 --strictPort"
+  ]);
+});
+
 test("runLanDev passes full concurrently commands without shell splitting", () => {
   const calls = [];
   const qrCodes = [];
@@ -101,6 +120,51 @@ test("runLanDev passes full concurrently commands without shell splitting", () =
         "magenta,cyan",
         "PORT=3001 pnpm --filter signal-tracker-api dev",
         "VITE_API_BASE_URL='http://10.0.0.42:3001' pnpm --filter signal-tracker-web exec vite --host 0.0.0.0 --port 5173 --strictPort"
+      ],
+      options: { shell: false, stdio: "inherit" }
+    }
+  ]);
+});
+
+test("runLanDev omits the API log line for web-only projects", () => {
+  const calls = [];
+  const qrCodes = [];
+  const logs = [];
+  const status = runLanDev("portfolio", {
+    env: { LAN_DEV_IP: "10.0.0.42" },
+    log: (message) => {
+      logs.push(message);
+    },
+    renderQrCode: (url, options) => {
+      qrCodes.push({ options, url });
+    },
+    runner: (command, args, options) => {
+      calls.push({ command, args, options });
+      return { status: 0 };
+    }
+  });
+
+  assert.equal(status, 0);
+  assert.deepEqual(qrCodes, [
+    { options: { small: true }, url: "http://10.0.0.42:5174" }
+  ]);
+  assert.deepEqual(logs, [
+    "LAN IP: 10.0.0.42",
+    "Web URL for phone: http://10.0.0.42:5174",
+    "Scan to open the web app:"
+  ]);
+  assert.deepEqual(calls, [
+    {
+      command: "pnpm",
+      args: [
+        "exec",
+        "concurrently",
+        "--kill-others-on-fail",
+        "-n",
+        "WEB",
+        "-c",
+        "cyan",
+        "pnpm --filter portfolio-web exec vite --host 0.0.0.0 --port 5174 --strictPort"
       ],
       options: { shell: false, stdio: "inherit" }
     }

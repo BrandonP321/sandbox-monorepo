@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import { HeroSection } from "./HeroSection";
@@ -34,6 +34,18 @@ describe("HeroSection", () => {
     ).toHaveAttribute("aria-hidden", "true");
   });
 
+  it("provides a small-screen black hole source", () => {
+    const { container } = render(
+      <HeroSection description="Portfolio introduction." title="Portfolio" />
+    );
+
+    const mobileSource = container.querySelector(
+      'source[media="(max-width: 720px)"]'
+    );
+
+    expect(mobileSource).toHaveAttribute("srcset");
+  });
+
   it("supports a caller-provided class name", () => {
     const { container } = render(
       <HeroSection
@@ -44,6 +56,32 @@ describe("HeroSection", () => {
     );
 
     expect(container.firstElementChild).toHaveClass("portfolio-home-hero");
+  });
+
+  it("uses the nearest portfolio scroll container for parallax", () => {
+    const { container } = render(
+      <main data-slot="portfolio-scroll-container">
+        <HeroSection description="Portfolio introduction." title="Portfolio" />
+      </main>
+    );
+    const scrollContainer = container.querySelector(
+      '[data-slot="portfolio-scroll-container"]'
+    ) as HTMLElement;
+    const blackHole = container.querySelector(
+      '[data-slot="hero-black-hole"]'
+    ) as HTMLElement;
+
+    Object.defineProperties(scrollContainer, {
+      clientHeight: { configurable: true, value: 1000 },
+      scrollHeight: { configurable: true, value: 3000 },
+      scrollTop: { configurable: true, value: 1000 }
+    });
+
+    fireEvent.scroll(scrollContainer);
+
+    expect(
+      blackHole.style.getPropertyValue("--portfolio-black-hole-center-y")
+    ).toBe("500px");
   });
 
   it("maps black hole parallax from the viewport bottom to the viewport top", () => {

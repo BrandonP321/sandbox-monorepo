@@ -59,11 +59,17 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   min-width: 320px;
-  min-height: 100vh;
+  min-height: 100%;
   margin: 0;
-  overflow-x: hidden;
   background-color: #030014;
   background:
     radial-gradient(
@@ -88,7 +94,7 @@ a {
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 0;
 }
 
 #storybook-root {
@@ -111,9 +117,19 @@ a {
 }
 
 .portfolio-page {
-  min-height: 100vh;
+  height: 100vh;
+  min-height: 0;
   overflow-x: clip;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   background: var(--portfolio-background);
+  -webkit-overflow-scrolling: touch;
+}
+
+@supports (height: 100svh) {
+  .portfolio-page {
+    height: 100svh;
+  }
 }
 
 .portfolio-button {
@@ -315,12 +331,16 @@ a {
     margin-top: 3rem;
   }
 
+  .portfolio-hero-section {
+    padding-bottom: 54%;
+  }
+
   .portfolio-content-header__heading {
     font-size: 3rem;
   }
 
   .portfolio-hero-section__content {
-    padding: 0 0.625rem clamp(17rem, 45vh, 24rem);
+    padding: 0 0.625rem;
   }
 
   .portfolio-hero-section__header .portfolio-content-header__heading {
@@ -333,7 +353,7 @@ a {
   }
 
   .portfolio-hero-section__black-hole-image {
-    width: 178vw;
+    width: 100vw;
     min-width: 0;
   }
 

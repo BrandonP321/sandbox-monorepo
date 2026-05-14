@@ -8,6 +8,10 @@ const require = createRequire(import.meta.url);
 const qrCode = require("qrcode-terminal");
 
 export const lanDevProjects = {
+  portfolio: {
+    webFilter: "portfolio-web",
+    webPort: 5174
+  },
   "signal-tracker": {
     apiFilter: "signal-tracker-api",
     apiPort: 3001,
@@ -69,14 +73,20 @@ export function buildLanDevPlan(projectName, options = {}) {
   }
 
   const lanIp = resolveLanIp(options);
-  const apiBaseUrl = `http://${lanIp}:${project.apiPort}`;
+  const apiBaseUrl = project.apiPort
+    ? `http://${lanIp}:${project.apiPort}`
+    : undefined;
   const webUrl = `http://${lanIp}:${project.webPort}`;
-  const apiCommand = `PORT=${project.apiPort} pnpm --filter ${project.apiFilter} dev`;
-  const webCommand = `VITE_API_BASE_URL=${shellQuote(
-    apiBaseUrl
-  )} pnpm --filter ${project.webFilter} exec vite --host 0.0.0.0 --port ${
+  const apiCommand =
+    project.apiFilter && project.apiPort
+      ? `PORT=${project.apiPort} pnpm --filter ${project.apiFilter} dev`
+      : undefined;
+  const webCommand = `${apiBaseUrl ? `VITE_API_BASE_URL=${shellQuote(apiBaseUrl)} ` : ""}pnpm --filter ${project.webFilter} exec vite --host 0.0.0.0 --port ${
     project.webPort
   } --strictPort`;
+  const serverNames = apiCommand ? "API,WEB" : "WEB";
+  const serverColors = apiCommand ? "magenta,cyan" : "cyan";
+  const serverCommands = apiCommand ? [apiCommand, webCommand] : [webCommand];
 
   return {
     apiBaseUrl,
@@ -86,11 +96,10 @@ export function buildLanDevPlan(projectName, options = {}) {
       "concurrently",
       "--kill-others-on-fail",
       "-n",
-      "API,WEB",
+      serverNames,
       "-c",
-      "magenta,cyan",
-      apiCommand,
-      webCommand
+      serverColors,
+      ...serverCommands
     ],
     lanIp,
     webUrl
@@ -105,7 +114,9 @@ export function runLanDev(projectName, options = {}) {
 
   options.log?.(`LAN IP: ${plan.lanIp}`);
   options.log?.(`Web URL for phone: ${plan.webUrl}`);
-  options.log?.(`Web API target: ${plan.apiBaseUrl}`);
+  if (plan.apiBaseUrl) {
+    options.log?.(`Web API target: ${plan.apiBaseUrl}`);
+  }
   options.log?.("Scan to open the web app:");
   renderQrCode(plan.webUrl, { small: true });
 

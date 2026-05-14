@@ -4,9 +4,11 @@ import type * as React from "react";
 
 import { ContentHeader } from "../ContentHeader";
 import purpleBlackHoleDesktopUrl from "./assets/purple-blackhole-desktop.jpg";
+import purpleBlackHoleMobileUrl from "./assets/purple-blackhole-mobile.jpg";
 import { getBlackHoleParallaxCenterY } from "./parallax";
 
 const desktopBlackHoleUrl = purpleBlackHoleDesktopUrl;
+const mobileBlackHoleUrl = purpleBlackHoleMobileUrl;
 
 type HeroSectionNativeProps = Pick<
   React.ComponentProps<"section">,
@@ -28,13 +30,19 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
       return;
     }
 
+    const scrollContainer = blackHole.closest<HTMLElement>(
+      '[data-slot="portfolio-scroll-container"]'
+    );
+
     const updateBlackHolePosition = () => {
       const scrollingElement =
-        document.scrollingElement ?? document.documentElement;
+        scrollContainer ??
+        document.scrollingElement ??
+        document.documentElement;
       const centerY = getBlackHoleParallaxCenterY({
         scrollHeight: scrollingElement.scrollHeight,
-        scrollY: window.scrollY,
-        viewportHeight: window.innerHeight
+        scrollY: scrollContainer ? scrollContainer.scrollTop : window.scrollY,
+        viewportHeight: scrollContainer?.clientHeight || window.innerHeight
       });
 
       blackHole.style.setProperty(
@@ -44,13 +52,14 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
     };
 
     updateBlackHolePosition();
-    window.addEventListener("scroll", updateBlackHolePosition, {
+    const scrollTarget = scrollContainer ?? window;
+    scrollTarget.addEventListener("scroll", updateBlackHolePosition, {
       passive: true
     });
     window.addEventListener("resize", updateBlackHolePosition);
 
     return () => {
-      window.removeEventListener("scroll", updateBlackHolePosition);
+      scrollTarget.removeEventListener("scroll", updateBlackHolePosition);
       window.removeEventListener("resize", updateBlackHolePosition);
     };
   }, []);
@@ -76,11 +85,14 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
         data-slot="hero-black-hole"
         ref={blackHoleRef}
       >
-        <img
-          alt=""
-          className="portfolio-hero-section__black-hole-image"
-          src={desktopBlackHoleUrl}
-        />
+        <picture>
+          <source media="(max-width: 720px)" srcSet={mobileBlackHoleUrl} />
+          <img
+            alt=""
+            className="portfolio-hero-section__black-hole-image"
+            src={desktopBlackHoleUrl}
+          />
+        </picture>
       </div>
     </section>
   );

@@ -35,7 +35,7 @@ export default function App() {
         title="Portfolio"
         titleSuffix="Brandon Phillips"
       />
-      <main className="portfolio-page">
+      <main className="portfolio-page" data-slot="portfolio-scroll-container">
         <HeroSection
           description="Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
           title="Transform The Way You Think With Loopy"

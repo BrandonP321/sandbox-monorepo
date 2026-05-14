@@ -19,6 +19,10 @@ describe("App", () => {
       )
     ).toBeInTheDocument();
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveAttribute(
+      "data-slot",
+      "portfolio-scroll-container"
+    );
     expect(
       screen.getByRole("region", { name: "Portfolio preview content" })
     ).toBeInTheDocument();
