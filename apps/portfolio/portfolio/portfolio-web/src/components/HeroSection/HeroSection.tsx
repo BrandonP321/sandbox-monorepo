@@ -31,7 +31,7 @@ const blackHoleImageSources = [
 
 type HeroSectionNativeProps = Pick<
   React.ComponentProps<"section">,
-  "className"
+  "className" | "id"
 >;
 
 type HeroSectionProps = HeroSectionNativeProps & {
@@ -39,7 +39,7 @@ type HeroSectionProps = HeroSectionNativeProps & {
   title: ReactNode;
 };
 
-function HeroSection({ className, description, title }: HeroSectionProps) {
+function HeroSection({ className, description, id, title }: HeroSectionProps) {
   const blackHoleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -89,6 +89,7 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
         .filter(Boolean)
         .join(" ")}
       data-slot="hero-section"
+      id={id}
     >
       <div className="portfolio-hero-section__content">
         <ContentHeader

@@ -12,7 +12,7 @@ import startupLogoUrl from "./assets/startup-logo.png";
 
 type ExperienceSectionNativeProps = Pick<
   React.ComponentProps<"section">,
-  "className"
+  "className" | "id"
 >;
 
 type ExperienceItem = {
@@ -65,7 +65,7 @@ const experienceItems = [
   }
 ] satisfies ExperienceItem[];
 
-function ExperienceSection({ className }: ExperienceSectionProps) {
+function ExperienceSection({ className, id }: ExperienceSectionProps) {
   return (
     <section
       aria-labelledby="portfolio-experience-title"
@@ -73,6 +73,7 @@ function ExperienceSection({ className }: ExperienceSectionProps) {
         .filter(Boolean)
         .join(" ")}
       data-slot="experience-section"
+      id={id}
     >
       <GlassContainer className="portfolio-experience-section__panel">
         <ContentHeader

@@ -18,7 +18,21 @@ describe("App", () => {
         "Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
       )
     ).toBeInTheDocument();
-    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Portfolio sections" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Intro" })).toHaveAttribute(
+      "href",
+      "#intro"
+    );
+    expect(screen.getByRole("link", { name: "Experience" })).toHaveAttribute(
+      "href",
+      "#experience"
+    );
+    expect(document.getElementById("intro")).toBeInTheDocument();
+    expect(document.getElementById("experience")).toBeInTheDocument();
+    expect(document.getElementById("preview-1-projects")).toBeInTheDocument();
+    expect(document.getElementById("preview-1-writing")).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute(
       "data-slot",
       "portfolio-scroll-container"

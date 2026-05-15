@@ -5,7 +5,8 @@ import {
   ExperienceSection,
   GlassButton,
   GlassContainer,
-  HeroSection
+  HeroSection,
+  StickyNav
 } from "./components";
 
 const placeholderSections = [
@@ -25,6 +26,13 @@ const placeholderSectionInstances = [
   { ariaLabel: "Portfolio preview content", id: "preview-1" }
 ] as const;
 
+const portfolioNavItems = [
+  { href: "#intro", label: "Intro" },
+  { href: "#experience", label: "Experience" },
+  { href: "#preview-1-projects", label: "Projects" },
+  { href: "#preview-1-writing", label: "Writing" }
+] as const;
+
 export default function App() {
   return (
     <>
@@ -34,12 +42,15 @@ export default function App() {
         titleSuffix="Brandon Phillips"
       />
       <main className="portfolio-page" data-slot="portfolio-scroll-container">
+        <StickyNav items={portfolioNavItems} />
+
         <HeroSection
           description="Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
+          id="intro"
           title="Brandon Phillips"
         />
 
-        <ExperienceSection />
+        <ExperienceSection id="experience" />
 
         {placeholderSectionInstances.map((section) => (
           <PlaceholderSection

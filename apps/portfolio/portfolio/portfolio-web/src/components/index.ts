@@ -10,3 +10,4 @@ export * from "./HeroSection";
 export * from "./LinkedInButton";
 export * from "./ProgressiveResponsiveImage";
 export * from "./ResumeButton";
+export * from "./StickyNav";
