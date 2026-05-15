@@ -19,6 +19,9 @@ describe("ExperienceSection", () => {
       )
     ).toBeInTheDocument();
     expect(
+      within(section).getByRole("link", { name: "Resume" })
+    ).toHaveAttribute("href", expect.stringContaining("resume.pdf"));
+    expect(
       within(section).getByRole("heading", {
         level: 3,
         name: "Software Development Engineer - AWS"

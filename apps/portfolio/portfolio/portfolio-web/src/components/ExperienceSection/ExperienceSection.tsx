@@ -6,6 +6,7 @@ import amazonLogoUrl from "./assets/amazon-logo.png";
 import awsLogoUrl from "./assets/aws-logo.png";
 import bungieLogoUrl from "./assets/bungie-logo.png";
 import startupLogoUrl from "./assets/startup-logo.png";
+import { ResumeButton } from "../ResumeButton";
 
 type ExperienceSectionNativeProps = Pick<
   React.ComponentProps<"section">,
@@ -73,6 +74,8 @@ function ExperienceSection({ className }: ExperienceSectionProps) {
     >
       <GlassContainer className="portfolio-experience-section__panel">
         <ContentHeader
+          actions={<ResumeButton />}
+          alignActions="top"
           className="portfolio-experience-section__header"
           description="A brief timeline of engineering roles, with placeholder details until the final copy is ready."
           headingLevel={2}

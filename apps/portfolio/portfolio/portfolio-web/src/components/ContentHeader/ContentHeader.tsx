@@ -3,15 +3,21 @@ import type * as React from "react";
 
 type ContentHeaderNativeProps = Pick<React.ComponentProps<"div">, "className">;
 
+type ContentHeaderActionsAlignment = "top" | "bottom";
+
 type ContentHeaderHeadingLevel = 1 | 2 | 3 | 4 | 5 | 6;
 
 type ContentHeaderProps = ContentHeaderNativeProps & {
+  actions?: ReactNode;
+  alignActions?: ContentHeaderActionsAlignment;
   description?: ReactNode;
   headingLevel?: ContentHeaderHeadingLevel;
   title: ReactNode;
 };
 
 function ContentHeader({
+  actions,
+  alignActions = "top",
   className,
   description,
   headingLevel = 1,
@@ -20,20 +26,35 @@ function ContentHeader({
   return (
     <div
       className={["portfolio-content-header", className]
+        .concat(actions ? "portfolio-content-header--has-actions" : [])
         .filter(Boolean)
         .join(" ")}
       data-slot="content-header"
     >
-      <ContentHeaderHeading headingLevel={headingLevel}>
-        {title}
-      </ContentHeaderHeading>
-      {description ? (
-        <p
-          className="portfolio-content-header__description"
-          data-slot="content-header-description"
+      <div className="portfolio-content-header__body">
+        <ContentHeaderHeading headingLevel={headingLevel}>
+          {title}
+        </ContentHeaderHeading>
+        {description ? (
+          <p
+            className="portfolio-content-header__description"
+            data-slot="content-header-description"
+          >
+            {description}
+          </p>
+        ) : null}
+      </div>
+
+      {actions ? (
+        <div
+          className={[
+            "portfolio-content-header__actions",
+            `portfolio-content-header__actions--${alignActions}`
+          ].join(" ")}
+          data-slot="content-header-actions"
         >
-          {description}
-        </p>
+          {actions}
+        </div>
       ) : null}
     </div>
   );
@@ -65,6 +86,7 @@ function ContentHeaderHeading({
 
 export {
   ContentHeader,
+  type ContentHeaderActionsAlignment,
   type ContentHeaderHeadingLevel,
   type ContentHeaderProps
 };

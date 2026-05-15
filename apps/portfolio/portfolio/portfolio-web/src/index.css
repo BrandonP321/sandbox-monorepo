@@ -194,8 +194,6 @@ a {
   --portfolio-glass-button-glow-shadow-x: 0;
   --portfolio-glass-button-glow-shadow-y: 1;
   --portfolio-glass-button-glow-strength: 1;
-  --portfolio-glass-button-icon-bg: rgb(255 255 255 / 0.09);
-  --portfolio-glass-button-icon-border: rgb(255 255 255 / 0.16);
   --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.2);
   --portfolio-glass-button-rim-boost-gradient: conic-gradient(
     from calc(var(--portfolio-glass-button-accent-angle) - 34deg),
@@ -235,6 +233,7 @@ a {
   font-size: 1rem;
   font-weight: 650;
   isolation: isolate;
+  text-decoration: none;
   transition: background-color 160ms ease;
   -webkit-backdrop-filter: blur(5px) saturate(200%);
   backdrop-filter: blur(5px) saturate(200%);
@@ -313,8 +312,6 @@ a {
   --portfolio-glass-button-accent-rgb: 185 111 255;
   --portfolio-glass-button-accent-strong: rgb(226 160 255 / 0.88);
   --portfolio-glass-button-border: rgb(160 96 255 / 0.54);
-  --portfolio-glass-button-icon-bg: rgb(228 195 249 / 0.13);
-  --portfolio-glass-button-icon-border: rgb(228 195 249 / 0.24);
   --portfolio-glass-button-rim-end: rgb(226 160 255 / 0.42);
   --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.26);
 }
@@ -325,8 +322,6 @@ a {
   --portfolio-glass-button-accent-rgb: 255 255 255;
   --portfolio-glass-button-accent-strong: rgb(255 255 255 / 0.3);
   --portfolio-glass-button-border: rgb(255 255 255 / 0.26);
-  --portfolio-glass-button-icon-bg: rgb(255 255 255 / 0.07);
-  --portfolio-glass-button-icon-border: rgb(255 255 255 / 0.12);
   --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.18);
   --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.3);
 }
@@ -345,21 +340,16 @@ a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.45rem;
-  height: 1.45rem;
+  width: 1.2rem;
+  height: 1.2rem;
   flex: 0 0 auto;
-  border: 1px solid var(--portfolio-glass-button-icon-border);
-  border-radius: 999px;
-  background: var(--portfolio-glass-button-icon-bg);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18);
   color: var(--portfolio-accent);
-  font-size: 0.85rem;
   line-height: 1;
 }
 
 .portfolio-glass-button__icon > svg {
-  width: 1rem;
-  height: 1rem;
+  width: 1.2rem;
+  height: 1.2rem;
 }
 
 .portfolio-glass-button__label {
@@ -368,10 +358,19 @@ a {
 
 .portfolio-content-header {
   display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.portfolio-content-header__body {
+  display: flex;
+  flex: 1 1 28rem;
   flex-direction: column;
   gap: 0.75rem;
-  max-width: 46rem;
-  min-width: 0;
+  min-width: min(100%, 18rem);
 }
 
 .portfolio-content-header__heading {
@@ -397,6 +396,22 @@ a {
   line-height: 1.4;
 }
 
+.portfolio-content-header__actions {
+  display: flex;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+  margin-left: auto;
+  max-width: 100%;
+}
+
+.portfolio-content-header__actions--top {
+  align-self: flex-start;
+}
+
+.portfolio-content-header__actions--bottom {
+  align-self: flex-end;
+}
+
 .portfolio-hero-section {
   position: relative;
   display: flex;
@@ -416,6 +431,10 @@ a {
 }
 
 .portfolio-hero-section__header {
+  max-width: none;
+}
+
+.portfolio-hero-section__header .portfolio-content-header__body {
   max-width: none;
 }
 
@@ -545,7 +564,11 @@ a {
 }
 
 .portfolio-experience-section__header {
-  max-width: 44rem;
+  max-width: none;
+}
+
+.portfolio-experience-section__header .portfolio-content-header__body {
+  max-width: 34rem;
 }
 
 .portfolio-experience-section__header .portfolio-content-header__heading {
