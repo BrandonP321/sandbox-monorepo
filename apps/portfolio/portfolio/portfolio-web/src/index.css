@@ -410,7 +410,9 @@ a {
   position: relative;
   z-index: 1;
   width: 100%;
-  padding: 0 2rem 17rem 6rem;
+  padding-bottom: 17rem;
+  width: min(100% - 2rem, 94rem);
+  margin: 0 auto;
 }
 
 .portfolio-hero-section__header {
@@ -530,6 +532,16 @@ a {
   line-height: 1.6;
 }
 
+@media (max-width: 1600px) {
+  .portfolio-hero-section {
+    padding-bottom: 20%;
+  }
+
+  .portfolio-hero-section__content {
+    padding-bottom: 0;
+  }
+}
+
 @media (max-width: 720px) {
   .portfolio-grid {
     grid-template-columns: 1fr;
@@ -544,17 +556,13 @@ a {
     font-size: 3rem;
   }
 
-  .portfolio-hero-section__content {
-    padding: 0 0.625rem;
-  }
-
   .portfolio-hero-section__header .portfolio-content-header__heading {
     width: 100%;
     font-size: clamp(3.4rem, 16vw, 5.4rem);
   }
 
   .portfolio-hero-section__header .portfolio-content-header__description {
-    font-size: 1.1rem;
+    font-size: 1.6rem;
   }
 
   .portfolio-hero-section__black-hole-image {
