@@ -44,6 +44,19 @@ describe("HeroSection", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders large hero action buttons", () => {
+    render(
+      <HeroSection description="Portfolio introduction." title="Portfolio" />
+    );
+
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
+
   it("keeps the black hole graphic decorative", () => {
     const { container } = render(
       <HeroSection description="Portfolio introduction." title="Portfolio" />

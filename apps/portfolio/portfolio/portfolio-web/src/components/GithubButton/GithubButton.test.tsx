@@ -24,4 +24,12 @@ describe("GithubButton", () => {
       "portfolio-glass-button--secondary"
     );
   });
+
+  it("supports the shared glass button size", () => {
+    render(<GithubButton size="large" />);
+
+    expect(screen.getByRole("link", { name: "GitHub" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
 });

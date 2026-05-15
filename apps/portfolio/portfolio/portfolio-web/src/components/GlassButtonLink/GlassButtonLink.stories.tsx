@@ -10,6 +10,7 @@ const meta = {
     children: "Resume",
     href: "#resume",
     icon: <FileText />,
+    size: "default",
     variant: "primary"
   },
   argTypes: {
@@ -18,6 +19,10 @@ const meta = {
     },
     onClick: {
       control: false
+    },
+    size: {
+      control: "inline-radio",
+      options: ["default", "large"]
     },
     variant: {
       control: "inline-radio",
@@ -37,5 +42,13 @@ export const Secondary: Story = {
     children: "View project",
     href: "#project",
     variant: "secondary"
+  }
+};
+
+export const Large: Story = {
+  args: {
+    children: "Contact me",
+    href: "#contact",
+    size: "large"
   }
 };

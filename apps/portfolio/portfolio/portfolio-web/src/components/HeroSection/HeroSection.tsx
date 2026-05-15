@@ -10,6 +10,9 @@ import purpleBlackHoleDesktopUrl from "./assets/purple-blackhole-desktop.jpg";
 import purpleBlackHoleMobileLowResUrl from "./assets/purple-blackhole-mobile-low-res.jpg";
 import purpleBlackHoleMobileUrl from "./assets/purple-blackhole-mobile.jpg";
 import { getBlackHoleParallaxCenterY } from "./parallax";
+import { ActionsContainer } from "../ActionsContainer";
+import { LinkedInButton } from "../LinkedInButton";
+import { GithubButton } from "../GithubButton";
 
 const blackHoleImageSources = [
   {
@@ -92,6 +95,13 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
           className="portfolio-hero-section__header"
           description={description}
           title={title}
+          alignActions="bottom"
+          actions={
+            <ActionsContainer>
+              <LinkedInButton size="large" variant="primary" />
+              <GithubButton size="large" />
+            </ActionsContainer>
+          }
         />
       </div>
 

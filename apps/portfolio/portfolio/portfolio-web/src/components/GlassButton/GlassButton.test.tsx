@@ -59,6 +59,14 @@ describe("GlassButton", () => {
     );
   });
 
+  it("supports the large size", () => {
+    render(<GlassButton size="large">View work</GlassButton>);
+
+    expect(screen.getByRole("button", { name: "View work" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
+
   it("supports disabled button state", () => {
     render(
       <GlassButton disabled icon={<span>+</span>}>

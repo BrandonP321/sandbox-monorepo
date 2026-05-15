@@ -24,4 +24,12 @@ describe("LinkedInButton", () => {
       "portfolio-glass-button--secondary"
     );
   });
+
+  it("supports the shared glass button size", () => {
+    render(<LinkedInButton size="large" />);
+
+    expect(screen.getByRole("link", { name: "LinkedIn" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
 });

@@ -11,6 +11,7 @@ const portfolioScrollContainerSelector =
   '[data-slot="portfolio-scroll-container"]';
 
 type GlassButtonVariant = "primary" | "secondary";
+type GlassButtonSize = "default" | "large";
 
 const variantGlowBoostAlpha = {
   primary: 0.42,
@@ -19,14 +20,17 @@ const variantGlowBoostAlpha = {
 
 function getGlassButtonClassName({
   className,
+  size,
   variant
 }: {
   className?: string;
+  size: GlassButtonSize;
   variant: GlassButtonVariant;
 }) {
   return [
     "portfolio-glass-button",
     `portfolio-glass-button--${variant}`,
+    `portfolio-glass-button--${size}`,
     className
   ]
     .filter(Boolean)
@@ -150,6 +154,7 @@ function useGlassButtonAccentTracking(
 
 export {
   getGlassButtonClassName,
+  type GlassButtonSize,
   type GlassButtonVariant,
   useGlassButtonAccentTracking
 };

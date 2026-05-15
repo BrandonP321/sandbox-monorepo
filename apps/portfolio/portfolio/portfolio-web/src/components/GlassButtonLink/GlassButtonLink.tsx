@@ -5,6 +5,7 @@ import type * as React from "react";
 import { GlassButtonContent } from "../GlassButton/GlassButtonContent";
 import {
   getGlassButtonClassName,
+  type GlassButtonSize,
   type GlassButtonVariant,
   useGlassButtonAccentTracking
 } from "../GlassButton/glassButtonShared";
@@ -24,6 +25,7 @@ type GlassButtonLinkProps = Omit<GlassButtonLinkNativeProps, "href"> & {
   children: ReactNode;
   href: NonNullable<React.ComponentProps<"a">["href"]>;
   icon?: ReactNode;
+  size?: GlassButtonSize;
   variant?: GlassButtonVariant;
 };
 
@@ -32,6 +34,7 @@ function GlassButtonLink({
   className,
   href,
   icon,
+  size = "default",
   variant = "primary",
   ...linkProps
 }: GlassButtonLinkProps) {
@@ -42,7 +45,7 @@ function GlassButtonLink({
   return (
     <a
       {...linkProps}
-      className={getGlassButtonClassName({ className, variant })}
+      className={getGlassButtonClassName({ className, size, variant })}
       data-slot="glass-button-link"
       href={href}
       ref={linkRef}

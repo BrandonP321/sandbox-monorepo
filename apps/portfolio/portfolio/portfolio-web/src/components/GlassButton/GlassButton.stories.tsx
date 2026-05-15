@@ -8,6 +8,7 @@ const meta = {
   args: {
     children: "View work",
     icon: <span>+</span>,
+    size: "default",
     variant: "primary"
   },
   argTypes: {
@@ -16,6 +17,10 @@ const meta = {
     },
     onClick: {
       control: false
+    },
+    size: {
+      control: "inline-radio",
+      options: ["default", "large"]
     },
     variant: {
       control: "inline-radio",
@@ -34,6 +39,13 @@ export const Secondary: Story = {
   args: {
     children: "Read notes",
     variant: "secondary"
+  }
+};
+
+export const Large: Story = {
+  args: {
+    children: "Contact me",
+    size: "large"
   }
 };
 

@@ -24,4 +24,12 @@ describe("ResumeButton", () => {
       "portfolio-glass-button--secondary"
     );
   });
+
+  it("supports the shared glass button size", () => {
+    render(<ResumeButton size="large" />);
+
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
 });

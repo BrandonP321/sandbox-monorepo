@@ -52,6 +52,18 @@ describe("GlassButtonLink", () => {
     );
   });
 
+  it("supports the large size", () => {
+    render(
+      <GlassButtonLink href="/projects" size="large">
+        View projects
+      </GlassButtonLink>
+    );
+
+    expect(screen.getByRole("link", { name: "View projects" })).toHaveClass(
+      "portfolio-glass-button--large"
+    );
+  });
+
   it("sets accent variables toward the hero black hole image", () => {
     const blackHoleImage = document.createElement("div");
     blackHoleImage.dataset.slot = "hero-black-hole-image";

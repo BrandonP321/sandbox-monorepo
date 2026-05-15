@@ -5,6 +5,7 @@ import type * as React from "react";
 import { GlassButtonContent } from "./GlassButtonContent";
 import {
   getGlassButtonClassName,
+  type GlassButtonSize,
   type GlassButtonVariant,
   useGlassButtonAccentTracking
 } from "./glassButtonShared";
@@ -17,6 +18,7 @@ type GlassButtonNativeProps = Pick<
 type GlassButtonProps = GlassButtonNativeProps & {
   children: ReactNode;
   icon?: ReactNode;
+  size?: GlassButtonSize;
   variant?: GlassButtonVariant;
 };
 
@@ -24,6 +26,7 @@ function GlassButton({
   children,
   className,
   icon,
+  size = "default",
   type = "button",
   variant = "primary",
   ...buttonProps
@@ -35,7 +38,7 @@ function GlassButton({
   return (
     <button
       {...buttonProps}
-      className={getGlassButtonClassName({ className, variant })}
+      className={getGlassButtonClassName({ className, size, variant })}
       data-slot="glass-button"
       ref={buttonRef}
       type={type}
@@ -45,4 +48,9 @@ function GlassButton({
   );
 }
 
-export { GlassButton, type GlassButtonProps, type GlassButtonVariant };
+export {
+  GlassButton,
+  type GlassButtonProps,
+  type GlassButtonSize,
+  type GlassButtonVariant
+};
