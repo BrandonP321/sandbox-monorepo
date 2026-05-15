@@ -57,6 +57,7 @@
 
 * {
   box-sizing: border-box;
+  scroll-behavior: smooth;
 }
 
 html,
@@ -171,7 +172,6 @@ a {
   min-width: 0;
   gap: 0.2rem;
   padding: 0;
-  overflow-x: auto;
   border: 1px solid rgb(255 255 255 / 0.16);
   border-radius: 999px;
   background: var(--portfolio-background-glass);
