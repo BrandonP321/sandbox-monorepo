@@ -3,12 +3,28 @@ import type { ReactNode } from "react";
 import type * as React from "react";
 
 import { ContentHeader } from "../ContentHeader";
+import { ProgressiveResponsiveImage } from "../ProgressiveResponsiveImage";
+import type { ProgressiveResponsiveImageSource } from "../ProgressiveResponsiveImage";
+import purpleBlackHoleDesktopLowResUrl from "./assets/purple-blackhole-desktop-low-res.jpg";
 import purpleBlackHoleDesktopUrl from "./assets/purple-blackhole-desktop.jpg";
+import purpleBlackHoleMobileLowResUrl from "./assets/purple-blackhole-mobile-low-res.jpg";
 import purpleBlackHoleMobileUrl from "./assets/purple-blackhole-mobile.jpg";
 import { getBlackHoleParallaxCenterY } from "./parallax";
 
-const desktopBlackHoleUrl = purpleBlackHoleDesktopUrl;
-const mobileBlackHoleUrl = purpleBlackHoleMobileUrl;
+const blackHoleImageSources = [
+  {
+    media: "(max-width: 720px)",
+    lowResSrc: purpleBlackHoleMobileLowResUrl,
+    src: purpleBlackHoleMobileUrl
+  },
+  {
+    lowResSrc: purpleBlackHoleDesktopLowResUrl,
+    src: purpleBlackHoleDesktopUrl
+  }
+] satisfies [
+  ProgressiveResponsiveImageSource,
+  ...ProgressiveResponsiveImageSource[]
+];
 
 type HeroSectionNativeProps = Pick<
   React.ComponentProps<"section">,
@@ -85,15 +101,12 @@ function HeroSection({ className, description, title }: HeroSectionProps) {
         data-slot="hero-black-hole"
         ref={blackHoleRef}
       >
-        <picture>
-          <source media="(max-width: 720px)" srcSet={mobileBlackHoleUrl} />
-          <img
-            alt=""
-            className="portfolio-hero-section__black-hole-image"
-            data-slot="hero-black-hole-image"
-            src={desktopBlackHoleUrl}
-          />
-        </picture>
+        <ProgressiveResponsiveImage
+          alt=""
+          className="portfolio-hero-section__black-hole-image"
+          dataSlot="hero-black-hole-image"
+          sources={blackHoleImageSources}
+        />
       </div>
     </section>
   );

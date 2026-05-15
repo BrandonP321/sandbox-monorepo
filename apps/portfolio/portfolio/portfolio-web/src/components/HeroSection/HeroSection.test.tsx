@@ -1,8 +1,29 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { HeroSection } from "./HeroSection";
 import { getBlackHoleParallaxCenterY } from "./parallax";
+
+const originalMatchMedia = window.matchMedia;
+
+function setMatchMedia(matches: boolean) {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: vi.fn((media: string) => ({
+      addEventListener: vi.fn(),
+      matches,
+      media,
+      removeEventListener: vi.fn()
+    }))
+  });
+}
+
+afterEach(() => {
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: originalMatchMedia
+  });
+});
 
 describe("HeroSection", () => {
   it("renders the hero title and description", () => {
@@ -37,16 +58,21 @@ describe("HeroSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("provides a small-screen black hole source", () => {
+  it("uses a small-screen low-res black hole image while the full-res image loads", () => {
+    setMatchMedia(true);
+
     const { container } = render(
       <HeroSection description="Portfolio introduction." title="Portfolio" />
     );
 
-    const mobileSource = container.querySelector(
-      'source[media="(max-width: 720px)"]'
+    const blackHoleImage = container.querySelector(
+      '[data-slot="hero-black-hole-image"]'
     );
 
-    expect(mobileSource).toHaveAttribute("srcset");
+    expect(blackHoleImage).toHaveAttribute(
+      "src",
+      expect.stringContaining("purple-blackhole-mobile-low-res.jpg")
+    );
   });
 
   it("supports a caller-provided class name", () => {
