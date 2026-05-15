@@ -24,8 +24,9 @@ export const PageHeader: Story = {};
 export const SectionHeader: Story = {
   args: {
     description: "Focused tools built from the sandbox monorepo.",
+    eyebrow: "Latest personal project",
     headingLevel: 2,
-    title: "Projects"
+    title: "Signal Tracker"
   }
 };
 

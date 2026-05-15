@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import App from "./App";
@@ -18,34 +18,42 @@ describe("App", () => {
         "Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
       )
     ).toBeInTheDocument();
+    const nav = screen.getByRole("navigation", { name: "Portfolio sections" });
+
+    expect(nav).toBeInTheDocument();
     expect(
-      screen.getByRole("navigation", { name: "Portfolio sections" })
-    ).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Intro" })).toHaveAttribute(
+      within(nav).getByRole("link", { name: "Experience" })
+    ).toHaveAttribute("href", "#experience");
+    expect(within(nav).getByRole("link", { name: "Project" })).toHaveAttribute(
       "href",
-      "#intro"
+      "#latest-project"
     );
-    expect(screen.getByRole("link", { name: "Experience" })).toHaveAttribute(
+    expect(within(nav).getByRole("link", { name: "Resume" })).toHaveAttribute(
       "href",
-      "#experience"
+      expect.stringContaining("resume.pdf")
+    );
+    expect(within(nav).getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "target",
+      "_blank"
+    );
+    expect(within(nav).getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "rel",
+      "noreferrer"
     );
     expect(document.getElementById("intro")).toBeInTheDocument();
     expect(document.getElementById("experience")).toBeInTheDocument();
-    expect(document.getElementById("preview-1-projects")).toBeInTheDocument();
-    expect(document.getElementById("preview-1-writing")).toBeInTheDocument();
+    expect(document.getElementById("latest-project")).toBeInTheDocument();
     expect(screen.getByRole("main")).toHaveAttribute(
       "data-slot",
       "portfolio-scroll-container"
     );
     expect(
-      screen.getByRole("region", { name: "Portfolio preview content" })
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByRole("region", { name: /^Portfolio preview content/ })
-    ).toHaveLength(1);
-    expect(
       screen.getByRole("region", { name: "Experience" })
     ).toBeInTheDocument();
+    expect(
+      screen.getByRole("region", { name: "Signal Tracker" })
+    ).toBeInTheDocument();
+    expect(screen.getByText("Latest personal project")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         level: 3,
@@ -53,19 +61,11 @@ describe("App", () => {
       })
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole("heading", { level: 2, name: "Below the fold" })
-    ).toHaveLength(1);
-    expect(
-      screen.getAllByRole("heading", { level: 3, name: "Projects" })
-    ).toHaveLength(1);
-    expect(
-      screen.getAllByRole("heading", { level: 3, name: "Writing" })
-    ).toHaveLength(1);
-    expect(
-      screen.getAllByText(
-        "Temporary content for reviewing how the hero graphic reveals itself while scrolling."
-      )
-    ).toHaveLength(1);
+      screen.getByRole("heading", {
+        level: 3,
+        name: "Signal Tracker workflow"
+      })
+    ).toBeInTheDocument();
   });
 
   it("sets page metadata through ui-base", () => {
@@ -76,8 +76,6 @@ describe("App", () => {
       document
         .querySelector('meta[name="description"]')
         ?.getAttribute("content")
-    ).toBe(
-      "Portfolio for Brandon Phillips: experience, projects, and writing."
-    );
+    ).toBe("Portfolio for Brandon Phillips: experience and projects.");
   });
 });

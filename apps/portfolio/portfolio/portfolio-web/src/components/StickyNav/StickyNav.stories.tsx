@@ -7,7 +7,8 @@ const navItems = [
   { href: "#intro", label: "Intro" },
   { href: "#experience", label: "Experience" },
   { href: "#projects", label: "Projects" },
-  { href: "#writing", label: "Writing" }
+  { href: "#writing", label: "Writing" },
+  { href: "/resume.pdf", label: "Resume", openInNewTab: true }
 ] satisfies [StickyNavItem, ...StickyNavItem[]];
 
 const meta = {

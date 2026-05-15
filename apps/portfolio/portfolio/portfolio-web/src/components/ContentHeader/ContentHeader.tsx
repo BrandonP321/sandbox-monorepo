@@ -11,6 +11,7 @@ type ContentHeaderProps = ContentHeaderNativeProps & {
   actions?: ReactNode;
   alignActions?: ContentHeaderActionsAlignment;
   description?: ReactNode;
+  eyebrow?: ReactNode;
   headingLevel?: ContentHeaderHeadingLevel;
   title: ReactNode;
 };
@@ -20,6 +21,7 @@ function ContentHeader({
   alignActions = "top",
   className,
   description,
+  eyebrow,
   headingLevel = 1,
   title
 }: ContentHeaderProps) {
@@ -32,6 +34,14 @@ function ContentHeader({
       data-slot="content-header"
     >
       <div className="portfolio-content-header__body">
+        {eyebrow ? (
+          <p
+            className="portfolio-content-header__eyebrow"
+            data-slot="content-header-eyebrow"
+          >
+            {eyebrow}
+          </p>
+        ) : null}
         <ContentHeaderHeading headingLevel={headingLevel}>
           {title}
         </ContentHeaderHeading>

@@ -7,6 +7,7 @@ export * from "./GlassButton";
 export * from "./GlassButtonLink";
 export * from "./GlassContainer";
 export * from "./HeroSection";
+export * from "./LatestProjectSection";
 export * from "./LinkedInButton";
 export * from "./ProgressiveResponsiveImage";
 export * from "./ResumeButton";

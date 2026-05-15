@@ -1,43 +1,24 @@
 import { PageSeo } from "@repo/ui-base/seo";
 
 import {
-  ContentHeader,
   ExperienceSection,
-  GlassButton,
-  GlassContainer,
   HeroSection,
+  LatestProjectSection,
   StickyNav
 } from "./components";
-
-const placeholderSections = [
-  {
-    body: "A temporary project surface for checking scroll pacing, section spacing, and how cards sit beneath the hero graphic.",
-    id: "projects",
-    title: "Projects"
-  },
-  {
-    body: "Room for writing, notes, or case-study entries once the portfolio content direction is ready.",
-    id: "writing",
-    title: "Writing"
-  }
-] as const;
-
-const placeholderSectionInstances = [
-  { ariaLabel: "Portfolio preview content", id: "preview-1" }
-] as const;
+import resumePdfUrl from "./components/ResumeButton/assets/resume.pdf";
 
 const portfolioNavItems = [
-  { href: "#intro", label: "Intro" },
-  { href: "#experience", label: "Experience" },
-  { href: "#preview-1-projects", label: "Projects" },
-  { href: "#preview-1-writing", label: "Writing" }
+  { href: "#experience", label: "Experience", openInNewTab: false },
+  { href: "#latest-project", label: "Project", openInNewTab: false },
+  { href: resumePdfUrl, label: "Resume", openInNewTab: true }
 ] as const;
 
 export default function App() {
   return (
     <>
       <PageSeo
-        description="Portfolio for Brandon Phillips: experience, projects, and writing."
+        description="Portfolio for Brandon Phillips: experience and projects."
         title="Portfolio"
         titleSuffix="Brandon Phillips"
       />
@@ -52,63 +33,8 @@ export default function App() {
 
         <ExperienceSection id="experience" />
 
-        {placeholderSectionInstances.map((section) => (
-          <PlaceholderSection
-            ariaLabel={section.ariaLabel}
-            idPrefix={section.id}
-            key={section.id}
-          />
-        ))}
+        <LatestProjectSection id="latest-project" />
       </main>
     </>
-  );
-}
-
-type PlaceholderSectionProps = {
-  ariaLabel: string;
-  idPrefix: string;
-};
-
-function PlaceholderSection({ ariaLabel, idPrefix }: PlaceholderSectionProps) {
-  return (
-    <section aria-label={ariaLabel} className="portfolio-scroll-preview">
-      <div
-        style={{
-          display: "flex",
-          gap: "1rem",
-          paddingBottom: "2rem",
-          justifyContent: "end"
-        }}
-      >
-        <GlassButton variant="primary">Primary</GlassButton>
-        <GlassButton variant="secondary">Secondary</GlassButton>
-      </div>
-      <GlassContainer>
-        <ContentHeader
-          title="Below the fold"
-          headingLevel={2}
-          description="Temporary content for reviewing how the hero graphic reveals itself while scrolling."
-        />
-
-        <div className="portfolio-grid">
-          {placeholderSections.map((section) => {
-            const sectionId = `${idPrefix}-${section.id}`;
-            const headingId = `${sectionId}-title`;
-
-            return (
-              <article
-                aria-labelledby={headingId}
-                className="portfolio-section"
-                id={sectionId}
-                key={section.id}
-              >
-                <h3 id={headingId}>{section.title}</h3>
-                <p>{section.body}</p>
-              </article>
-            );
-          })}
-        </div>
-      </GlassContainer>
-    </section>
   );
 }

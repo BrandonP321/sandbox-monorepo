@@ -22,6 +22,24 @@ describe("ContentHeader", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders an optional eyebrow before the heading", () => {
+    render(
+      <ContentHeader
+        eyebrow="Latest personal project"
+        headingLevel={2}
+        title="Signal Tracker"
+      />
+    );
+
+    expect(screen.getByText("Latest personal project")).toHaveAttribute(
+      "data-slot",
+      "content-header-eyebrow"
+    );
+    expect(
+      screen.getByRole("heading", { level: 2, name: "Signal Tracker" })
+    ).toBeInTheDocument();
+  });
+
   it("uses the requested semantic heading level", () => {
     render(<ContentHeader headingLevel={3} title="Section" />);
 

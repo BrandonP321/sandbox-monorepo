@@ -7,7 +7,8 @@ import type { StickyNavItem } from "./StickyNav";
 const navItems = [
   { href: "#intro", label: "Intro" },
   { href: "#experience", label: "Experience" },
-  { href: "#projects", label: "Projects" }
+  { href: "#projects", label: "Projects" },
+  { href: "/resume.pdf", label: "Resume", openInNewTab: true }
 ] satisfies [StickyNavItem, ...StickyNavItem[]];
 
 afterEach(() => {
@@ -28,6 +29,21 @@ describe("StickyNav", () => {
     expect(screen.getByRole("link", { name: "Experience" })).toHaveAttribute(
       "href",
       "#experience"
+    );
+    expect(screen.getByRole("link", { name: "Projects" })).not.toHaveAttribute(
+      "target"
+    );
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "href",
+      "/resume.pdf"
+    );
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "target",
+      "_blank"
+    );
+    expect(screen.getByRole("link", { name: "Resume" })).toHaveAttribute(
+      "rel",
+      "noreferrer"
     );
   });
 

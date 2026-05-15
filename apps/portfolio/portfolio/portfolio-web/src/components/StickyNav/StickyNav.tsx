@@ -4,6 +4,7 @@ import type * as React from "react";
 type StickyNavItem = {
   href: string;
   label: string;
+  openInNewTab?: boolean;
 };
 
 type StickyNavNativeProps = Pick<
@@ -122,6 +123,8 @@ function StickyNav({
                 event.currentTarget
               );
             }}
+            rel={item.openInNewTab ? "noreferrer" : undefined}
+            target={item.openInNewTab ? "_blank" : undefined}
           >
             {item.label}
           </a>
