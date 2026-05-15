@@ -2,17 +2,13 @@ import { PageSeo } from "@repo/ui-base/seo";
 
 import {
   ContentHeader,
+  ExperienceSection,
   GlassButton,
   GlassContainer,
   HeroSection
 } from "./components";
 
 const placeholderSections = [
-  {
-    body: "Placeholder copy for future project and experience detail. This block is here to test how the black hole continues below the fold.",
-    id: "experience",
-    title: "Experience"
-  },
   {
     body: "A temporary project surface for checking scroll pacing, section spacing, and how cards sit beneath the hero graphic.",
     id: "projects",
@@ -26,10 +22,7 @@ const placeholderSections = [
 ] as const;
 
 const placeholderSectionInstances = [
-  { ariaLabel: "Portfolio preview content", id: "preview-1" },
-  { ariaLabel: "Portfolio preview content 2", id: "preview-2" },
-  { ariaLabel: "Portfolio preview content 3", id: "preview-3" },
-  { ariaLabel: "Portfolio preview content 4", id: "preview-4" }
+  { ariaLabel: "Portfolio preview content", id: "preview-1" }
 ] as const;
 
 export default function App() {
@@ -45,6 +38,8 @@ export default function App() {
           description="Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
           title="Brandon Phillips"
         />
+
+        <ExperienceSection />
 
         {placeholderSectionInstances.map((section) => (
           <PlaceholderSection
