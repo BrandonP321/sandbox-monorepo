@@ -5,7 +5,7 @@ import resumePdfUrl from "./assets/resume.pdf";
 
 type ResumeButtonProps = Pick<GlassButtonLinkProps, "variant">;
 
-export function ResumeButton({ variant = "primary" }: ResumeButtonProps) {
+export function ResumeButton({ variant = "secondary" }: ResumeButtonProps) {
   return (
     <GlassButtonLink
       href={resumePdfUrl}

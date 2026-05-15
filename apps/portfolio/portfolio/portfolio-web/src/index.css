@@ -194,6 +194,10 @@ a {
   --portfolio-glass-button-glow-shadow-x: 0;
   --portfolio-glass-button-glow-shadow-y: 1;
   --portfolio-glass-button-glow-strength: 1;
+  --portfolio-glass-button-icon-color: var(--portfolio-accent);
+  --portfolio-glass-button-icon-hover-color: var(
+    --portfolio-glass-button-icon-color
+  );
   --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.2);
   --portfolio-glass-button-rim-boost-gradient: conic-gradient(
     from calc(var(--portfolio-glass-button-accent-angle) - 34deg),
@@ -322,6 +326,12 @@ a {
   --portfolio-glass-button-accent-rgb: 255 255 255;
   --portfolio-glass-button-accent-strong: rgb(255 255 255 / 0.3);
   --portfolio-glass-button-border: rgb(255 255 255 / 0.26);
+  --portfolio-glass-button-icon-color: color-mix(
+    in srgb,
+    currentColor 72%,
+    transparent
+  );
+  --portfolio-glass-button-icon-hover-color: currentColor;
   --portfolio-glass-button-rim-end: rgb(255 255 255 / 0.18);
   --portfolio-glass-button-rim-start: rgb(255 255 255 / 0.3);
 }
@@ -343,8 +353,13 @@ a {
   width: 1.2rem;
   height: 1.2rem;
   flex: 0 0 auto;
-  color: var(--portfolio-accent);
+  color: var(--portfolio-glass-button-icon-color);
   line-height: 1;
+  transition: color 160ms ease;
+}
+
+.portfolio-glass-button:not(:disabled):hover .portfolio-glass-button__icon {
+  color: var(--portfolio-glass-button-icon-hover-color);
 }
 
 .portfolio-glass-button__icon > svg {
@@ -410,6 +425,19 @@ a {
 
 .portfolio-content-header__actions--bottom {
   align-self: flex-end;
+}
+
+.portfolio-actions-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.portfolio-actions-container > * {
+  flex: 0 0 auto;
 }
 
 .portfolio-hero-section {

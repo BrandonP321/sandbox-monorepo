@@ -22,6 +22,12 @@ describe("ExperienceSection", () => {
       within(section).getByRole("link", { name: "Resume" })
     ).toHaveAttribute("href", expect.stringContaining("resume.pdf"));
     expect(
+      within(section).getByRole("link", { name: "LinkedIn" })
+    ).toHaveAttribute(
+      "href",
+      "https://www.linkedin.com/in/brandon-phillips-dev"
+    );
+    expect(
       within(section).getByRole("heading", {
         level: 3,
         name: "Software Development Engineer - AWS"
@@ -57,6 +63,16 @@ describe("ExperienceSection", () => {
 
     expect(
       container.querySelector('[data-slot="glass-container"]')
+    ).toBeInTheDocument();
+  });
+
+  it("groups header actions in a wrapping actions container", () => {
+    const { container } = render(<ExperienceSection />);
+
+    expect(
+      container.querySelector(
+        '[data-slot="content-header-actions"] [data-slot="actions-container"]'
+      )
     ).toBeInTheDocument();
   });
 });

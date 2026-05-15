@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -65,6 +67,23 @@ describe("GlassButton", () => {
     );
 
     expect(screen.getByRole("button", { name: "Contact" })).toBeDisabled();
+  });
+
+  it("keeps secondary icons aligned with the text color instead of the accent", () => {
+    const css = readFileSync("src/index.css", "utf8");
+
+    expect(css).toMatch(
+      /\.portfolio-glass-button__icon\s*{[\s\S]*color: var\(--portfolio-glass-button-icon-color\);/
+    );
+    expect(css).toMatch(
+      /\.portfolio-glass-button--secondary\s*{[\s\S]*--portfolio-glass-button-icon-color: color-mix\([\s\S]*currentColor 72%,/
+    );
+    expect(css).toMatch(
+      /\.portfolio-glass-button--secondary\s*{[\s\S]*--portfolio-glass-button-icon-hover-color: currentColor;/
+    );
+    expect(css).toMatch(
+      /\.portfolio-glass-button:not\(:disabled\):hover \.portfolio-glass-button__icon\s*{[\s\S]*color: var\(--portfolio-glass-button-icon-hover-color\);/
+    );
   });
 
   it("sets accent variables toward the hero black hole image", () => {

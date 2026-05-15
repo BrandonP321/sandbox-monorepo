@@ -1,12 +1,14 @@
 import type * as React from "react";
 
+import { ActionsContainer } from "../ActionsContainer";
 import { ContentHeader } from "../ContentHeader";
 import { GlassContainer } from "../GlassContainer";
+import { LinkedInButton } from "../LinkedInButton";
+import { ResumeButton } from "../ResumeButton";
 import amazonLogoUrl from "./assets/amazon-logo.png";
 import awsLogoUrl from "./assets/aws-logo.png";
 import bungieLogoUrl from "./assets/bungie-logo.png";
 import startupLogoUrl from "./assets/startup-logo.png";
-import { ResumeButton } from "../ResumeButton";
 
 type ExperienceSectionNativeProps = Pick<
   React.ComponentProps<"section">,
@@ -74,7 +76,12 @@ function ExperienceSection({ className }: ExperienceSectionProps) {
     >
       <GlassContainer className="portfolio-experience-section__panel">
         <ContentHeader
-          actions={<ResumeButton />}
+          actions={
+            <ActionsContainer>
+              <LinkedInButton variant="primary" />
+              <ResumeButton />
+            </ActionsContainer>
+          }
           alignActions="top"
           className="portfolio-experience-section__header"
           description="A brief timeline of engineering roles, with placeholder details until the final copy is ready."
