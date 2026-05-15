@@ -45,16 +45,19 @@ describe("StickyNav", () => {
     expect(nav).toHaveAttribute("data-slider-motion", "false");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-left")
-    ).toBe("90px");
+    ).toBe("88px");
+    expect(
+      nav.style.getPropertyValue("--portfolio-sticky-nav-slider-shadow-x")
+    ).toBe("-0.135");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-top")
-    ).toBe("4px");
+    ).toBe("2px");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-width")
-    ).toBe("112px");
+    ).toBe("114px");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-height")
-    ).toBe("42px");
+    ).toBe("44px");
   });
 
   it("only enables position transitions while moving between hovered links", () => {
@@ -72,10 +75,34 @@ describe("StickyNav", () => {
     expect(nav).toHaveAttribute("data-slider-motion", "true");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-left")
-    ).toBe("202px");
+    ).toBe("200px");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-width")
-    ).toBe("90px");
+    ).toBe("92px");
+    expect(
+      nav.style.getPropertyValue("--portfolio-sticky-nav-slider-shadow-x")
+    ).toBe("0.757");
+  });
+
+  it("updates the slider glow direction based on the hovered link position", () => {
+    mockNavRects();
+    render(<StickyNav items={navItems} />);
+
+    const nav = screen.getByRole("navigation", {
+      name: "Portfolio sections"
+    });
+
+    fireEvent.mouseEnter(screen.getByRole("link", { name: "Intro" }));
+
+    expect(
+      nav.style.getPropertyValue("--portfolio-sticky-nav-slider-shadow-x")
+    ).toBe("-0.917");
+
+    fireEvent.mouseEnter(screen.getByRole("link", { name: "Projects" }));
+
+    expect(
+      nav.style.getPropertyValue("--portfolio-sticky-nav-slider-shadow-x")
+    ).toBe("0.757");
   });
 
   it("hides the slider after leaving the nav", () => {
@@ -93,14 +120,50 @@ describe("StickyNav", () => {
     expect(nav).toHaveAttribute("data-slider-motion", "false");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-left")
-    ).toBe("202px");
+    ).toBe("200px");
     expect(
       nav.style.getPropertyValue("--portfolio-sticky-nav-slider-width")
-    ).toBe("90px");
+    ).toBe("92px");
   });
 });
 
 function mockNavRects() {
+  const originalGetComputedStyle = window.getComputedStyle.bind(window);
+
+  vi.spyOn(window, "getComputedStyle").mockImplementation(
+    (element, pseudoElement) => {
+      const elementStyle = originalGetComputedStyle(element, pseudoElement);
+
+      if ((element as HTMLElement).dataset.slot !== "sticky-nav") {
+        return elementStyle;
+      }
+
+      return new Proxy(elementStyle, {
+        get(target, property, receiver) {
+          if (property === "borderBottomWidth") {
+            return "1px";
+          }
+
+          if (property === "borderLeftWidth") {
+            return "1px";
+          }
+
+          if (property === "borderRightWidth") {
+            return "1px";
+          }
+
+          if (property === "borderTopWidth") {
+            return "1px";
+          }
+
+          const value = Reflect.get(target, property, receiver);
+
+          return typeof value === "function" ? value.bind(target) : value;
+        }
+      }) as CSSStyleDeclaration;
+    }
+  );
+
   vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
     function getMockRect(this: HTMLElement) {
       if (this.dataset.slot === "sticky-nav") {

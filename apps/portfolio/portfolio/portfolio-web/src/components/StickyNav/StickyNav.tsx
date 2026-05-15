@@ -18,6 +18,7 @@ type StickyNavProps = StickyNavNativeProps & {
 type SliderPosition = {
   height: number;
   left: number;
+  shadowX: number;
   top: number;
   width: number;
 };
@@ -25,6 +26,7 @@ type SliderPosition = {
 type StickyNavStyle = React.CSSProperties & {
   "--portfolio-sticky-nav-slider-height"?: string;
   "--portfolio-sticky-nav-slider-left"?: string;
+  "--portfolio-sticky-nav-slider-shadow-x"?: string;
   "--portfolio-sticky-nav-slider-top"?: string;
   "--portfolio-sticky-nav-slider-width"?: string;
 };
@@ -47,12 +49,16 @@ function StickyNav({
   ) => {
     const navRect = navElement.getBoundingClientRect();
     const linkRect = linkElement.getBoundingClientRect();
+    const borderWidths = getElementBorderWidths(navElement);
 
+    // Absolute children are positioned from the nav's padding edge, while
+    // getBoundingClientRect measures from the outside edge of the nav border.
     setSliderPosition({
-      height: linkRect.height,
-      left: linkRect.left - navRect.left,
-      top: linkRect.top - navRect.top,
-      width: linkRect.width
+      height: linkRect.height + borderWidths.top + borderWidths.bottom,
+      left: linkRect.left - navRect.left - borderWidths.left * 2,
+      shadowX: getSliderShadowX({ linkRect, navRect }),
+      top: linkRect.top - navRect.top - borderWidths.top * 2,
+      width: linkRect.width + borderWidths.left + borderWidths.right
     });
     setShouldAnimateSliderPosition(isSliderVisible);
     setIsSliderVisible(true);
@@ -67,6 +73,9 @@ function StickyNav({
     ? ({
         "--portfolio-sticky-nav-slider-height": `${sliderPosition.height}px`,
         "--portfolio-sticky-nav-slider-left": `${sliderPosition.left}px`,
+        "--portfolio-sticky-nav-slider-shadow-x": formatCssNumber(
+          sliderPosition.shadowX
+        ),
         "--portfolio-sticky-nav-slider-top": `${sliderPosition.top}px`,
         "--portfolio-sticky-nav-slider-width": `${sliderPosition.width}px`
       } satisfies StickyNavStyle)
@@ -120,6 +129,45 @@ function StickyNav({
       </nav>
     </div>
   );
+}
+
+function getElementBorderWidths(element: HTMLElement) {
+  const elementStyle = window.getComputedStyle(element);
+
+  return {
+    bottom: getPixelValue(elementStyle.borderBottomWidth),
+    left: getPixelValue(elementStyle.borderLeftWidth),
+    right: getPixelValue(elementStyle.borderRightWidth),
+    top: getPixelValue(elementStyle.borderTopWidth)
+  };
+}
+
+function getPixelValue(value: string) {
+  const parsedValue = Number.parseFloat(value);
+
+  return Number.isFinite(parsedValue) ? parsedValue : 0;
+}
+
+function getSliderShadowX({
+  linkRect,
+  navRect
+}: {
+  linkRect: DOMRect;
+  navRect: DOMRect;
+}) {
+  const navCenterX = navRect.left + navRect.width / 2;
+  const linkCenterX = linkRect.left + linkRect.width / 2;
+  const maxCenterDistance = Math.max(navRect.width / 2 - linkRect.width / 2, 1);
+
+  return clamp((linkCenterX - navCenterX) / maxCenterDistance, -1, 1);
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function formatCssNumber(value: number) {
+  return Number(value.toFixed(3)).toString();
 }
 
 export { StickyNav, type StickyNavItem, type StickyNavProps };
