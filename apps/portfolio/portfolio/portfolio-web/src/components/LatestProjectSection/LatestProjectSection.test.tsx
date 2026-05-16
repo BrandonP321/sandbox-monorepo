@@ -59,6 +59,15 @@ describe("LatestProjectSection", () => {
       within(section).getByRole("link", { name: "Codebase" })
     ).toHaveAttribute("rel", "noreferrer");
     expect(
+      within(section).getByRole("link", { name: "Dashboard UI" })
+    ).toHaveAttribute("href", "https://d1m6bok2tskoqv.cloudfront.net/");
+    expect(
+      within(section).getByRole("link", { name: "Dashboard UI" })
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      within(section).getByRole("link", { name: "Dashboard UI" })
+    ).toHaveAttribute("rel", "noreferrer");
+    expect(
       within(section).getByRole("link", { name: "Deployed App" })
     ).toHaveAttribute("href", "https://d36eqszg4ubv0g.cloudfront.net/");
     expect(
@@ -70,7 +79,7 @@ describe("LatestProjectSection", () => {
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Implementation highlights"
+        name: "Development Details"
       })
     ).toBeInTheDocument();
     expect(
@@ -100,7 +109,7 @@ describe("LatestProjectSection", () => {
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Product features"
+        name: "Features"
       })
     ).toBeInTheDocument();
     expect(

@@ -2,7 +2,7 @@ import type * as React from "react";
 
 import { ActionsContainer } from "../ActionsContainer";
 import { ContentHeader } from "../ContentHeader";
-import { GlassButtonLink } from "../GlassButtonLink";
+import { GlassButtonLink, type GlassButtonLinkProps } from "../GlassButtonLink";
 import { GlassContainer } from "../GlassContainer";
 import {
   EvidenceBackedEntriesDetail,
@@ -117,30 +117,21 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
         <ContentHeader
           actions={
             <ActionsContainer aria-label="Signal Tracker links">
-              <GlassButtonLink
-                href="https://drive.google.com/drive/folders/16VAZNP9MZSc_yKdZP1shB3ofi0jhPF2e"
-                rel="noreferrer"
-                target="_blank"
+              <ProjectLink
                 variant="primary"
-              >
-                Documentation
-              </GlassButtonLink>
-              <GlassButtonLink
-                href="https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker"
-                rel="noreferrer"
-                target="_blank"
-                variant="secondary"
-              >
-                Codebase
-              </GlassButtonLink>
-              <GlassButtonLink
                 href="https://d36eqszg4ubv0g.cloudfront.net/"
-                rel="noreferrer"
-                target="_blank"
-                variant="secondary"
               >
                 Deployed App
-              </GlassButtonLink>
+              </ProjectLink>
+              <ProjectLink href="https://d1m6bok2tskoqv.cloudfront.net/">
+                Dashboard UI
+              </ProjectLink>
+              <ProjectLink href="https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker">
+                Codebase
+              </ProjectLink>
+              <ProjectLink href="https://drive.google.com/drive/folders/16VAZNP9MZSc_yKdZP1shB3ofi0jhPF2e">
+                Documentation
+              </ProjectLink>
             </ActionsContainer>
           }
           alignActions="top"
@@ -156,17 +147,31 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
         <ProjectHighlightSubsection
           highlights={featureHighlights}
           id="signal-tracker-features"
-          title="Product features"
+          title="Features"
           description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
         />
         <ProjectHighlightSubsection
           highlights={implementationHighlights}
           id="signal-tracker-highlights"
-          title="Implementation highlights"
+          title="Development Details"
           description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
         />
       </GlassContainer>
     </section>
+  );
+}
+
+function ProjectLink({
+  variant = "secondary",
+  ...props
+}: Pick<GlassButtonLinkProps, "href" | "children" | "variant">) {
+  return (
+    <GlassButtonLink
+      {...props}
+      variant={variant}
+      rel="noreferrer"
+      target="_blank"
+    />
   );
 }
 
