@@ -876,16 +876,37 @@ a {
 }
 
 .portfolio-latest-project-section__header {
+  align-items: stretch;
+  flex-direction: column;
   max-width: none;
 }
 
 .portfolio-latest-project-section__header .portfolio-content-header__body {
-  max-width: 40rem;
+  flex: 0 1 auto;
+  width: 100%;
+  max-width: none;
+}
+
+.portfolio-latest-project-section__header .portfolio-content-header__heading,
+.portfolio-latest-project-section__header
+  .portfolio-content-header__description {
+  width: 100%;
+  max-width: none;
 }
 
 .portfolio-latest-project-section__header .portfolio-content-header__heading {
-  max-width: 10ch;
   font-size: clamp(2.8rem, 7vw, 5rem);
+}
+
+.portfolio-latest-project-section__header .portfolio-content-header__actions {
+  width: 100%;
+  margin-left: 0;
+  justify-content: flex-start;
+}
+
+.portfolio-latest-project-section__header .portfolio-actions-container {
+  width: 100%;
+  justify-content: flex-start;
 }
 
 .portfolio-latest-project-section__highlight-header {

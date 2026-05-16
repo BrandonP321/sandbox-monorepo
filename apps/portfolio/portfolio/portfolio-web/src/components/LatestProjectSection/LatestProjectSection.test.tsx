@@ -35,11 +35,38 @@ describe("LatestProjectSection", () => {
       3
     );
     expect(
-      within(section).getByRole("link", { name: "Highlights" })
-    ).toHaveAttribute("href", "#signal-tracker-workflow");
+      within(section).getByRole("link", { name: "Documentation" })
+    ).toHaveAttribute(
+      "href",
+      "https://drive.google.com/drive/folders/16VAZNP9MZSc_yKdZP1shB3ofi0jhPF2e"
+    );
     expect(
-      within(section).getByRole("link", { name: "Infrastructure" })
-    ).toHaveAttribute("href", "#signal-tracker-infrastructure");
+      within(section).getByRole("link", { name: "Documentation" })
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      within(section).getByRole("link", { name: "Documentation" })
+    ).toHaveAttribute("rel", "noreferrer");
+    expect(
+      within(section).getByRole("link", { name: "Codebase" })
+    ).toHaveAttribute(
+      "href",
+      "https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker"
+    );
+    expect(
+      within(section).getByRole("link", { name: "Codebase" })
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      within(section).getByRole("link", { name: "Codebase" })
+    ).toHaveAttribute("rel", "noreferrer");
+    expect(
+      within(section).getByRole("link", { name: "Deployed App" })
+    ).toHaveAttribute("href", "https://d36eqszg4ubv0g.cloudfront.net/");
+    expect(
+      within(section).getByRole("link", { name: "Deployed App" })
+    ).toHaveAttribute("target", "_blank");
+    expect(
+      within(section).getByRole("link", { name: "Deployed App" })
+    ).toHaveAttribute("rel", "noreferrer");
     expect(
       within(section).getByRole("heading", {
         level: 3,

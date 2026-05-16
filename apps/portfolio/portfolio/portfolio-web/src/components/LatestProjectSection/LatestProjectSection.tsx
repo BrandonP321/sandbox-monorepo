@@ -118,16 +118,28 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
           actions={
             <ActionsContainer aria-label="Signal Tracker links">
               <GlassButtonLink
-                href="#signal-tracker-workflow"
+                href="https://drive.google.com/drive/folders/16VAZNP9MZSc_yKdZP1shB3ofi0jhPF2e"
+                rel="noreferrer"
+                target="_blank"
                 variant="primary"
               >
-                Highlights
+                Documentation
               </GlassButtonLink>
               <GlassButtonLink
-                href="#signal-tracker-infrastructure"
+                href="https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker"
+                rel="noreferrer"
+                target="_blank"
                 variant="secondary"
               >
-                Infrastructure
+                Codebase
+              </GlassButtonLink>
+              <GlassButtonLink
+                href="https://d36eqszg4ubv0g.cloudfront.net/"
+                rel="noreferrer"
+                target="_blank"
+                variant="secondary"
+              >
+                Deployed App
               </GlassButtonLink>
             </ActionsContainer>
           }
