@@ -1,0 +1,35 @@
+{
+  "name": "dashboard-ui-storybook-infra",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node -e \"console.log('No dev server for infra.')\"",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy && pnpm --filter dashboard-ui-storybook-infra run publish:storybook",
+    "deploy:ci": "cdk deploy --require-approval never && pnpm --filter dashboard-ui-storybook-infra run publish:storybook",
+    "deploy:ci:no-build": "cdk deploy --require-approval never",
+    "publish:storybook": "node ../../../../scripts/publish-spa-assets.mjs --stack-name DashboardUiStorybookStack --web-filter @repo/dashboard-ui --build-script build-storybook --dist-path ../../../../packages/dashboard-ui/storybook-static --skip-api-base-url",
+    "destroy": "cdk destroy",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@repo/infra-patterns": "workspace:*",
+    "aws-cdk-lib": "^2.212.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-test": "workspace:*",
+    "@repo/config-ts": "workspace:*",
+    "@types/node": "^24.1.0",
+    "aws-cdk": "^2.212.0",
+    "eslint": "^9.39.2",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}

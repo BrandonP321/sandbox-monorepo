@@ -94,3 +94,42 @@ test("publishSpaAssets can publish a static app with no API URL", () => {
     "Published portfolio-web to https://portfolio.example.com"
   ]);
 });
+
+test("publishSpaAssets can use a custom build script", () => {
+  const calls = [];
+
+  publishSpaAssets(
+    [
+      "--stack-name",
+      "DashboardUiStorybookStack",
+      "--web-filter",
+      "@repo/dashboard-ui",
+      "--build-script",
+      "build-storybook",
+      "--dist-path",
+      "packages/dashboard-ui/storybook-static",
+      "--skip-api-base-url"
+    ],
+    {
+      env: {},
+      logger: { log: () => {} },
+      readStackOutput: (outputName) =>
+        ({
+          WebBucketName: "storybook-bucket",
+          WebDistributionId: "distribution-id",
+          WebUrl: "https://storybook.example.com"
+        })[outputName],
+      runner: (command, args, env) => {
+        calls.push({ args, command, env });
+      }
+    }
+  );
+
+  assert.equal(calls[0].command, "pnpm");
+  assert.deepEqual(calls[0].args, [
+    "--filter",
+    "@repo/dashboard-ui",
+    "run",
+    "build-storybook"
+  ]);
+});

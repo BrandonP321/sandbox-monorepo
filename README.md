@@ -52,7 +52,8 @@ On a fresh machine, configure AWS CLI SSO before attempting deployment:
 
 ## Repo Layout
 
-- `apps/*/*`: deployable apps (web, api, infra) grouped by collection
+- `apps/*/*`: deployable projects grouped by collection
+- `apps/*/*/*`: deployable packages inside those projects (web, api, infra)
 - `packages/*`: shared libraries and shared configs
 
 See REPO_MAP.md for details.

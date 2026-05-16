@@ -1,0 +1,30 @@
+name: dashboard-ui-storybook
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/platform/dashboard-ui-storybook/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/platform/dashboard-ui-storybook/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  dashboard-ui-storybook:
+    uses: ./.github/workflows/project-cicd.yml
+    with:
+      aws_region: us-east-1
+      deploy_pipeline_name: dashboard-ui-storybook-prod
+      deploy_pipeline_source_action_name: Source
+      project_root: apps/platform/dashboard-ui-storybook

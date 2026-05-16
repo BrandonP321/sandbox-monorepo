@@ -11,6 +11,7 @@ export function publishSpaAssets(rawArgs, options = {}) {
   const stackName = requireArg(args, "stack-name");
   const webFilter = requireArg(args, "web-filter");
   const distPath = requireArg(args, "dist-path");
+  const buildScript = args.get("build-script")?.trim() || "build";
   const shouldReadApiBaseUrl = !args.has("skip-api-base-url");
   const readStackOutput =
     options.readStackOutput ??
@@ -25,7 +26,7 @@ export function publishSpaAssets(rawArgs, options = {}) {
   const buildEnv = apiBaseUrl ? { ...env, VITE_API_BASE_URL: apiBaseUrl } : env;
   const runner = options.runner ?? run;
 
-  runner("pnpm", ["--filter", webFilter, "run", "build"], buildEnv);
+  runner("pnpm", ["--filter", webFilter, "run", buildScript], buildEnv);
   runner("aws", ["s3", "sync", distPath, `s3://${webBucketName}`, "--delete"]);
   runner("aws", [
     "cloudfront",

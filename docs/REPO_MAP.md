@@ -37,6 +37,9 @@
 /apps/portfolio/portfolio
   portfolio-web           # React/Vite portfolio site
   portfolio-infra         # AWS CDK static SPA hosting and deploy pipeline
+
+/apps/platform/dashboard-ui-storybook
+  dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui
 ```
 
 Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AGENTS.md`.
@@ -46,6 +49,9 @@ primitive system and `@repo/ui-base` for behavior-only primitives. Signal
 Tracker-specific components belong in `signal-tracker-web`.
 
 Portfolio-specific agent guidance lives in `apps/portfolio/portfolio/AGENTS.md`.
+
+Dashboard UI Storybook deployment guidance lives in
+`apps/platform/dashboard-ui-storybook/AGENTS.md`.
 
 ## Shared Frontend Surfaces
 
