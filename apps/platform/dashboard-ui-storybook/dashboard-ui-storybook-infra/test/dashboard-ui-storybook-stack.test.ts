@@ -1,5 +1,7 @@
 import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { DashboardUiStorybookStack } from "../lib/dashboard-ui-storybook-stack.js";
@@ -97,5 +99,21 @@ describe("DashboardUiStorybookStack", () => {
     expect(outputs).not.toHaveProperty("ApiBaseUrl");
     expect(outputs).toHaveProperty("WebBucketName");
     expect(outputs).toHaveProperty("WebDistributionId");
+  });
+
+  it("keeps deploy validation independent of native browser libraries", () => {
+    const validateBuildSpec = readFileSync(
+      join(process.cwd(), "buildspec.validate.yml"),
+      "utf8"
+    );
+
+    expect(validateBuildSpec).toContain(
+      "pnpm --filter @repo/dashboard-ui run test:unit"
+    );
+    expect(validateBuildSpec).toContain(
+      "pnpm --filter @repo/dashboard-ui run build-storybook"
+    );
+    expect(validateBuildSpec).not.toContain("playwright install");
+    expect(validateBuildSpec).not.toContain("@repo/dashboard-ui... run test");
   });
 });

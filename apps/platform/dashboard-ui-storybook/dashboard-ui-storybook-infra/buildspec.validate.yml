@@ -18,7 +18,7 @@ phases:
     commands:
       - pnpm -r --filter @repo/dashboard-ui... --filter dashboard-ui-storybook-infra... run lint
       - pnpm -r --filter @repo/dashboard-ui... --filter dashboard-ui-storybook-infra... run typecheck
-      - pnpm --filter @repo/dashboard-ui exec playwright install chromium
-      - pnpm -r --filter @repo/dashboard-ui... --filter dashboard-ui-storybook-infra... run test
+      - pnpm -r --filter @repo/dashboard-ui^... --filter dashboard-ui-storybook-infra... run test
+      - pnpm --filter @repo/dashboard-ui run test:unit
       - pnpm -r --workspace-concurrency=1 --filter @repo/dashboard-ui... --filter dashboard-ui-storybook-infra... run build
       - pnpm --filter @repo/dashboard-ui run build-storybook
