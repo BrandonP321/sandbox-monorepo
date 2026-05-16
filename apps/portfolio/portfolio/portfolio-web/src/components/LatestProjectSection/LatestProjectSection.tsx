@@ -4,6 +4,18 @@ import { ActionsContainer } from "../ActionsContainer";
 import { ContentHeader } from "../ContentHeader";
 import { GlassButtonLink } from "../GlassButtonLink";
 import { GlassContainer } from "../GlassContainer";
+import {
+  EvidenceBackedEntriesDetail,
+  LivingAssessmentsDetail,
+  ReviewProvenanceWorkflowDetail,
+  TopicDossiersDetail
+} from "./ProjectFeatureDetails";
+import {
+  AiOrchestratedWorkflowDetail,
+  AwsNativeDeliveryStackDetail,
+  FrontendPlatformDetail,
+  FullStackContractsDetail
+} from "./ProjectHighlightDetails";
 import { ProjectDetailDialog } from "./ProjectDetailDialog";
 
 type LatestProjectSectionNativeProps = Pick<
@@ -13,52 +25,83 @@ type LatestProjectSectionNativeProps = Pick<
 
 type LatestProjectSectionProps = LatestProjectSectionNativeProps;
 
-type ProjectHighlight = {
+type ProjectHighlightCardData = {
   description: string;
-  detail: string;
+  Detail: React.ComponentType;
   eyebrow: string;
   id: string;
   title: string;
 };
 
-const projectHighlights = [
+const implementationHighlights = [
   {
     description:
-      "Short placeholder copy for the main product problem this project solves.",
-    detail:
-      "Longer placeholder detail for the product thinking, workflow design, and tradeoffs behind this highlight.",
-    eyebrow: "Product system",
+      "Human-directed AI turns product docs, issue specs, and Codex tasks into a repeatable delivery loop.",
+    Detail: AiOrchestratedWorkflowDetail,
+    eyebrow: "Workflow",
     id: "signal-tracker-workflow",
-    title: "Signal Tracker workflow"
+    title: "AI-Orchestrated Workflow"
   },
   {
     description:
-      "Short placeholder copy for the app architecture and interaction model.",
-    detail:
-      "Longer placeholder detail for the frontend structure, API contracts, and reviewable boundaries behind this highlight.",
-    eyebrow: "Application design",
-    id: "signal-tracker-architecture",
-    title: "Composable app architecture"
+      "Shared contracts keep API routes, requests, responses, and validation aligned across frontend and backend.",
+    Detail: FullStackContractsDetail,
+    eyebrow: "Contracts",
+    id: "signal-tracker-contracts",
+    title: "Bone-DRY Full-Stack Contracts"
   },
   {
     description:
-      "Short placeholder copy for the infrastructure and delivery work behind the app.",
-    detail:
-      "Longer placeholder detail for deployment, validation, observability, and operational safeguards behind this highlight.",
-    eyebrow: "Infrastructure",
+      "Reusable UI primitives, form patterns, and server-state conventions make product screens faster to build.",
+    Detail: FrontendPlatformDetail,
+    eyebrow: "Frontend platform",
+    id: "signal-tracker-frontend-platform",
+    title: "Bone-DRY Frontend Platform"
+  },
+  {
+    description:
+      "CDK-managed AWS infrastructure deploys the web app, Lambda API, and Aurora PostgreSQL backend.",
+    Detail: AwsNativeDeliveryStackDetail,
+    eyebrow: "AWS delivery",
     id: "signal-tracker-infrastructure",
-    title: "Production-style infrastructure"
+    title: "AWS-Native Delivery Stack"
+  }
+] satisfies ProjectHighlightCardData[];
+
+const featureHighlights = [
+  {
+    description:
+      "Structured issue workspaces for tracking public-affairs topics without turning them into generic notes.",
+    Detail: TopicDossiersDetail,
+    eyebrow: "Workspace model",
+    id: "signal-tracker-topic-dossiers",
+    title: "Topic Dossiers"
   },
   {
     description:
-      "Short placeholder copy for evidence, citations, and complex data relationships.",
-    detail:
-      "Longer placeholder detail for data modeling, source capture, and traceability patterns behind this highlight.",
-    eyebrow: "Data model",
-    id: "signal-tracker-evidence",
-    title: "Evidence-first analysis"
+      "Timeline entries preserve events, judgments, review notes, source URLs, and citation context together.",
+    Detail: EvidenceBackedEntriesDetail,
+    eyebrow: "Evidence trail",
+    id: "signal-tracker-evidence-backed-entries",
+    title: "Evidence-Backed Entries"
+  },
+  {
+    description:
+      "Current judgments stay visible while prior assessments, confidence, assumptions, and indicators remain preserved.",
+    Detail: LivingAssessmentsDetail,
+    eyebrow: "Judgment record",
+    id: "signal-tracker-living-assessments",
+    title: "Living Assessments"
+  },
+  {
+    description:
+      "Review loops, filters, revision history, and exports preserve continuity after time away.",
+    Detail: ReviewProvenanceWorkflowDetail,
+    eyebrow: "Continuity workflow",
+    id: "signal-tracker-review-provenance",
+    title: "Review & Provenance Workflow"
   }
-] satisfies ProjectHighlight[];
+] satisfies ProjectHighlightCardData[];
 
 function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
   return (
@@ -90,7 +133,7 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
           }
           alignActions="top"
           className="portfolio-latest-project-section__header"
-          description="Placeholder introduction for the latest personal project, with room to describe why Signal Tracker is a useful proxy for professional work."
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
           eyebrow="Latest personal project"
           headingLevel={2}
           title={
@@ -98,21 +141,58 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
           }
         />
 
-        <div
-          className="portfolio-project-highlight-grid"
+        <ProjectHighlightSubsection
+          highlights={featureHighlights}
+          id="signal-tracker-features"
+          title="Product features"
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+        />
+        <ProjectHighlightSubsection
+          highlights={implementationHighlights}
           id="signal-tracker-highlights"
-        >
-          {projectHighlights.map((highlight) => (
-            <ProjectHighlightCard highlight={highlight} key={highlight.id} />
-          ))}
-        </div>
+          title="Implementation highlights"
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+        />
       </GlassContainer>
     </section>
   );
 }
 
-function ProjectHighlightCard({ highlight }: { highlight: ProjectHighlight }) {
+function ProjectHighlightSubsection({
+  highlights,
+  id,
+  title,
+  description
+}: {
+  highlights: ProjectHighlightCardData[];
+  id: string;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div>
+      <ContentHeader
+        className="portfolio-latest-project-section__highlight-header"
+        headingLevel={3}
+        title={title}
+        description={description}
+      />
+      <div className="portfolio-project-highlight-grid" id={id}>
+        {highlights.map((highlight) => (
+          <ProjectHighlightCard highlight={highlight} key={highlight.id} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ProjectHighlightCard({
+  highlight
+}: {
+  highlight: ProjectHighlightCardData;
+}) {
   const headingId = `${highlight.id}-title`;
+  const { Detail } = highlight;
 
   return (
     <article
@@ -130,7 +210,7 @@ function ProjectHighlightCard({ highlight }: { highlight: ProjectHighlight }) {
         eyebrow={highlight.eyebrow}
         title={highlight.title}
       >
-        <p>{highlight.detail}</p>
+        <Detail />
       </ProjectDetailDialog>
     </article>
   );

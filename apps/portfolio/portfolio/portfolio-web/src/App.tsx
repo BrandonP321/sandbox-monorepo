@@ -26,15 +26,21 @@ export default function App() {
         <StickyNav items={portfolioNavItems} />
 
         <HeroSection
-          description="Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
           id="intro"
           title="Brandon Phillips"
         />
 
         <ExperienceSection id="experience" />
 
+        <SectionSpacer />
+
         <LatestProjectSection id="latest-project" />
       </main>
     </>
   );
+}
+
+function SectionSpacer() {
+  return <div style={{ height: "40vh" }} />;
 }

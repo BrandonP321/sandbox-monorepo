@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { LatestProjectSection } from "./LatestProjectSection";
 
+const placeholderDescription =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+
 describe("LatestProjectSection", () => {
   afterEach(() => {
     vi.useRealTimers();
@@ -28,11 +31,9 @@ describe("LatestProjectSection", () => {
         name: "Signal Tracker"
       })
     ).toBeInTheDocument();
-    expect(
-      within(section).getByText(
-        "Placeholder introduction for the latest personal project, with room to describe why Signal Tracker is a useful proxy for professional work."
-      )
-    ).toBeInTheDocument();
+    expect(within(section).getAllByText(placeholderDescription)).toHaveLength(
+      3
+    );
     expect(
       within(section).getByRole("link", { name: "Highlights" })
     ).toHaveAttribute("href", "#signal-tracker-workflow");
@@ -42,25 +43,61 @@ describe("LatestProjectSection", () => {
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Signal Tracker workflow"
+        name: "Implementation highlights"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Composable app architecture"
+        name: "AI-Orchestrated Workflow"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Production-style infrastructure"
+        name: "Bone-DRY Full-Stack Contracts"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Evidence-first analysis"
+        name: "Bone-DRY Frontend Platform"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "AWS-Native Delivery Stack"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "Product features"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "Topic Dossiers"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "Evidence-Backed Entries"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "Living Assessments"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(section).getByRole("heading", {
+        level: 3,
+        name: "Review & Provenance Workflow"
       })
     ).toBeInTheDocument();
   });
@@ -71,7 +108,7 @@ describe("LatestProjectSection", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Read details for Signal Tracker workflow"
+        name: "Learn more for AI-Orchestrated Workflow"
       })
     );
 
@@ -79,18 +116,27 @@ describe("LatestProjectSection", () => {
     expect(
       within(screen.getByRole("dialog")).getByRole("heading", {
         level: 3,
-        name: "Signal Tracker workflow"
+        name: "AI-Orchestrated Workflow"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog")).getByRole("heading", {
+        level: 4,
+        name: "Workflow responsibilities"
       })
     ).toBeInTheDocument();
     expect(
       within(screen.getByRole("dialog")).getByText(
-        "Longer placeholder detail for the product thinking, workflow design, and tradeoffs behind this highlight."
+        "Google Drive remains the durable product source of truth."
       )
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog")).getByText("Project Charter")
     ).toBeInTheDocument();
 
     fireEvent.click(
       within(screen.getByRole("dialog")).getByRole("button", {
-        name: "Close Signal Tracker workflow details"
+        name: "Close AI-Orchestrated Workflow details"
       })
     );
 
@@ -103,13 +149,42 @@ describe("LatestProjectSection", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
+  it("opens feature details with structured modal content", () => {
+    render(<LatestProjectSection />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Learn more for Topic Dossiers"
+      })
+    );
+
+    expect(screen.getByRole("dialog")).toHaveAttribute("open");
+    expect(
+      within(screen.getByRole("dialog")).getByRole("heading", {
+        level: 3,
+        name: "Topic Dossiers"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog")).getByRole("heading", {
+        level: 4,
+        name: "What the feature does"
+      })
+    ).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("dialog")).getByText(
+        "The portfolio modal should describe this as the product's organizing layer: every entry, source, assessment, and review exists inside a defined analytical workspace."
+      )
+    ).toBeInTheDocument();
+  });
+
   it("closes project details when the overlay is clicked", () => {
     vi.useFakeTimers();
     render(<LatestProjectSection />);
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Read details for Signal Tracker workflow"
+        name: "Learn more for AI-Orchestrated Workflow"
       })
     );
 

@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import App from "./App";
 
+const placeholderDescription =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+
 describe("App", () => {
   it("renders the portfolio landing scaffold", () => {
     render(<App />);
@@ -13,11 +16,9 @@ describe("App", () => {
         name: "Brandon Phillips"
       })
     ).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        "Built to capture ideas instantly, connect insights intelligently, and clarify complex thinking, Reflect transforms the way you work with information."
-      )
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(placeholderDescription).length).toBeGreaterThan(
+      0
+    );
     const nav = screen.getByRole("navigation", { name: "Portfolio sections" });
 
     expect(nav).toBeInTheDocument();
@@ -63,7 +64,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", {
         level: 3,
-        name: "Signal Tracker workflow"
+        name: "AI-Orchestrated Workflow"
       })
     ).toBeInTheDocument();
   });

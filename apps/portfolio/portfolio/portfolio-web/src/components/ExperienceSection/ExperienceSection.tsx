@@ -85,7 +85,7 @@ function ExperienceSection({ className, id }: ExperienceSectionProps) {
           }
           alignActions="top"
           className="portfolio-experience-section__header"
-          description="A brief timeline of engineering roles, with placeholder details until the final copy is ready."
+          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
           headingLevel={2}
           title={<span id="portfolio-experience-title">Experience</span>}
         />

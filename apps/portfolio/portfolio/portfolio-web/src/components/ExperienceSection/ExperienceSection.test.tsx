@@ -3,6 +3,9 @@ import { describe, expect, it } from "vitest";
 
 import { ExperienceSection } from "./ExperienceSection";
 
+const placeholderDescription =
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+
 describe("ExperienceSection", () => {
   it("renders a glass timeline item for each provided logo", () => {
     render(<ExperienceSection />);
@@ -14,9 +17,7 @@ describe("ExperienceSection", () => {
       within(section).getByRole("heading", { level: 2, name: "Experience" })
     ).toBeInTheDocument();
     expect(
-      within(section).getByText(
-        "A brief timeline of engineering roles, with placeholder details until the final copy is ready."
-      )
+      within(section).getByText(placeholderDescription)
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("link", { name: "Resume" })

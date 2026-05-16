@@ -18,7 +18,7 @@ function ProjectDetailDialog({
   description,
   eyebrow,
   title,
-  triggerLabel = "Read details"
+  triggerLabel = "Learn more"
 }: ProjectDetailDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeTimerRef = useRef<number | null>(null);
