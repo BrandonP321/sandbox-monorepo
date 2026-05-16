@@ -20,6 +20,9 @@ const config: StorybookConfig = {
     name: "@storybook/react-vite",
     options: {}
   },
+  typescript: {
+    reactDocgen: false
+  },
   viteFinal: async (config) =>
     mergeConfig(config, {
       plugins: [tailwindcss()],
