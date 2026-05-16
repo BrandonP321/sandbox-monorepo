@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import { Construct } from "constructs";
 
 import { GitHubActionsCodePipelineDeploy, SpaSite } from "@repo/infra-patterns";
@@ -7,6 +8,13 @@ export class DashboardUiStorybookStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
+    const storybookBuildEnvironment = {
+      computeMode: "ec2",
+      ec2BuildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId(
+        "aws/codebuild/standard:8.0"
+      )
+    } as const;
+
     const deployPipeline = new GitHubActionsCodePipelineDeploy(
       this,
       "DashboardUiStorybookCiCd",
@@ -14,7 +22,7 @@ export class DashboardUiStorybookStack extends cdk.Stack {
         buildSpecPath:
           "apps/platform/dashboard-ui-storybook/dashboard-ui-storybook-infra/buildspec.prod.yml",
         connectionName: "dash-ui-storybook-prod-source",
-        deployBuildEnvironment: { computeMode: "lambda" },
+        deployBuildEnvironment: storybookBuildEnvironment,
         deployStackName: "DashboardUiStorybookStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",
@@ -36,7 +44,8 @@ export class DashboardUiStorybookStack extends cdk.Stack {
         region: "us-east-1",
         sourceActionName: "Source",
         validationBuildSpecPath:
-          "apps/platform/dashboard-ui-storybook/dashboard-ui-storybook-infra/buildspec.validate.yml"
+          "apps/platform/dashboard-ui-storybook/dashboard-ui-storybook-infra/buildspec.validate.yml",
+        validationBuildEnvironment: storybookBuildEnvironment
       }
     );
 

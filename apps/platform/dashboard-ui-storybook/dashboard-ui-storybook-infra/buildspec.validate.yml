@@ -7,6 +7,8 @@ env:
 
 phases:
   install:
+    runtime-versions:
+      nodejs: 24
     commands:
       - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
       - export PNPM_HOME=/tmp/pnpm

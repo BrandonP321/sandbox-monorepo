@@ -1,4 +1,5 @@
 import * as cdk from "aws-cdk-lib";
+import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
 
@@ -281,6 +282,60 @@ describe("GitHubActionsCodePipelineDeploy", () => {
         BuildSpec:
           "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml",
         Type: "CODEPIPELINE"
+      })
+    });
+  });
+
+  it("can use a custom EC2 build image and compute type", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+
+    new GitHubActionsCodePipelineDeploy(stack, "Deploy", {
+      buildSpecPath: "apps/example/example-infra/buildspec.prod.yml",
+      connectionName: "example-prod-source",
+      deployBuildEnvironment: {
+        computeMode: "ec2",
+        ec2BuildImage: codebuild.LinuxBuildImage.fromCodeBuildImageId(
+          "aws/codebuild/standard:8.0"
+        ),
+        ec2ComputeType: codebuild.ComputeType.MEDIUM
+      },
+      deployStackName: "ExampleStack",
+      githubActionsBranch: "main",
+      githubActionsRepo: "BrandonP321/sandbox-monorepo",
+      githubBranch: "main",
+      githubOwner: "BrandonP321",
+      githubRepo: "sandbox-monorepo",
+      pipelineName: "example-prod",
+      projectName: "example-prod-deploy",
+      region: "us-east-1",
+      sourceActionName: "Source",
+      validationBuildSpecPath:
+        "apps/analysis/signal-tracker/signal-tracker-infra/buildspec.validate.yml"
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "example-prod-deploy",
+      Cache: {
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      },
+      Environment: Match.objectLike({
+        ComputeType: "BUILD_GENERAL1_MEDIUM",
+        Image: "aws/codebuild/standard:8.0",
+        ImagePullCredentialsType: "CODEBUILD",
+        Type: "LINUX_CONTAINER"
+      })
+    });
+
+    template.hasResourceProperties("AWS::CodeBuild::Project", {
+      Name: "example-prod-validate",
+      Environment: Match.objectLike({
+        ComputeType: "BUILD_GENERAL1_MEDIUM",
+        Image: "aws/codebuild/standard:8.0",
+        Type: "LINUX_CONTAINER"
       })
     });
   });

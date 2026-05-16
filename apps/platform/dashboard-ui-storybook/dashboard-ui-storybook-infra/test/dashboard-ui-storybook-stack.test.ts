@@ -26,12 +26,15 @@ describe("DashboardUiStorybookStack", () => {
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
       Name: "dashboard-ui-storybook-prod-deploy",
-      Cache: { Type: "NO_CACHE" },
+      Cache: {
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      },
       Environment: Match.objectLike({
-        ComputeType: "BUILD_LAMBDA_4GB",
-        Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+        ComputeType: "BUILD_GENERAL1_SMALL",
+        Image: "aws/codebuild/standard:8.0",
         ImagePullCredentialsType: "CODEBUILD",
-        Type: "LINUX_LAMBDA_CONTAINER",
+        Type: "LINUX_CONTAINER",
         EnvironmentVariables: Match.arrayWith([
           Match.objectLike({
             Name: "STACK_NAME",
@@ -49,12 +52,15 @@ describe("DashboardUiStorybookStack", () => {
 
     template.hasResourceProperties("AWS::CodeBuild::Project", {
       Name: "dashboard-ui-storybook-prod-validate",
-      Cache: { Type: "NO_CACHE" },
+      Cache: {
+        Modes: ["LOCAL_CUSTOM_CACHE"],
+        Type: "LOCAL"
+      },
       Environment: Match.objectLike({
-        ComputeType: "BUILD_LAMBDA_4GB",
-        Image: "aws/codebuild/amazonlinux-x86_64-lambda-standard:nodejs24",
+        ComputeType: "BUILD_GENERAL1_SMALL",
+        Image: "aws/codebuild/standard:8.0",
         ImagePullCredentialsType: "CODEBUILD",
-        Type: "LINUX_LAMBDA_CONTAINER"
+        Type: "LINUX_CONTAINER"
       }),
       Source: Match.objectLike({
         BuildSpec:
@@ -113,6 +119,7 @@ describe("DashboardUiStorybookStack", () => {
     expect(validateBuildSpec).toContain(
       "pnpm --filter @repo/dashboard-ui run build-storybook"
     );
+    expect(validateBuildSpec).toContain("nodejs: 24");
     expect(validateBuildSpec).not.toContain("playwright install");
     expect(validateBuildSpec).not.toContain("@repo/dashboard-ui... run test");
   });

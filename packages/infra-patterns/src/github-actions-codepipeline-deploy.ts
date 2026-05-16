@@ -7,6 +7,8 @@ import { Construct } from "constructs";
 
 export interface CodePipelineDeployBuildEnvironmentProps {
   readonly computeMode?: "ec2" | "lambda";
+  readonly ec2BuildImage?: codebuild.IBuildImage;
+  readonly ec2ComputeType?: codebuild.ComputeType;
   readonly lambdaComputeType?: codebuild.ComputeType;
   readonly lambdaBuildImage?: codebuild.IBuildImage;
 }
@@ -226,12 +228,14 @@ export class GitHubActionsCodePipelineDeploy extends Construct {
       computeMode === "lambda"
         ? (resolvedBuildEnvironment.lambdaBuildImage ??
           NODE_24_LAMBDA_BUILD_IMAGE)
-        : codebuild.LinuxBuildImage.STANDARD_7_0;
+        : (resolvedBuildEnvironment.ec2BuildImage ??
+          codebuild.LinuxBuildImage.STANDARD_7_0);
     const computeType =
       computeMode === "lambda"
         ? (resolvedBuildEnvironment.lambdaComputeType ??
           codebuild.ComputeType.LAMBDA_4GB)
-        : codebuild.ComputeType.SMALL;
+        : (resolvedBuildEnvironment.ec2ComputeType ??
+          codebuild.ComputeType.SMALL);
 
     const project = new codebuild.Project(this, id, {
       description,
