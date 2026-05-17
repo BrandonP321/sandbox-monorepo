@@ -3,8 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { LatestProjectSection } from "./LatestProjectSection";
 
-const placeholderDescription =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+const projectDescription =
+  "A full-stack web app for maintaining evidence-backed continuity on public-affairs topics—tracking what happened, what supports it, and how assessments change over time.";
+const featureDescription =
+  "Signal Tracker is designed for long-running issues where context, evidence, and judgment history matter more than another news feed.";
+const engineeringDescription =
+  "Signal Tracker is built as a modern TypeScript monorepo with shared contracts, reusable UI infrastructure, AWS-native deployment, and an AI-assisted development workflow.";
 
 describe("LatestProjectSection", () => {
   afterEach(() => {
@@ -31,9 +35,11 @@ describe("LatestProjectSection", () => {
         name: "Signal Tracker"
       })
     ).toBeInTheDocument();
-    expect(within(section).getAllByText(placeholderDescription)).toHaveLength(
-      3
-    );
+    expect(within(section).getByText(projectDescription)).toBeInTheDocument();
+    expect(within(section).getByText(featureDescription)).toBeInTheDocument();
+    expect(
+      within(section).getByText(engineeringDescription)
+    ).toBeInTheDocument();
     expect(
       within(section).getByRole("link", { name: "Documentation" })
     ).toHaveAttribute(
@@ -59,27 +65,27 @@ describe("LatestProjectSection", () => {
       within(section).getByRole("link", { name: "Codebase" })
     ).toHaveAttribute("rel", "noreferrer");
     expect(
-      within(section).getByRole("link", { name: "Dashboard UI" })
+      within(section).getByRole("link", { name: "UI System" })
     ).toHaveAttribute("href", "https://d1m6bok2tskoqv.cloudfront.net/");
     expect(
-      within(section).getByRole("link", { name: "Dashboard UI" })
+      within(section).getByRole("link", { name: "UI System" })
     ).toHaveAttribute("target", "_blank");
     expect(
-      within(section).getByRole("link", { name: "Dashboard UI" })
+      within(section).getByRole("link", { name: "UI System" })
     ).toHaveAttribute("rel", "noreferrer");
     expect(
-      within(section).getByRole("link", { name: "Deployed App" })
+      within(section).getByRole("link", { name: "Live App" })
     ).toHaveAttribute("href", "https://d36eqszg4ubv0g.cloudfront.net/");
     expect(
-      within(section).getByRole("link", { name: "Deployed App" })
+      within(section).getByRole("link", { name: "Live App" })
     ).toHaveAttribute("target", "_blank");
     expect(
-      within(section).getByRole("link", { name: "Deployed App" })
+      within(section).getByRole("link", { name: "Live App" })
     ).toHaveAttribute("rel", "noreferrer");
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Development Details"
+        name: "Engineering Highlights"
       })
     ).toBeInTheDocument();
     expect(
@@ -109,7 +115,7 @@ describe("LatestProjectSection", () => {
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Features"
+        name: "Product Features"
       })
     ).toBeInTheDocument();
     expect(

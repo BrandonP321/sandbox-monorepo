@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import App from "./App";
 
-const placeholderDescription =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+const heroDescription =
+  "Frontend engineer building scalable React products, full-stack systems, and AI-assisted workflows.";
 
 describe("App", () => {
   it("renders the portfolio landing scaffold", () => {
@@ -16,9 +16,7 @@ describe("App", () => {
         name: "Brandon Phillips"
       })
     ).toBeInTheDocument();
-    expect(screen.getAllByText(placeholderDescription).length).toBeGreaterThan(
-      0
-    );
+    expect(screen.getByText(heroDescription)).toBeInTheDocument();
     const nav = screen.getByRole("navigation", { name: "Portfolio sections" });
 
     expect(nav).toBeInTheDocument();
@@ -58,7 +56,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", {
         level: 3,
-        name: "Software Development Engineer - AWS"
+        name: "Frontend Engineer II — Amazon"
       })
     ).toBeInTheDocument();
     expect(

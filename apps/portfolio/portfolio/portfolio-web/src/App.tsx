@@ -23,19 +23,21 @@ export default function App() {
         titleSuffix="Brandon Phillips"
       />
       <main className="portfolio-page" data-slot="portfolio-scroll-container">
-        <StickyNav items={portfolioNavItems} />
+        <div className="portfolio-sticky-nav-boundary">
+          <StickyNav items={portfolioNavItems} />
 
-        <HeroSection
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
-          id="intro"
-          title="Brandon Phillips"
-        />
+          <HeroSection
+            description="Frontend engineer building scalable React products, full-stack systems, and AI-assisted workflows."
+            id="intro"
+            title="Brandon Phillips"
+          />
 
-        <ExperienceSection id="experience" />
+          <ExperienceSection id="experience" />
 
-        <SectionSpacer />
+          <SectionSpacer />
 
-        <LatestProjectSection id="latest-project" />
+          <LatestProjectSection id="latest-project" />
+        </div>
       </main>
     </>
   );

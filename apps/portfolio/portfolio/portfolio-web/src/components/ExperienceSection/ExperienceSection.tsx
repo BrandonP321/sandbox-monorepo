@@ -28,40 +28,40 @@ type ExperienceSectionProps = ExperienceSectionNativeProps;
 
 const experienceItems = [
   {
-    company: "AWS",
-    dates: "2024 - Present",
-    logoAlt: "AWS logo",
-    logoSrc: awsLogoUrl,
-    role: "Software Development Engineer",
-    summary:
-      "Placeholder experience summary for cloud product engineering, platform workflows, and production systems."
-  },
-  {
     company: "Amazon",
-    dates: "2022 - 2024",
+    dates: "Dec 2024 - Present",
     logoAlt: "Amazon logo",
     logoSrc: amazonLogoUrl,
-    role: "Software Development Engineer",
+    role: "Frontend Engineer II",
     summary:
-      "Placeholder experience summary for customer-focused product delivery, operational tooling, and cross-functional engineering."
-  },
-  {
-    company: "Bungie",
-    dates: "2020 - 2022",
-    logoAlt: "Bungie logo",
-    logoSrc: bungieLogoUrl,
-    role: "Software Engineer",
-    summary:
-      "Placeholder experience summary for service reliability, developer workflows, and collaborative product support."
+      "I lead frontend development for internal policy and workflow tools that help non-technical business users manage complex, rules-driven operations with less engineering support. My work has focused on turning brittle manual processes into scalable self-service systems while improving frontend architecture, reusable infrastructure, performance, and cross-team engineering standards."
   },
   {
     company: "Startup",
-    dates: "2018 - 2020",
+    dates: "Dec 2023 - Aug 2024",
     logoAlt: "Startup logo",
     logoSrc: startupLogoUrl,
     role: "Full Stack Engineer",
     summary:
-      "Placeholder experience summary for early-stage product development, rapid prototyping, and pragmatic application delivery."
+      "I co-founded and built a full-stack wedding-planning platform focused on bringing real-time pricing and availability transparency to a fragmented planning process. I owned the product and technical foundation across React, TypeScript, Node.js, AWS, and relational data infrastructure, translating an early business concept into a working cloud-based application."
+  },
+  {
+    company: "AWS",
+    dates: "Jan 2023 - Feb 2024",
+    logoAlt: "AWS logo",
+    logoSrc: awsLogoUrl,
+    role: "Frontend Engineer",
+    summary:
+      "I delivered user-facing improvements for the AWS Web Application Firewall console, with work spanning accessibility compliance, deployment automation, performance visibility, and UX improvements for a high-scale security product."
+  },
+  {
+    company: "Bungie",
+    dates: "mar 2021 - Sept 2022",
+    logoAlt: "Bungie logo",
+    logoSrc: bungieLogoUrl,
+    role: "Web Developer",
+    summary:
+      "I served as the primary web developer for Bungie’s marketing organization, building campaign and product web experiences while supporting analytics-driven experimentation."
   }
 ] satisfies ExperienceItem[];
 
@@ -85,7 +85,7 @@ function ExperienceSection({ className, id }: ExperienceSectionProps) {
           }
           alignActions="top"
           className="portfolio-experience-section__header"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+          description="I’ve built frontend systems across Amazon, AWS, Bungie, and early-stage startup work—turning complex product requirements into scalable React and TypeScript experiences that improve workflows, reduce operational friction, and make teams more effective."
           headingLevel={2}
           title={<span id="portfolio-experience-title">Experience</span>}
         />
@@ -121,7 +121,7 @@ function ExperienceTimelineItem({ item }: { item: ExperienceItem }) {
       >
         <p className="portfolio-experience-timeline__dates">{item.dates}</p>
         <h3 id={headingId}>
-          {item.role} - {item.company}
+          {item.role} — {item.company}
         </h3>
         <p>{item.summary}</p>
       </article>

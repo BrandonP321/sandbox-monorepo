@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { ExperienceSection } from "./ExperienceSection";
 
-const placeholderDescription =
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris.";
+const experienceDescription =
+  "I’ve built frontend systems across Amazon, AWS, Bungie, and early-stage startup work—turning complex product requirements into scalable React and TypeScript experiences that improve workflows, reduce operational friction, and make teams more effective.";
 
 describe("ExperienceSection", () => {
   it("renders a glass timeline item for each provided logo", () => {
@@ -17,7 +17,7 @@ describe("ExperienceSection", () => {
       within(section).getByRole("heading", { level: 2, name: "Experience" })
     ).toBeInTheDocument();
     expect(
-      within(section).getByText(placeholderDescription)
+      within(section).getByText(experienceDescription)
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("link", { name: "Resume" })
@@ -31,25 +31,25 @@ describe("ExperienceSection", () => {
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Software Development Engineer - AWS"
+        name: "Frontend Engineer II — Amazon"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Software Development Engineer - Amazon"
+        name: "Full Stack Engineer — Startup"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Software Engineer - Bungie"
+        name: "Frontend Engineer — AWS"
       })
     ).toBeInTheDocument();
     expect(
       within(section).getByRole("heading", {
         level: 3,
-        name: "Full Stack Engineer - Startup"
+        name: "Web Developer — Bungie"
       })
     ).toBeInTheDocument();
     expect(within(section).getAllByRole("img")).toHaveLength(4);

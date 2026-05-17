@@ -121,10 +121,10 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
                 variant="primary"
                 href="https://d36eqszg4ubv0g.cloudfront.net/"
               >
-                Deployed App
+                Live App
               </ProjectLink>
               <ProjectLink href="https://d1m6bok2tskoqv.cloudfront.net/">
-                Dashboard UI
+                UI System
               </ProjectLink>
               <ProjectLink href="https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker">
                 Codebase
@@ -136,7 +136,7 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
           }
           alignActions="top"
           className="portfolio-latest-project-section__header"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+          description="A full-stack web app for maintaining evidence-backed continuity on public-affairs topics—tracking what happened, what supports it, and how assessments change over time."
           eyebrow="Latest personal project"
           headingLevel={2}
           title={
@@ -147,14 +147,14 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
         <ProjectHighlightSubsection
           highlights={featureHighlights}
           id="signal-tracker-features"
-          title="Features"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+          title="Product Features"
+          description="Signal Tracker is designed for long-running issues where context, evidence, and judgment history matter more than another news feed."
         />
         <ProjectHighlightSubsection
           highlights={implementationHighlights}
           id="signal-tracker-highlights"
-          title="Development Details"
-          description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin euismod at ipsum sed sodales. Aliquam dapibus faucibus libero, eget ultricies nibh. Proin lorem augue, gravida at interdum at, varius vel mauris."
+          title="Engineering Highlights"
+          description="Signal Tracker is built as a modern TypeScript monorepo with shared contracts, reusable UI infrastructure, AWS-native deployment, and an AI-assisted development workflow."
         />
       </GlassContainer>
     </section>
