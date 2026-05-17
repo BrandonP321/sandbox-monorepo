@@ -2,10 +2,24 @@ import * as cdk from "aws-cdk-lib";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import { Construct } from "constructs";
 
-import { GitHubActionsCodePipelineDeploy, SpaSite } from "@repo/infra-patterns";
+import {
+  GitHubActionsCodePipelineDeploy,
+  importDomainFoundation,
+  SpaSite,
+  type SpaSiteCustomDomainProps
+} from "@repo/infra-patterns";
+
+export interface DashboardUiStorybookStackProps extends cdk.StackProps {
+  readonly customDomain?: SpaSiteCustomDomainProps;
+  readonly useSharedDomain?: boolean;
+}
 
 export class DashboardUiStorybookStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(
+    scope: Construct,
+    id: string,
+    props?: DashboardUiStorybookStackProps
+  ) {
     super(scope, id, props);
 
     const storybookBuildEnvironment = {
@@ -49,10 +63,16 @@ export class DashboardUiStorybookStack extends cdk.Stack {
       }
     );
 
-    const site = new SpaSite(this, "DashboardUiStorybookSite");
+    const site = new SpaSite(this, "DashboardUiStorybookSite", {
+      customDomain:
+        props?.customDomain ??
+        (props?.useSharedDomain
+          ? createDashboardUiStorybookCustomDomain(this)
+          : undefined)
+    });
 
     new cdk.CfnOutput(this, "WebUrl", {
-      value: `https://${site.distribution.domainName}`
+      value: site.publicUrl
     });
 
     new cdk.CfnOutput(this, "WebBucketName", {
@@ -83,4 +103,22 @@ export class DashboardUiStorybookStack extends cdk.Stack {
       value: deployPipeline.connection.attrConnectionStatus
     });
   }
+}
+
+function createDashboardUiStorybookCustomDomain(
+  scope: cdk.Stack
+): SpaSiteCustomDomainProps {
+  const foundation = importDomainFoundation(
+    scope,
+    "DashboardUiStorybookDomain",
+    {
+      domainName: "bphillips.dev"
+    }
+  );
+
+  return {
+    certificate: foundation.certificate,
+    dns: { hostedZone: foundation.hostedZone },
+    domainNames: [`dashboard-ui.${foundation.domainName}`]
+  };
 }

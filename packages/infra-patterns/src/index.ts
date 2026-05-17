@@ -1,9 +1,12 @@
 import * as cdk from "aws-cdk-lib";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
-import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as route53 from "aws-cdk-lib/aws-route53";
+import * as targets from "aws-cdk-lib/aws-route53-targets";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import { Construct } from "constructs";
 
@@ -12,14 +15,69 @@ export {
   type GitHubActionsCodePipelineDeployProps
 } from "./github-actions-codepipeline-deploy.js";
 
+export interface DnsAliasRecordProps {
+  readonly hostedZone: route53.IHostedZone;
+  readonly createRecords?: boolean;
+}
+
+export interface ImportedDomainFoundation {
+  readonly certificate: acm.ICertificate;
+  readonly domainName: string;
+  readonly hostedZone: route53.IHostedZone;
+}
+
+export interface ImportDomainFoundationProps {
+  readonly certificateArnExportName?: string;
+  readonly domainName: string;
+  readonly hostedZoneIdExportName?: string;
+}
+
+export function importDomainFoundation(
+  scope: Construct,
+  id: string,
+  props: ImportDomainFoundationProps
+): ImportedDomainFoundation {
+  const hostedZone = route53.HostedZone.fromHostedZoneAttributes(
+    scope,
+    `${id}HostedZone`,
+    {
+      hostedZoneId: cdk.Fn.importValue(
+        props.hostedZoneIdExportName ?? "sandbox-domain-hosted-zone-id"
+      ),
+      zoneName: props.domainName
+    }
+  );
+  const certificate = acm.Certificate.fromCertificateArn(
+    scope,
+    `${id}Certificate`,
+    cdk.Fn.importValue(
+      props.certificateArnExportName ?? "sandbox-domain-certificate-arn"
+    )
+  );
+
+  return {
+    certificate,
+    domainName: props.domainName,
+    hostedZone
+  };
+}
+
+export interface HttpLambdaApiCustomDomainProps {
+  readonly certificate: acm.ICertificate;
+  readonly dns?: DnsAliasRecordProps;
+  readonly domainName: string;
+}
+
 export class HttpLambdaApi extends Construct {
+  public readonly apiBaseUrl: string;
   public readonly httpApi: apigwv2.HttpApi;
 
   constructor(
     scope: Construct,
     id: string,
     props: {
-      handler: lambdaNodejs.NodejsFunction;
+      customDomain?: HttpLambdaApiCustomDomainProps;
+      handler: lambda.IFunction;
       routes: { path: string; method: apigwv2.HttpMethod }[];
     }
   ) {
@@ -44,14 +102,57 @@ export class HttpLambdaApi extends Construct {
         integration
       });
     }
+
+    if (props.customDomain) {
+      const dns = props.customDomain.dns;
+      const domainName = new apigwv2.DomainName(this, "DomainName", {
+        certificate: props.customDomain.certificate,
+        domainName: props.customDomain.domainName
+      });
+      new apigwv2.ApiMapping(this, "ApiMapping", {
+        api: this.httpApi,
+        domainName
+      });
+
+      this.apiBaseUrl = `https://${props.customDomain.domainName}`;
+
+      if (dns && dns.createRecords !== false) {
+        new route53.ARecord(this, "AliasRecord", {
+          recordName: resolveRecordName(
+            props.customDomain.domainName,
+            dns.hostedZone.zoneName
+          ),
+          target: route53.RecordTarget.fromAlias(
+            new targets.ApiGatewayv2DomainProperties(
+              domainName.regionalDomainName,
+              domainName.regionalHostedZoneId
+            )
+          ),
+          zone: dns.hostedZone
+        });
+      }
+    } else {
+      this.apiBaseUrl = this.httpApi.apiEndpoint;
+    }
   }
+}
+
+export interface SpaSiteCustomDomainProps {
+  readonly certificate: acm.ICertificate;
+  readonly dns?: DnsAliasRecordProps;
+  readonly domainNames: readonly string[];
+}
+
+export interface SpaSiteProps {
+  readonly customDomain?: SpaSiteCustomDomainProps;
 }
 
 export class SpaSite extends Construct {
   public readonly distribution: cloudfront.Distribution;
   public readonly bucket: s3.Bucket;
+  public readonly publicUrl: string;
 
-  constructor(scope: Construct, id: string) {
+  constructor(scope: Construct, id: string, props: SpaSiteProps = {}) {
     super(scope, id);
 
     this.bucket = new s3.Bucket(this, "SiteBucket", {
@@ -62,8 +163,12 @@ export class SpaSite extends Construct {
     });
 
     this.distribution = new cloudfront.Distribution(this, "Distribution", {
+      certificate: props.customDomain?.certificate,
       defaultBehavior: { origin: new origins.S3Origin(this.bucket) },
       defaultRootObject: "index.html",
+      domainNames: props.customDomain
+        ? [...props.customDomain.domainNames]
+        : undefined,
       errorResponses: [
         {
           httpStatus: 403,
@@ -77,5 +182,66 @@ export class SpaSite extends Construct {
         }
       ]
     });
+
+    this.publicUrl =
+      props.customDomain && props.customDomain.domainNames.length > 0
+        ? `https://${props.customDomain.domainNames[0]}`
+        : `https://${this.distribution.domainName}`;
+
+    const dns = props.customDomain?.dns;
+
+    if (props.customDomain && dns && dns.createRecords !== false) {
+      for (const domainName of props.customDomain.domainNames) {
+        const recordName = resolveRecordName(
+          domainName,
+          dns.hostedZone.zoneName
+        );
+        const recordId = toConstructIdPart(domainName);
+        const target = route53.RecordTarget.fromAlias(
+          new targets.CloudFrontTarget(this.distribution)
+        );
+
+        new route53.ARecord(this, `AliasRecord${recordId}`, {
+          recordName,
+          target,
+          zone: dns.hostedZone
+        });
+        new route53.AaaaRecord(this, `Ipv6AliasRecord${recordId}`, {
+          recordName,
+          target,
+          zone: dns.hostedZone
+        });
+      }
+    }
   }
+}
+
+function resolveRecordName(
+  domainName: string,
+  hostedZoneName: string
+): string | undefined {
+  const normalizedDomainName = domainName.replace(/\.$/, "");
+  const normalizedHostedZoneName = hostedZoneName.replace(/\.$/, "");
+
+  if (normalizedDomainName === normalizedHostedZoneName) {
+    return undefined;
+  }
+
+  const hostedZoneSuffix = `.${normalizedHostedZoneName}`;
+
+  if (normalizedDomainName.endsWith(hostedZoneSuffix)) {
+    return normalizedDomainName.slice(0, -hostedZoneSuffix.length);
+  }
+
+  return normalizedDomainName;
+}
+
+function toConstructIdPart(value: string): string {
+  const sanitized = value
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(Boolean)
+    .map((part) => part[0]!.toUpperCase() + part.slice(1))
+    .join("");
+
+  return sanitized || "Apex";
 }

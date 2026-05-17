@@ -1,10 +1,20 @@
 import * as cdk from "aws-cdk-lib";
 import { Construct } from "constructs";
 
-import { GitHubActionsCodePipelineDeploy, SpaSite } from "@repo/infra-patterns";
+import {
+  GitHubActionsCodePipelineDeploy,
+  importDomainFoundation,
+  SpaSite,
+  type SpaSiteCustomDomainProps
+} from "@repo/infra-patterns";
+
+export interface PortfolioStackProps extends cdk.StackProps {
+  readonly customDomain?: SpaSiteCustomDomainProps;
+  readonly useSharedDomain?: boolean;
+}
 
 export class PortfolioStack extends cdk.Stack {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: PortfolioStackProps) {
     super(scope, id, props);
 
     const deployPipeline = new GitHubActionsCodePipelineDeploy(
@@ -40,10 +50,14 @@ export class PortfolioStack extends cdk.Stack {
       }
     );
 
-    const site = new SpaSite(this, "PortfolioSite");
+    const site = new SpaSite(this, "PortfolioSite", {
+      customDomain:
+        props?.customDomain ??
+        (props?.useSharedDomain ? createPortfolioCustomDomain(this) : undefined)
+    });
 
     new cdk.CfnOutput(this, "WebUrl", {
-      value: `https://${site.distribution.domainName}`
+      value: site.publicUrl
     });
 
     new cdk.CfnOutput(this, "WebBucketName", {
@@ -74,4 +88,18 @@ export class PortfolioStack extends cdk.Stack {
       value: deployPipeline.connection.attrConnectionStatus
     });
   }
+}
+
+function createPortfolioCustomDomain(
+  scope: cdk.Stack
+): SpaSiteCustomDomainProps {
+  const foundation = importDomainFoundation(scope, "PortfolioDomain", {
+    domainName: "bphillips.dev"
+  });
+
+  return {
+    certificate: foundation.certificate,
+    dns: { hostedZone: foundation.hostedZone },
+    domainNames: [foundation.domainName, `www.${foundation.domainName}`]
+  };
 }

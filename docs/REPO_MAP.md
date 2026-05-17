@@ -40,6 +40,9 @@
 
 /apps/platform/dashboard-ui-storybook
   dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui
+
+/apps/platform/domain
+  domain-infra # AWS CDK Route 53 hosted zone and shared ACM certificate foundation
 ```
 
 Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AGENTS.md`.
@@ -52,6 +55,8 @@ Portfolio-specific agent guidance lives in `apps/portfolio/portfolio/AGENTS.md`.
 
 Dashboard UI Storybook deployment guidance lives in
 `apps/platform/dashboard-ui-storybook/AGENTS.md`.
+
+Platform domain deployment guidance lives in `apps/platform/domain/AGENTS.md`.
 
 ## Shared Frontend Surfaces
 

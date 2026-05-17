@@ -9,7 +9,10 @@ import { Construct } from "constructs";
 import {
   GitHubActionsCodePipelineDeploy,
   HttpLambdaApi,
-  SpaSite
+  importDomainFoundation,
+  SpaSite,
+  type HttpLambdaApiCustomDomainProps,
+  type SpaSiteCustomDomainProps
 } from "@repo/infra-patterns";
 import { signalTrackerRouteList } from "@repo/signal-tracker-shared";
 
@@ -19,7 +22,10 @@ import {
 } from "./signal-tracker-database.js";
 
 export interface SignalTrackerStackProps extends cdk.StackProps {
+  readonly apiCustomDomain?: HttpLambdaApiCustomDomainProps;
   readonly databaseCapacityMode?: SignalTrackerDatabaseCapacityMode;
+  readonly useSharedDomain?: boolean;
+  readonly webCustomDomain?: SpaSiteCustomDomainProps;
 }
 
 export class SignalTrackerStack extends cdk.Stack {
@@ -94,6 +100,11 @@ export class SignalTrackerStack extends cdk.Stack {
     database.cluster.secret!.grantRead(handler);
 
     const api = new HttpLambdaApi(this, "SignalTrackerApi", {
+      customDomain:
+        props?.apiCustomDomain ??
+        (props?.useSharedDomain
+          ? createSignalTrackerApiCustomDomain(this)
+          : undefined),
       handler,
       routes: signalTrackerRouteList.map((route) => ({
         method: httpMethodByRouteMethod[route.method],
@@ -102,7 +113,7 @@ export class SignalTrackerStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "ApiBaseUrl", {
-      value: api.httpApi.apiEndpoint
+      value: api.apiBaseUrl
     });
 
     new cdk.CfnOutput(this, "SignalTrackerDatabaseName", {
@@ -121,10 +132,16 @@ export class SignalTrackerStack extends cdk.Stack {
       value: databaseCapacityMode
     });
 
-    const site = new SpaSite(this, "SignalTrackerSite");
+    const site = new SpaSite(this, "SignalTrackerSite", {
+      customDomain:
+        props?.webCustomDomain ??
+        (props?.useSharedDomain
+          ? createSignalTrackerWebCustomDomain(this)
+          : undefined)
+    });
 
     new cdk.CfnOutput(this, "WebUrl", {
-      value: `https://${site.distribution.domainName}`
+      value: site.publicUrl
     });
 
     new cdk.CfnOutput(this, "WebBucketName", {
@@ -155,4 +172,32 @@ export class SignalTrackerStack extends cdk.Stack {
       value: deployPipeline.connection.attrConnectionStatus
     });
   }
+}
+
+function createSignalTrackerWebCustomDomain(
+  scope: cdk.Stack
+): SpaSiteCustomDomainProps {
+  const foundation = importDomainFoundation(scope, "SignalTrackerWebDomain", {
+    domainName: "bphillips.dev"
+  });
+
+  return {
+    certificate: foundation.certificate,
+    dns: { hostedZone: foundation.hostedZone },
+    domainNames: [`signal-tracker.${foundation.domainName}`]
+  };
+}
+
+function createSignalTrackerApiCustomDomain(
+  scope: cdk.Stack
+): HttpLambdaApiCustomDomainProps {
+  const foundation = importDomainFoundation(scope, "SignalTrackerApiDomain", {
+    domainName: "bphillips.dev"
+  });
+
+  return {
+    certificate: foundation.certificate,
+    dns: { hostedZone: foundation.hostedZone },
+    domainName: `signal-tracker-api.${foundation.domainName}`
+  };
 }

@@ -10,6 +10,7 @@ const SIGNAL_TRACKER_AWS_REGION = "us-east-1";
 
 new SignalTrackerStack(app, "SignalTrackerStack", {
   databaseCapacityMode: resolveSignalTrackerDatabaseCapacityMode(app),
+  useSharedDomain: true,
   env: {
     account: SIGNAL_TRACKER_AWS_ACCOUNT,
     region: SIGNAL_TRACKER_AWS_REGION
