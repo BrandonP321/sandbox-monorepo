@@ -283,6 +283,12 @@ a {
   }
 }
 
+@supports (height: 100dvh) {
+  .portfolio-page {
+    height: 100dvh;
+  }
+}
+
 .portfolio-button {
   display: inline-flex;
   align-items: center;
@@ -665,6 +671,17 @@ a {
   transform: translate3d(-50%, var(--portfolio-black-hole-center-y, 100svh), 0)
     translateY(-50%);
   will-change: transform, filter;
+}
+
+@supports (height: 100dvh) {
+  .portfolio-hero-section__black-hole-image {
+    transform: translate3d(
+        -50%,
+        var(--portfolio-black-hole-center-y, 100dvh),
+        0
+      )
+      translateY(-50%);
+  }
 }
 
 @supports not ((background-clip: text) or (-webkit-background-clip: text)) {

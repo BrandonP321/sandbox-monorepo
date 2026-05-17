@@ -5,6 +5,7 @@ import { HeroSection } from "./HeroSection";
 import { getBlackHoleParallaxCenterY } from "./parallax";
 
 const originalMatchMedia = window.matchMedia;
+const originalVisualViewport = window.visualViewport;
 
 function setMatchMedia(matches: boolean) {
   Object.defineProperty(window, "matchMedia", {
@@ -18,10 +19,29 @@ function setMatchMedia(matches: boolean) {
   });
 }
 
+function setVisualViewportHeight(height: number) {
+  const visualViewport = {
+    addEventListener: vi.fn(),
+    height,
+    removeEventListener: vi.fn()
+  };
+
+  Object.defineProperty(window, "visualViewport", {
+    configurable: true,
+    value: visualViewport
+  });
+
+  return visualViewport;
+}
+
 afterEach(() => {
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
     value: originalMatchMedia
+  });
+  Object.defineProperty(window, "visualViewport", {
+    configurable: true,
+    value: originalVisualViewport
   });
 });
 
@@ -126,6 +146,34 @@ describe("HeroSection", () => {
     ).toBe("500px");
   });
 
+  it("positions the fixed black hole against the visible mobile viewport", () => {
+    setVisualViewportHeight(700);
+
+    const { container } = render(
+      <main data-slot="portfolio-scroll-container">
+        <HeroSection description="Portfolio introduction." title="Portfolio" />
+      </main>
+    );
+    const scrollContainer = container.querySelector(
+      '[data-slot="portfolio-scroll-container"]'
+    ) as HTMLElement;
+    const blackHole = container.querySelector(
+      '[data-slot="hero-black-hole"]'
+    ) as HTMLElement;
+
+    Object.defineProperties(scrollContainer, {
+      clientHeight: { configurable: true, value: 1000 },
+      scrollHeight: { configurable: true, value: 3000 },
+      scrollTop: { configurable: true, value: 0 }
+    });
+
+    fireEvent.scroll(scrollContainer);
+
+    expect(
+      blackHole.style.getPropertyValue("--portfolio-black-hole-center-y")
+    ).toBe("700px");
+  });
+
   it("maps black hole parallax from the viewport bottom to the viewport top", () => {
     const metrics = {
       scrollHeight: 3000,
@@ -138,6 +186,24 @@ describe("HeroSection", () => {
     expect(
       getBlackHoleParallaxCenterY({ ...metrics, scrollY: 1000 })
     ).toBeCloseTo(500);
+    expect(
+      getBlackHoleParallaxCenterY({ ...metrics, scrollY: 2000 })
+    ).toBeCloseTo(0);
+  });
+
+  it("keeps scroll progress tied to the scroll container height", () => {
+    const metrics = {
+      scrollContainerHeight: 1000,
+      scrollHeight: 3000,
+      viewportHeight: 700
+    };
+
+    expect(getBlackHoleParallaxCenterY({ ...metrics, scrollY: 0 })).toBeCloseTo(
+      700
+    );
+    expect(
+      getBlackHoleParallaxCenterY({ ...metrics, scrollY: 1000 })
+    ).toBeCloseTo(350);
     expect(
       getBlackHoleParallaxCenterY({ ...metrics, scrollY: 2000 })
     ).toBeCloseTo(0);

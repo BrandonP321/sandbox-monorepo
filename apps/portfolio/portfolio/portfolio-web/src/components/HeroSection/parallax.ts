@@ -1,15 +1,18 @@
 type BlackHoleParallaxMetrics = {
+  scrollContainerHeight?: number;
   scrollHeight: number;
   scrollY: number;
   viewportHeight: number;
 };
 
 function getBlackHoleParallaxCenterY({
+  scrollContainerHeight,
   scrollHeight,
   scrollY,
   viewportHeight
 }: BlackHoleParallaxMetrics) {
-  const scrollableHeight = scrollHeight - viewportHeight;
+  const scrollableHeight =
+    scrollHeight - (scrollContainerHeight ?? viewportHeight);
 
   if (scrollableHeight <= 0) {
     return viewportHeight;

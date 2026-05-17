@@ -58,10 +58,14 @@ function HeroSection({ className, description, id, title }: HeroSectionProps) {
         scrollContainer ??
         document.scrollingElement ??
         document.documentElement;
+      const scrollContainerHeight =
+        scrollContainer?.clientHeight || window.innerHeight;
+      const viewportHeight = getVisibleViewportHeight(scrollContainerHeight);
       const centerY = getBlackHoleParallaxCenterY({
+        scrollContainerHeight,
         scrollHeight: scrollingElement.scrollHeight,
         scrollY: scrollContainer ? scrollContainer.scrollTop : window.scrollY,
-        viewportHeight: scrollContainer?.clientHeight || window.innerHeight
+        viewportHeight
       });
 
       blackHole.style.setProperty(
@@ -72,14 +76,19 @@ function HeroSection({ className, description, id, title }: HeroSectionProps) {
 
     updateBlackHolePosition();
     const scrollTarget = scrollContainer ?? window;
+    const visualViewport = window.visualViewport;
     scrollTarget.addEventListener("scroll", updateBlackHolePosition, {
       passive: true
     });
     window.addEventListener("resize", updateBlackHolePosition);
+    visualViewport?.addEventListener("resize", updateBlackHolePosition);
+    visualViewport?.addEventListener("scroll", updateBlackHolePosition);
 
     return () => {
       scrollTarget.removeEventListener("scroll", updateBlackHolePosition);
       window.removeEventListener("resize", updateBlackHolePosition);
+      visualViewport?.removeEventListener("resize", updateBlackHolePosition);
+      visualViewport?.removeEventListener("scroll", updateBlackHolePosition);
     };
   }, []);
 
@@ -121,6 +130,16 @@ function HeroSection({ className, description, id, title }: HeroSectionProps) {
       </div>
     </section>
   );
+}
+
+function getVisibleViewportHeight(fallbackHeight: number) {
+  const visualViewportHeight = window.visualViewport?.height;
+
+  if (typeof visualViewportHeight !== "number" || visualViewportHeight <= 0) {
+    return fallbackHeight;
+  }
+
+  return Math.min(visualViewportHeight, fallbackHeight);
 }
 
 export { HeroSection, type HeroSectionProps };
