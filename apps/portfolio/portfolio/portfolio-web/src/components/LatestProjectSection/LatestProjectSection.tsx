@@ -119,11 +119,11 @@ function LatestProjectSection({ className, id }: LatestProjectSectionProps) {
             <ActionsContainer aria-label="Signal Tracker links">
               <ProjectLink
                 variant="primary"
-                href="https://d36eqszg4ubv0g.cloudfront.net/"
+                href="https://signal-tracker.bphillips.dev/"
               >
                 Live App
               </ProjectLink>
-              <ProjectLink href="https://d1m6bok2tskoqv.cloudfront.net/">
+              <ProjectLink href="https://dashboard-ui.bphillips.dev">
                 UI System
               </ProjectLink>
               <ProjectLink href="https://github.com/BrandonP321/sandbox-monorepo/tree/main/apps/analysis/signal-tracker">

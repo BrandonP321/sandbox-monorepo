@@ -66,7 +66,7 @@ describe("LatestProjectSection", () => {
     ).toHaveAttribute("rel", "noreferrer");
     expect(
       within(section).getByRole("link", { name: "UI System" })
-    ).toHaveAttribute("href", "https://d1m6bok2tskoqv.cloudfront.net/");
+    ).toHaveAttribute("href", "https://dashboard-ui.bphillips.dev");
     expect(
       within(section).getByRole("link", { name: "UI System" })
     ).toHaveAttribute("target", "_blank");
@@ -75,7 +75,7 @@ describe("LatestProjectSection", () => {
     ).toHaveAttribute("rel", "noreferrer");
     expect(
       within(section).getByRole("link", { name: "Live App" })
-    ).toHaveAttribute("href", "https://d36eqszg4ubv0g.cloudfront.net/");
+    ).toHaveAttribute("href", "https://signal-tracker.bphillips.dev/");
     expect(
       within(section).getByRole("link", { name: "Live App" })
     ).toHaveAttribute("target", "_blank");
