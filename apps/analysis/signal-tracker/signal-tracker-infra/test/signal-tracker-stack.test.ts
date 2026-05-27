@@ -143,7 +143,8 @@ describe("SignalTrackerStack", () => {
         Variables: Match.objectLike({
           SIGNAL_TRACKER_DB_STAGE: "prod"
         })
-      }
+      },
+      Timeout: 45
     });
 
     template.hasResourceProperties("AWS::IAM::Policy", {

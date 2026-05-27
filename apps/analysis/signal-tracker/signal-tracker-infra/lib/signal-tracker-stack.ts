@@ -21,6 +21,8 @@ import {
   type SignalTrackerDatabaseCapacityMode
 } from "./signal-tracker-database.js";
 
+const signalTrackerHandlerTimeout = cdk.Duration.seconds(45);
+
 export interface SignalTrackerStackProps extends cdk.StackProps {
   readonly apiCustomDomain?: HttpLambdaApiCustomDomainProps;
   readonly databaseCapacityMode?: SignalTrackerDatabaseCapacityMode;
@@ -93,7 +95,10 @@ export class SignalTrackerStack extends cdk.Stack {
           // TODO: Set this from deployment environment once a separate dev DB exists.
           SIGNAL_TRACKER_DB_STAGE: "prod"
         },
-        bundling: { target: "node22" }
+        bundling: { target: "node22" },
+        // Keep the Lambda alive long enough for Aurora Serverless v2 resume
+        // failures to reach route error mapping as PERSISTENCE_UNAVAILABLE.
+        timeout: signalTrackerHandlerTimeout
       }
     );
     database.cluster.grantDataApiAccess(handler);
