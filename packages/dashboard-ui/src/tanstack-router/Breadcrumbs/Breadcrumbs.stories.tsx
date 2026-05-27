@@ -16,7 +16,7 @@ import {
 } from "./Breadcrumbs";
 
 const meta = {
-  title: "UI/Breadcrumbs",
+  title: "Components/Breadcrumbs",
   component: Breadcrumbs,
   args: {
     items: [

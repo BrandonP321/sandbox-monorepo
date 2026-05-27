@@ -9,7 +9,7 @@ import {
 } from "./DeleteConfirmationDialog";
 
 const meta = {
-  title: "UI/DeleteConfirmationDialog",
+  title: "Components/DeleteConfirmationDialog",
   component: DeleteConfirmationDialogContent
 } satisfies Meta<typeof DeleteConfirmationDialogContent>;
 

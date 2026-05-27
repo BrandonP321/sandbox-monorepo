@@ -5,7 +5,7 @@ import { FormField } from "./FormField";
 import { TextInput } from "../Input";
 
 const meta = {
-  title: "UI/Form/FormField"
+  title: "Components/Form/FormField"
 } satisfies Meta;
 
 export default meta;

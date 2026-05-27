@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import { Chip } from "./Chip";
 
 const meta = {
-  title: "UI/Chip",
+  title: "Components/Chip",
   component: Chip,
   args: {
     children: "Agency report"

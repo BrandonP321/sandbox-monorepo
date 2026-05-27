@@ -14,7 +14,7 @@ import { Button } from "../../components/Button";
 import { AppShell, defineAppShellRoutes, type AppShellProps } from "./index";
 
 const meta = {
-  title: "UI/AppShell",
+  title: "Components/AppShell",
   component: AppShell,
   parameters: {
     layout: "fullscreen"

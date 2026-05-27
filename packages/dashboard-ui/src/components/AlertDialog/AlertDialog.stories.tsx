@@ -9,7 +9,7 @@ import {
 import { Button } from "../Button";
 
 const meta = {
-  title: "UI/AlertDialog",
+  title: "Components/AlertDialog",
   component: AlertDialog
 } satisfies Meta<typeof AlertDialog>;
 

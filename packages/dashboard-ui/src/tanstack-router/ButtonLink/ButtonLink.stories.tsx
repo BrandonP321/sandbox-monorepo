@@ -21,7 +21,7 @@ const testRoutes = {
 } as const;
 
 const meta = {
-  title: "UI/ButtonLink",
+  title: "Components/ButtonLink",
   parameters: {
     layout: "centered"
   },

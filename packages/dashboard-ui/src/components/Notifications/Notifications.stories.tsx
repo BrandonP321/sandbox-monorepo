@@ -9,7 +9,7 @@ import { Button } from "../Button";
 import { NotificationAlerts, NotificationFlashbar } from "./index";
 
 const meta = {
-  title: "UI/Notifications",
+  title: "Components/Notifications",
   decorators: [
     (Story) => (
       <div className="w-full max-w-3xl">

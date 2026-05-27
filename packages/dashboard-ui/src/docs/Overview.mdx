@@ -1,0 +1,91 @@
+import { Meta } from "@storybook/addon-docs/blocks";
+
+<Meta title="Overview" />
+
+# Dashboard UI
+
+Dashboard UI is the shared interface system for dashboard-style apps in this
+monorepo. It gives the apps here a consistent set of building blocks for common
+product work: buttons, cards, alerts, empty states, form fields, layout helpers,
+notifications, and app shells.
+
+This system is intentionally opinionated. The goal is not to make every visual
+or behavioral choice configurable. The goal is to make the common path fast,
+predictable, and difficult to misuse, so developers can spend more time building
+the product and less time rebuilding the same UI wiring. In plain terms, it was
+built to materially improve developer efficiency.
+
+## What this Storybook shows
+
+The **Components** section is the catalog. Each page shows a reusable piece of
+the UI system in realistic states, such as default, disabled, error, loading,
+compact, wide, or layout-sensitive examples.
+
+The examples are meant to answer simple questions quickly:
+
+- What does this component look like?
+- What states does it support?
+- Where does it fit in a dashboard workflow?
+- What behavior does the component handle for the app developer?
+
+## How it fits the monorepo
+
+This package lives at `packages/dashboard-ui` and is used by apps in the larger
+sandbox monorepo. The monorepo is set up like a small app factory: apps live in
+`apps/*`, and shared UI, API, test, and infrastructure code lives in
+`packages/*`.
+
+That structure matters because Dashboard UI is not just a visual catalog. It is
+a way to turn repeated product decisions into reusable code. When one app needs
+a reliable dashboard pattern, the useful parts can become package-owned
+components that other apps can reuse instead of copying.
+
+## What opinionated means here
+
+Opinionated means the system makes repeated choices once:
+
+- Buttons have a known set of intents, sizes, loading behavior, and icon
+  placement.
+- Alerts, dialogs, empty states, loading states, and notifications use shared
+  language and visual patterns.
+- Layout helpers cover common dashboard spacing, wrapping, grids, side panels,
+  and stacked content.
+- Router-aware pieces live in `@repo/dashboard-ui/tanstack-router`, while
+  route-agnostic components stay in the root `@repo/dashboard-ui` export.
+
+This makes app code smaller and easier to review. It also makes the UI more
+consistent because developers start from a known pattern instead of rebuilding
+the same behavior from scratch.
+
+## Forms are a good example
+
+Forms are one of the clearest examples of why this package exists.
+
+The form-related components use `react-hook-form` and shared form helpers under
+the hood. App developers can work with higher-level pieces like `Form`,
+`FormField`, `FormTextInput`, `FormDateInput`, `FormNumberInput`, `FormSelect`,
+and `FormTextarea` without manually wiring every label, error message, field
+registration, value conversion, disabled state, required state, and submit flow.
+
+That abstraction is practical, not decorative. It reduces repeated code,
+centralizes behavior that is easy to get subtly wrong, and keeps forms across
+apps feeling like they belong to the same product family.
+
+## What to look at first
+
+- [Button](?path=/docs/components-button--docs) for the basic action language.
+- [Form](?path=/docs/components-form-form--docs) for composed form behavior.
+- [Alert](?path=/docs/components-alert--docs) for status and error messaging.
+- [EmptyState](?path=/docs/components-emptystate--docs) for user-facing blank
+  states.
+- [AppShell](?path=/docs/components-appshell--docs) for the dashboard frame used
+  by router-based apps.
+
+## Design goal
+
+The design goal is simple: make small, serious web apps easier to build without
+making every app invent its own UI system.
+
+Dashboard UI gives the monorepo a shared baseline for product quality,
+accessible behavior, and developer efficiency. It is intentionally small enough
+to understand, but complete enough to carry real application work.

@@ -12,7 +12,7 @@ import {
 import { useDialogContext } from "./DialogContext";
 
 const meta = {
-  title: "UI/Dialog",
+  title: "Components/Dialog",
   component: Dialog
 } satisfies Meta<typeof Dialog>;
 

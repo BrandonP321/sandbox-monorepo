@@ -20,7 +20,7 @@ const testRoutes = {
 } as const;
 
 const meta = {
-  title: "UI/PageNotFound",
+  title: "Components/PageNotFound",
   component: PageNotFound,
   parameters: {
     layout: "fullscreen"

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { DateInput } from "./DateInput";
 
 const meta = {
-  title: "UI/Form/DateInput",
+  title: "Components/Form/DateInput",
   component: DateInput
 } satisfies Meta<typeof DateInput>;
 

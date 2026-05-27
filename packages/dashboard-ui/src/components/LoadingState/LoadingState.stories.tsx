@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { LoadingState } from "./LoadingState";
 
 const meta = {
-  title: "UI/LoadingState",
+  title: "Components/LoadingState",
   component: LoadingState,
   args: {
     label: "Loading"

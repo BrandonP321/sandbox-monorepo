@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import { Card, CardContent, CardFooter, CardHeader } from "./Card";
 
 const meta = {
-  title: "UI/Card",
+  title: "Components/Card",
   component: Card
 } satisfies Meta<typeof Card>;
 

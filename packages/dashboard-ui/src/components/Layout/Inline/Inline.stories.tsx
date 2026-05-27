@@ -5,7 +5,7 @@ import { Button } from "../../Button";
 import { Inline } from "./Inline";
 
 const meta = {
-  title: "UI/Layout/Inline",
+  title: "Components/Layout/Inline",
   component: Inline
 } satisfies Meta<typeof Inline>;
 

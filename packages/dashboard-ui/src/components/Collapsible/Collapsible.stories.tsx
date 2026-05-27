@@ -10,7 +10,7 @@ import {
 } from "./Collapsible";
 
 const meta = {
-  title: "UI/Collapsible",
+  title: "Components/Collapsible",
   component: Collapsible
 } satisfies Meta<typeof Collapsible>;
 

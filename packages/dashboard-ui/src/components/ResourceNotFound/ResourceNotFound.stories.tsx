@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import { ResourceNotFound } from "./ResourceNotFound";
 
 const meta = {
-  title: "UI/ResourceNotFound",
+  title: "Components/ResourceNotFound",
   component: ResourceNotFound,
   parameters: {
     layout: "fullscreen"

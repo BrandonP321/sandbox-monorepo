@@ -12,7 +12,7 @@ import {
 } from "./DropdownMenu";
 
 const meta = {
-  title: "UI/DropdownMenu",
+  title: "Components/DropdownMenu",
   component: DropdownMenu
 } satisfies Meta<typeof DropdownMenu>;
 

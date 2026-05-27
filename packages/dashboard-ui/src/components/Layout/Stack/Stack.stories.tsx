@@ -4,7 +4,7 @@ import { Card, CardContent } from "../../Card";
 import { Stack } from "./Stack";
 
 const meta = {
-  title: "UI/Layout/Stack",
+  title: "Components/Layout/Stack",
   component: Stack
 } satisfies Meta<typeof Stack>;
 

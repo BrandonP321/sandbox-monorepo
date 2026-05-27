@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { SourceIcon } from "./SourceIcon";
 
 const meta = {
-  title: "UI/SourceIcon",
+  title: "Components/SourceIcon",
   component: SourceIcon,
   args: {
     url: "https://agency.example/report"

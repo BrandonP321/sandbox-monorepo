@@ -9,7 +9,7 @@ const selectOptions = [
 ] as const;
 
 const meta = {
-  title: "UI/Form/Select",
+  title: "Components/Form/Select",
   component: Select,
   args: {
     options: [...selectOptions],

@@ -4,7 +4,7 @@ import { Button } from "../Button";
 import { ContentHeader } from "./ContentHeader";
 
 const meta = {
-  title: "UI/ContentHeader",
+  title: "Components/ContentHeader",
   component: ContentHeader
 } satisfies Meta<typeof ContentHeader>;
 

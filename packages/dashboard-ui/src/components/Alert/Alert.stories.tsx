@@ -4,7 +4,7 @@ import { Button } from "../Button";
 import { Alert } from "./Alert";
 
 const meta = {
-  title: "UI/Alert",
+  title: "Components/Alert",
   component: Alert,
   argTypes: {
     role: {

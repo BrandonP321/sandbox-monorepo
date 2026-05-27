@@ -6,7 +6,7 @@ import { NumberInput } from "../Form/Input";
 import { IconStack } from "./IconStack";
 
 const meta = {
-  title: "UI/IconStack",
+  title: "Components/IconStack",
   component: IconStack,
   args: {
     items: [

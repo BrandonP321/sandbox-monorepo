@@ -6,7 +6,7 @@ import { Stack } from "../Stack";
 import { WithAside } from "./WithAside";
 
 const meta = {
-  title: "UI/Layout/WithAside",
+  title: "Components/Layout/WithAside",
   component: WithAside
 } satisfies Meta<typeof WithAside>;
 

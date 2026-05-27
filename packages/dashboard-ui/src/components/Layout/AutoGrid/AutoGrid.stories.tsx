@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AutoGrid } from "./AutoGrid";
 
 const meta = {
-  title: "UI/Layout/AutoGrid",
+  title: "Components/Layout/AutoGrid",
   component: AutoGrid
 } satisfies Meta<typeof AutoGrid>;
 

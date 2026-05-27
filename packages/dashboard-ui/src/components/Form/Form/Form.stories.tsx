@@ -15,7 +15,7 @@ import { FormTextInput } from "../FormTextInput";
 import { FormTextarea } from "../FormTextarea";
 
 const meta = {
-  title: "UI/Form/Form"
+  title: "Components/Form/Form"
 } satisfies Meta;
 
 export default meta;

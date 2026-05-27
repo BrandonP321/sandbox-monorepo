@@ -13,7 +13,7 @@ import {
 import { AttributeEditor } from "./AttributeEditor";
 
 const meta = {
-  title: "UI/AttributeEditor"
+  title: "Components/AttributeEditor"
 } satisfies Meta;
 
 export default meta;
@@ -68,9 +68,7 @@ type AttributeEditorStoryProps = {
   containerWidth?: string;
 };
 
-function AttributeEditorStory({
-  containerWidth = "min(72rem, calc(100vw - 2rem))"
-}: AttributeEditorStoryProps) {
+function AttributeEditorStory({ containerWidth }: AttributeEditorStoryProps) {
   return (
     <FormProvider
       defaultValues={defaultValues}
@@ -85,7 +83,7 @@ function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function AttributeEditorForm({ containerWidth }: { containerWidth: string }) {
+function AttributeEditorForm({ containerWidth }: { containerWidth?: string }) {
   const { append, fields, remove } = useFieldArray<AttributeEditorFormValues>({
     name: "attributes"
   });
@@ -144,9 +142,9 @@ function AttributeEditorForm({ containerWidth }: { containerWidth: string }) {
   );
 }
 
-function getAttributeEditorContainerStyle(width: string) {
+function getAttributeEditorContainerStyle(width?: string) {
   return {
-    maxWidth: "calc(100vw - 2rem)",
+    maxWidth: width && "calc(100vw - 2rem)",
     width
   } satisfies CSSProperties;
 }

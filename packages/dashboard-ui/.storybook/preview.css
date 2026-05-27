@@ -1,6 +1,5 @@
 .sb-preview-frame {
   width: 100%;
-  min-height: 100vh;
   padding: 2rem;
 }
 
@@ -10,4 +9,8 @@
   min-height: 100vh;
   padding: 0;
   overflow: hidden;
+}
+
+.sb-show-main {
+  background: white;
 }

@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import { EmptyState } from "./EmptyState";
 
 const meta = {
-  title: "UI/EmptyState",
+  title: "Components/EmptyState",
   component: EmptyState,
   args: {
     action: <Button>New topic</Button>,

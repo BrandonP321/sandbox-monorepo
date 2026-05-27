@@ -9,7 +9,7 @@ import {
 } from "./Popover";
 
 const meta = {
-  title: "UI/Popover",
+  title: "Components/Popover",
   component: Popover
 } satisfies Meta<typeof Popover>;
 

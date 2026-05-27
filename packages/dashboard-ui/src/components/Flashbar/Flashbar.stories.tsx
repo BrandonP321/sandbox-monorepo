@@ -5,7 +5,7 @@ import { Button } from "../Button";
 import { Flashbar, type FlashbarProps } from "./Flashbar";
 
 const meta = {
-  title: "UI/Flashbar",
+  title: "Components/Flashbar",
   component: Flashbar,
   decorators: [
     (Story, context) =>

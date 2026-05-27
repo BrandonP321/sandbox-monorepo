@@ -57,6 +57,11 @@ and dependency direction.
 
 - Add focused tests for behavior a user or consuming component can observe.
 - Add Storybook stories for visual states and layout-sensitive variants.
+- Use `Components/...` as the top-level Storybook title namespace for component
+  stories.
+- Keep Storybook documentation plain-English enough for reviewers with mixed
+  technical backgrounds. Use docs pages to explain the system's purpose,
+  monorepo context, and opinionated developer-efficiency tradeoffs.
 - In Storybook Vite config, merge only package-specific needs such as the
   Tailwind plugin and local aliases. Do not merge the package Vite config
   wholesale, because `@storybook/react-vite` already owns the React plugin and
