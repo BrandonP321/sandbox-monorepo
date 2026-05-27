@@ -1,7 +1,13 @@
 import * as cdk from "aws-cdk-lib";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
+
+import {
+  GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME,
+  GITHUB_ACTIONS_OIDC_PROVIDER_URL
+} from "@repo/infra-patterns";
 
 export interface DomainFoundationStackProps extends cdk.StackProps {
   readonly domainName: string;
@@ -30,6 +36,20 @@ export class DomainFoundationStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, "HostedZoneNameServers", {
       value: cdk.Fn.join(",", this.hostedZone.hostedZoneNameServers ?? [])
+    });
+
+    const githubActionsOidcProvider = new iam.OpenIdConnectProvider(
+      this,
+      "GitHubActionsOidcProvider",
+      {
+        clientIds: ["sts.amazonaws.com"],
+        url: GITHUB_ACTIONS_OIDC_PROVIDER_URL
+      }
+    );
+
+    new cdk.CfnOutput(this, "GitHubActionsOidcProviderArn", {
+      exportName: GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME,
+      value: githubActionsOidcProvider.openIdConnectProviderArn
     });
 
     if (props.preserveGoogleWorkspaceRecords) {

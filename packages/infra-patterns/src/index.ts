@@ -15,6 +15,16 @@ export {
   type GitHubActionsCodePipelineDeployProps
 } from "./github-actions-codepipeline-deploy.js";
 
+export const GITHUB_ACTIONS_OIDC_PROVIDER_URL =
+  "https://token.actions.githubusercontent.com";
+
+export const GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME =
+  "sandbox-github-actions-oidc-provider-arn";
+
+export function importGitHubActionsOidcProviderArn(): string {
+  return cdk.Fn.importValue(GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME);
+}
+
 export interface DnsAliasRecordProps {
   readonly hostedZone: route53.IHostedZone;
   readonly createRecords?: boolean;

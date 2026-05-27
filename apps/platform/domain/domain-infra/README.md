@@ -1,7 +1,8 @@
 # Domain Infrastructure
 
-This package owns the repo-wide Route 53 hosted zone and the shared ACM
-certificate used by CloudFront and API Gateway custom domains.
+This package owns the repo-wide Route 53 hosted zone, the shared ACM
+certificate used by CloudFront and API Gateway custom domains, and the shared
+GitHub Actions IAM OIDC provider used by app deploy pipeline starter roles.
 
 ## Deployment model
 
@@ -26,6 +27,24 @@ AWS_PROFILE=sandbox-admin pnpm --filter domain-infra exec cdk deploy -c domainNa
 The certificate is created in `us-east-1`, which is required for CloudFront. It
 covers the apex domain, `www`, and one-level app subdomains through
 `*.example.com`.
+
+## GitHub Actions OIDC provider
+
+The stack also creates the account-level IAM OIDC provider for:
+
+```text
+https://token.actions.githubusercontent.com
+```
+
+It exports the provider ARN as:
+
+```text
+sandbox-github-actions-oidc-provider-arn
+```
+
+App deploy stacks import this export for their GitHub Actions starter roles. If
+GitHub Actions fails with `No OpenIDConnect provider found in your account`,
+deploy this foundation stack first.
 
 ## Manual registrar checklist
 

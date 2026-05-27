@@ -9,6 +9,7 @@ import { Construct } from "constructs";
 import {
   GitHubActionsCodePipelineDeploy,
   HttpLambdaApi,
+  importGitHubActionsOidcProviderArn,
   importDomainFoundation,
   SpaSite,
   type HttpLambdaApiCustomDomainProps,
@@ -47,16 +48,7 @@ export class SignalTrackerStack extends cdk.Stack {
         deployStackName: "SignalTrackerStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",
-        githubOidcProviderArn: cdk.Arn.format(
-          {
-            service: "iam",
-            region: "",
-            account: cdk.Stack.of(this).account,
-            resource: "oidc-provider",
-            resourceName: "token.actions.githubusercontent.com"
-          },
-          this
-        ),
+        githubOidcProviderArn: importGitHubActionsOidcProviderArn(),
         githubBranch: "main",
         githubOwner: "BrandonP321",
         githubRepo: "sandbox-monorepo",

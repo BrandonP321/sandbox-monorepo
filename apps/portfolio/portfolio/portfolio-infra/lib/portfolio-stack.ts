@@ -3,6 +3,7 @@ import { Construct } from "constructs";
 
 import {
   GitHubActionsCodePipelineDeploy,
+  importGitHubActionsOidcProviderArn,
   importDomainFoundation,
   SpaSite,
   type SpaSiteCustomDomainProps
@@ -28,16 +29,7 @@ export class PortfolioStack extends cdk.Stack {
         deployStackName: "PortfolioStack",
         githubActionsBranch: "main",
         githubActionsRepo: "BrandonP321/sandbox-monorepo",
-        githubOidcProviderArn: cdk.Arn.format(
-          {
-            service: "iam",
-            region: "",
-            account: cdk.Stack.of(this).account,
-            resource: "oidc-provider",
-            resourceName: "token.actions.githubusercontent.com"
-          },
-          this
-        ),
+        githubOidcProviderArn: importGitHubActionsOidcProviderArn(),
         githubBranch: "main",
         githubOwner: "BrandonP321",
         githubRepo: "sandbox-monorepo",

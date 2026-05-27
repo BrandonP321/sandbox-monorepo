@@ -2,6 +2,11 @@ import * as cdk from "aws-cdk-lib";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
 
+import {
+  GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME,
+  GITHUB_ACTIONS_OIDC_PROVIDER_URL
+} from "@repo/infra-patterns";
+
 import { DomainFoundationStack } from "../lib/domain-foundation-stack.js";
 
 describe("DomainFoundationStack", () => {
@@ -17,6 +22,10 @@ describe("DomainFoundationStack", () => {
     template.hasResourceProperties("AWS::Route53::HostedZone", {
       Name: "example.com."
     });
+    template.hasResourceProperties("Custom::AWSCDKOpenIdConnectProvider", {
+      ClientIDList: ["sts.amazonaws.com"],
+      Url: GITHUB_ACTIONS_OIDC_PROVIDER_URL
+    });
     template.resourceCountIs("AWS::CertificateManager::Certificate", 0);
     template.hasOutput("HostedZoneId", {
       Export: { Name: "sandbox-domain-hosted-zone-id" },
@@ -27,6 +36,10 @@ describe("DomainFoundationStack", () => {
       Value: "example.com"
     });
     template.hasOutput("HostedZoneNameServers", { Value: Match.anyValue() });
+    template.hasOutput("GitHubActionsOidcProviderArn", {
+      Export: { Name: GITHUB_ACTIONS_OIDC_PROVIDER_ARN_EXPORT_NAME },
+      Value: Match.anyValue()
+    });
     expect(stack.certificate).toBeUndefined();
   });
 

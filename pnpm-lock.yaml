@@ -367,6 +367,9 @@ importers:
 
   apps/platform/domain/domain-infra:
     dependencies:
+      "@repo/infra-patterns":
+        specifier: workspace:*
+        version: link:../../../../packages/infra-patterns
       aws-cdk-lib:
         specifier: ^2.212.0
         version: 2.237.1(constructs@10.4.5)

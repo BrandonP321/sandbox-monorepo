@@ -83,6 +83,21 @@ describe("PortfolioStack", () => {
 
     template.resourceCountIs("AWS::ApiGatewayV2::Api", 0);
     template.resourceCountIs("AWS::CloudFront::Distribution", 1);
+    template.resourceCountIs("AWS::IAM::OIDCProvider", 0);
+    template.hasResourceProperties("AWS::IAM::Role", {
+      RoleName: "portfolio-prod-starter",
+      AssumeRolePolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectLike({
+            Principal: Match.objectLike({
+              Federated: {
+                "Fn::ImportValue": "sandbox-github-actions-oidc-provider-arn"
+              }
+            })
+          })
+        ])
+      })
+    });
 
     const outputs = Template.fromStack(stack).toJSON().Outputs ?? {};
     expect(outputs).not.toHaveProperty("ApiBaseUrl");

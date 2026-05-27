@@ -100,12 +100,15 @@ describe("SignalTrackerStack", () => {
           Match.objectLike({
             Action: "sts:AssumeRoleWithWebIdentity",
             Principal: Match.objectLike({
-              Federated: Match.anyValue()
+              Federated: {
+                "Fn::ImportValue": "sandbox-github-actions-oidc-provider-arn"
+              }
             })
           })
         ])
       })
     });
+    template.resourceCountIs("AWS::IAM::OIDCProvider", 0);
   });
 
   it("creates the default Aurora PostgreSQL Serverless v2 database foundation", () => {

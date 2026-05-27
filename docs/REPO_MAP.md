@@ -42,7 +42,7 @@
   dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui
 
 /apps/platform/domain
-  domain-infra # AWS CDK Route 53 hosted zone and shared ACM certificate foundation
+  domain-infra # AWS CDK Route 53 hosted zone, shared ACM certificate, and shared GitHub Actions OIDC provider foundation
 ```
 
 Signal Tracker-specific agent guidance lives in `apps/analysis/signal-tracker/AGENTS.md`.
