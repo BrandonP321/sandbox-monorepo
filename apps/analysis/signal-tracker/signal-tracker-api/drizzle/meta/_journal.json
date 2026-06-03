@@ -50,6 +50,13 @@
       "when": 1777654928413,
       "tag": "0006_tough_selene",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1780446651263,
+      "tag": "0007_rainy_sugar_man",
+      "breakpoints": true
     }
   ]
 }

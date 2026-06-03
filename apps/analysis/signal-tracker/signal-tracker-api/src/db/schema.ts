@@ -47,7 +47,7 @@ export const entries = pgTable(
     id: text("id").primaryKey(),
     topicId: text("topic_id")
       .notNull()
-      .references(() => topics.id),
+      .references(() => topics.id, { onDelete: "cascade" }),
     kind: text("kind").notNull(),
     epistemicStatus: text("epistemic_status").notNull(),
     title: text("title").notNull(),
@@ -89,7 +89,7 @@ export const entryAssessments = pgTable(
   {
     entryId: text("entry_id")
       .primaryKey()
-      .references(() => entries.id),
+      .references(() => entries.id, { onDelete: "cascade" }),
     judgment: text("judgment").notNull(),
     confidenceLabel: text("confidence_label").notNull(),
     probabilityPct: integer("probability_pct"),
@@ -98,7 +98,8 @@ export const entryAssessments = pgTable(
     resolutionCriteria: text("resolution_criteria"),
     targetResolvesAt: timestamp("target_resolves_at", { withTimezone: true }),
     previousAssessmentEntryId: text("previous_assessment_entry_id").references(
-      () => entries.id
+      () => entries.id,
+      { onDelete: "set null" }
     )
   },
   (table) => [
