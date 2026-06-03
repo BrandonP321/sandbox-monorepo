@@ -32,11 +32,27 @@ describe("signalTracker API error conventions", () => {
     expect(signalTrackerApiErrorCodes.entryCitationNotFound).toBe(
       "ENTRY_CITATION_NOT_FOUND"
     );
+    expect(signalTrackerApiErrorCodes.protectedDemoTopicArchiveDisabled).toBe(
+      "PROTECTED_DEMO_TOPIC_ARCHIVE_DISABLED"
+    );
+    expect(signalTrackerApiErrorCodes.protectedDemoTopicDeleteDisabled).toBe(
+      "PROTECTED_DEMO_TOPIC_DELETE_DISABLED"
+    );
     expect(
       isSignalTrackerRetryableDbErrorCode(
         signalTrackerApiErrorCodes.persistenceUnavailable
       )
     ).toBe(true);
+    expect(
+      isSignalTrackerRetryableDbErrorCode(
+        signalTrackerApiErrorCodes.protectedDemoTopicArchiveDisabled
+      )
+    ).toBe(false);
+    expect(
+      isSignalTrackerRetryableDbErrorCode(
+        signalTrackerApiErrorCodes.protectedDemoTopicDeleteDisabled
+      )
+    ).toBe(false);
     expect(isSignalTrackerRetryableDbErrorCode("VALIDATION_ERROR")).toBe(false);
   });
 });

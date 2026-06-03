@@ -11,13 +11,21 @@ import {
   listTopicTimelineRequestSchema,
   createTopicRequestSchema,
   isSignalTrackerRetryableDbErrorCode,
+  isSignalTrackerProtectedDemoTopicId,
   signalTrackerApiErrorCodes,
+  signalTrackerProtectedDemoTopicId,
   signalTrackerRoutes
 } from "./index.js";
 
 describe("signal-tracker-shared public barrel", () => {
   it("re-exports focused contract modules through the package root", () => {
     expect(signalTrackerRoutes.createTopic.path).toBe("/create-topic");
+    expect(signalTrackerProtectedDemoTopicId).toBe(
+      "3c3f7086-e40b-4320-a62f-24dd95b4c04d"
+    );
+    expect(
+      isSignalTrackerProtectedDemoTopicId(signalTrackerProtectedDemoTopicId)
+    ).toBe(true);
     expect(signalTrackerApiErrorCodes.persistenceUnavailable).toBe(
       "PERSISTENCE_UNAVAILABLE"
     );

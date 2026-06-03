@@ -9,7 +9,9 @@ export const signalTrackerApiErrorCodes = {
   reviewNoteNotFound: "REVIEW_NOTE_NOT_FOUND",
   evidenceItemNotFound: "EVIDENCE_ITEM_NOT_FOUND",
   evidenceAnchorNotFound: "EVIDENCE_ANCHOR_NOT_FOUND",
-  entryCitationNotFound: "ENTRY_CITATION_NOT_FOUND"
+  entryCitationNotFound: "ENTRY_CITATION_NOT_FOUND",
+  protectedDemoTopicArchiveDisabled: "PROTECTED_DEMO_TOPIC_ARCHIVE_DISABLED",
+  protectedDemoTopicDeleteDisabled: "PROTECTED_DEMO_TOPIC_DELETE_DISABLED"
 } as const;
 
 export type SignalTrackerApiErrorCode =

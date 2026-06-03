@@ -1,6 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { Topic } from "@repo/signal-tracker-shared";
+import {
+  signalTrackerApiErrorCodes,
+  signalTrackerProtectedDemoTopicId,
+  type Topic
+} from "@repo/signal-tracker-shared";
 
 import { InMemoryAssessmentRepository } from "../../domain/assessments/assessment-repository";
 import { InMemoryEntrySourceSummaryRepository } from "../../domain/entries/entry-source-summary-repository";
@@ -119,6 +123,36 @@ describe("topic lifecycle routes", () => {
     });
   });
 
+  it("refuses to archive the protected demo topic", async () => {
+    const repository = new InMemoryTopicRepository();
+    const protectedTopic = {
+      ...topicFixture,
+      id: signalTrackerProtectedDemoTopicId
+    };
+    await repository.create(protectedTopic);
+    const archiveTopic = vi.spyOn(repository, "archive");
+    const archiveHandler = createArchiveTopicHandler({
+      repository,
+      now: () => new Date("2026-04-27T00:00:00.000Z")
+    });
+
+    await expect(
+      archiveHandler({
+        method: "POST",
+        path: "/archive-topic",
+        body: JSON.stringify({ topicId: signalTrackerProtectedDemoTopicId })
+      })
+    ).rejects.toMatchObject({
+      code: signalTrackerApiErrorCodes.protectedDemoTopicArchiveDisabled,
+      statusCode: 403
+    });
+
+    expect(archiveTopic).not.toHaveBeenCalled();
+    await expect(
+      repository.findById(signalTrackerProtectedDemoTopicId)
+    ).resolves.toEqual(protectedTopic);
+  });
+
   it("hard deletes a topic row and removes it from list and direct reads", async () => {
     const repository = new InMemoryTopicRepository();
     await repository.create(topicFixture);
@@ -156,6 +190,33 @@ describe("topic lifecycle routes", () => {
       code: "TOPIC_NOT_FOUND",
       statusCode: 404
     });
+  });
+
+  it("refuses to hard delete the protected demo topic", async () => {
+    const repository = new InMemoryTopicRepository();
+    const protectedTopic = {
+      ...topicFixture,
+      id: signalTrackerProtectedDemoTopicId
+    };
+    await repository.create(protectedTopic);
+    const deleteTopic = vi.spyOn(repository, "delete");
+    const deleteHandler = createDeleteTopicHandler({ repository });
+
+    await expect(
+      deleteHandler({
+        method: "POST",
+        path: "/delete-topic",
+        body: JSON.stringify({ topicId: signalTrackerProtectedDemoTopicId })
+      })
+    ).rejects.toMatchObject({
+      code: signalTrackerApiErrorCodes.protectedDemoTopicDeleteDisabled,
+      statusCode: 403
+    });
+
+    expect(deleteTopic).not.toHaveBeenCalled();
+    await expect(
+      repository.findById(signalTrackerProtectedDemoTopicId)
+    ).resolves.toEqual(protectedTopic);
   });
 
   it("returns not found for lifecycle requests against missing topics", async () => {

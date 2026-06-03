@@ -1,5 +1,6 @@
 export * from "./assessment-contracts.js";
 export * from "./citation-contracts.js";
+export * from "./demo-topics.js";
 export * from "./entry-contracts.js";
 export * from "./evidence-contracts.js";
 export * from "./errors.js";

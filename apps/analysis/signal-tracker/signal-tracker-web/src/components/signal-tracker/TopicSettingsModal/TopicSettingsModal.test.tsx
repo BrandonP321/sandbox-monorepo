@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { signalTrackerProtectedDemoTopicId } from "@repo/signal-tracker-shared";
 import { topic as topicFixture } from "@/api/apiTestData";
 
 import { TopicSettingsModal } from "./TopicSettingsModal";
@@ -83,5 +84,52 @@ describe("TopicSettingsModal", () => {
     expect(
       within(dialog).getByRole("button", { name: "Delete topic" })
     ).toBeInTheDocument();
+  });
+
+  it("disables lifecycle actions for the protected demo topic", async () => {
+    render(
+      <TopicSettingsModal
+        topic={{
+          ...topicFixture,
+          id: signalTrackerProtectedDemoTopicId
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Topic settings" }));
+
+    const dialog = await screen.findByRole("dialog", {
+      name: "Topic settings"
+    });
+    const archiveButton = within(dialog).getByRole("button", {
+      name: "Archive topic"
+    });
+    const deleteButton = within(dialog).getByRole("button", {
+      name: "Delete topic"
+    });
+
+    expect(archiveButton).toBeDisabled();
+    expect(deleteButton).toBeDisabled();
+    expect(
+      within(dialog).getByText(
+        "Archiving is temporarily disabled for this demo topic."
+      )
+    ).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(
+        "Deletion is temporarily disabled for this demo topic."
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(archiveButton);
+    fireEvent.click(deleteButton);
+
+    expect(apiMocks.useArchiveTopicMutation).not.toHaveBeenCalled();
+    expect(apiMocks.useDeleteTopicMutation).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("alertdialog", {
+        name: "Delete topic permanently?"
+      })
+    ).not.toBeInTheDocument();
   });
 });

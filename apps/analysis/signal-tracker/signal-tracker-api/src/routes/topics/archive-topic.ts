@@ -1,10 +1,14 @@
 import {
+  isSignalTrackerProtectedDemoTopicId,
   signalTrackerRouteContracts,
   type Topic
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
 
-import { createTopicNotFoundError } from "../../app/errors";
+import {
+  createProtectedDemoTopicArchiveDisabledError,
+  createTopicNotFoundError
+} from "../../app/errors";
 import {
   createJsonRouteHandler,
   withPersistenceErrorMapping
@@ -33,6 +37,10 @@ async function archiveTopicRecord(
   topicId: string,
   dependencies: ArchiveTopicHandlerDependencies
 ): Promise<Topic> {
+  if (isSignalTrackerProtectedDemoTopicId(topicId)) {
+    throw createProtectedDemoTopicArchiveDisabledError();
+  }
+
   const archivedAt = (dependencies.now ?? (() => new Date()))().toISOString();
   const topic = await persistTopicArchive(topicId, archivedAt, dependencies);
 

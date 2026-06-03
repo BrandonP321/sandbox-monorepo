@@ -1,10 +1,14 @@
 import {
+  isSignalTrackerProtectedDemoTopicId,
   signalTrackerRouteContracts,
   type Topic
 } from "@repo/signal-tracker-shared";
 import type { RouteHandler } from "@repo/api-core";
 
-import { createTopicNotFoundError } from "../../app/errors";
+import {
+  createProtectedDemoTopicDeleteDisabledError,
+  createTopicNotFoundError
+} from "../../app/errors";
 import {
   createJsonRouteHandler,
   withPersistenceErrorMapping
@@ -32,6 +36,10 @@ async function deleteTopicRecord(
   topicId: string,
   dependencies: DeleteTopicHandlerDependencies
 ): Promise<Topic> {
+  if (isSignalTrackerProtectedDemoTopicId(topicId)) {
+    throw createProtectedDemoTopicDeleteDisabledError();
+  }
+
   const topic = await persistTopicDelete(topicId, dependencies);
 
   if (!topic) {

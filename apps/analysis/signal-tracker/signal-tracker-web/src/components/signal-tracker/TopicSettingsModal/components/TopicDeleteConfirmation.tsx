@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { isSignalTrackerProtectedDemoTopicId } from "@repo/signal-tracker-shared";
 
 import { useDeleteTopicMutation } from "@/api";
 import {
@@ -18,6 +19,19 @@ function TopicDeleteConfirmation({
   topicId,
   topicTitle
 }: TopicDeleteConfirmationProps) {
+  if (isSignalTrackerProtectedDemoTopicId(topicId)) {
+    return (
+      <div className="grid gap-2">
+        <Button disabled variant="danger">
+          Delete topic
+        </Button>
+        <p className="text-muted-foreground text-sm">
+          Deletion is temporarily disabled for this demo topic.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <DeleteConfirmationDialog>
       <DeleteConfirmationDialogTrigger>

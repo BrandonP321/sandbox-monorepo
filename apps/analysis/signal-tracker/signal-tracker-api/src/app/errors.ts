@@ -17,6 +17,22 @@ export function createTopicNotFoundError(): AppError {
   );
 }
 
+export function createProtectedDemoTopicDeleteDisabledError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.protectedDemoTopicDeleteDisabled,
+    "This demo topic cannot be deleted",
+    403
+  );
+}
+
+export function createProtectedDemoTopicArchiveDisabledError(): AppError {
+  return new AppError(
+    signalTrackerApiErrorCodes.protectedDemoTopicArchiveDisabled,
+    "This demo topic cannot be archived",
+    403
+  );
+}
+
 export function createEntryNotFoundError(): AppError {
   return new AppError(
     signalTrackerApiErrorCodes.entryNotFound,

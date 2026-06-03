@@ -1,4 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
+import { isSignalTrackerProtectedDemoTopicId } from "@repo/signal-tracker-shared";
 import { ErrorNotificationProvider } from "@repo/ui-base/notifications";
 
 import { useArchiveTopicMutation } from "@/api";
@@ -20,8 +21,23 @@ function TopicArchiveSection() {
 }
 
 function TopicArchiveSectionContent() {
-  const navigate = useNavigate();
   const { topicId } = useTopicSettingsModalContext();
+
+  if (isSignalTrackerProtectedDemoTopicId(topicId)) {
+    return <ProtectedDemoTopicArchiveSection />;
+  }
+
+  return <TopicArchiveSectionControls topicId={topicId} />;
+}
+
+type TopicArchiveSectionControlsProps = {
+  topicId: string;
+};
+
+function TopicArchiveSectionControls({
+  topicId
+}: TopicArchiveSectionControlsProps) {
+  const navigate = useNavigate();
   const { isDialogConfirming, runDialogConfirm } = useDialogContext();
   const [archiveTopic] = useArchiveTopicMutation();
 
@@ -52,6 +68,25 @@ function TopicArchiveSectionContent() {
         Archive topic
       </Button>
       <NotificationAlerts />
+    </section>
+  );
+}
+
+function ProtectedDemoTopicArchiveSection() {
+  return (
+    <section className="border-border grid gap-3 border-t pt-5">
+      <ContentHeader
+        description="Archive hides this topic from the active topic flow without deleting its analytical history."
+        headingLevel={2}
+        headingSize="h5"
+        title="Lifecycle"
+      />
+      <Button disabled variant="outline">
+        Archive topic
+      </Button>
+      <p className="text-muted-foreground text-sm">
+        Archiving is temporarily disabled for this demo topic.
+      </p>
     </section>
   );
 }
