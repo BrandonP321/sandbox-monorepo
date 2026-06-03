@@ -21,7 +21,7 @@ function AttachedSourceSummaryList({
   }
 
   return (
-    <ul className="flex flex-wrap gap-2">
+    <ul className="flex min-w-0 max-w-full flex-wrap gap-2 overflow-hidden">
       {sources.map((source) => (
         <AttachedSourceSummaryListItem key={source.id} source={source} />
       ))}
@@ -44,10 +44,10 @@ function AttachedSourceSummaryListItem({
     </>
   );
   const className =
-    "border-border bg-background hover:bg-muted/60 inline-flex max-w-full min-w-0 items-center gap-2 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors";
+    "border-border bg-background hover:bg-muted/60 inline-flex max-w-full min-w-0 items-center gap-2 overflow-hidden rounded-full border px-3 py-1.5 text-sm font-medium transition-colors";
 
   return (
-    <li className="min-w-0">
+    <li className="max-w-full min-w-0">
       {sourceUrl ? (
         <a
           className={className}

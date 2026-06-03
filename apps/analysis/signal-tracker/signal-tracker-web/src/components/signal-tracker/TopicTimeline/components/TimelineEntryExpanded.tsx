@@ -1,4 +1,5 @@
 import type { AttachedSourceSummary } from "@repo/signal-tracker-shared";
+import { cn } from "@repo/dashboard-ui";
 import type { ReactNode } from "react";
 
 import { Badge } from "@/components/ui";
@@ -153,7 +154,7 @@ function TimelineDetailSection({
   title: string;
 }) {
   return (
-    <section aria-label={title} className={className}>
+    <section aria-label={title} className={cn("min-w-0", className)}>
       <p className="text-muted-foreground text-xs font-medium uppercase">
         {title}
       </p>

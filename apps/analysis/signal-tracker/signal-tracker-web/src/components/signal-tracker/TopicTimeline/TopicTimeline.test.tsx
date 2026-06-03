@@ -251,7 +251,7 @@ describe("TopicTimeline", () => {
 
   it("renders expanded sources as linked one-line pills", () => {
     const longSourceTitle =
-      "Agency report with a title that should truncate inside the source pill";
+      "Agency-report-with-a-title-that-should-truncate-inside-the-source-pill-without-expanding-the-timeline-card";
 
     mockTimelineQuery({
       data: {
@@ -281,13 +281,20 @@ describe("TopicTimeline", () => {
     );
 
     const sources = screen.getByRole("region", { name: "Sources" });
+    const sourceList = within(sources).getByRole("list");
+    const sourceListItem = within(sources).getByRole("listitem");
     const sourceLink = within(sources).getByRole("link", {
       name: longSourceTitle
     });
 
+    expect(sources).toHaveClass("min-w-0");
+    expect(sourceList).toHaveClass("min-w-0", "max-w-full", "overflow-hidden");
+    expect(sourceListItem).toHaveClass("min-w-0", "max-w-full");
     expect(sourceLink).toHaveAttribute("href", "https://agency.example/report");
     expect(sourceLink).toHaveAttribute("target", "_blank");
+    expect(sourceLink).toHaveClass("min-w-0", "max-w-full", "overflow-hidden");
     expect(within(sourceLink).getByText(longSourceTitle)).toHaveClass(
+      "min-w-0",
       "truncate"
     );
     expect(within(sources).queryByText(/URL:/u)).not.toBeInTheDocument();
