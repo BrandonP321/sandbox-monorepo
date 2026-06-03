@@ -754,7 +754,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { name: "Strike risk assessment" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Assessment Update")).toBeInTheDocument();
+    expect(screen.getByText("Assessment")).toBeInTheDocument();
     expect(screen.getByText("55% probability")).toBeInTheDocument();
   });
 

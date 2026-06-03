@@ -118,6 +118,23 @@ describe("CurrentAssessmentPanel", () => {
     ).toBeInTheDocument();
   });
 
+  it("keeps long assessment content scrollable inside a viewport-bound panel", () => {
+    const { container } = render(
+      <CurrentAssessmentPanel assessment={assessment} topicId="topic-1" />
+    );
+    const card = container.querySelector('[data-slot="card"]');
+    const cardHeader = container.querySelector('[data-slot="card-header"]');
+    const cardContent = container.querySelector('[data-slot="card-content"]');
+
+    expect(card).toHaveClass(
+      "flex",
+      "max-h-[calc(100vh-18rem)]",
+      "overflow-hidden"
+    );
+    expect(cardHeader).toHaveClass("shrink-0");
+    expect(cardContent).toHaveClass("min-h-0", "flex-1", "overflow-y-auto");
+  });
+
   it("omits probability when the assessment does not include one", () => {
     render(
       <CurrentAssessmentPanel

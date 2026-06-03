@@ -193,10 +193,33 @@ describe("TopicTimeline", () => {
     expect(screen.queryByText("Weekly review")).not.toBeInTheDocument();
     expect(screen.getByText("Reported")).toBeInTheDocument();
     expect(screen.getByText("Forecast")).toBeInTheDocument();
-    expect(screen.getAllByText("Assessment Update")).toHaveLength(1);
+    expect(screen.getAllByText("Assessment")).toHaveLength(1);
     expect(screen.getAllByText("Medium")).toHaveLength(1);
     expect(screen.getAllByText("55% probability")).toHaveLength(1);
     expect(screen.getAllByText("Uncited")).toHaveLength(2);
+  });
+
+  it("line-clamps assessment judgment previews in row headers", () => {
+    const longJudgment =
+      "Risk is rising but still constrained by diplomatic incentives. Shipping restrictions remain a major pressure point, while backchannel talks continue to limit the near-term probability of uncontrolled escalation.";
+
+    mockTimelineQuery({
+      data: {
+        items: [
+          {
+            ...assessmentTimelineItem,
+            assessment: {
+              ...assessmentTimelineItem.assessment,
+              judgment: longJudgment
+            }
+          }
+        ]
+      }
+    });
+
+    render(<TopicTimeline topicId="topic-1" />);
+
+    expect(screen.getByText(longJudgment)).toHaveClass("line-clamp-2");
   });
 
   it("renders source indicators from hydrated timeline read models", () => {
@@ -224,6 +247,51 @@ describe("TopicTimeline", () => {
       "src",
       "https://www.google.com/s2/favicons?domain=agency.example&sz=32"
     );
+  });
+
+  it("renders expanded sources as linked one-line pills", () => {
+    const longSourceTitle =
+      "Agency report with a title that should truncate inside the source pill";
+
+    mockTimelineQuery({
+      data: {
+        items: [
+          {
+            ...eventTimelineItem,
+            entry: {
+              ...eventTimelineItem.entry,
+              sources: [
+                {
+                  ...sourceSummary,
+                  title: longSourceTitle
+                }
+              ]
+            }
+          }
+        ]
+      }
+    });
+
+    render(<TopicTimeline topicId="topic-1" />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Expand details for Ceasefire talks resume"
+      })
+    );
+
+    const sources = screen.getByRole("region", { name: "Sources" });
+    const sourceLink = within(sources).getByRole("link", {
+      name: longSourceTitle
+    });
+
+    expect(sourceLink).toHaveAttribute("href", "https://agency.example/report");
+    expect(sourceLink).toHaveAttribute("target", "_blank");
+    expect(within(sourceLink).getByText(longSourceTitle)).toHaveClass(
+      "truncate"
+    );
+    expect(within(sources).queryByText(/URL:/u)).not.toBeInTheDocument();
+    expect(within(sources).queryByText(/Relation:/u)).not.toBeInTheDocument();
   });
 
   it("renders one event edit action through the row action slot", () => {

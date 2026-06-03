@@ -37,7 +37,7 @@ describe("PersistenceRetryNotificationBridge", () => {
 
     expect(screen.getByRole("alert")).toHaveTextContent("Database is starting");
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "The database is starting after being inactive. This request is being retried automatically. Refresh the page if this does not resolve in 15-30 seconds."
+      "The database is starting after being inactive. This request is being retried automatically. Refresh the page if this does not resolve in 30-60 seconds."
     );
     expect(selectPendingPersistenceRetryNotification(store.getState())).toBe(
       undefined

@@ -1,0 +1,377 @@
+[
+  {
+    "sortOrder": 1,
+    "entryType": "event",
+    "date": "2026-02-28",
+    "title": "U.S. and Israel launch strikes on Iran",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that the war began on February 28, 2026, when the United States and Israel launched strikes on Iran. Later Reuters reporting said the opening phase killed Supreme Leader Ali Khamenei and several senior Iranian military and security figures.",
+    "tags": ["opening phase", "leadership strike", "escalation"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/which-key-iranian-figures-have-been-killed-us-israeli-strikes-2026-04-06/",
+      "https://www.reuters.com/world/middle-east/hostilities-flare-again-iran-war-talks-stalemate-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 2,
+    "entryType": "event",
+    "date": "2026-02-28",
+    "title": "Iran retaliates against Israel and Gulf states hosting U.S. forces",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that Tehran responded to the February 28 strikes with attacks on Israel and Gulf states hosting U.S. bases. This immediately widened the conflict beyond direct U.S.–Iran and Israel–Iran exchanges.",
+    "tags": ["retaliation", "Gulf states", "U.S. bases"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/trump-says-he-has-agreed-suspend-bombing-attack-iran-two-weeks-2026-04-07/",
+      "https://www.reuters.com/world/middle-east/iran-vows-attack-any-ship-trying-pass-through-strait-hormuz-2026-03-02/"
+    ]
+  },
+  {
+    "sortOrder": 3,
+    "entryType": "event",
+    "date": "2026-03-02",
+    "title": "IRGC official says Strait of Hormuz is closed to commercial shipping",
+    "epistemicLabel": "reported",
+    "body": "An Islamic Revolutionary Guard Corps official said Iran had closed the Strait of Hormuz and would fire on ships attempting to pass without authorization. Reuters noted that roughly one-fifth of daily global oil consumption normally moves through the Strait.",
+    "tags": ["Strait of Hormuz", "maritime security", "energy security"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-vows-attack-any-ship-trying-pass-through-strait-hormuz-2026-03-02/"
+    ]
+  },
+  {
+    "sortOrder": 4,
+    "entryType": "assessment_update",
+    "date": "2026-03-03",
+    "title": "Initial assessment: escalation likely remains air, missile, and maritime-centered",
+    "epistemicLabel": "forecast",
+    "judgment": "The conflict is likely to remain centered on airstrikes, missile/drone attacks, maritime disruption, and attacks near U.S. regional facilities rather than becoming a broad ground war. Iran is likely to use Hormuz and regional asymmetric pressure to create bargaining leverage.",
+    "confidence": "medium-low",
+    "probability": "60% chance the war remains primarily air/missile/maritime over the next two weeks",
+    "assumptions": [
+      "The United States and Israel will avoid a ground campaign inside Iran.",
+      "Iran will prioritize regime survival and leverage over uncontrolled escalation.",
+      "Gulf states will seek to limit direct involvement while managing attacks on or near U.S. facilities."
+    ],
+    "indicatorsToWatch": [
+      "Strait traffic volume",
+      "Attacks on Gulf energy infrastructure",
+      "Missile/drone launches toward Gulf bases",
+      "U.S. carrier or bomber movements",
+      "Iranian statements tying Hormuz access to negotiations"
+    ],
+    "calibrationNote": "This assessment is plausible but incomplete. It correctly anticipates maritime leverage, but likely underestimates the later economic and shipping disruption.",
+    "tags": ["forecast", "escalation risk", "Hormuz"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-vows-attack-any-ship-trying-pass-through-strait-hormuz-2026-03-02/"
+    ]
+  },
+  {
+    "sortOrder": 5,
+    "entryType": "event",
+    "date": "2026-03-13",
+    "title": "Reuters reports major collapse in Strait of Hormuz traffic",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that traffic through the Strait of Hormuz had dropped sharply since the February 28 strikes and that Iran had long prepared to restrict tanker traffic through drones, missiles, mines, and fast-boat tactics.",
+    "tags": ["Hormuz", "oil shock", "shipping disruption"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-unleashes-oil-shock-blunt-us-firepower-2026-03-13/"
+    ]
+  },
+  {
+    "sortOrder": 6,
+    "entryType": "event",
+    "date": "2026-03-17",
+    "title": "Senior Iranian political and security figures killed in continuing strikes",
+    "epistemicLabel": "reported",
+    "body": "Reuters later identified multiple senior Iranian political, military, and security figures killed during March and early April, including Ali Larijani, Esmail Khatib, Ali Shamkhani, Mohammad Pakpour, and several senior commanders.",
+    "tags": ["leadership losses", "Iranian security establishment"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/which-key-iranian-figures-have-been-killed-us-israeli-strikes-2026-04-06/"
+    ]
+  },
+  {
+    "sortOrder": 7,
+    "entryType": "event",
+    "date": "2026-03-31",
+    "title": "Tanker damage underscores continuing shipping risk",
+    "epistemicLabel": "reported",
+    "body": "Reuters documented damage to the Kuwait-flagged Al-Salmi crude tanker near the Strait of Hormuz, with no injuries or oil leak reported. The incident reinforced the risk to commercial shipping even when individual attacks did not cause large casualties.",
+    "tags": ["tanker risk", "maritime security", "Kuwait"],
+    "sourceUrls": [
+      "https://www.reuters.com/pictures/targeting-tankers-photos-iranian-strikes-oil-shipping-2026-03-31/"
+    ]
+  },
+  {
+    "sortOrder": 8,
+    "entryType": "event",
+    "date": "2026-04-07",
+    "title": "U.S. announces two-week bombing pause tied to reopening Hormuz",
+    "epistemicLabel": "reported",
+    "body": "President Trump said he accepted a Pakistan-mediated proposal for a two-week truce and would suspend bombing if the Strait of Hormuz was opened immediately and safely. Reuters reported that the proposal was framed as a double-sided ceasefire and that Washington had received a 10-point Iranian proposal.",
+    "tags": ["ceasefire", "Pakistan mediation", "Hormuz"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/trump-says-he-has-agreed-suspend-bombing-attack-iran-two-weeks-2026-04-07/"
+    ]
+  },
+  {
+    "sortOrder": 9,
+    "entryType": "assessment_update",
+    "date": "2026-04-08",
+    "title": "Ceasefire assessment: bombing pause likely, durable settlement unlikely",
+    "epistemicLabel": "forecast",
+    "judgment": "The bombing pause is likely to reduce the tempo of direct U.S.–Iran strikes in the near term, but it is unlikely to produce a rapid settlement. Iran has strong incentives to retain maritime leverage until sanctions, oil revenue, and nuclear issues are addressed.",
+    "confidence": "medium",
+    "probability": "55% chance direct U.S.–Iran strike tempo declines for two weeks; 35% chance Hormuz meaningfully reopens during that same period",
+    "assumptions": [
+      "Both sides want a pause, but neither side wants to concede core bargaining leverage.",
+      "Iran views Hormuz access as a negotiation lever.",
+      "The United States faces energy-price and domestic political pressure to reduce disruption."
+    ],
+    "indicatorsToWatch": [
+      "Daily ship crossings",
+      "U.S. blockade or naval notices",
+      "Iranian authorization requirements for ships",
+      "Whether Lebanon becomes part of ceasefire discussions",
+      "Oil-price movements"
+    ],
+    "calibrationNote": "This assessment is stronger than the March 3 assessment. It correctly treats the ceasefire as fragile and conditional, not as a durable end to the war.",
+    "tags": ["ceasefire", "forecast", "negotiation leverage"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/trump-says-he-has-agreed-suspend-bombing-attack-iran-two-weeks-2026-04-07/"
+    ]
+  },
+  {
+    "sortOrder": 10,
+    "entryType": "event",
+    "date": "2026-04-10",
+    "title": "Hormuz traffic remains far below normal after ceasefire announcement",
+    "epistemicLabel": "reported",
+    "body": "Reuters graphics using Kpler data reported that Strait of Hormuz traffic remained far below prewar levels after the ceasefire announcement. Reuters also reported that the IRGC had directed ships through a route near Larak Island to avoid mines and restricted areas.",
+    "tags": ["Hormuz", "ceasefire implementation", "shipping"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/hormuz-remains-near-standstill-after-ceasefire-2026-04-10/"
+    ]
+  },
+  {
+    "sortOrder": 11,
+    "entryType": "event",
+    "date": "2026-04-13",
+    "title": "U.S. begins blockade of Iranian ports after talks break down",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that the United States began blockading Iranian ports after talks in Islamabad broke down. CENTCOM said the blockade applied to vessels entering or leaving Iranian ports, while Iran characterized the restrictions as piracy.",
+    "tags": ["blockade", "U.S. military", "diplomacy"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/us-blockade-iran-after-talks-fail-yield-a-deal-2026-04-13/"
+    ]
+  },
+  {
+    "sortOrder": 12,
+    "entryType": "event",
+    "date": "2026-04-30",
+    "title": "Oil and gas disruption spills into consumer-goods supply chains",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that the Iran war’s oil and gas disruption was raising costs across chemicals, plastics, packaging, and consumer goods. This broadened the issue from a regional security crisis into a global economic disruption.",
+    "tags": ["economic impact", "inflation", "supply chains"],
+    "sourceUrls": [
+      "https://www.reuters.com/markets/commodities/how-iran-war-is-driving-up-cost-your-shopping-cart-2026-04-30/"
+    ]
+  },
+  {
+    "sortOrder": 13,
+    "entryType": "event",
+    "date": "2026-05-27",
+    "title": "U.S. conducts defensive strikes near Bandar Abbas and the Strait",
+    "epistemicLabel": "reported",
+    "body": "A U.S. official said the United States carried out strikes on an Iranian military site, a drone control station near Bandar Abbas, and four drones near the Strait of Hormuz. The official framed the strikes as defensive and intended to maintain the ceasefire.",
+    "tags": ["U.S. strikes", "drones", "Bandar Abbas", "ceasefire strain"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/us-carries-out-new-strikes-iran-against-military-site-official-says-2026-05-27/"
+    ]
+  },
+  {
+    "sortOrder": 14,
+    "entryType": "event",
+    "date": "2026-05-28",
+    "title": "Tentative U.S.–Iran ceasefire-extension and shipping-relief deal emerges",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that U.S. and Iranian officials had reached a tentative agreement to extend the ceasefire and lift shipping restrictions for 60 days while negotiators addressed Iran’s nuclear program. The report also noted that President Trump had not yet approved the deal and Iran said nothing was finalized.",
+    "tags": ["ceasefire extension", "shipping relief", "nuclear talks"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-us-trade-air-strikes-after-trump-dismisses-report-hormuz-deal-2026-05-28/"
+    ]
+  },
+  {
+    "sortOrder": 15,
+    "entryType": "event",
+    "date": "2026-05-28",
+    "title": "U.S. imposes additional sanctions on Iran-linked oil trade",
+    "epistemicLabel": "reported",
+    "body": "The U.S. Treasury imposed additional sanctions on vessels and entities tied to Iran’s military oil trade. The sanctions signaled that economic pressure would continue even as ceasefire and shipping-relief discussions proceeded.",
+    "tags": ["sanctions", "oil trade", "economic pressure"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/china/us-imposes-fresh-sanctions-irans-military-oil-sales-treasury-says-2026-05-28/"
+    ]
+  },
+  {
+    "sortOrder": 16,
+    "entryType": "assessment_update",
+    "date": "2026-05-29",
+    "title": "Settlement assessment: limited deal slightly more likely than renewed major escalation",
+    "epistemicLabel": "forecast",
+    "judgment": "A limited ceasefire extension with some shipping relief now appears slightly more likely than a rapid return to large-scale U.S.–Iran strikes. The strongest basis is that both sides face costs from continued disruption, while the tentative 60-day framework gives each side a way to preserve leverage without fully settling the nuclear dispute.",
+    "confidence": "low-medium",
+    "probability": "60% limited ceasefire/shipping arrangement within 30 days; 30% continued stalemate with episodic strikes; 10% renewed large-scale direct strikes",
+    "assumptions": [
+      "Energy disruption creates pressure on Washington.",
+      "Iran wants oil revenue and sanctions relief but will avoid major nuclear concessions if possible.",
+      "A temporary framework can be easier than a final settlement."
+    ],
+    "indicatorsToWatch": [
+      "Trump approval of the 60-day framework",
+      "Iranian public confirmation",
+      "Shipping-volume recovery",
+      "Sanctions-waiver details",
+      "Nuclear-verification language",
+      "Whether Lebanon is included"
+    ],
+    "calibrationNote": "This is intentionally somewhat over-optimistic. It shows realistic analytical error: provisional deal reporting can be over-weighted before implementation indicators confirm it.",
+    "tags": ["forecast", "ceasefire", "sanctions", "nuclear talks"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-us-trade-air-strikes-after-trump-dismisses-report-hormuz-deal-2026-05-28/",
+      "https://www.reuters.com/world/china/us-imposes-fresh-sanctions-irans-military-oil-sales-treasury-says-2026-05-28/"
+    ]
+  },
+  {
+    "sortOrder": 17,
+    "entryType": "event",
+    "date": "2026-05-30",
+    "title": "Pentagon says U.S. is ready to restart strikes if talks fail",
+    "epistemicLabel": "reported",
+    "body": "Defense Secretary Pete Hegseth said the United States was ready to restart attacks if no deal was reached. Reuters reported that President Trump would decide whether to accept the proposal for a 60-day truce extension.",
+    "tags": ["Pentagon", "escalation risk", "ceasefire talks"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/asia-pacific/pentagon-chief-says-us-ready-restart-strikes-iran-if-no-deal-2026-05-30/"
+    ]
+  },
+  {
+    "sortOrder": 18,
+    "entryType": "event",
+    "date": "2026-06-01",
+    "title": "Iran-linked media says Tehran is pausing indirect U.S. message exchanges",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that Iran’s Tasnim news agency said Tehran was stopping message exchanges with Washington through mediators because of attacks on Lebanon. The same reporting said Iranian officials were discussing ways to block the Strait and activate other fronts.",
+    "tags": ["Iran", "Lebanon", "mediation", "Hormuz"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-is-stopping-message-exchanges-with-us-may-block-hormuz-tasnim-news-agency-2026-06-01/"
+    ]
+  },
+  {
+    "sortOrder": 19,
+    "entryType": "event",
+    "date": "2026-06-01",
+    "title": "Reuters analysis: Iran seeks limited interim deal while avoiding major nuclear concessions",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that Iran favored a limited interim agreement to ease economic pressure and buy time while avoiding sensitive nuclear concessions. The report said Tehran wanted oil-revenue access, waivers, relief from the blockade, and continued leverage over the Strait.",
+    "tags": [
+      "nuclear talks",
+      "sanctions relief",
+      "Iranian negotiating position"
+    ],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/iran-eyes-limited-us-deal-relieve-economic-strain-buy-time-2026-06-01/"
+    ]
+  },
+  {
+    "sortOrder": 20,
+    "entryType": "event",
+    "date": "2026-06-02",
+    "title": "Lebanon becomes more central to ceasefire diplomacy",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported that Israel continued strikes in southern Lebanon as the war entered its fourth month, while Iran demanded that a Lebanon ceasefire be part of a wider agreement to end the war. Lebanon and Israel held talks in Washington, but Israeli officials warned of continued action against Hezbollah.",
+    "tags": ["Lebanon", "Hezbollah", "Israel", "ceasefire linkage"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/israel-strikes-south-lebanon-after-holding-off-beirut-attack-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 21,
+    "entryType": "event",
+    "date": "2026-06-02",
+    "title": "Limited tanker and LNG movements suggest partial maritime openings",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported rare oil-product and LNG movements near the Strait of Hormuz, including tanker and LNG-carrier movements from Gulf ports. The activity suggested limited openings but not a full return to normal shipping.",
+    "tags": ["LNG", "tanker movements", "Hormuz"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/oil-products-shipments-exit-hormuz-lng-tanker-loads-uae-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 22,
+    "entryType": "event",
+    "date": "2026-06-02",
+    "title": "Rubio says sanctions relief is tied to nuclear concessions, not only Strait reopening",
+    "epistemicLabel": "reported",
+    "body": "Secretary of State Marco Rubio told lawmakers that sanctions relief would be contingent on Iran giving up its nuclear program, not merely reopening the Strait. Reuters also reported congressional scrutiny of the administration’s war powers authority.",
+    "tags": ["U.S. policy", "sanctions", "nuclear program", "Congress"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/us/us-lawmakers-grill-rubio-iran-war-enters-fourth-month-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 23,
+    "entryType": "event",
+    "date": "2026-06-02",
+    "title": "UNICEF warns war-related shipping disruption is delaying aid delivery",
+    "epistemicLabel": "reported",
+    "body": "UNICEF told Reuters that Gulf shipping disruption and wider war-related transport problems were delaying delivery of lifesaving supplies, increasing costs, and forcing greater reliance on air freight.",
+    "tags": ["humanitarian impact", "shipping disruption", "UNICEF"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/africa/iran-war-disruption-threatening-delivery-lifesaving-supplies-children-un-says-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 24,
+    "entryType": "event",
+    "date": "2026-06-03",
+    "title": "Hostilities flare again as talks remain stalled",
+    "epistemicLabel": "reported",
+    "body": "Reuters reported renewed Gulf hostilities, including attempted missile strikes at Kuwait and Bahrain and U.S. strikes on Qeshm Island. The same report described the conflict as stuck in a stalemate, with the Strait still largely shut and talks blocked over sanctions, nuclear activity, and maritime access.",
+    "tags": ["Gulf hostilities", "stalemate", "Kuwait", "Bahrain", "Qeshm"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/hostilities-flare-again-iran-war-talks-stalemate-2026-06-02/"
+    ]
+  },
+  {
+    "sortOrder": 25,
+    "entryType": "assessment_update",
+    "date": "2026-06-03",
+    "title": "Current assessment: fragile ceasefire framework, persistent flare-up risk",
+    "epistemicLabel": "forecast",
+    "judgment": "The conflict appears to be settling into a fragile ceasefire-and-coercion pattern rather than moving cleanly toward either durable peace or uncontrolled escalation. A limited interim deal remains possible, but renewed Gulf attacks, Lebanon linkage, unresolved nuclear demands, sanctions pressure, and Hormuz restrictions make episodic flare-ups likely.",
+    "confidence": "medium-low",
+    "probability": "55% continued low-to-medium-intensity conflict with periodic flare-ups over the next 30 days; 30% limited interim deal with meaningful shipping relief; 15% renewed large-scale strike cycle",
+    "assumptions": [
+      "Nuclear concessions, sanctions relief, Hormuz access, and Lebanon are now linked enough that progress on only one track may not stabilize the conflict.",
+      "Iran retains maritime leverage.",
+      "The United States wants sanctions/nuclear concessions before durable relief.",
+      "Israel continues to view Lebanon-related security risks as relevant to the broader war."
+    ],
+    "indicatorsToWatch": [
+      "Signed ceasefire text",
+      "Verified ship crossings through Hormuz",
+      "U.S. blockade changes",
+      "New Treasury sanctions or waivers",
+      "Israeli strike tempo in Lebanon",
+      "Iranian missile/drone launches",
+      "Nuclear-verification terms",
+      "Gulf-state diplomatic activity"
+    ],
+    "calibrationNote": "This updates and partially corrects the May 29 assessment. The tentative-deal signal was real, but the assessment over-weighted it relative to unresolved implementation and linkage issues.",
+    "tags": ["current assessment", "stalemate", "ceasefire", "forecast"],
+    "sourceUrls": [
+      "https://www.reuters.com/world/middle-east/hostilities-flare-again-iran-war-talks-stalemate-2026-06-02/",
+      "https://www.reuters.com/world/us/us-lawmakers-grill-rubio-iran-war-enters-fourth-month-2026-06-02/",
+      "https://www.reuters.com/world/middle-east/iran-eyes-limited-us-deal-relieve-economic-strain-buy-time-2026-06-01/",
+      "https://www.reuters.com/world/middle-east/israel-strikes-south-lebanon-after-holding-off-beirut-attack-2026-06-02/"
+    ]
+  }
+]

@@ -22,8 +22,8 @@ function CurrentAssessmentPanel({
   topicId
 }: CurrentAssessmentPanelProps) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="flex max-h-[calc(100vh-18rem)] flex-col overflow-hidden">
+      <CardHeader className="shrink-0">
         <ContentHeader
           actions={
             assessment ? (
@@ -40,7 +40,7 @@ function CurrentAssessmentPanel({
           title="Current assessment"
         />
       </CardHeader>
-      <CardContent>
+      <CardContent className="min-h-0 flex-1 overflow-y-auto">
         {assessment ? (
           <CurrentAssessmentContent assessment={assessment} />
         ) : (

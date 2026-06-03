@@ -69,7 +69,7 @@ function TimelineEntryRow({
           <div className="min-w-0">
             <h3 className="text-sm font-semibold">{entry.title}</h3>
             {item.kind === "assessment" ? (
-              <p className="text-muted-foreground mt-1 text-sm leading-6">
+              <p className="text-muted-foreground mt-1 line-clamp-2 text-sm leading-6">
                 {item.assessment.judgment}
               </p>
             ) : null}

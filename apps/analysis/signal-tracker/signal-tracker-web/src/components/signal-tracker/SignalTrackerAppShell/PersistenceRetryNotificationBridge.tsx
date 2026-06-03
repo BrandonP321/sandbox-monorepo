@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "@/storeHooks";
 
 const persistenceRetryNotificationId = "signal-tracker-persistence-retry";
 const persistenceRetryNotificationContent =
-  "The database is starting after being inactive. This request is being retried automatically. Refresh the page if this does not resolve in 15-30 seconds.";
+  "The database is starting after being inactive. This request is being retried automatically. Refresh the page if this does not resolve in 30-60 seconds.";
 
 function PersistenceRetryNotificationBridge() {
   const dispatch = useAppDispatch();

@@ -21,7 +21,7 @@ function formatTimelineDate(value: string): string {
 
 function formatTimelineItemKind(kind: TopicTimelineItem["kind"]): string {
   if (kind === "assessment") {
-    return "Assessment Update";
+    return "Assessment";
   }
 
   if (kind === "review") {
