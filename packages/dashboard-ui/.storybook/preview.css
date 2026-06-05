@@ -14,3 +14,7 @@
 .sb-show-main {
   background: white;
 }
+
+html {
+  overflow: auto;
+}
