@@ -325,6 +325,55 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
 
+  apps/personal/wedding-website/wedding-website-web:
+    dependencies:
+      react:
+        specifier: ^19.1.1
+        version: 19.2.4
+      react-dom:
+        specifier: ^19.1.1
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      "@repo/config-eslint":
+        specifier: workspace:*
+        version: link:../../../../packages/config-eslint
+      "@repo/config-test":
+        specifier: workspace:*
+        version: link:../../../../packages/config-test
+      "@repo/config-ts":
+        specifier: workspace:*
+        version: link:../../../../packages/config-ts
+      "@testing-library/react":
+        specifier: ^16.3.0
+        version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      "@types/node":
+        specifier: ^24.1.0
+        version: 24.10.10
+      "@types/react":
+        specifier: ^19.1.12
+        version: 19.2.10
+      "@types/react-dom":
+        specifier: ^19.1.8
+        version: 19.2.3(@types/react@19.2.10)
+      "@vitejs/plugin-react":
+        specifier: ^5.0.2
+        version: 5.1.3(vite@7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3))
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      jsdom:
+        specifier: ^26.1.0
+        version: 26.1.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vite:
+        specifier: ^7.1.4
+        version: 7.3.1(@types/node@24.10.10)(jiti@2.6.1)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
+
   apps/platform/dashboard-ui-storybook/dashboard-ui-storybook-infra:
     dependencies:
       "@repo/infra-patterns":
