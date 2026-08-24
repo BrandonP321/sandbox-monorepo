@@ -34,6 +34,28 @@ pnpm --filter wedding-website-web build
 The repository-wide formatting check is `pnpm format:check`. The normal scoped
 project build is `pnpm build:project wedding-website`.
 
+## Frontend foundation
+
+The app uses a small, plain-CSS foundation rather than a general component
+framework:
+
+- Central color, spacing, width, radius, motion, and typography variables live
+  in `wedding-website-web/src/styles/tokens.css`.
+- App-local accessible controls and layout primitives live in
+  `wedding-website-web/src/components/ui`.
+- Decorative artwork must use the separate `DecorativeLayer` convention and
+  must not carry content or interaction.
+- Exact production fonts remain deferred. The current semantic roles map to
+  provisional Georgia, Snell Roundhand/Brush Script, and system-UI fallback
+  stacks so each role can be replaced centrally.
+
+No runtime dependencies were added for this foundation. The app continues to
+reuse the repository's TypeScript, ESLint, Vitest, and test-setup packages.
+`@repo/dashboard-ui` is intentionally excluded because it owns a dashboard and
+Tailwind visual language. `@repo/ui-base` is also deferred: its current form
+surface depends on React Hook Form, Redux Toolkit, Zod, and related behavior
+that this local-only foundation does not need.
+
 ## Project context
 
 Read [AGENTS.md](./AGENTS.md) before making project changes. Canonical product

@@ -15,5 +15,6 @@ describe("App", () => {
         "The RSVP experience will be added in a future milestone."
       )
     ).toBeInTheDocument();
+    expect(screen.queryByRole("button")).not.toBeInTheDocument();
   });
 });

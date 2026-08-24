@@ -1,0 +1,83 @@
+.ui-form-section {
+  padding: var(--space-24);
+  border: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 50%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: color-mix(
+    in srgb,
+    var(--color-paper-warm) 74%,
+    var(--color-paper)
+  );
+}
+
+.ui-content-frame {
+  width: min(100%, calc(var(--content-frame-width) + (2 * var(--page-gutter))));
+  margin-inline: auto;
+  padding-inline: var(--page-gutter);
+}
+
+.ui-content-frame[data-width="form"] {
+  --content-frame-width: var(--content-width-form);
+}
+
+.ui-content-frame[data-width="hero"] {
+  --content-frame-width: var(--content-width-hero);
+}
+
+.ui-decorative-layer {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+}
+
+.app-shell {
+  display: grid;
+  min-height: 100vh;
+  min-height: 100svh;
+  place-items: center;
+  padding-block: var(--space-64);
+}
+
+.app-shell__surface {
+  text-align: center;
+}
+
+.app-shell__surface h1,
+.app-shell__surface p {
+  margin-block-end: 0;
+}
+
+.app-shell__surface h1 {
+  margin-block-start: var(--space-8);
+  color: var(--color-olive);
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  line-height: 1.05;
+}
+
+.app-shell__surface p:last-child {
+  margin-block-start: var(--space-16);
+  line-height: 1.6;
+}
+
+.app-shell__eyebrow {
+  color: var(--color-coral-action);
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 29.99rem) {
+  .ui-form-section {
+    padding: var(--space-16);
+  }
+}
+
+@media (min-width: 47.5rem) {
+  .ui-form-section {
+    padding: var(--space-32);
+  }
+}

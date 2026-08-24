@@ -5,6 +5,9 @@ export default defineConfig({
   ...baseConfig,
   test: {
     ...baseConfig.test,
+    css: {
+      include: [/.+/]
+    },
     environment: "jsdom",
     setupFiles: "./src/setupTests.ts"
   }

@@ -20,6 +20,22 @@
 - Exact font-family names are intentionally deferred. Use semantic font tokens
   so temporary families remain replaceable.
 
+## Frontend Foundation
+
+- Central design tokens live in `wedding-website-web/src/styles/tokens.css`.
+  Use the semantic color, spacing, width, radius, motion, and font variables
+  instead of repeating literal values in components.
+- Keep wedding-specific visual primitives app-local under
+  `wedding-website-web/src/components/ui`. Promote a primitive only after a
+  second non-dashboard design system demonstrates the same stable contract.
+- Keep decorative content inside the `DecorativeLayer` convention so it stays
+  hidden from assistive technology, ignores pointer input, and can reflow or
+  disappear independently of functional content.
+- Use the shared motion-duration tokens for any future transitions and provide
+  an equivalent static experience under `prefers-reduced-motion`.
+- The current foundation is plain CSS. Do not add Tailwind or another styling
+  system without a concrete later issue that justifies the dependency.
+
 ## Prototype Guardrails
 
 - Build functional UI with real, accessible HTML and CSS controls. Keep
