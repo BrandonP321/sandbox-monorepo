@@ -19,6 +19,10 @@
 - Generated website mockups must not redefine the RSVP doodle style.
 - Exact font-family names are intentionally deferred. Use semantic font tokens
   so temporary families remain replaceable.
+- Runtime asset paths, dimensions, and optimization status live in
+  `ASSET_INVENTORY.md`. Keep Drive-based design references outside the runtime
+  asset tree, and preserve inventory paths when optimized PNGs replace source
+  exports in place.
 
 ## Frontend Foundation
 
