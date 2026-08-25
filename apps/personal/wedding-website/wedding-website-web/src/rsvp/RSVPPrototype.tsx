@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import bowSmall from "../assets/bows/bow-small-01.png";
 import catSitting from "../assets/cats/cat-sitting-facing-forward.png";
@@ -28,7 +28,14 @@ function RSVPPrototype({
   onGoTo,
   state
 }: RSVPPrototypeProps) {
+  const previousStage = useRef(state.currentStage);
+
   useEffect(() => {
+    if (previousStage.current === state.currentStage) {
+      return;
+    }
+    previousStage.current = state.currentStage;
+
     const headingId =
       state.currentStage === "attendance"
         ? "attendance-heading"

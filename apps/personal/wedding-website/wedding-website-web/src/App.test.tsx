@@ -42,12 +42,12 @@ describe("App", () => {
 
     expect(handleStartRsvp).toHaveBeenCalledOnce();
     expect(window.location.pathname).toBe("/RSVP");
-    expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Your party & attendance"
-      })
-    ).toBeInTheDocument();
+    const attendanceHeading = screen.getByRole("heading", {
+      level: 1,
+      name: "Your party & attendance"
+    });
+    expect(attendanceHeading).toBeInTheDocument();
+    expect(attendanceHeading).not.toHaveFocus();
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
     expect(
       screen.getByRole("spinbutton", { name: /children attending/i })

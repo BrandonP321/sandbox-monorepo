@@ -171,6 +171,7 @@
 
 .contact-input-grid {
   display: grid;
+  align-items: start;
   gap: var(--space-24);
 }
 

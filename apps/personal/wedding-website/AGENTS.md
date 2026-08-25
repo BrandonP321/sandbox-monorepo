@@ -42,7 +42,9 @@
   Alert immediately below the contact fields and keep focusing the email field
   when the user tries to continue without either contact method.
 - Format phone values while the guest types, using US national formatting by
-  default while continuing to support international numbers entered with `+`.
+  default while supporting international numbers entered with `+` or `00`.
+  Recognize complete Ireland (`353`) and UK (`44`) numbers without a prefix,
+  but do not broadly guess countries from otherwise ambiguous national input.
 - Dietary/allergy, accessibility/accommodation, and general-note fields are
   optional party-level text.
 - Treat every eventual public submission as a new record. Do not automatically
@@ -97,6 +99,8 @@
 
 - Build functional UI with real, accessible HTML and CSS controls. Keep
   decorative artwork separate from form semantics and interaction.
+- Do not programmatically focus the attendance heading when `/RSVP` first
+  loads. Continue moving focus to headings after an in-flow stage transition.
 - Use synthetic data only in tests/developer helpers. Never put real guest PII
   in source code.
 - Do not add guest phone lookup, OTP, household access links, passwords, guest
