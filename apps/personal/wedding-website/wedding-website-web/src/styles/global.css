@@ -2,10 +2,21 @@
   box-sizing: border-box;
 }
 
+html,
+body {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(
+      color-mix(in srgb, var(--color-paper) 50%, transparent),
+      color-mix(in srgb, var(--color-paper) 50%, transparent)
+    ),
+    url("../assets/textures/cardboard-texture.png");
+  background-repeat: no-repeat, repeat;
+}
+
 html {
   min-width: 320px;
   min-height: 100%;
-  background: var(--color-paper);
   color: var(--color-ink);
   color-scheme: light;
   font-family: var(--font-ui);
@@ -16,14 +27,8 @@ html {
 body {
   min-width: 320px;
   min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
-  background:
-    radial-gradient(
-      circle at 12% 8%,
-      color-mix(in srgb, var(--color-pink) 28%, transparent),
-      transparent 21rem
-    ),
-    var(--color-paper);
 }
 
 button,

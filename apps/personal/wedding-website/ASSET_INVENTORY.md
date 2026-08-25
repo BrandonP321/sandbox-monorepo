@@ -1,6 +1,6 @@
 # Wedding Website Asset Inventory
 
-The 38 final Photoshop exports in the runtime asset tree are the authority for
+The 39 final Photoshop exports in the runtime asset tree are the authority for
 the asset set. They include the user's post-organization corrections to the
 sprigs, sparkles, paw prints, and disco-ball selection. Earlier Google Drive
 names and variant counts are historical where they differ from this inventory.
@@ -28,6 +28,7 @@ production bundle:
 | Final path under `src/assets/`          | Intended use                                           |    Pixels |      Size | Photoshop optimization                                                                  |
 | --------------------------------------- | ------------------------------------------------------ | --------: | --------: | --------------------------------------------------------------------------------------- |
 | `photos/landing-photo-framed.png`       | Finished landing photo and illustrated frame composite |   600×750 |   844 KiB | Compression only; keep 600×750 and target about 700 KiB or less if quality is unchanged |
+| `textures/cardboard-texture.png`        | Repeating cardboard-texture overlay                    |   600×600 |   199 KiB | No                                                                                      |
 | `cats/cat-sitting-facing-away.png`      | Sitting-cat decorative variant                         |   268×434 |   206 KiB | No                                                                                      |
 | `cats/cat-sitting-facing-forward.png`   | Sitting-cat decorative variant                         |   288×449 |   223 KiB | No                                                                                      |
 | `cats/cat-sitting-head-tilted.png`      | Sitting-cat decorative variant                         |   278×447 |   217 KiB | No                                                                                      |
@@ -53,12 +54,12 @@ production bundle:
 | `bows/bow-small-01.png`                 | Small bow decorative variant                           |   223×209 |    66 KiB | No                                                                                      |
 | `bows/bow-small-02.png`                 | Small bow decorative variant                           |   201×257 |    64 KiB | No                                                                                      |
 | `bows/bow-small-03.png`                 | Small bow decorative variant                           |   271×155 |    51 KiB | No                                                                                      |
-| `celebration/champagne-glasses-01.png`  | Champagne-glass decorative variant                     | 1254×1254 |   453 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-02.png`  | Champagne-glass decorative variant                     | 1254×1254 |   559 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-03.png`  | Champagne-glass decorative variant                     | 1254×1254 |   654 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-04.png`  | Champagne-glass decorative variant                     | 1254×1254 |   576 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/disco-ball-01.png`         | Disco-ball decorative variant                          | 1254×1254 |   472 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
-| `celebration/disco-ball-02.png`         | Disco-ball decorative variant                          | 1254×1254 | 1,370 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
+| `celebration/champagne-glasses-01.png`  | Champagne-glass decorative variant                     |  734×1084 |   434 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
+| `celebration/champagne-glasses-02.png`  | Champagne-glass decorative variant                     |  731×1055 |   538 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
+| `celebration/champagne-glasses-03.png`  | Champagne-glass decorative variant                     |   903×921 |   628 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
+| `celebration/champagne-glasses-04.png`  | Champagne-glass decorative variant                     |  725×1173 |   554 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
+| `celebration/disco-ball-01.png`         | Disco-ball decorative variant                          |   670×982 |   443 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
+| `celebration/disco-ball-02.png`         | Disco-ball decorative variant                          | 1037×1159 | 1,358 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
 | `accents/paw-print-single.png`          | Single paw-print accent                                |   141×137 |    26 KiB | No                                                                                      |
 | `accents/paw-print-double.png`          | Two-paw accent group                                   |   235×212 |    41 KiB | No                                                                                      |
 | `accents/paw-print-four.png`            | Four-paw accent group                                  |   395×522 |    83 KiB | No                                                                                      |
@@ -76,6 +77,7 @@ requirements to sacrifice visible line quality.
 | Original filename                                | Final path or disposition               |
 | ------------------------------------------------ | --------------------------------------- |
 | `website_asset_main_img.png`                     | `photos/landing-photo-framed.png`       |
+| `cardboard-texture.png`                          | `textures/cardboard-texture.png`        |
 | `website_asset_cat_sitting_backward.png`         | `cats/cat-sitting-facing-away.png`      |
 | `website_asset_cat_sitting_forward.png`          | `cats/cat-sitting-facing-forward.png`   |
 | `website_asset_cat_sitting_head_angled.png`      | `cats/cat-sitting-head-tilted.png`      |

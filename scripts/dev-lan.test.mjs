@@ -79,6 +79,25 @@ test("buildLanDevPlan supports a web-only Portfolio server", () => {
   ]);
 });
 
+test("buildLanDevPlan supports the web-only wedding website", () => {
+  const plan = buildLanDevPlan("wedding-website", {
+    env: { LAN_DEV_IP: "10.0.0.42" }
+  });
+
+  assert.equal(plan.apiBaseUrl, undefined);
+  assert.equal(plan.webUrl, "http://10.0.0.42:5173");
+  assert.deepEqual(plan.args, [
+    "exec",
+    "concurrently",
+    "--kill-others-on-fail",
+    "-n",
+    "WEB",
+    "-c",
+    "cyan",
+    "pnpm --filter wedding-website-web exec vite --host 0.0.0.0 --port 5173 --strictPort"
+  ]);
+});
+
 test("runLanDev passes full concurrently commands without shell splitting", () => {
   const calls = [];
   const qrCodes = [];

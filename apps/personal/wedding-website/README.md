@@ -20,6 +20,16 @@ pnpm dev:project wedding-website
 The package can also be started directly with
 `pnpm --filter wedding-website-web dev`.
 
+For phone or tablet testing on the same Wi-Fi network, start the LAN server:
+
+```sh
+pnpm dev:project:lan wedding-website
+```
+
+The command binds Vite to the local network interface and prints both the phone
+URL and a QR code. Stop any existing wedding-site dev server first because the
+LAN server uses the same port (`5173`).
+
 ## Verify
 
 Run the package-scoped checks from the repository root:

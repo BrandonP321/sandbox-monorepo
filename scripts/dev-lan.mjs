@@ -17,6 +17,10 @@ export const lanDevProjects = {
     apiPort: 3001,
     webFilter: "signal-tracker-web",
     webPort: 5173
+  },
+  "wedding-website": {
+    webFilter: "wedding-website-web",
+    webPort: 5173
   }
 };
 
