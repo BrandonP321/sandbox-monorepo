@@ -38,6 +38,10 @@
   portfolio-web           # React/Vite portfolio site
   portfolio-infra         # AWS CDK static SPA hosting and deploy pipeline
 
+/apps/personal/wedding-website
+  wedding-website-web     # React/Vite wedding RSVP frontend
+  wedding-website-infra   # AWS CDK protected static hosting and Prod pipeline
+
 /apps/platform/dashboard-ui-storybook
   dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui
 

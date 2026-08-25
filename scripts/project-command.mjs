@@ -1,23 +1,40 @@
 #!/usr/bin/env node
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
-const [, , command, project] = process.argv;
+export function runProjectCommand(
+  { command, project },
+  { runner = spawnSync } = {}
+) {
+  if (!command || !project) {
+    throw new Error(
+      "Usage: node scripts/project-command.mjs <dev|build|deploy> <project>"
+    );
+  }
 
-if (!command || !project) {
-  console.error(
-    "Usage: node scripts/project-command.mjs <dev|build|deploy> <project>"
-  );
-  process.exit(1);
+  const filter =
+    command === "deploy"
+      ? `./apps/*/${project}/${project}-infra`
+      : `./apps/*/${project}/${project}-*`;
+
+  const result = runner("pnpm", ["-r", "--filter", filter, "run", command], {
+    stdio: "inherit"
+  });
+
+  return result.status ?? 1;
 }
 
-const filter =
-  command === "deploy"
-    ? `./apps/*/${project}/${project}-infra`
-    : `./apps/*/${project}/${project}-*`;
+function main() {
+  const [, , command, project] = process.argv;
 
-const result = spawnSync("pnpm", ["-r", "--filter", filter, "run", command], {
-  stdio: "inherit",
-  shell: true
-});
+  try {
+    process.exitCode = runProjectCommand({ command, project });
+  } catch (error) {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  }
+}
 
-process.exit(result.status ?? 1);
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main();
+}

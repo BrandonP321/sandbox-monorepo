@@ -153,8 +153,14 @@ export interface SpaSiteCustomDomainProps {
   readonly domainNames: readonly string[];
 }
 
+export interface SpaSiteDefaultBehaviorProps {
+  readonly functionAssociations?: readonly cloudfront.FunctionAssociation[];
+  readonly viewerProtocolPolicy?: cloudfront.ViewerProtocolPolicy;
+}
+
 export interface SpaSiteProps {
   readonly customDomain?: SpaSiteCustomDomainProps;
+  readonly defaultBehavior?: SpaSiteDefaultBehaviorProps;
 }
 
 export class SpaSite extends Construct {
@@ -174,7 +180,13 @@ export class SpaSite extends Construct {
 
     this.distribution = new cloudfront.Distribution(this, "Distribution", {
       certificate: props.customDomain?.certificate,
-      defaultBehavior: { origin: new origins.S3Origin(this.bucket) },
+      defaultBehavior: {
+        origin: new origins.S3Origin(this.bucket),
+        functionAssociations: props.defaultBehavior?.functionAssociations
+          ? [...props.defaultBehavior.functionAssociations]
+          : undefined,
+        viewerProtocolPolicy: props.defaultBehavior?.viewerProtocolPolicy
+      },
       defaultRootObject: "index.html",
       domainNames: props.customDomain
         ? [...props.customDomain.domainNames]

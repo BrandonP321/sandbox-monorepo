@@ -1,12 +1,20 @@
 # Wedding Website
 
-This project will host a frontend-only wedding RSVP prototype. The current
-package is intentionally a minimal scaffold; wedding design, asset preparation,
-and RSVP behavior belong to later issues.
+This project hosts a frontend-only wedding RSVP prototype and its protected
+static-preview infrastructure. Wedding design and RSVP behavior stay in the web
+package; hosting and CI/CD stay in the infra package.
 
 The August 26, 2026 target is for a usable prototype, not production readiness.
-The current milestone uses fictional, local-only data and has no production
-backend, authentication, messaging, or deployment services.
+The current milestone uses fictional, local-only data and has no backend,
+product authentication, database, admin tooling, or messaging services. The
+temporary site-wide Basic Auth gate exists only to keep the static preview
+private while development continues.
+
+## Packages
+
+- `wedding-website-web`: React/Vite frontend.
+- `wedding-website-infra`: private S3/CloudFront hosting and the single Prod
+  deployment pipeline.
 
 ## Run locally
 
@@ -39,10 +47,27 @@ pnpm --filter wedding-website-web lint
 pnpm --filter wedding-website-web typecheck
 pnpm --filter wedding-website-web test
 pnpm --filter wedding-website-web build
+
+pnpm --filter wedding-website-infra lint
+pnpm --filter wedding-website-infra typecheck
+pnpm --filter wedding-website-infra test
+pnpm --filter wedding-website-infra build
+pnpm --filter wedding-website-infra synth
 ```
 
 The repository-wide formatting check is `pnpm format:check`. The normal scoped
 project build is `pnpm build:project wedding-website`.
+
+## Protected preview hosting
+
+The prepared production-only environment uses `wedding.bphillips.dev`, private
+S3, CloudFront, and a viewer-request Basic Auth gate. It intentionally has no
+Dev, Beta, Staging, or Preview deployment stages. Read the
+[infrastructure README](./wedding-website-infra/README.md) for architecture,
+secret bootstrap/rotation, validation, and eventual gate-removal procedures.
+
+Do not deploy or configure `niamhandbrandon.com` as part of this preview stack.
+That domain is reserved for a later launch step.
 
 ## Frontend foundation
 

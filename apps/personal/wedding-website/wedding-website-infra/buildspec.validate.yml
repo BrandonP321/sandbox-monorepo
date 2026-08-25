@@ -1,0 +1,22 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_DEFAULT_REGION: us-east-1
+    AWS_REGION: us-east-1
+
+phases:
+  install:
+    commands:
+      - 'export PNPM_VERSION=$(node -p "require(\"./package.json\").packageManager.match(/^pnpm@(.*?)(\\+|$)/)[1]")'
+      - export PNPM_HOME=/tmp/pnpm
+      - export PATH="${PNPM_HOME}/bin:${PATH}"
+      - npm install --global --prefix "${PNPM_HOME}" "pnpm@${PNPM_VERSION}"
+      - pnpm config set store-dir .pnpm-store
+      - pnpm install --frozen-lockfile
+  build:
+    commands:
+      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run lint
+      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run typecheck
+      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run test
+      - pnpm -r --workspace-concurrency=1 --filter wedding-website-web... --filter wedding-website-infra... run build
