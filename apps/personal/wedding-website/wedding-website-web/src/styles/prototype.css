@@ -1,0 +1,129 @@
+.prototype-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-block: var(--space-32) var(--space-64);
+}
+
+.prototype-page__frame {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.demo-access {
+  padding: var(--space-16);
+  border: var(--border-width-thin) dashed
+    color-mix(in srgb, var(--color-olive) 48%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: color-mix(in srgb, var(--color-paper) 88%, transparent);
+}
+
+.demo-access__heading {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.demo-access__eyebrow,
+.prototype-placeholder__eyebrow {
+  margin-bottom: var(--space-4);
+  color: var(--color-olive-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.demo-access__title {
+  margin-bottom: 0;
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.demo-access__description {
+  max-width: 36rem;
+  margin-block: var(--space-12);
+  color: color-mix(in srgb, var(--color-ink) 78%, var(--color-paper));
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.demo-access__label {
+  display: block;
+  margin-bottom: var(--space-8);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.demo-access__select {
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--space-8) var(--space-12);
+  border: var(--border-width-thin) solid var(--color-olive-soft);
+  border-radius: var(--radius-control);
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+.prototype-placeholder {
+  text-align: center;
+}
+
+.prototype-placeholder__title {
+  margin-bottom: var(--space-16);
+  color: var(--color-olive);
+  font-size: clamp(2rem, 7vw, 3rem);
+}
+
+.prototype-placeholder__description {
+  max-width: 34rem;
+  margin-inline: auto;
+  margin-bottom: var(--space-32);
+  line-height: 1.6;
+}
+
+.prototype-placeholder__invitees-title {
+  margin-bottom: var(--space-12);
+  font-family: var(--font-ui);
+  font-size: 1rem;
+}
+
+.prototype-placeholder__invitees {
+  display: grid;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prototype-placeholder__actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-32);
+}
+
+@media (max-width: 29.99rem) {
+  .prototype-page {
+    padding-block: var(--space-20, var(--space-24)) var(--space-48);
+  }
+
+  .demo-access__heading {
+    display: block;
+  }
+
+  .demo-access__heading .ui-button {
+    min-height: 2.5rem;
+    margin-top: var(--space-8);
+    padding-inline: 0;
+  }
+}
+
+@media (min-width: 47.5rem) {
+  .prototype-page {
+    padding-block-start: var(--space-48);
+  }
+
+  .prototype-page__frame {
+    gap: var(--space-32);
+  }
+}
