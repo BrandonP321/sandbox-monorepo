@@ -22,7 +22,10 @@ const previousStages: Record<RsvpStage, RsvpStage> = {
 function cloneDraft(draft: RsvpDraft): RsvpDraft {
   return {
     ...draft,
-    adults: draft.adults.map((adult) => ({ ...adult })),
+    adults: draft.adults.map((adult) => ({
+      ...adult,
+      contact: { ...adult.contact }
+    })),
     contact: { ...draft.contact }
   };
 }

@@ -23,12 +23,18 @@
   adults covered by the invitation.
 - Each adult independently chooses `Attending`, `Not sure yet`, or
   `Unable to attend`.
+- Each adult may optionally provide an email address and phone number. At least
+  one email address or phone number must be present across the adults in the
+  party before continuing.
 - There is no separate plus-one eligibility model. An invited guest/plus-one is
   another manually entered adult.
 - Children are one party-level `children attending` count; individual child
   names are not required in the initial launch.
-- Show both email and phone. At least one contact method is required; neither is
-  verified or used as guest authentication.
+- Show party-level email and phone again on the additional-details step,
+  prefilled independently from the first adult email and first adult phone when
+  those party-level fields are blank. Guests may edit the prefilled values, but
+  at least one party-level contact method remains required. Neither contact
+  location is verified or used as guest authentication.
 - Dietary/allergy, accessibility/accommodation, and general-note fields are
   optional party-level text.
 - Treat every eventual public submission as a new record. Do not automatically

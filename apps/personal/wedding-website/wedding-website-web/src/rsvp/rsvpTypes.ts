@@ -9,15 +9,16 @@ type RsvpStage =
   | "review"
   | "confirmation";
 
-type AdultAttendee = {
-  id: string;
-  name: string;
-  attendance: AttendanceStatus | null;
-};
-
 type ContactDetails = {
   email: string;
   phone: string;
+};
+
+type AdultAttendee = {
+  id: string;
+  name: string;
+  contact: ContactDetails;
+  attendance: AttendanceStatus | null;
 };
 
 type RsvpDraft = {

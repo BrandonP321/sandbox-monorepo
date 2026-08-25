@@ -1,0 +1,38 @@
+.ui-alert {
+  display: grid;
+  width: 100%;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border: var(--border-width-strong) solid var(--color-error);
+  border-radius: var(--radius-surface);
+  background: color-mix(in srgb, var(--color-error) 7%, var(--color-paper));
+  color: var(--color-ink);
+}
+
+.ui-alert__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--color-error);
+}
+
+.ui-alert__copy {
+  min-width: 0;
+}
+
+.ui-alert__title,
+.ui-alert__message {
+  margin: 0;
+}
+
+.ui-alert__title {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.ui-alert__message {
+  margin-top: var(--space-4);
+  color: color-mix(in srgb, var(--color-ink) 82%, var(--color-paper));
+  line-height: 1.5;
+}

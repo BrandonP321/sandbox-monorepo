@@ -5,16 +5,19 @@ import {
   FormField,
   TextInput
 } from "../components/ui";
+import { AdultContactFields } from "./AdultContactFields";
 import { updateAdult } from "./rsvpDraft";
 import type { AdultAttendee, AttendanceStatus, RsvpDraft } from "./rsvpTypes";
 import type { AdultFieldErrors } from "./rsvpValidation";
 
 type AdultAttendanceFieldsProps = {
   adult: AdultAttendee;
+  contactErrorId?: string;
   draft: RsvpDraft;
   errors?: AdultFieldErrors;
   index: number;
   onChange: (draft: RsvpDraft) => void;
+  onClearContactError: () => void;
   onClearError: (field: keyof AdultFieldErrors) => void;
   onRemove?: () => void;
 };
@@ -30,10 +33,12 @@ const attendanceOptions: readonly {
 
 function AdultAttendanceFields({
   adult,
+  contactErrorId,
   draft,
   errors,
   index,
   onChange,
+  onClearContactError,
   onClearError,
   onRemove
 }: AdultAttendanceFieldsProps) {
@@ -83,6 +88,17 @@ function AdultAttendanceFields({
           />
         )}
       </FormField>
+
+      <AdultContactFields
+        adult={adult}
+        contactErrorId={contactErrorId}
+        draft={draft}
+        errors={errors}
+        isRespondent={isRespondent}
+        onChange={onChange}
+        onClearContactError={onClearContactError}
+        onClearError={onClearError}
+      />
 
       <ChoiceGroup
         error={errors?.attendance}

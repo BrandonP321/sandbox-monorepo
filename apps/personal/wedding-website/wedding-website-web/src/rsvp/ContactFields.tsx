@@ -3,6 +3,7 @@ import type { RsvpDraft } from "./rsvpTypes";
 import type { DetailsFieldErrors } from "./rsvpValidation";
 
 type ContactFieldsProps = {
+  contactErrorId?: string;
   draft: RsvpDraft;
   errors: DetailsFieldErrors;
   onChange: (draft: RsvpDraft) => void;
@@ -10,13 +11,12 @@ type ContactFieldsProps = {
 };
 
 function ContactFields({
+  contactErrorId,
   draft,
   errors,
   onChange,
   onClearError
 }: ContactFieldsProps) {
-  const contactErrorId = errors.contact ? "contact-details-error" : undefined;
-
   return (
     <fieldset
       aria-describedby={contactErrorId}
@@ -30,7 +30,7 @@ function ContactFields({
           sign in or retrieve an RSVP.
         </p>
 
-        <div className="details-fields__contact">
+        <div className="contact-input-grid">
           <FormField error={errors.email} id="email" label="Email address">
             {(fieldProps) => (
               <TextInput
@@ -93,13 +93,6 @@ function ContactFields({
             )}
           </FormField>
         </div>
-
-        {errors.contact ? (
-          <p className="contact-fields__error" id={contactErrorId}>
-            <span>Error: </span>
-            {errors.contact}
-          </p>
-        ) : null}
       </div>
     </fieldset>
   );

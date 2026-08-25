@@ -7,8 +7,9 @@ import type {
 } from "./rsvpTypes";
 
 const LEGACY_PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v1";
-const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v2";
-const PROTOTYPE_STORAGE_VERSION = 2;
+const PREVIOUS_PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v2";
+const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v3";
+const PROTOTYPE_STORAGE_VERSION = 3;
 
 type PrototypeStorageSnapshot = {
   version: typeof PROTOTYPE_STORAGE_VERSION;
@@ -78,10 +79,15 @@ function isDraft(value: unknown): value is RsvpDraft {
   const adultIds = new Set<string>();
 
   return adults.every((adult: unknown) => {
+    const adultContact = isRecord(adult) ? adult.contact : undefined;
+
     if (
       !isRecord(adult) ||
       !hasString(adult, "id") ||
       !hasString(adult, "name") ||
+      !isRecord(adultContact) ||
+      !hasString(adultContact, "email") ||
+      !hasString(adultContact, "phone") ||
       !(
         adult.attendance === null ||
         attendanceStatuses.includes(adult.attendance as AttendanceStatus)
@@ -127,6 +133,9 @@ function createPrototypeStorage(
         if (storage?.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)) {
           storage.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
         }
+        if (storage?.getItem(PREVIOUS_PROTOTYPE_STORAGE_KEY)) {
+          storage.removeItem(PREVIOUS_PROTOTYPE_STORAGE_KEY);
+        }
 
         if (!rawValue) {
           return null;
@@ -164,6 +173,7 @@ function createPrototypeStorage(
         const storage = getStorage();
         storage?.removeItem(PROTOTYPE_STORAGE_KEY);
         storage?.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
+        storage?.removeItem(PREVIOUS_PROTOTYPE_STORAGE_KEY);
       } catch {
         // Reset the React state even when browser storage is unavailable.
       }
@@ -175,6 +185,7 @@ const prototypeStorage = createPrototypeStorage();
 
 export {
   LEGACY_PROTOTYPE_STORAGE_KEY,
+  PREVIOUS_PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_VERSION,
   createPrototypeStorage,

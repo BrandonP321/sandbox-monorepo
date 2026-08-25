@@ -12,6 +12,7 @@ import {
 } from "../components/ui";
 import { AdditionalDetailsStep } from "./AdditionalDetailsStep";
 import { AttendanceStep } from "./AttendanceStep";
+import { prefillPartyContactFromAdults } from "./rsvpDraft";
 import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
 
 type RSVPPrototypeProps = {
@@ -83,7 +84,10 @@ function RSVPPrototype({
         draft={state.draft}
         onBack={onBack}
         onChange={onDraftChange}
-        onContinue={() => onGoTo("details")}
+        onContinue={() => {
+          onDraftChange(prefillPartyContactFromAdults(state.draft));
+          onGoTo("details");
+        }}
       />
     );
   } else if (state.currentStage === "details") {

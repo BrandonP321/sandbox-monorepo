@@ -4,6 +4,7 @@ import {
   RESPONDENT_ID,
   addAdult,
   createInitialDraft,
+  prefillPartyContactFromAdults,
   removeAdult,
   updateAdult
 } from "./rsvpDraft";
@@ -13,7 +14,14 @@ describe("RSVP draft", () => {
   it("starts with the respondent as the first adult", () => {
     expect(createInitialDraft()).toEqual({
       guestSide: null,
-      adults: [{ id: RESPONDENT_ID, name: "", attendance: null }],
+      adults: [
+        {
+          id: RESPONDENT_ID,
+          name: "",
+          contact: { email: "", phone: "" },
+          attendance: null
+        }
+      ],
       childrenAttending: 0,
       contact: { email: "", phone: "" },
       dietaryOrAllergyNotes: "",
@@ -58,14 +66,44 @@ describe("RSVP draft", () => {
       {
         id: "adult-1",
         name: "Alex Example",
+        contact: { email: "", phone: "" },
         attendance: "attending"
       },
       {
         id: "adult-2",
         name: "Sam Example",
+        contact: { email: "", phone: "" },
         attendance: "not-sure"
       }
     ]);
+  });
+
+  it("prefills each party contact from the first matching adult without overwriting edits", () => {
+    let draft = addAdult(createInitialDraft());
+    draft = updateAdult(draft, "adult-1", (adult) => ({
+      ...adult,
+      contact: { email: "", phone: "+1 (415) 555-0123" }
+    }));
+    draft = updateAdult(draft, "adult-2", (adult) => ({
+      ...adult,
+      contact: { email: "sam@example.test", phone: "+1 (510) 555-0199" }
+    }));
+
+    const prefilled = prefillPartyContactFromAdults(draft);
+    expect(prefilled.contact).toEqual({
+      email: "sam@example.test",
+      phone: "+1 (415) 555-0123"
+    });
+
+    expect(
+      prefillPartyContactFromAdults({
+        ...prefilled,
+        contact: { email: "edited@example.test", phone: "555-777-1234" }
+      }).contact
+    ).toEqual({
+      email: "edited@example.test",
+      phone: "555-777-1234"
+    });
   });
 });
 
@@ -97,6 +135,9 @@ describe("rsvpPrototypeReducer", () => {
     expect(replaced.draft).toEqual(draft);
     expect(replaced.draft).not.toBe(draft);
     expect(replaced.draft.adults).not.toBe(draft.adults);
+    expect(replaced.draft.adults[0]?.contact).not.toBe(
+      draft.adults[0]?.contact
+    );
     expect(replaced.draft.contact).not.toBe(draft.contact);
     expect(rsvpPrototypeReducer(replaced, { type: "reset" })).toEqual(initial);
   });

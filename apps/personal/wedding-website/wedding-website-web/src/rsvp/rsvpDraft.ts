@@ -3,7 +3,12 @@ import type { AdultAttendee, RsvpDraft } from "./rsvpTypes";
 const RESPONDENT_ID = "adult-1";
 
 function createAdult(id: string): AdultAttendee {
-  return { id, name: "", attendance: null };
+  return {
+    id,
+    name: "",
+    contact: { email: "", phone: "" },
+    attendance: null
+  };
 }
 
 function createInitialDraft(): RsvpDraft {
@@ -60,10 +65,28 @@ function removeAdult(draft: RsvpDraft, adultId: string): RsvpDraft {
   };
 }
 
+function prefillPartyContactFromAdults(draft: RsvpDraft): RsvpDraft {
+  const firstEmail = draft.adults.find((adult) => adult.contact.email.trim())
+    ?.contact.email;
+  const firstPhone = draft.adults.find((adult) => adult.contact.phone.trim())
+    ?.contact.phone;
+
+  return {
+    ...draft,
+    contact: {
+      email: draft.contact.email.trim()
+        ? draft.contact.email
+        : firstEmail || "",
+      phone: draft.contact.phone.trim() ? draft.contact.phone : firstPhone || ""
+    }
+  };
+}
+
 export {
   RESPONDENT_ID,
   addAdult,
   createInitialDraft,
+  prefillPartyContactFromAdults,
   removeAdult,
   updateAdult
 };

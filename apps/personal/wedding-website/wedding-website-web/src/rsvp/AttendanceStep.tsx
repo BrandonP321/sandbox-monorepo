@@ -1,12 +1,19 @@
 import { useState, type FormEvent } from "react";
 
-import { Button, ChoiceGroup, ChoiceRow, FormSection } from "../components/ui";
+import {
+  Alert,
+  Button,
+  ChoiceGroup,
+  ChoiceRow,
+  FormSection
+} from "../components/ui";
 import { AdultAttendanceFields } from "./AdultAttendanceFields";
 import { ChildCountField } from "./ChildCountField";
 import { addAdult, removeAdult } from "./rsvpDraft";
 import type { GuestSide, RsvpDraft } from "./rsvpTypes";
 import {
   validateParty,
+  CONTACT_REQUIRED_TITLE,
   type AdultFieldErrors,
   type PartyFieldErrors
 } from "./rsvpValidation";
@@ -22,10 +29,12 @@ const guestSideOptions: readonly { label: string; value: GuestSide }[] = [
   { label: "Niamh's side", value: "niamh" },
   { label: "Brandon's side", value: "brandon" }
 ];
+const ATTENDANCE_CONTACT_ALERT_ID = "attendance-contact-alert";
 
 function hasPartyErrors(errors: PartyFieldErrors) {
   return Boolean(
     errors.guestSide ||
+    errors.contact ||
     errors.childrenAttending ||
     Object.keys(errors.adults).length > 0
   );
@@ -37,10 +46,22 @@ function focusFirstPartyError(errors: PartyFieldErrors, draft: RsvpDraft) {
     return;
   }
 
-  for (const adult of draft.adults) {
+  for (const [index, adult] of draft.adults.entries()) {
     const adultErrors = errors.adults[adult.id];
     if (adultErrors?.name) {
       document.getElementById(`adult-name-${adult.id}`)?.focus();
+      return;
+    }
+    if (errors.contact && index === 0) {
+      document.getElementById(`adult-email-${adult.id}`)?.focus();
+      return;
+    }
+    if (adultErrors?.email) {
+      document.getElementById(`adult-email-${adult.id}`)?.focus();
+      return;
+    }
+    if (adultErrors?.phone) {
+      document.getElementById(`adult-phone-${adult.id}`)?.focus();
       return;
     }
     if (adultErrors?.attendance) {
@@ -82,6 +103,10 @@ function AttendanceStep({
         [adultId]: { ...current.adults[adultId], [field]: undefined }
       }
     }));
+  }
+
+  function clearContactError() {
+    setErrors((current) => ({ ...current, contact: undefined }));
   }
 
   return (
@@ -130,11 +155,15 @@ function AttendanceStep({
           {draft.adults.map((adult, index) => (
             <AdultAttendanceFields
               adult={adult}
+              contactErrorId={
+                errors.contact ? ATTENDANCE_CONTACT_ALERT_ID : undefined
+              }
               draft={draft}
               errors={errors.adults[adult.id]}
               index={index}
               key={adult.id}
               onChange={onChange}
+              onClearContactError={clearContactError}
               onClearError={(field) => clearAdultError(adult.id, field)}
               onRemove={
                 index === 0
@@ -171,6 +200,15 @@ function AttendanceStep({
             }))
           }
         />
+
+        {errors.contact ? (
+          <Alert
+            id={ATTENDANCE_CONTACT_ALERT_ID}
+            title={CONTACT_REQUIRED_TITLE}
+          >
+            {errors.contact}
+          </Alert>
+        ) : null}
 
         <div className="rsvp-step__actions">
           <Button onClick={onBack} variant="quiet">

@@ -1,10 +1,14 @@
 import { useState, type FormEvent } from "react";
 
-import { Button, FormSection } from "../components/ui";
+import { Alert, Button, FormSection } from "../components/ui";
 import { ContactFields } from "./ContactFields";
 import { PartyNotesFields } from "./PartyNotesFields";
 import type { RsvpDraft } from "./rsvpTypes";
-import { validateDetails, type DetailsFieldErrors } from "./rsvpValidation";
+import {
+  CONTACT_REQUIRED_TITLE,
+  validateDetails,
+  type DetailsFieldErrors
+} from "./rsvpValidation";
 
 type AdditionalDetailsStepProps = {
   draft: RsvpDraft;
@@ -12,6 +16,7 @@ type AdditionalDetailsStepProps = {
   onChange: (draft: RsvpDraft) => void;
   onContinue: () => void;
 };
+const DETAILS_CONTACT_ALERT_ID = "details-contact-alert";
 
 function focusFirstDetailsError(errors: DetailsFieldErrors) {
   if (errors.contact || errors.email) {
@@ -61,6 +66,9 @@ function AdditionalDetailsStep({
 
         <div className="details-fields">
           <ContactFields
+            contactErrorId={
+              errors.contact ? DETAILS_CONTACT_ALERT_ID : undefined
+            }
             draft={draft}
             errors={errors}
             onChange={onChange}
@@ -68,6 +76,12 @@ function AdditionalDetailsStep({
           />
           <PartyNotesFields draft={draft} onChange={onChange} />
         </div>
+
+        {errors.contact ? (
+          <Alert id={DETAILS_CONTACT_ALERT_ID} title={CONTACT_REQUIRED_TITLE}>
+            {errors.contact}
+          </Alert>
+        ) : null}
 
         <div className="rsvp-step__actions">
           <Button onClick={onBack} variant="quiet">
