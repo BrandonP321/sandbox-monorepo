@@ -2,12 +2,7 @@ type AttendanceStatus = "attending" | "not-sure" | "unable";
 
 type GuestSide = "niamh" | "brandon";
 
-type RsvpStage =
-  | "landing"
-  | "attendance"
-  | "details"
-  | "review"
-  | "confirmation";
+type RsvpStage = "attendance" | "details" | "review" | "confirmation";
 
 type ContactDetails = {
   email: string;

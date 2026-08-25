@@ -5,15 +5,13 @@ import { prototypeStorage, type PrototypeStorage } from "./prototypeStorage";
 import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
 
 type RsvpPrototypeAction =
-  | { type: "start" }
   | { stage: RsvpStage; type: "go-to" }
   | { type: "back" }
   | { draft: RsvpDraft; type: "replace-draft" }
   | { type: "reset" };
 
 const previousStages: Record<RsvpStage, RsvpStage> = {
-  landing: "landing",
-  attendance: "landing",
+  attendance: "attendance",
   details: "attendance",
   review: "details",
   confirmation: "review"
@@ -31,7 +29,7 @@ function cloneDraft(draft: RsvpDraft): RsvpDraft {
 }
 
 function createInitialRsvpState(): RsvpPrototypeState {
-  return { currentStage: "landing", draft: createInitialDraft() };
+  return { currentStage: "attendance", draft: createInitialDraft() };
 }
 
 function isCleanRsvpState(state: RsvpPrototypeState): boolean {
@@ -43,8 +41,6 @@ function rsvpPrototypeReducer(
   action: RsvpPrototypeAction
 ): RsvpPrototypeState {
   switch (action.type) {
-    case "start":
-      return { ...state, currentStage: "attendance" };
     case "go-to":
       return { ...state, currentStage: action.stage };
     case "back":
@@ -73,7 +69,6 @@ function useRsvpPrototype(storage: PrototypeStorage = prototypeStorage) {
 
   return {
     state,
-    start: () => dispatch({ type: "start" }),
     goTo: (stage: RsvpStage) => dispatch({ type: "go-to", stage }),
     back: () => dispatch({ type: "back" }),
     replaceDraft: (draft: RsvpDraft) =>

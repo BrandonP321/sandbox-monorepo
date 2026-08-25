@@ -60,6 +60,33 @@ describe("prototypeStorage", () => {
     expect(PROTOTYPE_STORAGE_KEY).toContain(":v3");
   });
 
+  it("restores a legacy landing-stage draft at the RSVP attendance stage", () => {
+    const { storage, values } = createMemoryStorage();
+    const initialDraft = createInitialDraft();
+    const draft = {
+      ...initialDraft,
+      guestSide: "brandon",
+      adults: [
+        {
+          ...initialDraft.adults[0]!,
+          name: "Alex Example"
+        }
+      ]
+    } as const;
+    values.set(
+      PROTOTYPE_STORAGE_KEY,
+      JSON.stringify({
+        version: PROTOTYPE_STORAGE_VERSION,
+        state: { currentStage: "landing", draft }
+      })
+    );
+
+    expect(createPrototypeStorage(() => storage).read()).toEqual({
+      currentStage: "attendance",
+      draft
+    });
+  });
+
   it("discards the previous version 2 draft rather than guessing adult contacts", () => {
     const { storage, values } = createMemoryStorage();
     values.set(

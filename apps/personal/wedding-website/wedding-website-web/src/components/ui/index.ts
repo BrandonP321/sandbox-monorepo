@@ -1,9 +1,11 @@
 export { Alert, type AlertProps } from "./Alert";
 export {
   Button,
+  PrimaryLink,
   QuietLink,
   type ButtonProps,
   type ButtonVariant,
+  type PrimaryLinkProps,
   type QuietLinkProps
 } from "./Actions";
 export {

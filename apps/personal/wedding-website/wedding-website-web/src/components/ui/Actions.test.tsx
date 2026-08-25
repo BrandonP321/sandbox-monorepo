@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-import { Button, QuietLink } from "./Actions";
+import { Button, PrimaryLink, QuietLink } from "./Actions";
 
 describe("Button", () => {
   it("defaults to a non-submitting primary button", () => {
@@ -48,5 +48,15 @@ describe("QuietLink", () => {
       "href",
       "#details"
     );
+  });
+});
+
+describe("PrimaryLink", () => {
+  it("combines native link semantics with primary action styling", () => {
+    render(<PrimaryLink href="/RSVP">RSVP</PrimaryLink>);
+
+    const link = screen.getByRole("link", { name: "RSVP" });
+    expect(link).toHaveAttribute("href", "/RSVP");
+    expect(link).toHaveAttribute("data-variant", "primary");
   });
 });

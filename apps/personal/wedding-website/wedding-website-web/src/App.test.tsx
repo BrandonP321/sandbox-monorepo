@@ -9,6 +9,7 @@ import {
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.history.replaceState(null, "", "/");
 });
 
 describe("App", () => {
@@ -37,9 +38,10 @@ describe("App", () => {
     const handleStartRsvp = vi.fn();
 
     render(<App onStartRsvp={handleStartRsvp} />);
-    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
 
     expect(handleStartRsvp).toHaveBeenCalledOnce();
+    expect(window.location.pathname).toBe("/RSVP");
     expect(
       screen.getByRole("heading", {
         level: 1,
@@ -77,9 +79,9 @@ describe("App", () => {
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
   });
 
-  it("restores a version 2 self-entry draft after remounting", async () => {
+  it("always loads the landing page at root and restores the draft at /RSVP", async () => {
     const firstRender = render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
     fireEvent.click(screen.getByRole("radio", { name: "Brandon's side" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
       target: { value: "Alex Example" }
@@ -90,13 +92,51 @@ describe("App", () => {
       expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).not.toBeNull()
     );
     firstRender.unmount();
+    window.history.replaceState(null, "", "/");
     render(<App />);
+
+    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
+    expect(screen.queryByRole("textbox", { name: "Your name" })).toBeNull();
+
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
 
     expect(screen.getByRole("radio", { name: "Brandon's side" })).toBeChecked();
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
       "Alex Example"
     );
     expect(screen.getByRole("radio", { name: "Attending" })).toBeChecked();
+  });
+
+  it("loads a clean RSVP form when /RSVP is visited directly", () => {
+    window.history.replaceState(null, "", "/RSVP");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { name: "Your party & attendance" })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
+  });
+
+  it("returns from attendance to the landing URL without clearing the draft", async () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Alex Example" }
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+
+    expect(window.location.pathname).toBe("/");
+    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).not.toBeNull()
+    );
+
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
+      "Alex Example"
+    );
   });
 
   it("discards stale fixture-era storage and starts with a clean draft", () => {
@@ -114,11 +154,11 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getByRole("button", { name: "RSVP" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
     expect(
       window.localStorage.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)
     ).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });

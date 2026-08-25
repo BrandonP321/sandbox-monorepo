@@ -25,6 +25,21 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
 
 type QuietLinkProps = ComponentPropsWithoutRef<"a">;
 
+type PrimaryLinkProps = ComponentPropsWithoutRef<"a">;
+
+const PrimaryLink = forwardRef<HTMLAnchorElement, PrimaryLinkProps>(
+  function PrimaryLink({ className, ...props }, ref) {
+    return (
+      <a
+        {...props}
+        ref={ref}
+        className={classNames("ui-button", className)}
+        data-variant="primary"
+      />
+    );
+  }
+);
+
 const QuietLink = forwardRef<HTMLAnchorElement, QuietLinkProps>(
   function QuietLink({ className, ...props }, ref) {
     return (
@@ -39,8 +54,10 @@ const QuietLink = forwardRef<HTMLAnchorElement, QuietLinkProps>(
 
 export {
   Button,
+  PrimaryLink,
   QuietLink,
   type ButtonProps,
   type ButtonVariant,
+  type PrimaryLinkProps,
   type QuietLinkProps
 };

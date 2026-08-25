@@ -26,6 +26,9 @@ pnpm dev:project wedding-website
 The package can also be started directly with
 `pnpm --filter wedding-website-web dev`.
 
+The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
+the current form stage and locally saved draft are restored after reload.
+
 For phone or tablet testing on the same Wi-Fi network, start the LAN server:
 
 ```sh

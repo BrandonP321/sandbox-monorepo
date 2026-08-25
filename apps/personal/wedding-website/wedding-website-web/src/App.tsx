@@ -1,4 +1,10 @@
 import { LandingPage } from "./LandingPage";
+import {
+  LANDING_PATH,
+  RSVP_PATH,
+  shouldUseClientNavigation,
+  useAppRoute
+} from "./appRoutes";
 import { RSVPPrototype } from "./rsvp/RSVPPrototype";
 import { useRsvpPrototype } from "./rsvp/rsvpState";
 
@@ -10,13 +16,17 @@ const ignoreStartRsvp = () => undefined;
 
 export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
   const rsvp = useRsvpPrototype();
+  const { navigate, route } = useAppRoute();
 
-  if (rsvp.state.currentStage === "landing") {
+  if (route === "landing") {
     return (
       <LandingPage
-        onStartRsvp={() => {
-          rsvp.start();
+        onStartRsvp={(event) => {
           onStartRsvp();
+          if (shouldUseClientNavigation(event)) {
+            event.preventDefault();
+            navigate(RSVP_PATH);
+          }
         }}
       />
     );
@@ -24,7 +34,11 @@ export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
 
   return (
     <RSVPPrototype
-      onBack={rsvp.back}
+      onBack={
+        rsvp.state.currentStage === "attendance"
+          ? () => navigate(LANDING_PATH)
+          : rsvp.back
+      }
       onDraftChange={rsvp.replaceDraft}
       onGoTo={rsvp.goTo}
       state={rsvp.state}

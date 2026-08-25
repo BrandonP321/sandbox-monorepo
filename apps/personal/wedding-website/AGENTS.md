@@ -16,6 +16,9 @@
 
 ## Current RSVP Product Model
 
+- `/` is always the landing page. `/RSVP` owns the RSVP flow and restores the
+  saved draft and current form stage on reload; navigating back to `/` must not
+  make the form replace the landing page.
 - The guest starts by choosing **Niamh's side** or **Brandon's side**. This is
   organizational metadata only; the invitations/RSVP cards were not different
   by side. Copy must not imply otherwise.

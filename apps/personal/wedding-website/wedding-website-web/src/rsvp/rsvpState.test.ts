@@ -108,10 +108,8 @@ describe("RSVP draft", () => {
 });
 
 describe("rsvpPrototypeReducer", () => {
-  it("enters the RSVP and supports the complete back-transition chain", () => {
-    let state = rsvpPrototypeReducer(createInitialRsvpState(), {
-      type: "start"
-    });
+  it("starts at attendance and supports the form back-transition chain", () => {
+    let state = createInitialRsvpState();
     expect(state.currentStage).toBe("attendance");
 
     state = rsvpPrototypeReducer(state, { type: "go-to", stage: "details" });
@@ -121,7 +119,7 @@ describe("rsvpPrototypeReducer", () => {
     state = rsvpPrototypeReducer(state, { type: "back" });
     expect(state.currentStage).toBe("attendance");
     state = rsvpPrototypeReducer(state, { type: "back" });
-    expect(state.currentStage).toBe("landing");
+    expect(state.currentStage).toBe("attendance");
   });
 
   it("replaces the draft with an independent copy and resets cleanly", () => {

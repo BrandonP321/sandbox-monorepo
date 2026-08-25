@@ -1,3 +1,5 @@
+import type { MouseEventHandler } from "react";
+
 import sparklesPrimary from "./assets/accents/sparkles-01.png";
 import sparklesSecondary from "./assets/accents/sparkles-03.png";
 import catSitting from "./assets/cats/cat-sitting-facing-forward.png";
@@ -5,7 +7,7 @@ import champagneGlasses from "./assets/celebration/champagne-glasses-01.png";
 import discoBall from "./assets/celebration/disco-ball-01.png";
 import floralCluster from "./assets/florals/floral-cluster-01.png";
 import landingPhoto from "./assets/photos/landing-photo-framed.png";
-import { Button, ContentFrame, DecorativeLayer } from "./components/ui";
+import { ContentFrame, DecorativeLayer, PrimaryLink } from "./components/ui";
 
 const landingAssets = {
   cat: catSitting,
@@ -36,7 +38,7 @@ const landingDecorations = [
 ] as const;
 
 type LandingPageProps = {
-  onStartRsvp: () => void;
+  onStartRsvp: MouseEventHandler<HTMLAnchorElement>;
 };
 
 function LandingPage({ onStartRsvp }: LandingPageProps) {
@@ -79,9 +81,13 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
             />
           </div>
 
-          <Button className="landing-page__action" onClick={onStartRsvp}>
+          <PrimaryLink
+            className="landing-page__action"
+            href="/RSVP"
+            onClick={onStartRsvp}
+          >
             RSVP
-          </Button>
+          </PrimaryLink>
         </div>
       </ContentFrame>
     </main>

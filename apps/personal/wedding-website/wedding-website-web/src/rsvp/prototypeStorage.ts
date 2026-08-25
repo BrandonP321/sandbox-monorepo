@@ -33,12 +33,13 @@ const attendanceStatuses: readonly AttendanceStatus[] = [
 ];
 const guestSides: readonly GuestSide[] = ["niamh", "brandon"];
 const rsvpStages: readonly RsvpStage[] = [
-  "landing",
   "attendance",
   "details",
   "review",
   "confirmation"
 ];
+const persistedRsvpStages = ["landing", ...rsvpStages] as const;
+type PersistedRsvpStage = (typeof persistedRsvpStages)[number];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -102,20 +103,32 @@ function isDraft(value: unknown): value is RsvpDraft {
   });
 }
 
-function isPrototypeState(value: unknown): value is RsvpPrototypeState {
-  return (
-    isRecord(value) &&
-    rsvpStages.includes(value.currentStage as RsvpStage) &&
-    isDraft(value.draft)
-  );
+function parsePrototypeState(value: unknown): RsvpPrototypeState | null {
+  if (!isRecord(value) || !isDraft(value.draft)) {
+    return null;
+  }
+
+  const currentStage = value.currentStage;
+  if (
+    typeof currentStage !== "string" ||
+    !persistedRsvpStages.includes(currentStage as PersistedRsvpStage)
+  ) {
+    return null;
+  }
+
+  return {
+    currentStage:
+      currentStage === "landing" ? "attendance" : (currentStage as RsvpStage),
+    draft: value.draft
+  };
 }
 
-function isSnapshot(value: unknown): value is PrototypeStorageSnapshot {
-  return (
-    isRecord(value) &&
-    value.version === PROTOTYPE_STORAGE_VERSION &&
-    isPrototypeState(value.state)
-  );
+function parseSnapshot(value: unknown): RsvpPrototypeState | null {
+  if (!isRecord(value) || value.version !== PROTOTYPE_STORAGE_VERSION) {
+    return null;
+  }
+
+  return parsePrototypeState(value.state);
 }
 
 const browserStorageProvider: StorageProvider = () =>
@@ -142,12 +155,13 @@ function createPrototypeStorage(
         }
 
         const parsed: unknown = JSON.parse(rawValue);
-        if (!isSnapshot(parsed)) {
+        const restoredState = parseSnapshot(parsed);
+        if (!restoredState) {
           storage?.removeItem(PROTOTYPE_STORAGE_KEY);
           return null;
         }
 
-        return parsed.state;
+        return restoredState;
       } catch {
         try {
           getStorage()?.removeItem(PROTOTYPE_STORAGE_KEY);

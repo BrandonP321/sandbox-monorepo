@@ -11,11 +11,12 @@ import App from "../App";
 
 beforeEach(() => {
   window.localStorage.clear();
+  window.history.replaceState(null, "", "/");
 });
 
 function startRsvp() {
   const view = render(<App />);
-  fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
+  fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
   return view;
 }
 
