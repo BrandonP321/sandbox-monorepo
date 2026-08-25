@@ -74,15 +74,24 @@ the deployment is explicitly approved.
    aws sts get-caller-identity --profile sandbox-admin
    ```
 
-2. Create the alphanumeric 32-character preview password in Secrets Manager:
+2. Create the alphanumeric 32-character preview password in Secrets Manager
+   without printing it:
 
    ```sh
+   WEDDING_GENERATED_PASSWORD="$(aws secretsmanager get-random-password \
+     --profile sandbox-admin \
+     --region us-east-1 \
+     --password-length 32 \
+     --exclude-punctuation \
+     --query RandomPassword \
+     --output text)"
    aws secretsmanager create-secret \
      --profile sandbox-admin \
      --region us-east-1 \
      --name wedding-website/prod/preview-password \
      --description "Temporary password for the protected wedding preview" \
-     --generate-secret-string '{"PasswordLength":32,"ExcludePunctuation":true}'
+     --secret-string "$WEDDING_GENERATED_PASSWORD"
+   unset WEDDING_GENERATED_PASSWORD
    ```
 
 3. Retrieve the password, save it in the intended password manager, and export
