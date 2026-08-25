@@ -143,7 +143,7 @@ describe("RSVP party and attendance", () => {
     );
 
     expect(getAdultEmailInputs()).toHaveLength(2);
-    expect(getAdultPhoneInputs()[1]).toHaveValue("+1 (415) 555-0199");
+    expect(getAdultPhoneInputs()[1]).toHaveValue("+1 415 555 0199");
     expect(
       within(screen.getByRole("group", { name: "Will you attend?" })).getByRole(
         "radio",
@@ -168,10 +168,12 @@ describe("RSVP party and attendance", () => {
     startRsvp();
     completeRespondent({ email: "", phone: "" });
 
-    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    const continueButton = screen.getByRole("button", { name: "Continue" });
+    continueButton.focus();
+    fireEvent.click(continueButton);
 
     expectContactAlertBefore("Continue");
-    expect(getAdultEmailInputs()[0]).toHaveFocus();
+    expect(continueButton).toHaveFocus();
     expect(getAdultEmailInputs()[0]).toHaveAccessibleDescription(
       "Contact details required Enter at least an email address or phone number."
     );
@@ -245,7 +247,7 @@ describe("RSVP party and attendance", () => {
     const detailsEmail = screen.getByRole("textbox", { name: "Email address" });
     const detailsPhone = screen.getByRole("textbox", { name: "Phone number" });
     expect(detailsEmail).toHaveValue("sam@example.test");
-    expect(detailsPhone).toHaveValue("+1 (415) 555-0123");
+    expect(detailsPhone).toHaveValue("+1 415 555 0123");
 
     fireEvent.change(detailsEmail, {
       target: { value: "edited@example.test" }
@@ -264,13 +266,13 @@ describe("RSVP party and attendance", () => {
       "edited@example.test"
     );
     expect(screen.getByRole("textbox", { name: "Phone number" })).toHaveValue(
-      "555-777-1234"
+      "(555) 777-1234"
     );
   });
 });
 
 describe("RSVP additional details", () => {
-  it("shows the full contact Alert above Continue when both contact fields are empty", () => {
+  it("shows the full contact Alert below the contact fields when both are empty", () => {
     startRsvp();
     continueToDetails();
     const email = screen.getByRole("textbox", { name: "Email address" });
@@ -280,7 +282,12 @@ describe("RSVP additional details", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Continue to review" }));
 
-    expectContactAlertBefore("Continue to review");
+    const alert = expectContactAlertBefore("Continue to review");
+    const contactGroup = screen.getByRole("group", { name: "Contact details" });
+    expect(contactGroup).toContainElement(alert);
+    expect(
+      phone.compareDocumentPosition(alert) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
     expect(email).toHaveFocus();
     expect(email).toHaveAccessibleDescription(
       "Contact details required Enter at least an email address or phone number."

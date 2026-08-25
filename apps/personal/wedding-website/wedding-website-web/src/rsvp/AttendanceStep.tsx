@@ -46,14 +46,10 @@ function focusFirstPartyError(errors: PartyFieldErrors, draft: RsvpDraft) {
     return;
   }
 
-  for (const [index, adult] of draft.adults.entries()) {
+  for (const adult of draft.adults) {
     const adultErrors = errors.adults[adult.id];
     if (adultErrors?.name) {
       document.getElementById(`adult-name-${adult.id}`)?.focus();
-      return;
-    }
-    if (errors.contact && index === 0) {
-      document.getElementById(`adult-email-${adult.id}`)?.focus();
       return;
     }
     if (adultErrors?.email) {

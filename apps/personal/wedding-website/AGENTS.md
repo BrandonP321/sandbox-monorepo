@@ -25,7 +25,8 @@
   `Unable to attend`.
 - Each adult may optionally provide an email address and phone number. At least
   one email address or phone number must be present across the adults in the
-  party before continuing.
+  party before continuing. Show the group-level contact Alert above Continue,
+  but do not move focus away from Continue when that is the only error.
 - There is no separate plus-one eligibility model. An invited guest/plus-one is
   another manually entered adult.
 - Children are one party-level `children attending` count; individual child
@@ -34,7 +35,11 @@
   prefilled independently from the first adult email and first adult phone when
   those party-level fields are blank. Guests may edit the prefilled values, but
   at least one party-level contact method remains required. Neither contact
-  location is verified or used as guest authentication.
+  location is verified or used as guest authentication. Show its missing-contact
+  Alert immediately below the contact fields and keep focusing the email field
+  when the user tries to continue without either contact method.
+- Format phone values while the guest types, using US national formatting by
+  default while continuing to support international numbers entered with `+`.
 - Dietary/allergy, accessibility/accommodation, and general-note fields are
   optional party-level text.
 - Treat every eventual public submission as a new record. Do not automatically

@@ -1,4 +1,5 @@
 import { FormField, TextInput } from "../components/ui";
+import { formatPhoneNumberInput } from "./phoneNumber";
 import { updateAdult } from "./rsvpDraft";
 import type { AdultAttendee, RsvpDraft } from "./rsvpTypes";
 import type { AdultFieldErrors } from "./rsvpValidation";
@@ -81,7 +82,7 @@ function AdultContactFields({
                   ...current,
                   contact: {
                     ...current.contact,
-                    phone: event.currentTarget.value
+                    phone: formatPhoneNumberInput(event.currentTarget.value)
                   }
                 }))
               );

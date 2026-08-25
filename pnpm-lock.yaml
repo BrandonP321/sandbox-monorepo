@@ -367,6 +367,9 @@ importers:
 
   apps/personal/wedding-website/wedding-website-web:
     dependencies:
+      libphonenumber-js:
+        specifier: ^1.13.11
+        version: 1.13.11
       react:
         specifier: ^19.1.1
         version: 19.2.4
@@ -6077,6 +6080,12 @@ packages:
       }
     engines: { node: ">= 0.8.0" }
 
+  libphonenumber-js@1.13.11:
+    resolution:
+      {
+        integrity: sha512-ETER2kMaIFTI/Nh1a8Gk03dUF/SL0VZqtI+CcVHZxp5WIHYwNS7S+uiYZDYCvLy3lOR4/DAD5jf0h5WkePPpqg==
+      }
+
   lightningcss-android-arm64@1.32.0:
     resolution:
       {
@@ -11617,6 +11626,8 @@ snapshots:
     dependencies:
       prelude-ls: 1.2.1
       type-check: 0.4.0
+
+  libphonenumber-js@1.13.11: {}
 
   lightningcss-android-arm64@1.32.0:
     optional: true

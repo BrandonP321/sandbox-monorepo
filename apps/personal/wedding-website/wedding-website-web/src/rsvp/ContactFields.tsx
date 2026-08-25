@@ -1,22 +1,27 @@
-import { FormField, TextInput } from "../components/ui";
+import { Alert, FormField, TextInput } from "../components/ui";
+import { formatPhoneNumberInput } from "./phoneNumber";
 import type { RsvpDraft } from "./rsvpTypes";
-import type { DetailsFieldErrors } from "./rsvpValidation";
+import {
+  CONTACT_REQUIRED_TITLE,
+  type DetailsFieldErrors
+} from "./rsvpValidation";
 
 type ContactFieldsProps = {
-  contactErrorId?: string;
   draft: RsvpDraft;
   errors: DetailsFieldErrors;
   onChange: (draft: RsvpDraft) => void;
   onClearError: (field: keyof DetailsFieldErrors) => void;
 };
+const DETAILS_CONTACT_ALERT_ID = "details-contact-alert";
 
 function ContactFields({
-  contactErrorId,
   draft,
   errors,
   onChange,
   onClearError
 }: ContactFieldsProps) {
+  const contactErrorId = errors.contact ? DETAILS_CONTACT_ALERT_ID : undefined;
+
   return (
     <fieldset
       aria-describedby={contactErrorId}
@@ -81,7 +86,7 @@ function ContactFields({
                     ...draft,
                     contact: {
                       ...draft.contact,
-                      phone: event.currentTarget.value
+                      phone: formatPhoneNumberInput(event.currentTarget.value)
                     }
                   });
                   onClearError("contact");
@@ -93,6 +98,12 @@ function ContactFields({
             )}
           </FormField>
         </div>
+
+        {errors.contact ? (
+          <Alert id={DETAILS_CONTACT_ALERT_ID} title={CONTACT_REQUIRED_TITLE}>
+            {errors.contact}
+          </Alert>
+        ) : null}
       </div>
     </fieldset>
   );
