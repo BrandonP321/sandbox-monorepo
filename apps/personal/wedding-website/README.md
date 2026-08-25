@@ -8,6 +8,12 @@ The August 26, 2026 target is for a usable prototype, not production readiness.
 The current milestone uses fictional, local-only data and has no backend,
 product authentication, database, admin tooling, or messaging services.
 
+The implementation-ready design for the later create-only production backend
+is documented in
+[PRODUCTION_RSVP_ARCHITECTURE.md](./PRODUCTION_RSVP_ARCHITECTURE.md). That
+document defines the future shared/API/infra package boundaries and production
+data contract; it does not mean those resources exist yet.
+
 ## Packages
 
 - `wedding-website-web`: React/Vite frontend.
@@ -116,7 +122,8 @@ that this local-only foundation does not need.
 ## Project context
 
 Read [AGENTS.md](./AGENTS.md) before making project changes. Canonical product
-context lives in the
+and production architecture context lives in
+[PRODUCTION_RSVP_ARCHITECTURE.md](./PRODUCTION_RSVP_ARCHITECTURE.md), the
 [frontend prototype and Codex handoff](https://docs.google.com/document/d/1BXn-lBbuD5DzEX_Ygy6GLWTzRtTS4bCFKLlHEduqvFo/edit)
 and the
 [continuity tracker](https://docs.google.com/document/d/1WC4r9dEEFcd0OynZLyRYlo2-up_iP6qeKkuCpLjhGdM/edit).

@@ -13,6 +13,10 @@
   [frontend prototype and Codex handoff](https://docs.google.com/document/d/1BXn-lBbuD5DzEX_Ygy6GLWTzRtTS4bCFKLlHEduqvFo/edit)
   and the
   [continuity tracker](https://docs.google.com/document/d/1WC4r9dEEFcd0OynZLyRYlo2-up_iP6qeKkuCpLjhGdM/edit).
+- The implementation-ready production backend and data contract lives in
+  [PRODUCTION_RSVP_ARCHITECTURE.md](./PRODUCTION_RSVP_ARCHITECTURE.md). Read it
+  before scoping or implementing shared contracts, API, persistence,
+  infrastructure, frontend submission, or admin follow-on work.
 
 ## Current RSVP Product Model
 
@@ -123,14 +127,15 @@
 - Do not add guest phone lookup, OTP, household access links, passwords, guest
   accounts, or hidden contact-based record retrieval unless a later approved
   decision explicitly changes the open self-entry model.
-- Static hosting/pipeline work may exist under Issue #78. The protected preview
-  hostname is `wedding.bphillips.dev`; **do not deploy or configure
-  `niamhandbrandon.com`** until a later explicit launch decision.
-- The temporary preview gate is site-wide development protection, not guest RSVP
-  authentication and not the long-term guest-access model.
+- Static hosting and the single Prod pipeline exist under Issue #78 at
+  `wedding.bphillips.dev`. The temporary preview gate has been removed; do not
+  reintroduce Basic Auth, a CloudFront access function, Cognito, or another
+  site-wide preview gate.
+- **Do not deploy or configure `niamhandbrandon.com`** until a later explicit
+  launch decision.
 - Do not add backend/API/database/admin/email/SMS capabilities unless a later
   issue explicitly scopes them.
-- Keep the future production submission API replaceable. The current direction
-  is create-submission semantics, not public household lookup/update.
+- Follow `PRODUCTION_RSVP_ARCHITECTURE.md` for the future create-only
+  `POST /rsvp` API. Do not add public household lookup/update/delete behavior.
 - Do not import dashboard-oriented UI packages for convenience when their
   visual language conflicts with the wedding direction.
