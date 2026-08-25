@@ -28,8 +28,10 @@ The decisions are:
   submitting again later uses a new attempt key and creates a new record.
 - Raw submissions contain self-entered guest information only. Canonical
   household data and protected reconciliation are separate future concerns.
-- The service sends no confirmation email or SMS. Contact fields are neither
-  verified nor used as authentication.
+- The request preserves both approved contact layers: optional contact details
+  on each adult and separate party-level contact details. The service sends no
+  confirmation email or SMS, and neither contact layer is verified or used as
+  authentication.
 - The existing single Prod `WeddingWebsiteStack` and deployment pipeline will
   eventually own the backend as well as the frontend.
 - The production frontend is `https://wedding.bphillips.dev`, and the API is
@@ -44,14 +46,14 @@ The active product sources are
 and
 [05_NEXT_STEPS_AND_CONTINUITY_TRACKER](https://docs.google.com/document/d/1WC4r9dEEFcd0OynZLyRYlo2-up_iP6qeKkuCpLjhGdM/edit).
 
-### Current frontend discrepancy
+### Canonical two-layer contact model
 
-The approved contract collects contact information once, at the party level.
-The #77 implementation currently on `main` still carries and renders
-per-adult contact fields as well as party contact. Those per-adult fields are
-not part of the production request below. A bounded frontend cleanup must
-remove them and invalidate the incompatible local draft format before API
-integration. This architecture issue does not change frontend code.
+The final #77 frontend behavior is the production source of truth for contact
+semantics. Each adult has optional email and phone fields, and the party also
+has separate email and phone fields on Additional Details. At least one contact
+method must be present somewhere across the adults, and at least one separate
+party-level contact method must be present. Neither layer is verified identity,
+authentication, authorization, a public lookup key, or a deduplication key.
 
 ## Repository patterns and package boundaries
 
@@ -77,6 +79,9 @@ Later implementation creates these package responsibilities:
 - Own the `POST /rsvp` route definition, Zod request and success-response
   schemas, exported inferred types, contract version constant, and the finite
   application error-code union.
+- Own deterministic normalization and canonical request serialization so both
+  adult contact and party-level contact participate consistently in the
+  client/server payload fingerprint.
 - Depend on `@repo/api-contracts`, `@repo/schema-utils`, and Zod.
 - Contain no React, Lambda, DynamoDB, CDK, transport client, or persistence
   item types.
@@ -93,11 +98,17 @@ Later implementation creates these package responsibilities:
 
 ### `wedding-website-web`
 
-- Later map its validated draft to the shared request type. The local adult
-  `id` remains UI state and must not be sent.
-- Generate and retain one idempotency key for an intentional submit attempt.
-  Reuse it only while retrying the same normalized payload; editing the payload
-  or deliberately starting another RSVP creates a new key.
+- Later map both adult contact and party-level contact from its validated draft
+  to the shared request type. The local adult `id` remains UI state and must not
+  be sent or included in the production payload fingerprint.
+- Generate and persist one idempotency key and normalized-payload fingerprint
+  for an unresolved intentional submit attempt. Reuse the key across retryable
+  failures and page refresh while the current normalized draft still has the
+  same fingerprint.
+- Keep the pre-submit draft available until a definitive `200` or `201` so the
+  production request can be reconstructed after refresh. Clear or replace the
+  unresolved attempt after definitive success, a meaningful payload edit,
+  reset/start-new-RSVP, or an intentional later submission.
 - Resolve the base URL through `@repo/frontend-config`. Production receives
   `VITE_API_BASE_URL` from the deployment pipeline; local development defaults
   to `http://localhost:3001`.
@@ -135,6 +146,10 @@ type CreateRsvpSubmissionRequest = {
   adults: Array<{
     name: string;
     attendance: "attending" | "not-sure" | "unable";
+    contact: {
+      email?: string;
+      phone?: string;
+    };
   }>;
   childrenAttending: number;
   contact: {
@@ -153,11 +168,19 @@ Example:
 {
   "guestSide": "niamh",
   "adults": [
-    { "name": "Example Guest", "attendance": "attending" },
-    { "name": "Example Companion", "attendance": "not-sure" }
+    {
+      "name": "Example Guest",
+      "attendance": "attending",
+      "contact": { "email": "guest@example.test" }
+    },
+    {
+      "name": "Example Companion",
+      "attendance": "not-sure",
+      "contact": { "phone": "+1 202 555 0148" }
+    }
   ],
   "childrenAttending": 1,
-  "contact": { "email": "guest@example.test" },
+  "contact": { "email": "party@example.test" },
   "dietaryOrAllergyNotes": "Vegetarian meal, please."
 }
 ```
@@ -172,15 +195,21 @@ that is hashed and persisted:
 - Each adult name is trimmed, must contain 1 through 100 Unicode characters,
   and otherwise preserves the guest's spelling and internal whitespace.
 - Each adult has exactly one of the three attendance values.
+- Each adult has a required `contact` object whose email and phone properties
+  are individually optional. An adult may leave both empty, but after
+  normalization at least one adult in the array must have an email or phone.
 - `childrenAttending` is an integer from 0 through 20.
-- `contact` is required. Its properties are individually optional, but at
-  least one must remain non-empty after normalization.
-- Email is trimmed, lowercased, limited to 254 characters, and checked with
-  Zod's email validation. Lowercasing is contact normalization, not identity
-  matching.
-- Phone is trimmed, limited to 32 characters, and must contain 7 through 15
-  digits. Formatting characters and an international `+` or `00` prefix are
-  preserved; the server does not guess a country or require E.164 conversion.
+- The top-level `contact` is the separate party-level contact object. It is
+  required, its email and phone properties are individually optional, and at
+  least one must remain non-empty after normalization regardless of the adult
+  contact values.
+- Every supplied email in either layer is trimmed, lowercased, limited to 254
+  characters, and checked with Zod's email validation. Lowercasing is contact
+  normalization, not identity matching.
+- Every supplied phone in either layer is trimmed, limited to 32 characters,
+  and must contain 7 through 15 digits. Formatting characters and an
+  international `+` or `00` prefix are preserved; the server does not guess a
+  country or require E.164 conversion.
 - Each optional note is trimmed and limited to 2,000 characters. A missing,
   empty, or whitespace-only note normalizes to an omitted property.
 - Client adult IDs, client timestamps, canonical household IDs, and a
@@ -291,6 +320,10 @@ type RsvpSubmissionItemV1 = {
   adults: Array<{
     name: string;
     attendance: "attending" | "not-sure" | "unable";
+    contact: {
+      email?: string;
+      phone?: string;
+    };
   }>;
   childrenAttending: number;
   contact: {
@@ -319,7 +352,9 @@ type RsvpIdempotencyItemV1 = {
 The suffix of the idempotency partition key is SHA-256 of the validated UUID
 header. The raw key is not stored. `requestHash` is SHA-256 of a deterministic
 JSON serialization of the normalized request using the shared schema's fixed
-field order and omitting absent optional properties.
+field order and omitting absent optional properties. The normalized hash input
+includes every adult's contact object in adult-array order and the separate
+party-level contact object; it excludes frontend-only adult IDs.
 
 Two item types are preferable to making the client attempt key the submission
 primary key: they preserve a server-generated public submission ID, allow a
@@ -342,6 +377,45 @@ item. A matching request hash returns `200` with its original submission ID,
 timestamp, and schema version. A different request hash returns `409`. A new
 intentional RSVP uses a new UUID header and therefore creates another raw
 submission even when names or contact details match.
+
+### Durable unresolved client attempt
+
+Server-side idempotency must be paired with a refresh-safe client attempt. This
+covers the case where the DynamoDB transaction commits but the browser loses
+the response or times out before seeing it.
+
+The frontend's existing versioned RSVP client-storage boundary should own one
+optional unresolved-attempt record rather than scattering direct storage access
+through components:
+
+```ts
+type UnresolvedRsvpAttemptV1 = {
+  version: 1;
+  contractVersion: 1;
+  idempotencyKey: string;
+  requestHash: string;
+};
+```
+
+Persist only the idempotency key, normalized-payload hash/fingerprint, and
+minimal version metadata in this record. Do not duplicate the RSVP body or its
+PII in a second storage record. Keep the existing pre-submit draft until a
+definitive API success so the request can be reconstructed after refresh.
+
+For an intentional submit, normalize the production request, compute its
+fingerprint, and compare it with any unresolved attempt. Reuse the stored key
+when the fingerprints match; otherwise discard the stale attempt and generate
+a new key for the new intentional attempt. On reload, perform the same
+normalization and comparison before retrying. Frontend-only adult IDs do not
+affect the fingerprint.
+
+Retain the unresolved attempt after ambiguous or retryable outcomes, including
+a network failure, timeout, `429`, or retryable `5xx`. Clear it only after a
+definitive `200`/`201`, a meaningful payload edit, reset/start-new-RSVP, or an
+intentional later separate submission. Thus response loss followed by refresh
+replays the exact request with the same key and receives `200`, while an
+intentional later RSVP receives a new key and creates a new raw item. This is
+technical retry idempotency, not guest deduplication.
 
 The submission item remains historically intact. A future admin system must
 store processing state, household mappings, or reconciliation notes in
@@ -378,8 +452,9 @@ normal unit/integration tests never write to production.
   concurrency of 5.
 - Use the AWS SDK standard retry strategy with at most three total attempts;
   synchronous API Gateway invocation does not add asynchronous Lambda retries.
-- Disable the submit button while a request is in flight. Network retries and
-  a repeated double-click reuse the same key and normalized payload.
+- Disable the submit button while a request is in flight. Network retries,
+  repeated double-clicks, and refresh after an ambiguous response reuse the
+  durable unresolved attempt when the normalized payload fingerprint matches.
 - Rely on strict schema validation, the 32 KiB body limit, field/array bounds,
   conditional writes, and least-privilege IAM.
 - Grant the guest Lambda only `dynamodb:TransactWriteItems` and
@@ -403,7 +478,8 @@ Lambda logs are one-line structured JSON. Allowed fields are timestamp, level,
 event/category, request ID, route, status, latency, and submission ID after a
 successful or idempotently replayed write. Do not log:
 
-- names, email, phone, attendance, child count, or any note;
+- names, adult contact, party-level contact, attendance, child count, or any
+  note;
 - request or response bodies;
 - raw idempotency keys or hashes;
 - IP address, user agent, geolocation, or browser fingerprint; or
@@ -462,6 +538,28 @@ assertions; an explicit, manually approved synthetic production smoke test may
 create a clearly labeled record after deployment, but normal automated tests
 must not write production RSVPs.
 
+## Required later test coverage
+
+The bounded implementation issues must add regression coverage that proves:
+
+- the shared schema accepts adult-email-only and adult-phone-only parties,
+  rejects a party with no adult contact anywhere, and independently rejects
+  missing party-level contact;
+- request normalization preserves both contact layers, strips frontend adult
+  IDs, and changes the payload fingerprint when a meaningful value in either
+  contact layer changes;
+- the persisted submission item matches the normalized two-layer request;
+- first creation, exact server replay, and changed-payload conflict return
+  `201`, `200`, and `409` respectively;
+- a committed request whose response is lost retains its unresolved attempt
+  through refresh, reconstructs the same normalized payload from the saved
+  draft, and retries with the same key;
+- network failure, timeout, `429`, and retryable `5xx` retain the unresolved
+  attempt, while definitive success, meaningful payload edit, reset/start-new,
+  and intentional later resubmission clear or replace it; and
+- unit, integration, and CDK tests use synthetic or in-memory data and do not
+  write production RSVP records by default.
+
 ## Deferred admin and retention boundary
 
 The following are intentionally undecided and must not leak into the public
@@ -482,30 +580,29 @@ guest-list data.
 Do not create these GitHub issues automatically. Create and execute them later
 as bounded issues in this order:
 
-1. **Correct the #77 contact-model mismatch.** Remove per-adult contact fields
-   and types, retain party-level contact only, bump/invalidate the incompatible
-   prototype storage version, and update frontend tests. This must precede API
-   integration but does not block shared/API package scaffolding.
-2. **Create shared contracts and the API foundation.** Add
+1. **Create shared contracts and the API foundation.** Add
    `wedding-website-shared` with schemas/routes/tests and
    `wedding-website-api` with the Lambda/router, dependency seams, in-memory
-   repository, idempotency service, and behavior tests. No AWS persistence in
-   this issue.
-3. **Add production persistence and infrastructure.** Implement the DynamoDB
+   repository, idempotency service, deterministic normalization/fingerprinting,
+   and behavior tests. Preserve both adult contact and party-level contact. No
+   AWS persistence in this issue.
+2. **Add production persistence and infrastructure.** Implement the DynamoDB
    repository and transaction behavior; extend shared primitives; add the
    table, Lambda, HTTP API, custom domain, CORS, IAM, logs, throttling, alarms,
    outputs, and single-pipeline changes. Verify with unit, repository-contract,
    CDK assertion, synth, and deliberately invoked synthetic smoke tests.
-4. **Connect frontend submission.** Map the cleaned draft to the shared
-   contract, add central API configuration, generate/reuse attempt keys,
-   handle success/retry/conflict/throttle/failure states accessibly, and reach
+3. **Connect frontend submission.** Map both contact layers to the shared
+   contract without adult IDs, add central API configuration, and add the
+   versioned durable unresolved-attempt state. Cover response loss plus refresh,
+   key reuse for exact retryable requests, invalidation after meaningful edits,
+   accessible success/retry/conflict/throttle/failure states, and transition to
    Confirmation only after API acceptance.
-5. **Review production operations after real traffic.** Validate metrics,
+4. **Review production operations after real traffic.** Validate metrics,
    costs, throttles, log safety, and spam evidence. Add stronger safeguards
    only when observed behavior justifies a separate issue; baseline safeguards
-   already belong to step 3.
-6. **Later: design protected admin authentication.** Choose admin identity and
+   already belong to step 2.
+5. **Later: design protected admin authentication.** Choose admin identity and
    authorization separately from guest contact data.
-7. **Later: build admin review and reconciliation.** Add protected raw
+6. **Later: build admin review and reconciliation.** Add protected raw
    submission review and mapping to separately managed canonical households
    using the admin architecture chosen at that time.
