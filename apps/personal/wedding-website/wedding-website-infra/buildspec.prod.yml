@@ -4,8 +4,6 @@ env:
   variables:
     AWS_DEFAULT_REGION: us-east-1
     AWS_REGION: us-east-1
-  secrets-manager:
-    WEDDING_PREVIEW_PASSWORD: wedding-website/prod/preview-password
   exported-variables:
     - WEB_URL
     - WEB_BUCKET_NAME
@@ -31,4 +29,4 @@ phases:
       - test "$WEB_BUCKET_NAME" != "None"
       - test "$WEB_DISTRIBUTION_ID" != "None"
       - pnpm --filter wedding-website-infra run publish:web
-      - 'echo "Protected web URL: $WEB_URL"'
+      - 'echo "Web URL: $WEB_URL"'

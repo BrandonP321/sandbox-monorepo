@@ -51,5 +51,8 @@
   issue explicitly expands the milestone.
 - Keep production architecture replaceable. Do not couple the frontend to an
   assumed backend contract prematurely.
+- Configure the production hostname only when the app is intended to receive
+  traffic. Do not add a separate preview password, Basic Auth gate, or similar
+  site-wide access restriction unless the user explicitly requests one.
 - Do not import dashboard-oriented UI packages for convenience when their
   visual language conflicts with the wedding direction.

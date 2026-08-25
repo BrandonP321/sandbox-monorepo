@@ -10,8 +10,6 @@ import {
   type SpaSiteCustomDomainProps
 } from "@repo/infra-patterns";
 
-import { createPreviewAccessGateCode } from "./preview-access-gate.js";
-
 const WEDDING_WEBSITE_DOMAIN_NAME = "wedding.bphillips.dev";
 
 export interface WeddingWebsiteStackProps extends cdk.StackProps {
@@ -22,28 +20,6 @@ export interface WeddingWebsiteStackProps extends cdk.StackProps {
 export class WeddingWebsiteStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: WeddingWebsiteStackProps) {
     super(scope, id, props);
-
-    const previewPassword = new cdk.CfnParameter(this, "PreviewPassword", {
-      allowedPattern: "^[A-Za-z0-9]{32,128}$",
-      constraintDescription:
-        "The preview password must contain 32 to 128 letters or numbers.",
-      description:
-        "Temporary wedding preview password supplied from AWS Secrets Manager.",
-      noEcho: true,
-      type: "String"
-    });
-
-    const previewAccessGate = new cloudfront.Function(
-      this,
-      "PreviewAccessGate",
-      {
-        code: cloudfront.FunctionCode.fromInline(
-          createPreviewAccessGateCode(previewPassword.valueAsString)
-        ),
-        comment: "Temporary HTTP Basic Auth gate for the wedding preview.",
-        runtime: cloudfront.FunctionRuntime.JS_2_0
-      }
-    );
 
     const deployPipeline = new GitHubActionsCodePipelineDeploy(
       this,
@@ -76,12 +52,6 @@ export class WeddingWebsiteStack extends cdk.Stack {
           ? createWeddingWebsiteCustomDomain(this)
           : undefined),
       defaultBehavior: {
-        functionAssociations: [
-          {
-            eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-            function: previewAccessGate
-          }
-        ],
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
       }
     });

@@ -20,7 +20,7 @@ interface SynthesizedPipeline {
 }
 
 describe("WeddingWebsiteStack", () => {
-  it("creates protected static hosting and one production pipeline", () => {
+  it("creates public static hosting and one production pipeline", () => {
     const app = new cdk.App();
     const stack = new WeddingWebsiteStack(app, "WeddingWebsiteStack", {
       env: { account: "498283327683", region: "us-east-1" },
@@ -28,11 +28,6 @@ describe("WeddingWebsiteStack", () => {
     });
     const template = Template.fromStack(stack);
 
-    template.hasParameter("PreviewPassword", {
-      AllowedPattern: "^[A-Za-z0-9]{32,128}$",
-      NoEcho: true,
-      Type: "String"
-    });
     template.hasResourceProperties("AWS::S3::Bucket", {
       PublicAccessBlockConfiguration: {
         BlockPublicAcls: true,
@@ -46,9 +41,6 @@ describe("WeddingWebsiteStack", () => {
       DistributionConfig: Match.objectLike({
         Aliases: ["wedding.bphillips.dev"],
         DefaultCacheBehavior: Match.objectLike({
-          FunctionAssociations: [
-            Match.objectLike({ EventType: "viewer-request" })
-          ],
           ViewerProtocolPolicy: "redirect-to-https"
         }),
         ViewerCertificate: Match.objectLike({
@@ -58,9 +50,7 @@ describe("WeddingWebsiteStack", () => {
         })
       })
     });
-    template.hasResourceProperties("AWS::CloudFront::Function", {
-      FunctionConfig: Match.objectLike({ Runtime: "cloudfront-js-2.0" })
-    });
+    template.resourceCountIs("AWS::CloudFront::Function", 0);
     template.resourcePropertiesCountIs(
       "AWS::Route53::RecordSet",
       { Name: "wedding.bphillips.dev.", Type: "A" },
@@ -137,8 +127,10 @@ describe("WeddingWebsiteStack", () => {
     template.resourceCountIs("AWS::IAM::OIDCProvider", 0);
 
     const synthesizedTemplate = JSON.stringify(template.toJSON());
-    expect(synthesizedTemplate).toContain("statusCode: 401");
-    expect(synthesizedTemplate).toContain("www-authenticate");
+    expect(synthesizedTemplate).not.toContain("PreviewPassword");
+    expect(synthesizedTemplate).not.toContain("FunctionAssociations");
+    expect(synthesizedTemplate).not.toContain("statusCode: 401");
+    expect(synthesizedTemplate).not.toContain("www-authenticate");
     expect(synthesizedTemplate).not.toContain("niamhandbrandon.com");
 
     const outputs = template.toJSON().Outputs ?? {};
@@ -147,13 +139,12 @@ describe("WeddingWebsiteStack", () => {
     expect(outputs).toHaveProperty("WebDistributionId");
   });
 
-  it("loads the preview password from Secrets Manager without echoing it", () => {
+  it("deploys without preview-secret wiring", () => {
     const prodBuildspec = readFileSync(resolve("buildspec.prod.yml"), "utf8");
 
-    expect(prodBuildspec).toContain(
-      "WEDDING_PREVIEW_PASSWORD: wedding-website/prod/preview-password"
-    );
     expect(prodBuildspec).toContain("deploy:ci:no-build");
-    expect(prodBuildspec).not.toMatch(/echo.*WEDDING_PREVIEW_PASSWORD/);
+    expect(prodBuildspec).not.toContain("secrets-manager");
+    expect(prodBuildspec).not.toContain("WEDDING_PREVIEW_PASSWORD");
+    expect(prodBuildspec).not.toContain("preview-password");
   });
 });

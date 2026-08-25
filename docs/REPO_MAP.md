@@ -40,7 +40,7 @@
 
 /apps/personal/wedding-website
   wedding-website-web     # React/Vite wedding RSVP frontend
-  wedding-website-infra   # AWS CDK protected static hosting and Prod pipeline
+  wedding-website-infra   # AWS CDK static hosting and Prod pipeline
 
 /apps/platform/dashboard-ui-storybook
   dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui

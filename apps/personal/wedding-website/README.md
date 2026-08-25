@@ -1,14 +1,12 @@
 # Wedding Website
 
-This project hosts a frontend-only wedding RSVP prototype and its protected
-static-preview infrastructure. Wedding design and RSVP behavior stay in the web
+This project hosts a frontend-only wedding RSVP prototype and its static
+production infrastructure. Wedding design and RSVP behavior stay in the web
 package; hosting and CI/CD stay in the infra package.
 
 The August 26, 2026 target is for a usable prototype, not production readiness.
 The current milestone uses fictional, local-only data and has no backend,
-product authentication, database, admin tooling, or messaging services. The
-temporary site-wide Basic Auth gate exists only to keep the static preview
-private while development continues.
+product authentication, database, admin tooling, or messaging services.
 
 ## Packages
 
@@ -58,15 +56,16 @@ pnpm --filter wedding-website-infra synth
 The repository-wide formatting check is `pnpm format:check`. The normal scoped
 project build is `pnpm build:project wedding-website`.
 
-## Protected preview hosting
+## Production hosting
 
-The prepared production-only environment uses `wedding.bphillips.dev`, private
-S3, CloudFront, and a viewer-request Basic Auth gate. It intentionally has no
-Dev, Beta, Staging, or Preview deployment stages. Read the
-[infrastructure README](./wedding-website-infra/README.md) for architecture,
-secret bootstrap/rotation, validation, and eventual gate-removal procedures.
+The production-only environment uses `wedding.bphillips.dev`, private S3, and
+CloudFront. It intentionally has no Dev, Beta, Staging, or Preview deployment
+stages. The production hostname is configured only when the app is intended to
+receive traffic, so it does not have a separate HTTP authentication gate. Read
+the [infrastructure README](./wedding-website-infra/README.md) for architecture,
+deployment bootstrap, and validation procedures.
 
-Do not deploy or configure `niamhandbrandon.com` as part of this preview stack.
+Do not deploy or configure `niamhandbrandon.com` as part of this stack.
 That domain is reserved for a later launch step.
 
 ## Frontend foundation
