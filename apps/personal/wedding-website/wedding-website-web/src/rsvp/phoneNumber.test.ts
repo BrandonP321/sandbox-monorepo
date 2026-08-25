@@ -12,7 +12,9 @@ describe("formatPhoneNumberInput", () => {
     expect(formatPhoneNumberInput("+442079460018")).toBe("+44 20 7946 0018");
   });
 
-  it("recognizes complete Irish and UK numbers entered without a plus", () => {
+  it("recognizes complete Luxembourg, Irish, and UK numbers without a plus", () => {
+    expect(formatPhoneNumberInput("352 621 123 456")).toBe("+352 621 123 456");
+    expect(formatPhoneNumberInput("352621123456")).toBe("+352 621 123 456");
     expect(formatPhoneNumberInput("353 21 234 5678")).toBe("+353 21 234 5678");
     expect(formatPhoneNumberInput("353212345678")).toBe("+353 21 234 5678");
     expect(formatPhoneNumberInput("44 20 7946 0018")).toBe("+44 20 7946 0018");

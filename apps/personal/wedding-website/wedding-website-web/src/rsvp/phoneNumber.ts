@@ -1,7 +1,7 @@
 import { formatIncompletePhoneNumber } from "libphonenumber-js/min";
 
 const DEFAULT_PHONE_COUNTRY = "US";
-const INTERNATIONAL_CALLING_CODES_WITHOUT_PLUS = ["353", "44"] as const;
+const INTERNATIONAL_CALLING_CODES_WITHOUT_PLUS = ["352", "353", "44"] as const;
 const NORTH_AMERICAN_PHONE_DIGITS = 10;
 
 function normalizeInternationalPrefix(value: string) {

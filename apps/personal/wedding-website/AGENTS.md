@@ -43,8 +43,9 @@
   when the user tries to continue without either contact method.
 - Format phone values while the guest types, using US national formatting by
   default while supporting international numbers entered with `+` or `00`.
-  Recognize complete Ireland (`353`) and UK (`44`) numbers without a prefix,
-  but do not broadly guess countries from otherwise ambiguous national input.
+  Recognize complete Luxembourg (`352`), Ireland (`353`), and UK (`44`) numbers
+  without a prefix, but do not broadly guess countries from otherwise ambiguous
+  national input.
 - Dietary/allergy, accessibility/accommodation, and general-note fields are
   optional party-level text.
 - Treat every eventual public submission as a new record. Do not automatically
