@@ -1,22 +1,14 @@
 import { useEffect, useReducer } from "react";
 
-import { DEFAULT_FIXTURE_ID, createDraftForFixture } from "./prototypeFixtures";
+import { createInitialDraft } from "./rsvpDraft";
 import { prototypeStorage, type PrototypeStorage } from "./prototypeStorage";
-import type {
-  FixtureId,
-  RsvpDraft,
-  RsvpPrototypeState,
-  RsvpStage
-} from "./rsvpTypes";
+import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
 
 type RsvpPrototypeAction =
   | { type: "start" }
   | { stage: RsvpStage; type: "go-to" }
   | { type: "back" }
-  | { fixtureId: FixtureId; type: "select-fixture" }
   | { draft: RsvpDraft; type: "replace-draft" }
-  | { type: "save-draft" }
-  | { type: "edit-saved" }
   | { type: "reset" };
 
 const previousStages: Record<RsvpStage, RsvpStage> = {
@@ -30,21 +22,13 @@ const previousStages: Record<RsvpStage, RsvpStage> = {
 function cloneDraft(draft: RsvpDraft): RsvpDraft {
   return {
     ...draft,
-    inviteeResponses: draft.inviteeResponses.map((response) => ({
-      ...response,
-      plusOne: response.plusOne ? { ...response.plusOne } : null
-    })),
+    adults: draft.adults.map((adult) => ({ ...adult })),
     contact: { ...draft.contact }
   };
 }
 
 function createInitialRsvpState(): RsvpPrototypeState {
-  return {
-    currentStage: "landing",
-    selectedFixtureId: DEFAULT_FIXTURE_ID,
-    draft: createDraftForFixture(DEFAULT_FIXTURE_ID),
-    savedResponse: null
-  };
+  return { currentStage: "landing", draft: createInitialDraft() };
 }
 
 function isCleanRsvpState(state: RsvpPrototypeState): boolean {
@@ -62,32 +46,8 @@ function rsvpPrototypeReducer(
       return { ...state, currentStage: action.stage };
     case "back":
       return { ...state, currentStage: previousStages[state.currentStage] };
-    case "select-fixture":
-      return {
-        currentStage: "attendance",
-        selectedFixtureId: action.fixtureId,
-        draft: createDraftForFixture(action.fixtureId),
-        savedResponse: null
-      };
     case "replace-draft":
-      if (action.draft.householdId !== state.selectedFixtureId) {
-        return state;
-      }
       return { ...state, draft: cloneDraft(action.draft) };
-    case "save-draft":
-      return {
-        ...state,
-        currentStage: "confirmation",
-        savedResponse: cloneDraft(state.draft)
-      };
-    case "edit-saved":
-      return state.savedResponse
-        ? {
-            ...state,
-            currentStage: "attendance",
-            draft: cloneDraft(state.savedResponse)
-          }
-        : state;
     case "reset":
       return createInitialRsvpState();
   }
@@ -113,12 +73,8 @@ function useRsvpPrototype(storage: PrototypeStorage = prototypeStorage) {
     start: () => dispatch({ type: "start" }),
     goTo: (stage: RsvpStage) => dispatch({ type: "go-to", stage }),
     back: () => dispatch({ type: "back" }),
-    selectFixture: (fixtureId: FixtureId) =>
-      dispatch({ type: "select-fixture", fixtureId }),
     replaceDraft: (draft: RsvpDraft) =>
       dispatch({ type: "replace-draft", draft }),
-    saveDraft: () => dispatch({ type: "save-draft" }),
-    editSaved: () => dispatch({ type: "edit-saved" }),
     reset: () => dispatch({ type: "reset" })
   };
 }

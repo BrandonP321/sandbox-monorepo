@@ -1,13 +1,14 @@
-import { getPrototypeFixture, isFixtureId } from "./prototypeFixtures";
 import type {
   AttendanceStatus,
+  GuestSide,
   RsvpDraft,
   RsvpPrototypeState,
   RsvpStage
 } from "./rsvpTypes";
 
-const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v1";
-const PROTOTYPE_STORAGE_VERSION = 1;
+const LEGACY_PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v1";
+const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v2";
+const PROTOTYPE_STORAGE_VERSION = 2;
 
 type PrototypeStorageSnapshot = {
   version: typeof PROTOTYPE_STORAGE_VERSION;
@@ -29,6 +30,7 @@ const attendanceStatuses: readonly AttendanceStatus[] = [
   "not-sure",
   "unable"
 ];
+const guestSides: readonly GuestSide[] = ["niamh", "brandon"];
 const rsvpStages: readonly RsvpStage[] = [
   "landing",
   "attendance",
@@ -46,16 +48,23 @@ function hasString(record: Record<string, unknown>, key: string): boolean {
 }
 
 function isDraft(value: unknown): value is RsvpDraft {
-  if (!isRecord(value) || !isFixtureId(value.householdId)) {
+  if (!isRecord(value)) {
     return false;
   }
 
-  const fixture = getPrototypeFixture(value.householdId);
   const contact = value.contact;
-  const inviteeResponses = value.inviteeResponses;
+  const adults = value.adults;
 
   if (
-    !Array.isArray(inviteeResponses) ||
+    !(
+      value.guestSide === null ||
+      guestSides.includes(value.guestSide as GuestSide)
+    ) ||
+    !Array.isArray(adults) ||
+    adults.length === 0 ||
+    typeof value.childrenAttending !== "number" ||
+    !Number.isInteger(value.childrenAttending) ||
+    value.childrenAttending < 0 ||
     !isRecord(contact) ||
     !hasString(contact, "email") ||
     !hasString(contact, "phone") ||
@@ -66,60 +75,32 @@ function isDraft(value: unknown): value is RsvpDraft {
     return false;
   }
 
-  if (
-    fixture.supportsChildCount
-      ? !Number.isInteger(value.childCount) || Number(value.childCount) < 0
-      : value.childCount !== null
-  ) {
-    return false;
-  }
+  const adultIds = new Set<string>();
 
-  if (inviteeResponses.length !== fixture.invitees.length) {
-    return false;
-  }
-
-  return fixture.invitees.every((invitee, index) => {
-    const response: unknown = inviteeResponses[index];
-
+  return adults.every((adult: unknown) => {
     if (
-      !isRecord(response) ||
-      response.inviteeId !== invitee.id ||
+      !isRecord(adult) ||
+      !hasString(adult, "id") ||
+      !hasString(adult, "name") ||
       !(
-        response.attendance === null ||
-        attendanceStatuses.includes(response.attendance as AttendanceStatus)
-      )
+        adult.attendance === null ||
+        attendanceStatuses.includes(adult.attendance as AttendanceStatus)
+      ) ||
+      adultIds.has(adult.id as string)
     ) {
       return false;
     }
 
-    if (!invitee.plusOneEligible) {
-      return response.plusOne === null;
-    }
-
-    return (
-      isRecord(response.plusOne) &&
-      (response.plusOne.bringingGuest === null ||
-        typeof response.plusOne.bringingGuest === "boolean") &&
-      hasString(response.plusOne, "name")
-    );
+    adultIds.add(adult.id as string);
+    return true;
   });
 }
 
 function isPrototypeState(value: unknown): value is RsvpPrototypeState {
-  if (
-    !isRecord(value) ||
-    !isFixtureId(value.selectedFixtureId) ||
-    !rsvpStages.includes(value.currentStage as RsvpStage) ||
-    !isDraft(value.draft) ||
-    value.draft.householdId !== value.selectedFixtureId
-  ) {
-    return false;
-  }
-
   return (
-    value.savedResponse === null ||
-    (isDraft(value.savedResponse) &&
-      value.savedResponse.householdId === value.selectedFixtureId)
+    isRecord(value) &&
+    rsvpStages.includes(value.currentStage as RsvpStage) &&
+    isDraft(value.draft)
   );
 }
 
@@ -140,15 +121,30 @@ function createPrototypeStorage(
   return {
     read() {
       try {
-        const rawValue = getStorage()?.getItem(PROTOTYPE_STORAGE_KEY);
+        const storage = getStorage();
+        const rawValue = storage?.getItem(PROTOTYPE_STORAGE_KEY);
+
+        if (storage?.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)) {
+          storage.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
+        }
 
         if (!rawValue) {
           return null;
         }
 
         const parsed: unknown = JSON.parse(rawValue);
-        return isSnapshot(parsed) ? parsed.state : null;
+        if (!isSnapshot(parsed)) {
+          storage?.removeItem(PROTOTYPE_STORAGE_KEY);
+          return null;
+        }
+
+        return parsed.state;
       } catch {
+        try {
+          getStorage()?.removeItem(PROTOTYPE_STORAGE_KEY);
+        } catch {
+          // Storage may be unavailable as well as unreadable.
+        }
         return null;
       }
     },
@@ -165,7 +161,9 @@ function createPrototypeStorage(
     },
     reset() {
       try {
-        getStorage()?.removeItem(PROTOTYPE_STORAGE_KEY);
+        const storage = getStorage();
+        storage?.removeItem(PROTOTYPE_STORAGE_KEY);
+        storage?.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
       } catch {
         // Reset the React state even when browser storage is unavailable.
       }
@@ -176,6 +174,7 @@ function createPrototypeStorage(
 const prototypeStorage = createPrototypeStorage();
 
 export {
+  LEGACY_PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_VERSION,
   createPrototypeStorage,

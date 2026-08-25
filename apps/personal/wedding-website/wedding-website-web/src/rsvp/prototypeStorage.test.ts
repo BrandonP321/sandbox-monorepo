@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { addAdult, createInitialDraft, updateAdult } from "./rsvpDraft";
 import { createInitialRsvpState } from "./rsvpState";
 import {
+  LEGACY_PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_VERSION,
   createPrototypeStorage,
@@ -24,13 +26,27 @@ function createMemoryStorage() {
 }
 
 describe("prototypeStorage", () => {
-  it("round-trips a valid versioned prototype state", () => {
+  it("round-trips a valid version 2 self-entry draft", () => {
     const { storage, values } = createMemoryStorage();
     const adapter = createPrototypeStorage(() => storage);
-    const state = {
-      ...createInitialRsvpState(),
-      currentStage: "attendance"
-    } as const;
+    let draft = addAdult(createInitialDraft());
+    draft = {
+      ...draft,
+      guestSide: "niamh",
+      childrenAttending: 2,
+      contact: { email: "party@example.test", phone: "" }
+    };
+    draft = updateAdult(draft, "adult-1", (adult) => ({
+      ...adult,
+      name: "Alex Example",
+      attendance: "attending"
+    }));
+    draft = updateAdult(draft, "adult-2", (adult) => ({
+      ...adult,
+      name: "Sam Example",
+      attendance: "unable"
+    }));
+    const state = { currentStage: "details", draft } as const;
 
     adapter.write(state);
 
@@ -38,21 +54,70 @@ describe("prototypeStorage", () => {
     expect(JSON.parse(values.get(PROTOTYPE_STORAGE_KEY) ?? "{}")).toMatchObject(
       { version: PROTOTYPE_STORAGE_VERSION }
     );
+    expect(PROTOTYPE_STORAGE_KEY).toContain(":v2");
+  });
+
+  it("discards fixture-era version 1 storage without converting it", () => {
+    const { storage, values } = createMemoryStorage();
+    values.set(
+      LEGACY_PROTOTYPE_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        state: {
+          selectedFixtureId: "family",
+          draft: { householdId: "family" }
+        }
+      })
+    );
+
+    expect(createPrototypeStorage(() => storage).read()).toBeNull();
+    expect(values.has(LEGACY_PROTOTYPE_STORAGE_KEY)).toBe(false);
+    expect(values.has(PROTOTYPE_STORAGE_KEY)).toBe(false);
   });
 
   it.each([
     ["malformed JSON", "not-json"],
-    ["a stale version", JSON.stringify({ version: 0, state: {} })],
+    ["a stale version", JSON.stringify({ version: 1, state: {} })],
     [
       "an invalid state",
       JSON.stringify({ version: PROTOTYPE_STORAGE_VERSION, state: {} })
+    ],
+    [
+      "a duplicate adult id",
+      JSON.stringify({
+        version: PROTOTYPE_STORAGE_VERSION,
+        state: {
+          currentStage: "attendance",
+          draft: {
+            ...createInitialDraft(),
+            adults: [
+              { id: "adult-1", name: "One", attendance: null },
+              { id: "adult-1", name: "Two", attendance: null }
+            ]
+          }
+        }
+      })
+    ],
+    [
+      "an invalid children count",
+      JSON.stringify({
+        version: PROTOTYPE_STORAGE_VERSION,
+        state: {
+          currentStage: "attendance",
+          draft: { ...createInitialDraft(), childrenAttending: -1 }
+        }
+      })
     ]
-  ])("falls back safely for %s", (_scenario, storedValue) => {
-    const { storage, values } = createMemoryStorage();
-    values.set(PROTOTYPE_STORAGE_KEY, storedValue);
+  ])(
+    "falls back and removes current storage for %s",
+    (_scenario, storedValue) => {
+      const { storage, values } = createMemoryStorage();
+      values.set(PROTOTYPE_STORAGE_KEY, storedValue);
 
-    expect(createPrototypeStorage(() => storage).read()).toBeNull();
-  });
+      expect(createPrototypeStorage(() => storage).read()).toBeNull();
+      expect(values.has(PROTOTYPE_STORAGE_KEY)).toBe(false);
+    }
+  );
 
   it("does not crash when storage access is unavailable", () => {
     const unavailableStorage = createPrototypeStorage(() => {
@@ -66,15 +131,17 @@ describe("prototypeStorage", () => {
     expect(() => unavailableStorage.reset()).not.toThrow();
   });
 
-  it("resets only the prototype key", () => {
+  it("resets both RSVP schema keys and leaves unrelated storage alone", () => {
     const { storage, values } = createMemoryStorage();
     const adapter = createPrototypeStorage(() => storage);
-    values.set(PROTOTYPE_STORAGE_KEY, "prototype data");
+    values.set(PROTOTYPE_STORAGE_KEY, "current draft");
+    values.set(LEGACY_PROTOTYPE_STORAGE_KEY, "fixture-era draft");
     values.set("unrelated", "keep me");
 
     adapter.reset();
 
     expect(values.has(PROTOTYPE_STORAGE_KEY)).toBe(false);
+    expect(values.has(LEGACY_PROTOTYPE_STORAGE_KEY)).toBe(false);
     expect(values.get("unrelated")).toBe("keep me");
   });
 

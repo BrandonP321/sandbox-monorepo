@@ -1,6 +1,6 @@
-type FixtureId = "couple" | "single-plus-one" | "family";
-
 type AttendanceStatus = "attending" | "not-sure" | "unable";
+
+type GuestSide = "niamh" | "brandon";
 
 type RsvpStage =
   | "landing"
@@ -9,29 +9,10 @@ type RsvpStage =
   | "review"
   | "confirmation";
 
-type NamedInvitee = {
+type AdultAttendee = {
   id: string;
   name: string;
-  plusOneEligible: boolean;
-};
-
-type HouseholdFixture = {
-  id: FixtureId;
-  demoLabel: string;
-  householdName: string;
-  invitees: readonly NamedInvitee[];
-  supportsChildCount: boolean;
-};
-
-type PlusOneResponse = {
-  bringingGuest: boolean | null;
-  name: string;
-};
-
-type InviteeResponse = {
-  inviteeId: string;
   attendance: AttendanceStatus | null;
-  plusOne: PlusOneResponse | null;
 };
 
 type ContactDetails = {
@@ -40,9 +21,9 @@ type ContactDetails = {
 };
 
 type RsvpDraft = {
-  householdId: FixtureId;
-  inviteeResponses: InviteeResponse[];
-  childCount: number | null;
+  guestSide: GuestSide | null;
+  adults: AdultAttendee[];
+  childrenAttending: number;
   contact: ContactDetails;
   dietaryOrAllergyNotes: string;
   accessibilityNotes: string;
@@ -51,19 +32,14 @@ type RsvpDraft = {
 
 type RsvpPrototypeState = {
   currentStage: RsvpStage;
-  selectedFixtureId: FixtureId;
   draft: RsvpDraft;
-  savedResponse: RsvpDraft | null;
 };
 
 export type {
+  AdultAttendee,
   AttendanceStatus,
   ContactDetails,
-  FixtureId,
-  HouseholdFixture,
-  InviteeResponse,
-  NamedInvitee,
-  PlusOneResponse,
+  GuestSide,
   RsvpDraft,
   RsvpPrototypeState,
   RsvpStage

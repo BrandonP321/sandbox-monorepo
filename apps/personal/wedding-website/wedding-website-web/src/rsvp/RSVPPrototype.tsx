@@ -1,67 +1,128 @@
-import { Button, ContentFrame, FormSection } from "../components/ui";
-import { DemoAccess } from "./DemoAccess";
-import { getPrototypeFixture } from "./prototypeFixtures";
-import type { FixtureId, RsvpPrototypeState } from "./rsvpTypes";
+import { useEffect, type ReactNode } from "react";
+
+import bowSmall from "../assets/bows/bow-small-01.png";
+import catSitting from "../assets/cats/cat-sitting-facing-forward.png";
+import floralSprig from "../assets/florals/floral-sprig-01.png";
+import floralVine from "../assets/florals/floral-vine-divider.png";
+import {
+  Button,
+  ContentFrame,
+  DecorativeLayer,
+  FormSection
+} from "../components/ui";
+import { AdditionalDetailsStep } from "./AdditionalDetailsStep";
+import { AttendanceStep } from "./AttendanceStep";
+import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
 
 type RSVPPrototypeProps = {
   onBack: () => void;
-  onReset: () => void;
-  onSelectFixture: (fixtureId: FixtureId) => void;
+  onDraftChange: (draft: RsvpDraft) => void;
+  onGoTo: (stage: RsvpStage) => void;
   state: RsvpPrototypeState;
 };
 
-const stageTitles = {
-  attendance: "Household attendance",
-  details: "Additional details",
-  review: "Review your RSVP",
-  confirmation: "RSVP confirmation",
-  landing: "Welcome"
-} as const;
-
 function RSVPPrototype({
   onBack,
-  onReset,
-  onSelectFixture,
+  onDraftChange,
+  onGoTo,
   state
 }: RSVPPrototypeProps) {
-  const household = getPrototypeFixture(state.selectedFixtureId);
+  useEffect(() => {
+    const headingId =
+      state.currentStage === "attendance"
+        ? "attendance-heading"
+        : state.currentStage === "details"
+          ? "details-heading"
+          : "review-heading";
+    document.getElementById(headingId)?.focus();
+  }, [state.currentStage]);
+
+  let decorations: ReactNode = null;
+
+  if (state.currentStage === "attendance") {
+    decorations = (
+      <DecorativeLayer className="prototype-decorations prototype-decorations--attendance">
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--cat"
+          draggable={false}
+          src={catSitting}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--sprig"
+          draggable={false}
+          src={floralSprig}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--bow"
+          draggable={false}
+          src={bowSmall}
+        />
+      </DecorativeLayer>
+    );
+  } else if (state.currentStage === "details") {
+    decorations = (
+      <DecorativeLayer className="prototype-decorations prototype-decorations--details">
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--vine"
+          draggable={false}
+          src={floralVine}
+        />
+      </DecorativeLayer>
+    );
+  }
+
+  let stageContent: ReactNode;
+
+  if (state.currentStage === "attendance") {
+    stageContent = (
+      <AttendanceStep
+        draft={state.draft}
+        onBack={onBack}
+        onChange={onDraftChange}
+        onContinue={() => onGoTo("details")}
+      />
+    );
+  } else if (state.currentStage === "details") {
+    stageContent = (
+      <AdditionalDetailsStep
+        draft={state.draft}
+        onBack={onBack}
+        onChange={onDraftChange}
+        onContinue={() => onGoTo("review")}
+      />
+    );
+  } else {
+    stageContent = (
+      <FormSection
+        aria-labelledby="review-heading"
+        className="rsvp-step rsvp-step--placeholder"
+      >
+        <p className="rsvp-step__eyebrow">Almost there</p>
+        <h1 className="rsvp-step__title" id="review-heading" tabIndex={-1}>
+          Review your RSVP
+        </h1>
+        <p className="rsvp-step__intro">
+          Your answers are ready for the review screen. Review and confirmation
+          are completed in the next prototype step.
+        </p>
+        <div className="rsvp-step__actions">
+          <Button onClick={onBack} variant="quiet">
+            Back to details
+          </Button>
+        </div>
+      </FormSection>
+    );
+  }
 
   return (
     <main className="prototype-page">
+      {decorations}
       <ContentFrame className="prototype-page__frame">
-        <DemoAccess
-          onReset={onReset}
-          onSelectFixture={onSelectFixture}
-          selectedFixtureId={state.selectedFixtureId}
-        />
-
-        <FormSection className="prototype-placeholder">
-          <p className="prototype-placeholder__eyebrow">
-            {household.householdName}
-          </p>
-          <h1 className="prototype-placeholder__title">
-            {stageTitles[state.currentStage]}
-          </h1>
-          <p className="prototype-placeholder__description">
-            The RSVP state foundation is ready. Final form controls for this
-            stage will be added in the next prototype step.
-          </p>
-
-          <h2 className="prototype-placeholder__invitees-title">
-            Invited guests
-          </h2>
-          <ul className="prototype-placeholder__invitees">
-            {household.invitees.map((invitee) => (
-              <li key={invitee.id}>{invitee.name}</li>
-            ))}
-          </ul>
-
-          <div className="prototype-placeholder__actions">
-            <Button onClick={onBack} variant="quiet">
-              Back
-            </Button>
-          </div>
-        </FormSection>
+        {stageContent}
       </ContentFrame>
     </main>
   );

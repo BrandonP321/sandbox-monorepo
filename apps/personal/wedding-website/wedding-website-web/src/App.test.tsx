@@ -2,7 +2,10 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "./App";
-import { PROTOTYPE_STORAGE_KEY } from "./rsvp/prototypeStorage";
+import {
+  LEGACY_PROTOTYPE_STORAGE_KEY,
+  PROTOTYPE_STORAGE_KEY
+} from "./rsvp/prototypeStorage";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -30,17 +33,25 @@ describe("App", () => {
     expect(photo).toHaveAttribute("height", "750");
   });
 
-  it("exposes the RSVP integration callback", () => {
+  it("exposes the RSVP integration callback and opens a clean self-entry form", () => {
     const handleStartRsvp = vi.fn();
 
     render(<App onStartRsvp={handleStartRsvp} />);
-
     fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
 
     expect(handleStartRsvp).toHaveBeenCalledOnce();
     expect(
-      screen.getByRole("heading", { level: 1, name: "Household attendance" })
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Your party & attendance"
+      })
     ).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
+    expect(
+      screen.getByRole("spinbutton", { name: /children attending/i })
+    ).toHaveValue(0);
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    expect(screen.queryByText(/bring a guest/i)).not.toBeInTheDocument();
   });
 
   it("keeps decorative artwork non-semantic and non-interactive", () => {
@@ -66,70 +77,49 @@ describe("App", () => {
     expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
   });
 
-  it("switches among synthetic households without exposing a guest directory", () => {
-    render(<App />);
-
-    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
-    expect(screen.getByText("Rowan Hart")).toBeInTheDocument();
-    expect(screen.getByText("Ellis Hart")).toBeInTheDocument();
-
-    fireEvent.change(screen.getByRole("combobox", { name: "Demo household" }), {
-      target: { value: "single-plus-one" }
-    });
-
-    expect(
-      screen.getByText("Marlowe Chen", { selector: "li" })
-    ).toBeInTheDocument();
-    expect(screen.queryByText("Rowan Hart")).not.toBeInTheDocument();
-    expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
-    expect(screen.getByText(/not a guest lookup/i)).toBeInTheDocument();
-  });
-
-  it("restores the selected fictional household after remounting", async () => {
+  it("restores a version 2 self-entry draft after remounting", async () => {
     const firstRender = render(<App />);
-
     fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Demo household" }), {
-      target: { value: "family" }
+    fireEvent.click(screen.getByRole("radio", { name: "Brandon's side" }));
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Alex Example" }
     });
+    fireEvent.click(screen.getByRole("radio", { name: "Attending" }));
 
     await waitFor(() =>
       expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).not.toBeNull()
     );
     firstRender.unmount();
-
     render(<App />);
 
-    expect(
-      screen.getByRole("combobox", { name: "Demo household" })
-    ).toHaveValue("family");
-    expect(screen.getByText("Jules Bellamy")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "Brandon's side" })).toBeChecked();
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
+      "Alex Example"
+    );
+    expect(screen.getByRole("radio", { name: "Attending" })).toBeChecked();
   });
 
-  it("resets only demo data and returns to the deterministic landing state", () => {
-    window.localStorage.setItem("unrelated", "keep me");
-    render(<App />);
-
-    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
-    fireEvent.change(screen.getByRole("combobox", { name: "Demo household" }), {
-      target: { value: "family" }
-    });
-    fireEvent.click(screen.getByRole("button", { name: "Reset demo data" }));
-
-    expect(screen.getByRole("button", { name: "RSVP" })).toBeInTheDocument();
-    expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).toBeNull();
-    expect(window.localStorage.getItem("unrelated")).toBe("keep me");
-  });
-
-  it("falls back to the landing state for stale persisted data", () => {
+  it("discards stale fixture-era storage and starts with a clean draft", () => {
     window.localStorage.setItem(
-      PROTOTYPE_STORAGE_KEY,
-      JSON.stringify({ version: 0, state: {} })
+      LEGACY_PROTOTYPE_STORAGE_KEY,
+      JSON.stringify({
+        version: 1,
+        state: {
+          currentStage: "attendance",
+          selectedFixtureId: "family",
+          draft: { householdId: "family" }
+        }
+      })
     );
 
     render(<App />);
 
     expect(screen.getByRole("button", { name: "RSVP" })).toBeInTheDocument();
-    expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).toBeNull();
+    expect(
+      window.localStorage.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)
+    ).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "RSVP" }));
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
+    expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });
 });

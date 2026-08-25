@@ -1,24 +1,71 @@
 import { describe, expect, it } from "vitest";
 
-import { createDraftForFixture, prototypeFixtures } from "./prototypeFixtures";
+import {
+  RESPONDENT_ID,
+  addAdult,
+  createInitialDraft,
+  removeAdult,
+  updateAdult
+} from "./rsvpDraft";
 import { createInitialRsvpState, rsvpPrototypeReducer } from "./rsvpState";
 
-describe("prototype fixtures", () => {
-  it("covers couple, plus-one, and child-count scenarios with fictional data", () => {
-    expect(prototypeFixtures.map((fixture) => fixture.id)).toEqual([
-      "couple",
-      "single-plus-one",
-      "family"
+describe("RSVP draft", () => {
+  it("starts with the respondent as the first adult", () => {
+    expect(createInitialDraft()).toEqual({
+      guestSide: null,
+      adults: [{ id: RESPONDENT_ID, name: "", attendance: null }],
+      childrenAttending: 0,
+      contact: { email: "", phone: "" },
+      dietaryOrAllergyNotes: "",
+      accessibilityNotes: "",
+      generalNote: ""
+    });
+  });
+
+  it("adds and removes additional adults without removing the respondent", () => {
+    const initial = createInitialDraft();
+    const withTwoAdults = addAdult(initial);
+    const withThreeAdults = addAdult(withTwoAdults);
+
+    expect(withThreeAdults.adults.map((adult) => adult.id)).toEqual([
+      "adult-1",
+      "adult-2",
+      "adult-3"
     ]);
+    expect(removeAdult(withThreeAdults, RESPONDENT_ID)).toBe(withThreeAdults);
     expect(
-      prototypeFixtures
-        .flatMap((fixture) => fixture.invitees)
-        .filter((invitee) => invitee.plusOneEligible)
-    ).toHaveLength(1);
+      removeAdult(withThreeAdults, "adult-2").adults.map((adult) => adult.id)
+    ).toEqual(["adult-1", "adult-3"]);
     expect(
-      prototypeFixtures.filter((fixture) => fixture.supportsChildCount)
-    ).toHaveLength(1);
-    expect(JSON.stringify(prototypeFixtures)).not.toMatch(/@|555|phone/i);
+      addAdult(removeAdult(withThreeAdults, "adult-2")).adults.at(-1)?.id
+    ).toBe("adult-4");
+  });
+
+  it("updates each adult independently", () => {
+    const withAdditionalAdult = addAdult(createInitialDraft());
+    const respondentUpdated = updateAdult(
+      withAdditionalAdult,
+      RESPONDENT_ID,
+      (adult) => ({ ...adult, name: "Alex Example", attendance: "attending" })
+    );
+    const bothUpdated = updateAdult(respondentUpdated, "adult-2", (adult) => ({
+      ...adult,
+      name: "Sam Example",
+      attendance: "not-sure"
+    }));
+
+    expect(bothUpdated.adults).toEqual([
+      {
+        id: "adult-1",
+        name: "Alex Example",
+        attendance: "attending"
+      },
+      {
+        id: "adult-2",
+        name: "Sam Example",
+        attendance: "not-sure"
+      }
+    ]);
   });
 });
 
@@ -39,49 +86,18 @@ describe("rsvpPrototypeReducer", () => {
     expect(state.currentStage).toBe("landing");
   });
 
-  it("switches fixtures with a clean matching draft", () => {
-    const state = rsvpPrototypeReducer(createInitialRsvpState(), {
-      type: "select-fixture",
-      fixtureId: "family"
-    });
-
-    expect(state).toMatchObject({
-      currentStage: "attendance",
-      selectedFixtureId: "family",
-      savedResponse: null,
-      draft: { householdId: "family", childCount: 0 }
-    });
-  });
-
-  it("saves and reopens an independent copy of the response for editing", () => {
-    const initial = {
-      ...createInitialRsvpState(),
-      draft: {
-        ...createDraftForFixture("couple"),
-        contact: { email: "fictional@example.test", phone: "555-0100" }
-      }
-    };
-    const saved = rsvpPrototypeReducer(initial, { type: "save-draft" });
-
-    expect(saved.currentStage).toBe("confirmation");
-    expect(saved.savedResponse).toEqual(initial.draft);
-    expect(saved.savedResponse).not.toBe(initial.draft);
-
-    const edited = rsvpPrototypeReducer(saved, { type: "edit-saved" });
-    expect(edited.currentStage).toBe("attendance");
-    expect(edited.draft).toEqual(saved.savedResponse);
-    expect(edited.draft).not.toBe(saved.savedResponse);
-  });
-
-  it("ignores a draft for a different selected household and resets cleanly", () => {
+  it("replaces the draft with an independent copy and resets cleanly", () => {
     const initial = createInitialRsvpState();
-    const mismatched = rsvpPrototypeReducer(initial, {
+    const draft = addAdult(createInitialDraft());
+    const replaced = rsvpPrototypeReducer(initial, {
       type: "replace-draft",
-      draft: createDraftForFixture("family")
+      draft
     });
-    expect(mismatched).toBe(initial);
 
-    const started = rsvpPrototypeReducer(initial, { type: "start" });
-    expect(rsvpPrototypeReducer(started, { type: "reset" })).toEqual(initial);
+    expect(replaced.draft).toEqual(draft);
+    expect(replaced.draft).not.toBe(draft);
+    expect(replaced.draft.adults).not.toBe(draft.adults);
+    expect(replaced.draft.contact).not.toBe(draft.contact);
+    expect(rsvpPrototypeReducer(replaced, { type: "reset" })).toEqual(initial);
   });
 });

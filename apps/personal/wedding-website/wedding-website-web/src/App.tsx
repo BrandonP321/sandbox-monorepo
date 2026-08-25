@@ -25,8 +25,8 @@ export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
   return (
     <RSVPPrototype
       onBack={rsvp.back}
-      onReset={rsvp.reset}
-      onSelectFixture={rsvp.selectFixture}
+      onDraftChange={rsvp.replaceDraft}
+      onGoTo={rsvp.goTo}
       state={rsvp.state}
     />
   );
