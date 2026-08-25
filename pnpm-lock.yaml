@@ -325,6 +325,46 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
 
+  apps/personal/wedding-website/wedding-website-infra:
+    dependencies:
+      "@repo/infra-patterns":
+        specifier: workspace:*
+        version: link:../../../../packages/infra-patterns
+      aws-cdk-lib:
+        specifier: ^2.212.0
+        version: 2.237.1(constructs@10.4.5)
+      constructs:
+        specifier: ^10.4.2
+        version: 10.4.5
+    devDependencies:
+      "@repo/config-eslint":
+        specifier: workspace:*
+        version: link:../../../../packages/config-eslint
+      "@repo/config-test":
+        specifier: workspace:*
+        version: link:../../../../packages/config-test
+      "@repo/config-ts":
+        specifier: workspace:*
+        version: link:../../../../packages/config-ts
+      "@types/node":
+        specifier: ^24.1.0
+        version: 24.10.10
+      aws-cdk:
+        specifier: ^2.212.0
+        version: 2.1104.0
+      eslint:
+        specifier: ^9.39.2
+        version: 9.39.2(jiti@2.6.1)
+      tsx:
+        specifier: ^4.20.5
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.10)(@vitest/browser@3.2.4)(jiti@2.6.1)(jsdom@26.1.0)(lightningcss@1.32.0)(sass@1.98.0)(sugarss@5.0.1(postcss@8.5.6))(tsx@4.21.0)(yaml@2.8.3)
+
   apps/personal/wedding-website/wedding-website-web:
     dependencies:
       react:

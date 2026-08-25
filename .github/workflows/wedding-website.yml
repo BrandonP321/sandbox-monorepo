@@ -1,0 +1,30 @@
+name: wedding-website
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/personal/wedding-website/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "**"
+      - "!apps/**"
+      - "apps/personal/wedding-website/**"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  wedding-website:
+    uses: ./.github/workflows/project-cicd.yml
+    with:
+      aws_region: us-east-1
+      deploy_pipeline_name: wedding-website-prod
+      deploy_pipeline_source_action_name: Source
+      project_root: apps/personal/wedding-website
