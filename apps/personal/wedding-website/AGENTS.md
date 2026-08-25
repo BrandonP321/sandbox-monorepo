@@ -52,6 +52,8 @@
   deduplicate or overwrite based on name, email, phone, or side.
 - There is no public lookup / View/Edit RSVP path after submission. If plans
   change, guests may submit another RSVP or contact Brandon/Niamh.
+- Keep Confirmation simple: show that the RSVP is complete and provide a Home
+  link. Do not show an attending-count recap or a public edit/resubmit action.
 - Do not put canonical household IDs or canonical guest-list data in the
   guest-facing draft. A future protected admin page may map raw submissions to
   canonical household data; that work is explicitly deferred.
@@ -79,6 +81,17 @@
 - Keep decorative content inside the `DecorativeLayer` convention so it stays
   hidden from assistive technology, ignores pointer input, and can reflow or
   disappear independently of functional content.
+- Apply the repeating cardboard texture as one document-sized, non-interactive
+  overlay in `wedding-website-web/src/styles/global.css` so it scrolls with
+  every current and future route. Do not recreate or viewport-fix the overlay
+  in page-level styles.
+- On wider layouts, RSVP form-step footers place Home at the left and Back
+  immediately before Continue/Submit on the right. On narrow mobile layouts,
+  make the primary ribbon action full width and place the Home/Back secondary
+  actions in a right-aligned row beneath it. Attendance omits Back because Home
+  is already the only preceding destination.
+- Confirmation is the footer exception: present its Home link as one centered
+  primary ribbon action rather than as a quiet secondary action.
 - Use the shared motion-duration tokens for any future transitions and provide
   an equivalent static experience under `prefers-reduced-motion`.
 - The current foundation is plain CSS. Do not add Tailwind or another styling
@@ -93,6 +106,9 @@
 - localStorage may be used for versioned draft/session convenience in the
   frontend prototype. It must not be used as authentication or as a model for
   production RSVP lookup/editing.
+- Persist only pre-submit Attendance, Additional Details, and Review drafts.
+  Confirmation uses a transient submitted snapshot that does not survive a
+  refresh. Starting another RSVP must create a completely clean draft.
 - Schema-incompatible fixture-era localStorage should fail safely to a clean
   self-entry draft rather than being migrated into fake household identity.
 

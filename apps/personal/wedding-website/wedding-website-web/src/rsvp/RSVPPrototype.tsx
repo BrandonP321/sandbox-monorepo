@@ -1,31 +1,53 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  type MouseEventHandler,
+  type ReactNode
+} from "react";
 
 import bowSmall from "../assets/bows/bow-small-01.png";
+import sparklesPrimary from "../assets/accents/sparkles-01.png";
+import sparklesSecondary from "../assets/accents/sparkles-03.png";
 import catSitting from "../assets/cats/cat-sitting-facing-forward.png";
+import champagneGlasses from "../assets/celebration/champagne-glasses-01.png";
+import discoBall from "../assets/celebration/disco-ball-01.png";
 import floralSprig from "../assets/florals/floral-sprig-01.png";
 import floralVine from "../assets/florals/floral-vine-divider.png";
-import {
-  Button,
-  ContentFrame,
-  DecorativeLayer,
-  FormSection
-} from "../components/ui";
+import { ContentFrame, DecorativeLayer } from "../components/ui";
 import { AdditionalDetailsStep } from "./AdditionalDetailsStep";
 import { AttendanceStep } from "./AttendanceStep";
+import { RSVPConfirmation } from "./RSVPConfirmation";
+import { RSVPReview } from "./RSVPReview";
 import { prefillPartyContactFromAdults } from "./rsvpDraft";
-import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
+import type {
+  RsvpDraft,
+  RsvpFormStage,
+  RsvpPrototypeState,
+  RsvpStage
+} from "./rsvpTypes";
 
 type RSVPPrototypeProps = {
   onBack: () => void;
   onDraftChange: (draft: RsvpDraft) => void;
-  onGoTo: (stage: RsvpStage) => void;
+  onGoTo: (stage: RsvpFormStage) => void;
+  onHome: MouseEventHandler<HTMLAnchorElement>;
+  onSubmit: () => void;
   state: RsvpPrototypeState;
+};
+
+const stageHeadingIds: Record<RsvpStage, string> = {
+  attendance: "attendance-heading",
+  confirmation: "confirmation-heading",
+  details: "details-heading",
+  review: "review-heading"
 };
 
 function RSVPPrototype({
   onBack,
   onDraftChange,
   onGoTo,
+  onHome,
+  onSubmit,
   state
 }: RSVPPrototypeProps) {
   const previousStage = useRef(state.currentStage);
@@ -36,13 +58,7 @@ function RSVPPrototype({
     }
     previousStage.current = state.currentStage;
 
-    const headingId =
-      state.currentStage === "attendance"
-        ? "attendance-heading"
-        : state.currentStage === "details"
-          ? "details-heading"
-          : "review-heading";
-    document.getElementById(headingId)?.focus();
+    document.getElementById(stageHeadingIds[state.currentStage])?.focus();
   }, [state.currentStage]);
 
   let decorations: ReactNode = null;
@@ -81,6 +97,52 @@ function RSVPPrototype({
         />
       </DecorativeLayer>
     );
+  } else if (state.currentStage === "review") {
+    decorations = (
+      <DecorativeLayer className="prototype-decorations prototype-decorations--review">
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--review-vine"
+          draggable={false}
+          src={floralVine}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--review-sparkles"
+          draggable={false}
+          src={sparklesPrimary}
+        />
+      </DecorativeLayer>
+    );
+  } else {
+    decorations = (
+      <DecorativeLayer className="prototype-decorations prototype-decorations--confirmation">
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--confirmation-cat"
+          draggable={false}
+          src={catSitting}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--confirmation-champagne"
+          draggable={false}
+          src={champagneGlasses}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--confirmation-disco"
+          draggable={false}
+          src={discoBall}
+        />
+        <img
+          alt=""
+          className="prototype-decoration prototype-decoration--confirmation-sparkles"
+          draggable={false}
+          src={sparklesSecondary}
+        />
+      </DecorativeLayer>
+    );
   }
 
   let stageContent: ReactNode;
@@ -89,12 +151,12 @@ function RSVPPrototype({
     stageContent = (
       <AttendanceStep
         draft={state.draft}
-        onBack={onBack}
         onChange={onDraftChange}
         onContinue={() => {
           onDraftChange(prefillPartyContactFromAdults(state.draft));
           onGoTo("details");
         }}
+        onHome={onHome}
       />
     );
   } else if (state.currentStage === "details") {
@@ -104,29 +166,21 @@ function RSVPPrototype({
         onBack={onBack}
         onChange={onDraftChange}
         onContinue={() => onGoTo("review")}
+        onHome={onHome}
+      />
+    );
+  } else if (state.currentStage === "review") {
+    stageContent = (
+      <RSVPReview
+        draft={state.draft}
+        onBack={onBack}
+        onEdit={onGoTo}
+        onHome={onHome}
+        onSubmit={onSubmit}
       />
     );
   } else {
-    stageContent = (
-      <FormSection
-        aria-labelledby="review-heading"
-        className="rsvp-step rsvp-step--placeholder"
-      >
-        <p className="rsvp-step__eyebrow">Almost there</p>
-        <h1 className="rsvp-step__title" id="review-heading" tabIndex={-1}>
-          Review your RSVP
-        </h1>
-        <p className="rsvp-step__intro">
-          Your answers are ready for the review screen. Review and confirmation
-          are completed in the next prototype step.
-        </p>
-        <div className="rsvp-step__actions">
-          <Button onClick={onBack} variant="quiet">
-            Back to details
-          </Button>
-        </div>
-      </FormSection>
-    );
+    stageContent = <RSVPConfirmation onHome={onHome} />;
   }
 
   return (

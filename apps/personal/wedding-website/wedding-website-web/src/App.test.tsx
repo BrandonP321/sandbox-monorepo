@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "./App";
 import {
-  LEGACY_PROTOTYPE_STORAGE_KEY,
-  PROTOTYPE_STORAGE_KEY
+  PROTOTYPE_STORAGE_KEY,
+  PROTOTYPE_STORAGE_KEY_V1
 } from "./rsvp/prototypeStorage";
 
 beforeEach(() => {
@@ -118,14 +118,17 @@ describe("App", () => {
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
   });
 
-  it("returns from attendance to the landing URL without clearing the draft", async () => {
+  it("returns home from attendance without clearing the draft", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
       target: { value: "Alex Example" }
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Back" }));
+    const homeLink = screen.getByRole("link", { name: "Home" });
+    expect(homeLink).toHaveAttribute("href", "/");
+    expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
+    fireEvent.click(homeLink);
 
     expect(window.location.pathname).toBe("/");
     expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
@@ -141,7 +144,7 @@ describe("App", () => {
 
   it("discards stale fixture-era storage and starts with a clean draft", () => {
     window.localStorage.setItem(
-      LEGACY_PROTOTYPE_STORAGE_KEY,
+      PROTOTYPE_STORAGE_KEY_V1,
       JSON.stringify({
         version: 1,
         state: {
@@ -155,9 +158,7 @@ describe("App", () => {
     render(<App />);
 
     expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
-    expect(
-      window.localStorage.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)
-    ).toBeNull();
+    expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY_V1)).toBeNull();
     fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();

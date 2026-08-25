@@ -10,17 +10,6 @@
   background-color: var(--color-paper);
 }
 
-.landing-page::after {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  background-image: url("../assets/textures/cardboard-texture.png");
-  background-repeat: repeat;
-  content: "";
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 .landing-page__frame {
   position: relative;
   z-index: 1;

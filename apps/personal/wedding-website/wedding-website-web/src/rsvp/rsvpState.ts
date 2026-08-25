@@ -2,19 +2,24 @@ import { useEffect, useReducer } from "react";
 
 import { createInitialDraft } from "./rsvpDraft";
 import { prototypeStorage, type PrototypeStorage } from "./prototypeStorage";
-import type { RsvpDraft, RsvpPrototypeState, RsvpStage } from "./rsvpTypes";
+import type {
+  RsvpActiveState,
+  RsvpDraft,
+  RsvpFormStage,
+  RsvpPrototypeState
+} from "./rsvpTypes";
 
 type RsvpPrototypeAction =
-  | { stage: RsvpStage; type: "go-to" }
+  | { stage: RsvpFormStage; type: "go-to" }
   | { type: "back" }
   | { draft: RsvpDraft; type: "replace-draft" }
+  | { type: "submit" }
   | { type: "reset" };
 
-const previousStages: Record<RsvpStage, RsvpStage> = {
+const previousStages: Record<RsvpFormStage, RsvpFormStage> = {
   attendance: "attendance",
   details: "attendance",
-  review: "details",
-  confirmation: "review"
+  review: "details"
 };
 
 function cloneDraft(draft: RsvpDraft): RsvpDraft {
@@ -28,8 +33,12 @@ function cloneDraft(draft: RsvpDraft): RsvpDraft {
   };
 }
 
-function createInitialRsvpState(): RsvpPrototypeState {
-  return { currentStage: "attendance", draft: createInitialDraft() };
+function createInitialRsvpState(): RsvpActiveState {
+  return {
+    currentStage: "attendance",
+    draft: createInitialDraft(),
+    submittedDraft: null
+  };
 }
 
 function isCleanRsvpState(state: RsvpPrototypeState): boolean {
@@ -42,11 +51,27 @@ function rsvpPrototypeReducer(
 ): RsvpPrototypeState {
   switch (action.type) {
     case "go-to":
-      return { ...state, currentStage: action.stage };
+      return state.currentStage === "confirmation"
+        ? state
+        : { ...state, currentStage: action.stage };
     case "back":
-      return { ...state, currentStage: previousStages[state.currentStage] };
+      return state.currentStage === "confirmation"
+        ? state
+        : { ...state, currentStage: previousStages[state.currentStage] };
     case "replace-draft":
-      return { ...state, draft: cloneDraft(action.draft) };
+      return state.currentStage === "confirmation"
+        ? state
+        : { ...state, draft: cloneDraft(action.draft) };
+    case "submit":
+      if (state.currentStage === "confirmation") {
+        return state;
+      }
+
+      return {
+        currentStage: "confirmation",
+        draft: createInitialDraft(),
+        submittedDraft: cloneDraft(state.draft)
+      };
     case "reset":
       return createInitialRsvpState();
   }
@@ -60,7 +85,7 @@ function useRsvpPrototype(storage: PrototypeStorage = prototypeStorage) {
   );
 
   useEffect(() => {
-    if (isCleanRsvpState(state)) {
+    if (state.currentStage === "confirmation" || isCleanRsvpState(state)) {
       storage.reset();
     } else {
       storage.write(state);
@@ -69,10 +94,11 @@ function useRsvpPrototype(storage: PrototypeStorage = prototypeStorage) {
 
   return {
     state,
-    goTo: (stage: RsvpStage) => dispatch({ type: "go-to", stage }),
+    goTo: (stage: RsvpFormStage) => dispatch({ type: "go-to", stage }),
     back: () => dispatch({ type: "back" }),
     replaceDraft: (draft: RsvpDraft) =>
       dispatch({ type: "replace-draft", draft }),
+    submit: () => dispatch({ type: "submit" }),
     reset: () => dispatch({ type: "reset" })
   };
 }

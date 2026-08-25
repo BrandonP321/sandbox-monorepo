@@ -2,7 +2,9 @@ type AttendanceStatus = "attending" | "not-sure" | "unable";
 
 type GuestSide = "niamh" | "brandon";
 
-type RsvpStage = "attendance" | "details" | "review" | "confirmation";
+type RsvpFormStage = "attendance" | "details" | "review";
+
+type RsvpStage = RsvpFormStage | "confirmation";
 
 type ContactDetails = {
   email: string;
@@ -26,17 +28,29 @@ type RsvpDraft = {
   generalNote: string;
 };
 
-type RsvpPrototypeState = {
-  currentStage: RsvpStage;
+type RsvpActiveState = {
+  currentStage: RsvpFormStage;
   draft: RsvpDraft;
+  submittedDraft: null;
 };
+
+type RsvpConfirmationState = {
+  currentStage: "confirmation";
+  draft: RsvpDraft;
+  submittedDraft: RsvpDraft;
+};
+
+type RsvpPrototypeState = RsvpActiveState | RsvpConfirmationState;
 
 export type {
   AdultAttendee,
   AttendanceStatus,
   ContactDetails,
   GuestSide,
+  RsvpActiveState,
+  RsvpConfirmationState,
   RsvpDraft,
+  RsvpFormStage,
   RsvpPrototypeState,
   RsvpStage
 };

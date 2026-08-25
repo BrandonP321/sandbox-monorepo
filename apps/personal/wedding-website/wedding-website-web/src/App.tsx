@@ -34,13 +34,19 @@ export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
 
   return (
     <RSVPPrototype
-      onBack={
-        rsvp.state.currentStage === "attendance"
-          ? () => navigate(LANDING_PATH)
-          : rsvp.back
-      }
+      onBack={rsvp.back}
       onDraftChange={rsvp.replaceDraft}
       onGoTo={rsvp.goTo}
+      onHome={(event) => {
+        if (shouldUseClientNavigation(event)) {
+          event.preventDefault();
+          if (rsvp.state.currentStage === "confirmation") {
+            rsvp.reset();
+          }
+          navigate(LANDING_PATH);
+        }
+      }}
+      onSubmit={rsvp.submit}
       state={rsvp.state}
     />
   );

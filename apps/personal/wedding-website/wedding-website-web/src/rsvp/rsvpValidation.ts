@@ -91,6 +91,15 @@ function validateParty(draft: RsvpDraft): PartyFieldErrors {
   return errors;
 }
 
+function hasPartyErrors(errors: PartyFieldErrors): boolean {
+  return Boolean(
+    errors.guestSide ||
+    errors.contact ||
+    errors.childrenAttending ||
+    Object.keys(errors.adults).length > 0
+  );
+}
+
 function validateDetails(draft: RsvpDraft): DetailsFieldErrors {
   const errors: DetailsFieldErrors = {};
   const email = draft.contact.email.trim();
@@ -105,9 +114,15 @@ function validateDetails(draft: RsvpDraft): DetailsFieldErrors {
   return errors;
 }
 
+function hasDetailsErrors(errors: DetailsFieldErrors): boolean {
+  return Object.keys(errors).length > 0;
+}
+
 export {
   CONTACT_REQUIRED_MESSAGE,
   CONTACT_REQUIRED_TITLE,
+  hasDetailsErrors,
+  hasPartyErrors,
   validateDetails,
   validateParty,
   type AdultFieldErrors,

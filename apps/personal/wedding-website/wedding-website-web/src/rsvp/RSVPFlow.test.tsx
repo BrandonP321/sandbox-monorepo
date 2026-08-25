@@ -273,7 +273,31 @@ describe("RSVP party and attendance", () => {
 });
 
 describe("RSVP additional details", () => {
-  it("shows the full contact Alert below the contact fields when both are empty", () => {
+  it("separates the primary action from the Home and Back actions", () => {
+    startRsvp();
+    continueToDetails();
+
+    const home = screen.getByRole("link", { name: "Home" });
+    const back = screen.getByRole("button", { name: "Back" });
+    const continueButton = screen.getByRole("button", {
+      name: "Continue to review"
+    });
+    const secondaryActions = home.parentElement;
+    const primaryAction = continueButton.parentElement;
+
+    expect(home).toHaveAttribute("href", "/");
+    expect(secondaryActions).toBe(back.parentElement);
+    expect(primaryAction).not.toBe(secondaryActions);
+    expect(
+      secondaryActions!.compareDocumentPosition(primaryAction!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
+    expect(
+      home.compareDocumentPosition(back) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).not.toBe(0);
+  });
+
+  it("shows the contact Alert below the party-level fields when both are empty", () => {
     startRsvp();
     continueToDetails();
     const email = screen.getByRole("textbox", { name: "Email address" });
@@ -301,8 +325,8 @@ describe("RSVP additional details", () => {
   it("accepts email as the only party contact method", () => {
     startRsvp();
     continueToDetails();
-    fireEvent.change(screen.getByRole("textbox", { name: "Phone number" }), {
-      target: { value: "" }
+    fireEvent.change(screen.getByRole("textbox", { name: "Email address" }), {
+      target: { value: "alex@example.test" }
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Continue to review" }));
@@ -312,16 +336,16 @@ describe("RSVP additional details", () => {
     ).toBeVisible();
   });
 
-  it("accepts phone as the only party contact method", () => {
+  it("accepts and formats phone as the only party contact method", () => {
     startRsvp();
     continueToDetails();
     fireEvent.change(screen.getByRole("textbox", { name: "Email address" }), {
       target: { value: "" }
     });
-    fireEvent.change(screen.getByRole("textbox", { name: "Phone number" }), {
-      target: { value: "+1 (415) 555-0123" }
-    });
+    const phone = screen.getByRole("textbox", { name: "Phone number" });
+    fireEvent.change(phone, { target: { value: "+1 (415) 555-0123" } });
 
+    expect(phone).toHaveValue("+1 415 555 0123");
     fireEvent.click(screen.getByRole("button", { name: "Continue to review" }));
 
     expect(

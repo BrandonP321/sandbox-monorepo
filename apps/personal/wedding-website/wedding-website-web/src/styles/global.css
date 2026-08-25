@@ -25,10 +25,22 @@ html {
 }
 
 body {
+  position: relative;
   min-width: 320px;
   min-height: 100vh;
   min-height: 100dvh;
   margin: 0;
+}
+
+body::after {
+  position: absolute;
+  z-index: 2147483647;
+  inset: 0;
+  background-image: url("../assets/textures/cardboard-texture.png");
+  background-repeat: repeat;
+  content: "";
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 button,

@@ -82,10 +82,18 @@ function prefillPartyContactFromAdults(draft: RsvpDraft): RsvpDraft {
   };
 }
 
+function getAttendingCount(draft: RsvpDraft): number {
+  return (
+    draft.adults.filter((adult) => adult.attendance === "attending").length +
+    draft.childrenAttending
+  );
+}
+
 export {
   RESPONDENT_ID,
   addAdult,
   createInitialDraft,
+  getAttendingCount,
   prefillPartyContactFromAdults,
   removeAdult,
   updateAdult

@@ -2,26 +2,37 @@ import type {
   AttendanceStatus,
   GuestSide,
   RsvpDraft,
-  RsvpPrototypeState,
-  RsvpStage
+  RsvpActiveState,
+  RsvpFormStage
 } from "./rsvpTypes";
 
-const LEGACY_PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v1";
-const PREVIOUS_PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v2";
-const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v3";
-const PROTOTYPE_STORAGE_VERSION = 3;
+const PROTOTYPE_STORAGE_KEY_V1 = "wedding-rsvp-prototype:v1";
+const PROTOTYPE_STORAGE_KEY_V2 = "wedding-rsvp-prototype:v2";
+const PROTOTYPE_STORAGE_KEY_V3 = "wedding-rsvp-prototype:v3";
+const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v4";
+const PROTOTYPE_STORAGE_VERSION = 4;
+const STALE_PROTOTYPE_STORAGE_KEYS = [
+  PROTOTYPE_STORAGE_KEY_V1,
+  PROTOTYPE_STORAGE_KEY_V2,
+  PROTOTYPE_STORAGE_KEY_V3
+] as const;
+
+type PersistedRsvpState = {
+  currentStage: RsvpFormStage;
+  draft: RsvpDraft;
+};
 
 type PrototypeStorageSnapshot = {
   version: typeof PROTOTYPE_STORAGE_VERSION;
-  state: RsvpPrototypeState;
+  state: PersistedRsvpState;
 };
 
 type StorageLike = Pick<Storage, "getItem" | "removeItem" | "setItem">;
 
 type PrototypeStorage = {
-  read: () => RsvpPrototypeState | null;
+  read: () => RsvpActiveState | null;
   reset: () => void;
-  write: (state: RsvpPrototypeState) => void;
+  write: (state: RsvpActiveState) => void;
 };
 
 type StorageProvider = () => StorageLike | null | undefined;
@@ -32,14 +43,11 @@ const attendanceStatuses: readonly AttendanceStatus[] = [
   "unable"
 ];
 const guestSides: readonly GuestSide[] = ["niamh", "brandon"];
-const rsvpStages: readonly RsvpStage[] = [
+const persistedRsvpStages: readonly RsvpFormStage[] = [
   "attendance",
   "details",
-  "review",
-  "confirmation"
+  "review"
 ];
-const persistedRsvpStages = ["landing", ...rsvpStages] as const;
-type PersistedRsvpStage = (typeof persistedRsvpStages)[number];
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -103,7 +111,7 @@ function isDraft(value: unknown): value is RsvpDraft {
   });
 }
 
-function parsePrototypeState(value: unknown): RsvpPrototypeState | null {
+function parsePrototypeState(value: unknown): RsvpActiveState | null {
   if (!isRecord(value) || !isDraft(value.draft)) {
     return null;
   }
@@ -111,19 +119,19 @@ function parsePrototypeState(value: unknown): RsvpPrototypeState | null {
   const currentStage = value.currentStage;
   if (
     typeof currentStage !== "string" ||
-    !persistedRsvpStages.includes(currentStage as PersistedRsvpStage)
+    !persistedRsvpStages.includes(currentStage as RsvpFormStage)
   ) {
     return null;
   }
 
   return {
-    currentStage:
-      currentStage === "landing" ? "attendance" : (currentStage as RsvpStage),
-    draft: value.draft
+    currentStage: currentStage as RsvpFormStage,
+    draft: value.draft,
+    submittedDraft: null
   };
 }
 
-function parseSnapshot(value: unknown): RsvpPrototypeState | null {
+function parseSnapshot(value: unknown): RsvpActiveState | null {
   if (!isRecord(value) || value.version !== PROTOTYPE_STORAGE_VERSION) {
     return null;
   }
@@ -143,11 +151,10 @@ function createPrototypeStorage(
         const storage = getStorage();
         const rawValue = storage?.getItem(PROTOTYPE_STORAGE_KEY);
 
-        if (storage?.getItem(LEGACY_PROTOTYPE_STORAGE_KEY)) {
-          storage.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
-        }
-        if (storage?.getItem(PREVIOUS_PROTOTYPE_STORAGE_KEY)) {
-          storage.removeItem(PREVIOUS_PROTOTYPE_STORAGE_KEY);
+        for (const staleKey of STALE_PROTOTYPE_STORAGE_KEYS) {
+          if (storage?.getItem(staleKey)) {
+            storage.removeItem(staleKey);
+          }
         }
 
         if (!rawValue) {
@@ -175,7 +182,7 @@ function createPrototypeStorage(
       try {
         const snapshot: PrototypeStorageSnapshot = {
           version: PROTOTYPE_STORAGE_VERSION,
-          state
+          state: { currentStage: state.currentStage, draft: state.draft }
         };
         getStorage()?.setItem(PROTOTYPE_STORAGE_KEY, JSON.stringify(snapshot));
       } catch {
@@ -186,8 +193,9 @@ function createPrototypeStorage(
       try {
         const storage = getStorage();
         storage?.removeItem(PROTOTYPE_STORAGE_KEY);
-        storage?.removeItem(LEGACY_PROTOTYPE_STORAGE_KEY);
-        storage?.removeItem(PREVIOUS_PROTOTYPE_STORAGE_KEY);
+        for (const staleKey of STALE_PROTOTYPE_STORAGE_KEYS) {
+          storage?.removeItem(staleKey);
+        }
       } catch {
         // Reset the React state even when browser storage is unavailable.
       }
@@ -198,10 +206,12 @@ function createPrototypeStorage(
 const prototypeStorage = createPrototypeStorage();
 
 export {
-  LEGACY_PROTOTYPE_STORAGE_KEY,
-  PREVIOUS_PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_KEY,
+  PROTOTYPE_STORAGE_KEY_V1,
+  PROTOTYPE_STORAGE_KEY_V2,
+  PROTOTYPE_STORAGE_KEY_V3,
   PROTOTYPE_STORAGE_VERSION,
+  STALE_PROTOTYPE_STORAGE_KEYS,
   createPrototypeStorage,
   prototypeStorage,
   type PrototypeStorage,

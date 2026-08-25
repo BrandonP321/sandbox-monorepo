@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type MouseEventHandler } from "react";
 
 import {
   Alert,
@@ -10,19 +10,21 @@ import {
 import { AdultAttendanceFields } from "./AdultAttendanceFields";
 import { ChildCountField } from "./ChildCountField";
 import { addAdult, removeAdult } from "./rsvpDraft";
+import { RsvpStepFooter } from "./RsvpStepFooter";
 import type { GuestSide, RsvpDraft } from "./rsvpTypes";
 import {
-  validateParty,
   CONTACT_REQUIRED_TITLE,
+  hasPartyErrors,
   type AdultFieldErrors,
-  type PartyFieldErrors
+  type PartyFieldErrors,
+  validateParty
 } from "./rsvpValidation";
 
 type AttendanceStepProps = {
   draft: RsvpDraft;
-  onBack: () => void;
   onChange: (draft: RsvpDraft) => void;
   onContinue: () => void;
+  onHome: MouseEventHandler<HTMLAnchorElement>;
 };
 
 const guestSideOptions: readonly { label: string; value: GuestSide }[] = [
@@ -30,15 +32,6 @@ const guestSideOptions: readonly { label: string; value: GuestSide }[] = [
   { label: "Brandon's side", value: "brandon" }
 ];
 const ATTENDANCE_CONTACT_ALERT_ID = "attendance-contact-alert";
-
-function hasPartyErrors(errors: PartyFieldErrors) {
-  return Boolean(
-    errors.guestSide ||
-    errors.contact ||
-    errors.childrenAttending ||
-    Object.keys(errors.adults).length > 0
-  );
-}
 
 function focusFirstPartyError(errors: PartyFieldErrors, draft: RsvpDraft) {
   if (errors.guestSide) {
@@ -73,9 +66,9 @@ function focusFirstPartyError(errors: PartyFieldErrors, draft: RsvpDraft) {
 
 function AttendanceStep({
   draft,
-  onBack,
   onChange,
-  onContinue
+  onContinue,
+  onHome
 }: AttendanceStepProps) {
   const [errors, setErrors] = useState<PartyFieldErrors>({ adults: {} });
 
@@ -206,12 +199,10 @@ function AttendanceStep({
           </Alert>
         ) : null}
 
-        <div className="rsvp-step__actions">
-          <Button onClick={onBack} variant="quiet">
-            Back
-          </Button>
-          <Button type="submit">Continue</Button>
-        </div>
+        <RsvpStepFooter
+          onHome={onHome}
+          primaryAction={<Button type="submit">Continue</Button>}
+        />
       </FormSection>
     </form>
   );

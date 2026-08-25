@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useState, type FormEvent, type MouseEventHandler } from "react";
 
 import { Button, FormSection } from "../components/ui";
 import { ContactFields } from "./ContactFields";
 import { PartyNotesFields } from "./PartyNotesFields";
+import { RsvpStepFooter } from "./RsvpStepFooter";
 import type { RsvpDraft } from "./rsvpTypes";
 import { validateDetails, type DetailsFieldErrors } from "./rsvpValidation";
 
@@ -11,6 +12,7 @@ type AdditionalDetailsStepProps = {
   onBack: () => void;
   onChange: (draft: RsvpDraft) => void;
   onContinue: () => void;
+  onHome: MouseEventHandler<HTMLAnchorElement>;
 };
 function focusFirstDetailsError(errors: DetailsFieldErrors) {
   if (errors.contact || errors.email) {
@@ -24,7 +26,8 @@ function AdditionalDetailsStep({
   draft,
   onBack,
   onChange,
-  onContinue
+  onContinue,
+  onHome
 }: AdditionalDetailsStepProps) {
   const [errors, setErrors] = useState<DetailsFieldErrors>({});
 
@@ -68,12 +71,15 @@ function AdditionalDetailsStep({
           <PartyNotesFields draft={draft} onChange={onChange} />
         </div>
 
-        <div className="rsvp-step__actions">
-          <Button onClick={onBack} variant="quiet">
-            Back
-          </Button>
-          <Button type="submit">Continue to review</Button>
-        </div>
+        <RsvpStepFooter
+          backAction={
+            <Button onClick={onBack} variant="quiet">
+              Back
+            </Button>
+          }
+          onHome={onHome}
+          primaryAction={<Button type="submit">Continue to review</Button>}
+        />
       </FormSection>
     </form>
   );

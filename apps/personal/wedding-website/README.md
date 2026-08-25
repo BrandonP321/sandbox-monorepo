@@ -29,6 +29,26 @@ The package can also be started directly with
 The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
 the current form stage and locally saved draft are restored after reload.
 
+## RSVP prototype behavior
+
+The frontend implements a five-stage guest journey: landing, party and
+attendance, additional details, review, and confirmation.
+
+- Adult entries contain a name, independent attendance response, and optional
+  email and phone fields. At least one contact method is required across all
+  adults before continuing. Additional Details repeats party-level contact,
+  independently prefilling email and phone from the first matching adult while
+  preserving any party-level edits; at least one party-level method is required.
+- Version 4 localStorage persists only active pre-submit drafts through Review.
+  Submitting creates an in-memory confirmation snapshot and clears draft
+  persistence; refreshing after Confirmation starts a clean `/RSVP` flow.
+- Confirmation shows a simple completion message and a Home link. Returning
+  home clears the transient submitted snapshot; starting RSVP again opens a
+  blank party rather than prepopulating the previous response.
+- Submission is a local-only prototype transition. It makes no network request,
+  sends no email or SMS, and provides no guest lookup, authentication,
+  deduplication, or public View/Edit RSVP path.
+
 For phone or tablet testing on the same Wi-Fi network, start the LAN server:
 
 ```sh

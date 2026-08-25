@@ -8,17 +8,18 @@ const normalizedLandingCss = landingCss.replaceAll(/\s+/g, " ");
 const normalizedGlobalCss = globalCss.replaceAll(/\s+/g, " ");
 
 describe("landing page surface", () => {
-  it("overlays the repeating cardboard texture without blocking interaction", () => {
+  it("inherits the application-wide cardboard overlay without duplicating it", () => {
     expect(landingCss).toContain("min-height: 100dvh;");
     expect(landingCss).toContain("background-color: var(--color-paper);");
-    expect(landingCss).toContain(".landing-page::after");
-    expect(landingCss).toContain(
+    expect(landingCss).not.toContain(".landing-page::after");
+    expect(normalizedGlobalCss).toContain("body::after { position: absolute;");
+    expect(globalCss).toContain(
       'background-image: url("../assets/textures/cardboard-texture.png");'
     );
-    expect(landingCss).toContain("background-repeat: repeat;");
-    expect(landingCss).toContain("z-index: 2;");
-    expect(landingCss).toContain("opacity: 0.5;");
-    expect(landingCss).toContain("pointer-events: none;");
+    expect(globalCss).toContain("z-index: 2147483647;");
+    expect(globalCss).toContain("background-repeat: repeat;");
+    expect(globalCss).toContain("opacity: 0.5;");
+    expect(globalCss).toContain("pointer-events: none;");
   });
 
   it("extends the textured page canvas through iPhone safe-area insets", () => {

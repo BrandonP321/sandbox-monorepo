@@ -51,6 +51,47 @@
   transform: translateX(50%);
 }
 
+.prototype-decoration--review-vine {
+  right: 50%;
+  bottom: 0.75rem;
+  width: min(28rem, 60vw);
+  transform: translateX(50%);
+}
+
+.prototype-decoration--review-sparkles {
+  top: 4rem;
+  right: max(1rem, calc((100vw - 62rem) / 2));
+  width: clamp(2.75rem, 5vw, 4rem);
+  transform: rotate(8deg);
+}
+
+.prototype-decoration--confirmation-cat {
+  right: max(0.5rem, calc((100vw - 63rem) / 2));
+  bottom: 1rem;
+  width: clamp(5.5rem, 11vw, 8rem);
+  transform: rotate(2deg);
+}
+
+.prototype-decoration--confirmation-champagne {
+  bottom: 0.5rem;
+  left: max(-1rem, calc((100vw - 65rem) / 2));
+  width: clamp(7rem, 14vw, 10rem);
+  transform: rotate(-4deg);
+}
+
+.prototype-decoration--confirmation-disco {
+  top: -4rem;
+  right: max(1rem, calc((100vw - 68rem) / 2));
+  width: clamp(5rem, 9vw, 7rem);
+}
+
+.prototype-decoration--confirmation-sparkles {
+  top: 7rem;
+  left: max(1rem, calc((100vw - 60rem) / 2));
+  width: clamp(2.75rem, 5vw, 4rem);
+  transform: rotate(-8deg);
+}
+
 .rsvp-step__eyebrow {
   margin-bottom: var(--space-4);
   color: var(--color-olive-soft);
@@ -84,9 +125,13 @@
   line-height: 1.65;
 }
 
-.rsvp-step--placeholder {
-  justify-items: center;
-  text-align: center;
+.rsvp-step__date {
+  display: inline-block;
+  margin-top: var(--space-16);
+  color: var(--color-coral-action);
+  font-family: var(--font-script);
+  font-size: 1.35rem;
+  line-height: 1.2;
 }
 
 .attendance-list,
@@ -175,16 +220,240 @@
   gap: var(--space-24);
 }
 
-.rsvp-step__actions {
+.review-section {
+  display: grid;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  border: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 34%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: color-mix(in srgb, var(--color-paper) 88%, transparent);
+}
+
+.review-section__heading {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.review-section__heading h2 {
+  margin: 0;
+  color: var(--color-olive);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.review-section__eyebrow {
+  margin: 0 0 var(--space-4);
+  color: var(--color-olive-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.review-attending-count {
+  box-sizing: border-box;
+  display: grid;
+  min-width: 6.5rem;
+  justify-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12);
+  border: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-coral-art) 28%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: color-mix(
+    in srgb,
+    var(--color-coral-art) 22%,
+    var(--color-paper)
+  );
+  color: var(--color-olive);
+  text-align: center;
+}
+
+.review-attending-count__value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.review-attending-count__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.review-facts,
+.review-notes {
+  display: grid;
+  gap: var(--space-16);
+  margin: 0;
+}
+
+.review-facts > div,
+.review-notes > div {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-4);
+}
+
+.review-facts dt,
+.review-notes dt {
+  color: var(--color-olive-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.review-facts dd,
+.review-notes dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.review-adult-list {
+  display: grid;
+  gap: var(--space-12);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.review-adult-list li {
+  display: grid;
+  gap: var(--space-8);
+  padding-block: var(--space-12);
+  border-top: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 18%, transparent);
+}
+
+.review-adult-list__summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.review-adult-list__name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.review-adult-list__status {
+  color: var(--color-olive-soft);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.review-adult-list__contact {
+  display: grid;
+  gap: var(--space-4) var(--space-16);
+  padding: 0;
+  margin: 0;
+}
+
+.review-adult-list__contact div {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr);
+  gap: var(--space-8);
+}
+
+.review-adult-list__contact dt {
+  color: var(--color-olive-soft);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.review-adult-list__contact dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.review-validation p {
+  margin: 0;
+}
+
+.review-validation__action {
+  min-height: 2.5rem;
+  margin-top: var(--space-12);
+  padding-inline: 0;
+}
+
+.confirmation-step {
+  justify-items: center;
+  text-align: center;
+}
+
+.confirmation-step__header {
+  max-width: 42rem;
+}
+
+.confirmation-step__actions {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  padding-top: var(--space-8);
+}
+
+.confirmation-step .confirmation-step__home {
+  width: min(100%, 14rem);
+}
+
+.rsvp-step__actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--space-16);
   padding-top: var(--space-8);
 }
 
+.rsvp-step__secondary-actions {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+}
+
+.rsvp-step__primary-action {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .ui-choice-group[aria-invalid="true"] .ui-choice-row {
   border-color: color-mix(in srgb, var(--color-error) 68%, var(--color-paper));
+}
+
+@media (max-width: 47.49rem) {
+  .review-section__heading {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-content: stretch;
+  }
+
+  .review-attending-count {
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    justify-items: start;
+    gap: var(--space-12);
+    padding: var(--space-16);
+    text-align: left;
+  }
+
+  .review-attending-count__label {
+    font-size: 0.875rem;
+  }
 }
 
 @media (max-width: 29.99rem) {
@@ -194,7 +463,10 @@
 
   .prototype-decoration--sprig,
   .prototype-decoration--bow,
-  .prototype-decoration--vine {
+  .prototype-decoration--vine,
+  .prototype-decoration--review-sparkles,
+  .prototype-decoration--confirmation-champagne,
+  .prototype-decoration--confirmation-disco {
     display: none;
   }
 
@@ -202,6 +474,26 @@
     right: -0.75rem;
     bottom: 0.5rem;
     width: 4.5rem;
+    opacity: 0.78;
+  }
+
+  .prototype-decoration--review-vine {
+    bottom: 0.5rem;
+    width: 15rem;
+    opacity: 0.72;
+  }
+
+  .prototype-decoration--confirmation-cat {
+    right: -0.75rem;
+    bottom: 0.25rem;
+    width: 4.75rem;
+    opacity: 0.8;
+  }
+
+  .prototype-decoration--confirmation-sparkles {
+    top: 6rem;
+    left: -0.5rem;
+    width: 2.75rem;
     opacity: 0.78;
   }
 
@@ -214,6 +506,20 @@
     padding: var(--space-16);
   }
 
+  .review-section {
+    gap: var(--space-16);
+    padding: var(--space-16);
+  }
+
+  .review-adult-list__summary {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  .review-adult-list__status {
+    text-align: left;
+  }
+
   .adult-response__heading {
     align-items: start;
   }
@@ -224,12 +530,30 @@
   }
 
   .rsvp-step__actions {
-    display: grid;
-    justify-content: stretch;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-8);
   }
 
-  .rsvp-step__actions .ui-button[data-variant="quiet"] {
-    order: 2;
+  .rsvp-step__secondary-actions {
+    grid-column: 1;
+    grid-row: 2;
+    justify-content: flex-end;
+    gap: var(--space-8);
+  }
+
+  .rsvp-step__secondary-actions > .ui-button[data-variant="quiet"],
+  .rsvp-step__secondary-actions > .ui-quiet-link {
+    min-height: 2.75rem;
+    padding-inline: var(--space-12);
+  }
+
+  .rsvp-step__primary-action {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .rsvp-step__primary-action > .ui-button[data-variant="primary"] {
+    width: 100%;
   }
 }
 
@@ -243,6 +567,10 @@
   }
 
   .contact-input-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .review-facts {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
