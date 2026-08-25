@@ -64,6 +64,26 @@ export const responses = {
 
 export type Logger = (entry: Record<string, unknown>) => void;
 
+export type UnexpectedErrorLogContext = {
+  error: unknown;
+  requestId?: string;
+  route: string;
+};
+
+export type RouterOptions = {
+  formatUnexpectedErrorLogEntry?: (
+    context: UnexpectedErrorLogContext
+  ) => Record<string, unknown>;
+};
+
+export type LocalDevServerOptions = {
+  port?: number;
+  appName?: string;
+  cors?: {
+    allowedHeaders?: readonly string[];
+  };
+};
+
 export function createLogger(): Logger {
   return (entry) => {
     console.log(
@@ -95,7 +115,8 @@ export function createRoute(
 
 export function createRouter(
   routes: RouteDefinition[],
-  logger: Logger = createLogger()
+  logger: Logger = createLogger(),
+  options: RouterOptions = {}
 ) {
   const routeMap = new Map<string, RouteHandler>();
   for (const route of routes) {
@@ -135,13 +156,19 @@ export function createRouter(
         return responses.error(error.statusCode, error.code, error.message);
       }
 
-      logger({
-        level: "error",
-        event: "unhandled_error",
-        requestId: request.requestId,
-        route: key,
-        message: error instanceof Error ? error.message : "unknown"
-      });
+      logger(
+        options.formatUnexpectedErrorLogEntry?.({
+          error,
+          requestId: request.requestId,
+          route: key
+        }) ?? {
+          level: "error",
+          event: "unhandled_error",
+          requestId: request.requestId,
+          route: key,
+          message: error instanceof Error ? error.message : "unknown"
+        }
+      );
       return responses.error(500, "INTERNAL_ERROR", "Internal Server Error");
     }
   };
@@ -149,10 +176,10 @@ export function createRouter(
 
 export function startLocalDevServer(
   appRouter: (request: ApiRequest) => Promise<ApiResponse>,
-  options?: { port?: number; appName?: string }
+  options: LocalDevServerOptions = {}
 ) {
-  const port = options?.port ?? Number(process.env.PORT ?? 3001);
-  const appName = options?.appName ?? "API";
+  const port = options.port ?? Number(process.env.PORT ?? 3001);
+  const appName = options.appName ?? "API";
 
   const server = createServer(async (request, response) => {
     const url = new URL(request.url ?? "/", `http://localhost:${port}`);
@@ -163,7 +190,15 @@ export function startLocalDevServer(
       body: await readRequestBody(request)
     });
 
-    response.writeHead(result.statusCode, result.headers);
+    response.writeHead(result.statusCode, {
+      ...result.headers,
+      ...(options.cors?.allowedHeaders
+        ? {
+            "access-control-allow-headers":
+              options.cors.allowedHeaders.join(",")
+          }
+        : {})
+    });
     response.end(result.body);
   });
 

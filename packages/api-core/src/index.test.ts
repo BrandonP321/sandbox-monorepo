@@ -49,6 +49,65 @@ describe("createRouter", () => {
     expect(logger).toHaveBeenCalled();
   });
 
+  it("preserves raw unexpected-error logging by default", async () => {
+    const logger = vi.fn();
+    const route = createRouter(
+      [
+        createPostRoute("get-hello", () => {
+          throw new Error("raw failure");
+        })
+      ],
+      logger
+    );
+
+    await route({ method: "POST", path: "/get-hello" });
+
+    expect(logger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "unhandled_error",
+        message: "raw failure"
+      })
+    );
+  });
+
+  it("allows callers to sanitize unexpected-error log entries", async () => {
+    const logger = vi.fn();
+    const route = createRouter(
+      [
+        createPostRoute("get-hello", () => {
+          throw new Error("submitted guest@example.test");
+        })
+      ],
+      logger,
+      {
+        formatUnexpectedErrorLogEntry: ({ requestId, route }) => ({
+          level: "error",
+          event: "unhandled_error",
+          requestId,
+          route,
+          category: "unexpected"
+        })
+      }
+    );
+
+    await route({
+      method: "POST",
+      path: "/get-hello",
+      requestId: "request-1"
+    });
+
+    expect(JSON.stringify(logger.mock.calls)).not.toContain(
+      "guest@example.test"
+    );
+    expect(logger).toHaveBeenCalledWith({
+      level: "error",
+      event: "unhandled_error",
+      requestId: "request-1",
+      route: "POST /get-hello",
+      category: "unexpected"
+    });
+  });
+
   it("maps route path from filename", () => {
     const route = createPostRoute("get-health.ts", () =>
       responses.ok({ ok: true })
@@ -86,6 +145,29 @@ describe("createRouter", () => {
 
       expect(response.statusCode).toBe(200);
       expect(JSON.parse(response.body)).toEqual({ body: requestBody });
+    } finally {
+      await closeServer(server);
+    }
+  });
+
+  it("allows local CORS headers to be extended without changing defaults", async () => {
+    const server = startLocalDevServer(async () => responses.noContent(), {
+      appName: "Test API",
+      port: 0,
+      cors: { allowedHeaders: ["content-type", "idempotency-key"] }
+    });
+
+    try {
+      await waitForListening(server);
+      const address = server.address() as AddressInfo;
+      const response = await optionsRequest({
+        path: "/rsvp",
+        port: address.port
+      });
+
+      expect(response.headers["access-control-allow-headers"]).toBe(
+        "content-type,idempotency-key"
+      );
     } finally {
       await closeServer(server);
     }
@@ -148,4 +230,32 @@ function post(options: { body: string; path: string; port: number }) {
       request.end(options.body);
     }
   );
+}
+
+function optionsRequest(options: { path: string; port: number }) {
+  return new Promise<{
+    headers: Record<string, string | string[] | undefined>;
+    statusCode: number;
+  }>((resolve, reject) => {
+    const request = httpRequest(
+      {
+        hostname: "127.0.0.1",
+        method: "OPTIONS",
+        path: options.path,
+        port: options.port
+      },
+      (response) => {
+        response.resume();
+        response.on("end", () => {
+          resolve({
+            headers: response.headers,
+            statusCode: response.statusCode ?? 0
+          });
+        });
+      }
+    );
+
+    request.on("error", reject);
+    request.end();
+  });
 }

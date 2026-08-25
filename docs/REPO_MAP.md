@@ -40,6 +40,8 @@
 
 /apps/personal/wedding-website
   wedding-website-web     # React/Vite wedding RSVP frontend
+  wedding-website-api     # create-only RSVP API and application behavior
+  wedding-website-shared  # portable wedding RSVP contracts and normalization
   wedding-website-infra   # AWS CDK static hosting and Prod pipeline
 
 /apps/platform/dashboard-ui-storybook

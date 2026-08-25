@@ -1,12 +1,14 @@
 # Wedding Website
 
-This project hosts a frontend-only wedding RSVP prototype and its static
-production infrastructure. Wedding design and RSVP behavior stay in the web
-package; hosting and CI/CD stay in the infra package.
+This project hosts the wedding RSVP frontend, its static production
+infrastructure, portable production RSVP contracts, and the first local API
+application foundation. The API currently uses in-memory persistence for local
+development only; DynamoDB and production API infrastructure remain deferred.
 
 The August 26, 2026 target is for a usable prototype, not production readiness.
-The current milestone uses fictional, local-only data and has no backend,
-product authentication, database, admin tooling, or messaging services.
+The current frontend milestone uses fictional, local-only data and does not yet
+call the API. The project has no production database, guest authentication,
+admin tooling, or messaging services.
 
 The implementation-ready design for the later create-only production backend
 is documented in
@@ -17,6 +19,10 @@ data contract; it does not mean those resources exist yet.
 ## Packages
 
 - `wedding-website-web`: React/Vite frontend.
+- `wedding-website-shared`: portable RSVP schemas, route contracts,
+  normalization, and canonical serialization.
+- `wedding-website-api`: create-only RSVP API application with local in-memory
+  persistence.
 - `wedding-website-infra`: private S3/CloudFront hosting and the single Prod
   deployment pipeline.
 
@@ -31,6 +37,15 @@ pnpm dev:project wedding-website
 
 The package can also be started directly with
 `pnpm --filter wedding-website-web dev`.
+
+Start the local in-memory API separately at `http://localhost:3001`:
+
+```sh
+pnpm --filter wedding-website-api dev
+```
+
+It exposes only `POST /rsvp`. Restarting the process clears all submissions,
+and the frontend does not call this endpoint until the later integration issue.
 
 The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
 the current form stage and locally saved draft are restored after reload.
@@ -74,6 +89,16 @@ pnpm --filter wedding-website-web lint
 pnpm --filter wedding-website-web typecheck
 pnpm --filter wedding-website-web test
 pnpm --filter wedding-website-web build
+
+pnpm --filter @repo/wedding-website-shared lint
+pnpm --filter @repo/wedding-website-shared typecheck
+pnpm --filter @repo/wedding-website-shared test
+pnpm --filter @repo/wedding-website-shared build
+
+pnpm --filter wedding-website-api lint
+pnpm --filter wedding-website-api typecheck
+pnpm --filter wedding-website-api test
+pnpm --filter wedding-website-api build
 
 pnpm --filter wedding-website-infra lint
 pnpm --filter wedding-website-infra typecheck
