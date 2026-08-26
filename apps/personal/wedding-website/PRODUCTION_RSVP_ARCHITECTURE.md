@@ -499,6 +499,13 @@ successful or idempotently replayed write. Do not log:
 - raw validation/DynamoDB exceptions whose messages may contain submitted
   values.
 
+Persistence failures may add a structured `rsvp_persistence_error` event with
+only the repository operation, AWS exception name/class, fault, HTTP status,
+AWS request IDs, attempt/retry metadata, and transaction-cancellation reason
+codes with their positions. Never include exception messages, stacks,
+cancellation messages/items, request data, or arbitrary exception
+serialization.
+
 CloudWatch metrics should alarm on sustained API 5xx/Lambda errors rather than
 copying payload data into logs. Baseline error metrics, the two log groups, and
 their retention belong in the backend-infrastructure issue; a separate
