@@ -87,6 +87,9 @@
 - Keep decorative content inside the `DecorativeLayer` convention so it stays
   hidden from assistive technology, ignores pointer input, and can reflow or
   disappear independently of functional content.
+- Keep the RSVP flow free of decorative illustrations until a later explicit
+  visual plan approves their return. The landing page may retain its existing
+  decorative artwork.
 - Apply the repeating cardboard texture as one document-sized, non-interactive
   overlay in `wedding-website-web/src/styles/global.css` so it scrolls with
   every current and future route. Do not recreate or viewport-fix the overlay

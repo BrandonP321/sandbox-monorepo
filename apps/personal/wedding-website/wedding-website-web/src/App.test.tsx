@@ -67,6 +67,17 @@ describe("App", () => {
     expect(screen.queryByText(/bring a guest/i)).not.toBeInTheDocument();
   });
 
+  it("keeps the RSVP flow free of decorative illustrations", () => {
+    window.history.replaceState(null, "", "/RSVP");
+
+    render(<App />);
+
+    const rsvpPage = screen.getByRole("main");
+
+    expect(rsvpPage.querySelector("img")).toBeNull();
+    expect(rsvpPage.querySelector("[aria-hidden='true']")).toBeNull();
+  });
+
   it("keeps decorative artwork non-semantic and non-interactive", () => {
     render(<App />);
 

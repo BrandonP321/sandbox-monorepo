@@ -5,12 +5,7 @@ import {
   type ReactNode
 } from "react";
 
-import {
-  ContentFrame,
-  DecorativeLayer,
-  ProgressiveImage
-} from "../components/ui";
-import { weddingImageAssets } from "../weddingImageAssets";
+import { ContentFrame } from "../components/ui";
 import { AdditionalDetailsStep } from "./AdditionalDetailsStep";
 import { AttendanceStep } from "./AttendanceStep";
 import { RSVPConfirmation } from "./RSVPConfirmation";
@@ -61,90 +56,6 @@ function RSVPPrototype({
     document.getElementById(stageHeadingIds[state.currentStage])?.focus();
   }, [state.currentStage]);
 
-  let decorations: ReactNode = null;
-
-  if (state.currentStage === "attendance") {
-    decorations = (
-      <DecorativeLayer className="prototype-decorations prototype-decorations--attendance">
-        <ProgressiveImage
-          {...weddingImageAssets.catSitting}
-          alt=""
-          className="prototype-decoration prototype-decoration--cat"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.floralSprig}
-          alt=""
-          className="prototype-decoration prototype-decoration--sprig"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.bowSmall}
-          alt=""
-          className="prototype-decoration prototype-decoration--bow"
-          draggable={false}
-        />
-      </DecorativeLayer>
-    );
-  } else if (state.currentStage === "details") {
-    decorations = (
-      <DecorativeLayer className="prototype-decorations prototype-decorations--details">
-        <ProgressiveImage
-          {...weddingImageAssets.floralVine}
-          alt=""
-          className="prototype-decoration prototype-decoration--vine"
-          draggable={false}
-        />
-      </DecorativeLayer>
-    );
-  } else if (state.currentStage === "review") {
-    decorations = (
-      <DecorativeLayer className="prototype-decorations prototype-decorations--review">
-        <ProgressiveImage
-          {...weddingImageAssets.floralVine}
-          alt=""
-          className="prototype-decoration prototype-decoration--review-vine"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.sparklesPrimary}
-          alt=""
-          className="prototype-decoration prototype-decoration--review-sparkles"
-          draggable={false}
-        />
-      </DecorativeLayer>
-    );
-  } else {
-    decorations = (
-      <DecorativeLayer className="prototype-decorations prototype-decorations--confirmation">
-        <ProgressiveImage
-          {...weddingImageAssets.catSitting}
-          alt=""
-          className="prototype-decoration prototype-decoration--confirmation-cat"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.champagneGlasses}
-          alt=""
-          className="prototype-decoration prototype-decoration--confirmation-champagne"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.discoBall}
-          alt=""
-          className="prototype-decoration prototype-decoration--confirmation-disco"
-          draggable={false}
-        />
-        <ProgressiveImage
-          {...weddingImageAssets.sparklesSecondary}
-          alt=""
-          className="prototype-decoration prototype-decoration--confirmation-sparkles"
-          draggable={false}
-        />
-      </DecorativeLayer>
-    );
-  }
-
   let stageContent: ReactNode;
 
   if (state.currentStage === "attendance") {
@@ -186,7 +97,6 @@ function RSVPPrototype({
 
   return (
     <main className="prototype-page">
-      {decorations}
       <ContentFrame className="prototype-page__frame">
         {stageContent}
       </ContentFrame>

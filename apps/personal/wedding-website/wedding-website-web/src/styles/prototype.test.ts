@@ -5,6 +5,10 @@ import prototypeCss from "./prototype.css?raw";
 const normalizedPrototypeCss = prototypeCss.replaceAll(/\s+/g, " ");
 
 describe("RSVP prototype layout", () => {
+  it("does not include decorative illustration styles", () => {
+    expect(prototypeCss).not.toContain("prototype-decoration");
+  });
+
   it("top-aligns side-by-side contact fields when one displays an error", () => {
     expect(normalizedPrototypeCss).toContain(
       ".contact-input-grid { display: grid; align-items: start;"
