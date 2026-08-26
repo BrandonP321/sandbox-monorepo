@@ -32,21 +32,14 @@ From the repository root, install dependencies and start the project:
 
 ```sh
 pnpm install
-pnpm dev:project wedding-website
+pnpm dev:wedding-website
 ```
 
-The package can also be started directly with
-`pnpm --filter wedding-website-web dev`.
-
-Start the local in-memory API separately at `http://localhost:3001`:
-
-```sh
-pnpm --filter wedding-website-api dev
-```
-
-It exposes only `POST /rsvp`. Restarting the process clears all submissions,
-and the frontend uses this local endpoint whenever `VITE_API_BASE_URL` is not
-set. Local development does not write to production DynamoDB.
+This starts the web app and local in-memory API together. The API listens at
+`http://localhost:3001` and exposes only `POST /rsvp`. Restarting it clears all
+submissions, and the frontend uses this local endpoint whenever
+`VITE_API_BASE_URL` is not set. Local development does not write to production
+DynamoDB.
 
 The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
 the current form stage and locally saved draft are restored after reload.
