@@ -344,6 +344,10 @@
   max-width: 42rem;
 }
 
+.confirmation-step__guidance {
+  margin-top: var(--space-12);
+}
+
 .confirmation-step__actions {
   display: flex;
   width: 100%;

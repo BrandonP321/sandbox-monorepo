@@ -24,6 +24,10 @@ function RSVPConfirmation({ onHome }: RSVPConfirmationProps) {
         <p className="rsvp-step__intro">
           Thank you for taking a moment to let us know your plans.
         </p>
+        <p className="rsvp-step__intro confirmation-step__guidance">
+          If your plans change or you need to correct something, you can submit
+          another RSVP or reach out to us directly.
+        </p>
       </header>
 
       <div className="confirmation-step__actions">

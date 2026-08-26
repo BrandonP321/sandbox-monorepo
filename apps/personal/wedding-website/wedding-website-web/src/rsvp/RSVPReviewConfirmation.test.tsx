@@ -351,7 +351,11 @@ describe("RSVP confirmation", () => {
       screen.queryByRole("region", { name: "Submitted attendance" })
     ).toBeNull();
     expect(screen.queryByText(/guests? marked attending/i)).toBeNull();
-    expect(screen.queryByText(/Plans changed later/i)).toBeNull();
+    expect(
+      screen.getByText(
+        "If your plans change or you need to correct something, you can submit another RSVP or reach out to us directly."
+      )
+    ).toBeVisible();
     expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).toBeNull();
     expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(screen.queryByText(/confirmation (email|sms)/i)).toBeNull();
