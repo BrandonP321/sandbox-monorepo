@@ -101,10 +101,20 @@ describe("WeddingWebsiteStack", () => {
       Handler: "index.handler",
       LoggingConfig: { LogGroup: Match.anyValue() },
       MemorySize: 256,
-      ReservedConcurrentExecutions: 5,
       Runtime: "nodejs24.x",
       Timeout: 5
     });
+    const rsvpFunctions = Object.values(
+      template.findResources("AWS::Lambda::Function")
+    ).filter(
+      (resource) =>
+        (resource as { Properties?: { Runtime?: string } }).Properties
+          ?.Runtime === "nodejs24.x"
+    ) as { Properties: Record<string, unknown> }[];
+    expect(rsvpFunctions).toHaveLength(1);
+    expect(rsvpFunctions[0]?.Properties).not.toHaveProperty(
+      "ReservedConcurrentExecutions"
+    );
     template.hasResourceProperties("AWS::IAM::Policy", {
       PolicyDocument: {
         Statement: [
@@ -321,6 +331,21 @@ describe("WeddingWebsiteStack", () => {
 
     template.hasResourceProperties("AWS::ApiGatewayV2::Api", {
       DisableExecuteApiEndpoint: false
+    });
+  });
+
+  it("supports the intended RSVP concurrency reservation after the quota increases", () => {
+    const app = new cdk.App();
+    const stack = new WeddingWebsiteStack(app, "WeddingWebsiteStack", {
+      env: { account: "498283327683", region: "us-east-1" },
+      rsvpReservedConcurrency: 5,
+      useSharedDomain: true
+    });
+    const template = Template.fromStack(stack);
+
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      ReservedConcurrentExecutions: 5,
+      Runtime: "nodejs24.x"
     });
   });
 });

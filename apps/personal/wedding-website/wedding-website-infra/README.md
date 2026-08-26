@@ -47,6 +47,22 @@ stack-removal behavior, and no TTL or secondary indexes. Lambda and API access
 logs retain operational fields for 30 days. Two alarms require errors in two
 consecutive five-minute periods; they currently have no notification action.
 
+### Temporary launch concurrency deviation
+
+The initial production deployment intentionally omits Lambda reserved
+concurrency because this account currently has a regional concurrency quota of
+10 and AWS requires all 10 executions to remain unreserved. The quota increase
+remains open as request `e72f8487d7e84effa48833eeb2c2bcdcjZKmD0R3` / Support
+case `178770476400903`.
+
+This is a quota-blocked launch deviation, not a permanent architecture change.
+The API stage remains limited to 5 requests per second with a burst of 10. A
+seven-day pre-deployment review of all six regional Lambda functions found two
+invocations total, peak account concurrency of one, and zero throttles or
+errors, so no material competing traffic was present. Once the applied account
+quota reaches at least 15, set `rsvpReservedConcurrency: 5` in the CDK
+entrypoint, deploy, and verify the Lambda setting.
+
 The production hostname is configured only when the app is intended to receive
 traffic. Do not add a separate preview password or site-wide authentication
 gate unless it is explicitly requested.

@@ -126,7 +126,9 @@ There are no Dev, Beta, Staging, or Preview deployment stages. The frontend
 build receives `VITE_API_BASE_URL` during publishing, but frontend submission
 remains disconnected until the next issue. Read the
 [infrastructure README](./wedding-website-infra/README.md) for outputs,
-validation, deployment safety, and operational verification.
+validation, deployment safety, operational verification, and the temporary
+quota-blocked omission of RSVP Lambda reserved concurrency. The intended
+post-quota reservation remains five.
 
 Do not deploy or configure `niamhandbrandon.com` as part of this stack.
 That domain is reserved for a later launch step.

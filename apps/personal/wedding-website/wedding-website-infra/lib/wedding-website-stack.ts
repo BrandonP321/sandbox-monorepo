@@ -30,6 +30,7 @@ export interface WeddingWebsiteStackProps extends cdk.StackProps {
   readonly apiCustomDomain?: HttpLambdaApiCustomDomainProps;
   readonly customDomain?: SpaSiteCustomDomainProps;
   readonly disableExecuteApiEndpoint?: boolean;
+  readonly rsvpReservedConcurrency?: number;
   readonly useSharedDomain?: boolean;
 }
 
@@ -89,7 +90,7 @@ export class WeddingWebsiteStack extends cdk.Stack {
       environment: { RSVP_TABLE_NAME: rsvpTable.tableName },
       logGroup: lambdaLogGroup,
       memorySize: 256,
-      reservedConcurrentExecutions: 5,
+      reservedConcurrentExecutions: props?.rsvpReservedConcurrency,
       timeout: cdk.Duration.seconds(5)
     });
     rsvpTable.grant(handler, "dynamodb:GetItem", "dynamodb:TransactWriteItems");

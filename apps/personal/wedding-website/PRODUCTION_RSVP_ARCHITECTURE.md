@@ -461,6 +461,16 @@ normal unit/integration tests never write to production.
   `dynamodb:GetItem` against this table. It receives no `Scan`, `Query`,
   `UpdateItem`, `DeleteItem`, or cross-table access.
 
+Temporary launch deviation (2026-08-25): the initial production stack omits
+Lambda reserved concurrency while the account's regional concurrency quota is 10. AWS requires all 10 executions to remain unreserved, so the intended
+reservation cannot currently be applied. API Gateway remains throttled to 5
+requests per second with a burst of 10, and every other control above remains
+unchanged. This is not a permanent architecture decision: after the applied
+account quota reaches at least 15, pass `rsvpReservedConcurrency: 5` from the
+CDK entrypoint, deploy it, and verify the function configuration. Quota request
+`e72f8487d7e84effa48833eeb2c2bcdcjZKmD0R3` / Support case
+`178770476400903` remains open.
+
 Do not add WAF, CAPTCHA, country allowlists or denylists, GeoMatch, IP-region
 blocking, browser fingerprinting, or guest identity verification. Legitimate
 guests in Ireland, the United Kingdom, Luxembourg, and all other countries must
