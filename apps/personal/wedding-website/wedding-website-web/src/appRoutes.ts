@@ -2,10 +2,14 @@ import { useCallback, useEffect, useState, type MouseEvent } from "react";
 
 const LANDING_PATH = "/";
 const RSVP_PATH = "/RSVP";
+const ADMIN_PATH = "/admin";
 
-type AppRoute = "landing" | "rsvp";
+type AppRoute = "admin" | "landing" | "rsvp";
 
 function routeFromPathname(pathname: string): AppRoute {
+  if (pathname === ADMIN_PATH || pathname === `${ADMIN_PATH}/`) {
+    return "admin";
+  }
   return pathname === RSVP_PATH || pathname === `${RSVP_PATH}/`
     ? "rsvp"
     : "landing";
@@ -49,4 +53,10 @@ function shouldUseClientNavigation(event: MouseEvent<HTMLAnchorElement>) {
   );
 }
 
-export { LANDING_PATH, RSVP_PATH, shouldUseClientNavigation, useAppRoute };
+export {
+  ADMIN_PATH,
+  LANDING_PATH,
+  RSVP_PATH,
+  shouldUseClientNavigation,
+  useAppRoute
+};

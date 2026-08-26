@@ -2,16 +2,22 @@ import type {
   RouteContractRequest,
   RouteContractResponse
 } from "@repo/api-contracts";
+import { z } from "zod";
 
 import {
   createRsvpSubmissionRequestSchema,
-  createRsvpSubmissionResponseSchema
+  createRsvpSubmissionResponseSchema,
+  listAdminRsvpsResponseSchema
 } from "./contracts.js";
 
 export const weddingWebsiteRoutes = {
   createRsvpSubmission: {
     method: "POST",
     path: "/rsvp"
+  },
+  listAdminRsvps: {
+    method: "GET",
+    path: "/admin/rsvps"
   }
 } as const;
 
@@ -22,6 +28,11 @@ export const weddingWebsiteRouteContracts = {
     route: weddingWebsiteRoutes.createRsvpSubmission,
     requestSchema: createRsvpSubmissionRequestSchema,
     responseSchema: createRsvpSubmissionResponseSchema
+  },
+  listAdminRsvps: {
+    route: weddingWebsiteRoutes.listAdminRsvps,
+    requestSchema: z.undefined(),
+    responseSchema: listAdminRsvpsResponseSchema
   }
 } as const;
 

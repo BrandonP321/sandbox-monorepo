@@ -90,6 +90,36 @@ export type CreateRsvpSubmissionResponse = z.infer<
   typeof createRsvpSubmissionResponseSchema
 >;
 
+export const adminRsvpSubmissionSchema = z
+  .object({
+    ...createRsvpSubmissionRequestSchema.shape,
+    ...createRsvpSubmissionResponseSchema.shape
+  })
+  .strict()
+  .refine(
+    (submission) =>
+      submission.adults.some(
+        (adult) =>
+          adult.contact.email !== undefined || adult.contact.phone !== undefined
+      ),
+    {
+      path: ["adults"],
+      message: "At least one adult email or phone is required."
+    }
+  );
+
+export type AdminRsvpSubmission = z.infer<typeof adminRsvpSubmissionSchema>;
+
+export const listAdminRsvpsResponseSchema = z
+  .object({
+    submissions: z.array(adminRsvpSubmissionSchema)
+  })
+  .strict();
+
+export type ListAdminRsvpsResponse = z.infer<
+  typeof listAdminRsvpsResponseSchema
+>;
+
 function canonicalContact(contact: { email?: string; phone?: string }): {
   email?: string;
   phone?: string;

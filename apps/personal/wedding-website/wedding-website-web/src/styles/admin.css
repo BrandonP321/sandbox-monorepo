@@ -1,0 +1,171 @@
+.admin-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-block: var(--space-48);
+}
+
+.admin-page__header {
+  max-width: var(--content-width-form);
+  margin-block-end: var(--space-32);
+}
+
+.admin-page__header h1,
+.admin-page__header p,
+.admin-dashboard h2,
+.admin-access h2 {
+  margin-block-end: var(--space-8);
+}
+
+.admin-page__eyebrow {
+  color: var(--color-olive);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-access {
+  display: grid;
+  max-width: 34rem;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  border: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 45%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: var(--color-paper);
+}
+
+.admin-access__form {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.admin-access__status {
+  margin: 0;
+  color: var(--color-olive);
+  font-weight: 700;
+}
+
+.admin-dashboard {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.admin-dashboard__toolbar,
+.admin-rsvp-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-24);
+}
+
+.admin-dashboard__toolbar p,
+.admin-rsvp-card__header p,
+.admin-rsvp-card__header h3,
+.admin-rsvp-card__header time,
+.admin-rsvp-card__section h4,
+.admin-adult h5,
+.admin-detail-list,
+.admin-dashboard__empty {
+  margin: 0;
+}
+
+.admin-dashboard__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin-rsvp-list {
+  display: grid;
+  gap: var(--space-24);
+}
+
+.admin-rsvp-card {
+  display: grid;
+  gap: var(--space-24);
+  padding: var(--space-24);
+  border: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 42%, var(--color-paper));
+  border-radius: var(--radius-surface);
+  background: color-mix(
+    in srgb,
+    var(--color-paper-warm) 55%,
+    var(--color-paper)
+  );
+}
+
+.admin-rsvp-card__header time {
+  display: block;
+  margin-block-start: var(--space-4);
+  color: var(--color-olive-soft);
+}
+
+.admin-rsvp-card__id {
+  max-width: 24rem;
+  overflow-wrap: anywhere;
+  color: var(--color-olive-soft);
+  font-size: 0.8rem;
+}
+
+.admin-rsvp-card__section {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.admin-adult-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-16);
+}
+
+.admin-adult {
+  display: grid;
+  gap: var(--space-12);
+  padding: var(--space-16);
+  border-radius: var(--radius-control);
+  background: var(--color-paper);
+}
+
+.admin-detail-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: var(--space-12) var(--space-24);
+}
+
+.admin-detail-list div {
+  min-width: 0;
+}
+
+.admin-detail-list dt {
+  color: var(--color-olive-soft);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.admin-detail-list dd {
+  margin: var(--space-4) 0 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+@media (max-width: 39.99rem) {
+  .admin-page {
+    padding-block: var(--space-32);
+  }
+
+  .admin-access,
+  .admin-rsvp-card {
+    padding: var(--space-16);
+  }
+
+  .admin-dashboard__toolbar,
+  .admin-rsvp-card__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-dashboard__actions {
+    justify-content: flex-start;
+  }
+}

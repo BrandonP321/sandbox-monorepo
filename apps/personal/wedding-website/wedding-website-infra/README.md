@@ -1,9 +1,10 @@
 # Wedding Website Infrastructure
 
 This package defines the wedding website's single production stack and
-pipeline. It contains static web hosting plus the create-only RSVP DynamoDB,
-Lambda, and HTTP API infrastructure. It does not contain guest authentication,
-admin tooling, messaging, or additional deployment environments.
+pipeline. It contains static web hosting plus the RSVP DynamoDB, public
+submission Lambda, protected read-only admin Lambda, and HTTP API
+infrastructure. It does not contain guest authentication, admin data mutation,
+messaging, or additional deployment environments.
 
 ## Architecture
 
@@ -26,26 +27,32 @@ wedding.bphillips.dev
 
 wedding-api.bphillips.dev
   -> Route 53 A alias
-  -> API Gateway HTTP API (POST /rsvp only)
-  -> Node.js Lambda
+  -> API Gateway HTTP API
+       -> POST /rsvp -> public submission Lambda
+       -> GET /admin/rsvps -> bearer-protected admin Lambda
   -> DynamoDB PAY_PER_REQUEST
 ```
 
 The stack reuses the shared `bphillips.dev` hosted zone, wildcard certificate,
 and GitHub Actions OIDC provider. The API uses exact production CORS for
-`https://wedding.bphillips.dev`, `POST`, `content-type`, and `idempotency-key`;
-CORS is not authentication. The API's default stage is throttled to 5 requests
-per second with a burst of 10, and its generated `execute-api` endpoint is
-disabled in steady state.
+`https://wedding.bphillips.dev`, `POST`/`GET`, and the `content-type`,
+`idempotency-key`, and `authorization` headers; CORS is not authentication. The
+admin Lambda hashes its bearer token and compares it in constant time to the
+configured `adminAccessKeySha256` CDK context value. Without a configured hash,
+admin reads fail closed. The API's default stage is throttled to 5 requests per
+second with a burst of 10, and its generated `execute-api` endpoint is disabled
+in steady state.
 
 `ApiBaseUrl` and `RsvpTableName` join the existing web outputs. Publishing reads
-`ApiBaseUrl` and passes it to Vite as `VITE_API_BASE_URL`, but the frontend does
-not submit to the API until the follow-on integration issue.
+`ApiBaseUrl` and passes it to Vite as `VITE_API_BASE_URL` for both the public
+submission flow and the unlinked `/admin` page.
 
 The DynamoDB table has point-in-time recovery, deletion protection, retained
-stack-removal behavior, and no TTL or secondary indexes. Lambda and API access
-logs retain operational fields for 30 days. Two alarms require errors in two
-consecutive five-minute periods; they currently have no notification action.
+stack-removal behavior, and no TTL or secondary indexes. The public Lambda keeps
+its create/idempotency permissions; only the admin Lambda can scan the table,
+and it has no write actions. Lambda and API access logs retain operational
+fields for 30 days. Three alarms cover public Lambda errors, admin Lambda
+errors, and API server errors; they currently have no notification action.
 
 ### Temporary launch concurrency deviation
 
@@ -102,6 +109,12 @@ Pushing this infrastructure to `main`, manually starting
 `wedding-website-prod`, or running `cdk deploy` is a production apply action.
 Do none of those without explicit approval in the executing session. A local
 implementation, synth, and authenticated `cdk diff` are not apply actions.
+
+Immediately before an approved admin release, generate at least 32 random bytes
+for the production access key. Commit/configure only its lowercase SHA-256 hash
+as `adminAccessKeySha256`; never place the plaintext key in Git, CDK context,
+shell history, CI logs, or the frontend bundle. The plaintext key is handed to
+the user once after successful deployment for password-manager storage.
 
 The first approved API rollout uses two stages:
 

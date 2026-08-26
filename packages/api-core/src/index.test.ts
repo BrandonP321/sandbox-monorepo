@@ -150,11 +150,14 @@ describe("createRouter", () => {
     }
   });
 
-  it("allows local CORS headers to be extended without changing defaults", async () => {
+  it("allows local CORS headers and methods to be extended without changing defaults", async () => {
     const server = startLocalDevServer(async () => responses.noContent(), {
       appName: "Test API",
       port: 0,
-      cors: { allowedHeaders: ["content-type", "idempotency-key"] }
+      cors: {
+        allowedHeaders: ["content-type", "idempotency-key", "authorization"],
+        allowedMethods: ["GET", "POST", "OPTIONS"]
+      }
     });
 
     try {
@@ -166,7 +169,10 @@ describe("createRouter", () => {
       });
 
       expect(response.headers["access-control-allow-headers"]).toBe(
-        "content-type,idempotency-key"
+        "content-type,idempotency-key,authorization"
+      );
+      expect(response.headers["access-control-allow-methods"]).toBe(
+        "GET,POST,OPTIONS"
       );
     } finally {
       await closeServer(server);

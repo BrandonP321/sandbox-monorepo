@@ -111,10 +111,22 @@ describe("WeddingWebsiteStack", () => {
         (resource as { Properties?: { Runtime?: string } }).Properties
           ?.Runtime === "nodejs24.x"
     ) as { Properties: Record<string, unknown> }[];
-    expect(rsvpFunctions).toHaveLength(1);
-    expect(rsvpFunctions[0]?.Properties).not.toHaveProperty(
-      "ReservedConcurrentExecutions"
-    );
+    expect(rsvpFunctions).toHaveLength(2);
+    for (const rsvpFunction of rsvpFunctions) {
+      expect(rsvpFunction.Properties).not.toHaveProperty(
+        "ReservedConcurrentExecutions"
+      );
+    }
+    template.hasResourceProperties("AWS::Lambda::Function", {
+      Environment: {
+        Variables: {
+          ADMIN_ACCESS_KEY_SHA256: "0".repeat(64),
+          RSVP_TABLE_NAME: Match.anyValue()
+        }
+      },
+      Handler: "index.handler",
+      Runtime: "nodejs24.x"
+    });
     template.hasResourceProperties("AWS::IAM::Policy", {
       PolicyDocument: {
         Statement: Match.arrayWith([
@@ -137,22 +149,102 @@ describe("WeddingWebsiteStack", () => {
         Version: "2012-10-17"
       }
     });
+    template.hasResourceProperties("AWS::IAM::Policy", {
+      PolicyDocument: {
+        Statement: Match.arrayWith([
+          {
+            Action: "dynamodb:Scan",
+            Effect: "Allow",
+            Resource: Match.anyValue()
+          }
+        ]),
+        Version: "2012-10-17"
+      }
+    });
+
+    const lambdaResources = template.findResources(
+      "AWS::Lambda::Function"
+    ) as Record<
+      string,
+      {
+        Properties: {
+          Environment?: { Variables?: Record<string, unknown> };
+          Role: { "Fn::GetAtt": [string, string] };
+          Runtime?: string;
+        };
+      }
+    >;
+    const nodeFunctions = Object.values(lambdaResources).filter(
+      (resource) => resource.Properties.Runtime === "nodejs24.x"
+    );
+    const publicFunction = nodeFunctions.find(
+      (resource) =>
+        resource.Properties.Environment?.Variables?.ADMIN_ACCESS_KEY_SHA256 ===
+        undefined
+    );
+    const adminFunction = nodeFunctions.find(
+      (resource) =>
+        resource.Properties.Environment?.Variables?.ADMIN_ACCESS_KEY_SHA256 !==
+        undefined
+    );
+    expect(publicFunction).toBeDefined();
+    expect(adminFunction).toBeDefined();
+
+    const iamPolicies = Object.values(
+      template.findResources("AWS::IAM::Policy")
+    ) as {
+      Properties: {
+        PolicyDocument: unknown;
+        Roles?: { Ref: string }[];
+      };
+    }[];
+    function policiesForFunction(
+      target: (typeof nodeFunctions)[number] | undefined
+    ): string {
+      const roleId = target?.Properties.Role["Fn::GetAtt"][0];
+      return JSON.stringify(
+        iamPolicies
+          .filter((policy) =>
+            policy.Properties.Roles?.some((role) => role.Ref === roleId)
+          )
+          .map((policy) => policy.Properties.PolicyDocument)
+      );
+    }
+    const publicPolicies = policiesForFunction(publicFunction);
+    const adminPolicies = policiesForFunction(adminFunction);
+    expect(publicPolicies).toContain("dynamodb:GetItem");
+    expect(publicPolicies).toContain("dynamodb:PutItem");
+    expect(publicPolicies).not.toContain("dynamodb:Scan");
+    expect(adminPolicies).toContain("dynamodb:Scan");
+    for (const action of [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query"
+    ]) {
+      expect(adminPolicies).not.toContain(action);
+    }
 
     template.resourceCountIs("AWS::ApiGatewayV2::Api", 1);
     template.hasResourceProperties("AWS::ApiGatewayV2::Api", {
       CorsConfiguration: {
         AllowCredentials: false,
-        AllowHeaders: ["content-type", "idempotency-key"],
-        AllowMethods: ["POST"],
+        AllowHeaders: ["content-type", "idempotency-key", "authorization"],
+        AllowMethods: ["POST", "GET"],
         AllowOrigins: ["https://wedding.bphillips.dev"]
       },
       DisableExecuteApiEndpoint: true,
       ProtocolType: "HTTP"
     });
-    template.resourceCountIs("AWS::ApiGatewayV2::Route", 1);
+    template.resourceCountIs("AWS::ApiGatewayV2::Route", 2);
     template.hasResourceProperties("AWS::ApiGatewayV2::Route", {
       AuthorizationType: "NONE",
       RouteKey: "POST /rsvp"
+    });
+    template.hasResourceProperties("AWS::ApiGatewayV2::Route", {
+      AuthorizationType: "NONE",
+      RouteKey: "GET /admin/rsvps"
     });
     template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
       AccessLogSettings: {
@@ -186,9 +278,9 @@ describe("WeddingWebsiteStack", () => {
     template.resourcePropertiesCountIs(
       "AWS::Logs::LogGroup",
       { RetentionInDays: 30 },
-      2
+      3
     );
-    template.resourceCountIs("AWS::CloudWatch::Alarm", 2);
+    template.resourceCountIs("AWS::CloudWatch::Alarm", 3);
     for (const metricName of ["Errors", "5xx"]) {
       template.hasResourceProperties("AWS::CloudWatch::Alarm", {
         ComparisonOperator: "GreaterThanOrEqualToThreshold",
@@ -267,7 +359,6 @@ describe("WeddingWebsiteStack", () => {
     expect(synthesizedTemplate).not.toContain("statusCode: 401");
     expect(synthesizedTemplate).not.toContain("www-authenticate");
     expect(synthesizedTemplate).not.toContain("niamhandbrandon.com");
-    expect(synthesizedTemplate).not.toContain("dynamodb:Scan");
     expect(synthesizedTemplate).not.toContain("dynamodb:Query");
     expect(synthesizedTemplate).not.toContain("dynamodb:UpdateItem");
     expect(synthesizedTemplate).not.toContain("dynamodb:DeleteItem");

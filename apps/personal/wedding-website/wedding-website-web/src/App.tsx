@@ -1,4 +1,5 @@
 import { LandingPage } from "./LandingPage";
+import { AdminPage } from "./admin/AdminPage";
 import { loadRuntimeConfig } from "./config";
 import {
   LANDING_PATH,
@@ -17,8 +18,36 @@ const ignoreStartRsvp = () => undefined;
 
 export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
   const { apiBaseUrl } = loadRuntimeConfig();
-  const rsvp = useRsvpPrototype({ apiBaseUrl });
   const { navigate, route } = useAppRoute();
+
+  if (route === "admin") {
+    return <AdminPage apiBaseUrl={apiBaseUrl} />;
+  }
+
+  return (
+    <GuestExperience
+      apiBaseUrl={apiBaseUrl}
+      navigate={navigate}
+      onStartRsvp={onStartRsvp}
+      route={route}
+    />
+  );
+}
+
+type GuestExperienceProps = {
+  apiBaseUrl: string;
+  navigate: ReturnType<typeof useAppRoute>["navigate"];
+  onStartRsvp: () => void;
+  route: "landing" | "rsvp";
+};
+
+function GuestExperience({
+  apiBaseUrl,
+  navigate,
+  onStartRsvp,
+  route
+}: GuestExperienceProps) {
+  const rsvp = useRsvpPrototype({ apiBaseUrl });
 
   if (route === "landing") {
     return (

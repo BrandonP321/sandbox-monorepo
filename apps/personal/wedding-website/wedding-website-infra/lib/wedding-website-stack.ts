@@ -3,6 +3,7 @@ import * as path from "node:path";
 import * as cdk from "aws-cdk-lib";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
+import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
 import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
@@ -25,9 +26,11 @@ import { weddingWebsiteRoutes } from "@repo/wedding-website-shared";
 
 const WEDDING_WEBSITE_DOMAIN_NAME = "wedding.bphillips.dev";
 const WEDDING_WEBSITE_API_DOMAIN_NAME = "wedding-api.bphillips.dev";
+const UNCONFIGURED_ADMIN_ACCESS_KEY_SHA256 = "0".repeat(64);
 const alarmPeriod = cdk.Duration.minutes(5);
 
 export interface WeddingWebsiteStackProps extends cdk.StackProps {
+  readonly adminAccessKeySha256?: string;
   readonly apiCustomDomain?: HttpLambdaApiCustomDomainProps;
   readonly customDomain?: SpaSiteCustomDomainProps;
   readonly disableExecuteApiEndpoint?: boolean;
@@ -107,6 +110,36 @@ export class WeddingWebsiteStack extends cdk.Stack {
       })
     );
 
+    const adminLambdaLogGroup = new logs.LogGroup(this, "AdminRsvpLambdaLogs", {
+      retention: logs.RetentionDays.ONE_MONTH
+    });
+    const adminHandler = new lambdaNodejs.NodejsFunction(
+      this,
+      "AdminRsvpHandler",
+      {
+        entry: path.join(
+          __dirname,
+          "..",
+          "..",
+          "wedding-website-api",
+          "src",
+          "admin-lambda.ts"
+        ),
+        handler: "handler",
+        runtime: lambda.Runtime.NODEJS_24_X,
+        bundling: { bundleAwsSDK: true, target: "node24" },
+        environment: {
+          ADMIN_ACCESS_KEY_SHA256:
+            props?.adminAccessKeySha256 ?? UNCONFIGURED_ADMIN_ACCESS_KEY_SHA256,
+          RSVP_TABLE_NAME: rsvpTable.tableName
+        },
+        logGroup: adminLambdaLogGroup,
+        memorySize: 256,
+        timeout: cdk.Duration.seconds(5)
+      }
+    );
+    rsvpTable.grant(adminHandler, "dynamodb:Scan");
+
     const apiLogGroup = new logs.LogGroup(this, "RsvpApiAccessLogs", {
       retention: logs.RetentionDays.ONE_MONTH
     });
@@ -118,8 +151,8 @@ export class WeddingWebsiteStack extends cdk.Stack {
     const api = new HttpLambdaApi(this, "WeddingWebsiteApi", {
       corsPreflight: {
         allowCredentials: false,
-        allowHeaders: ["content-type", "idempotency-key"],
-        allowMethods: [apigwv2.CorsHttpMethod.POST],
+        allowHeaders: ["content-type", "idempotency-key", "authorization"],
+        allowMethods: [apigwv2.CorsHttpMethod.POST, apigwv2.CorsHttpMethod.GET],
         allowOrigins: [`https://${WEDDING_WEBSITE_DOMAIN_NAME}`]
       },
       customDomain: apiCustomDomain,
@@ -148,8 +181,22 @@ export class WeddingWebsiteStack extends cdk.Stack {
         }
       ]
     });
+    const adminIntegration = new integrations.HttpLambdaIntegration(
+      "AdminRsvpLambdaIntegration",
+      adminHandler
+    );
+    api.httpApi.addRoutes({
+      path: weddingWebsiteRoutes.listAdminRsvps.path,
+      methods: [apigwv2.HttpMethod.GET],
+      integration: adminIntegration
+    });
 
     createErrorAlarm(this, "RsvpLambdaErrors", handler.metricErrors());
+    createErrorAlarm(
+      this,
+      "AdminRsvpLambdaErrors",
+      adminHandler.metricErrors()
+    );
     createErrorAlarm(
       this,
       "RsvpApiServerErrors",

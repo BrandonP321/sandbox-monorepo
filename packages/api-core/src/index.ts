@@ -81,6 +81,7 @@ export type LocalDevServerOptions = {
   appName?: string;
   cors?: {
     allowedHeaders?: readonly string[];
+    allowedMethods?: readonly string[];
   };
 };
 
@@ -196,6 +197,12 @@ export function startLocalDevServer(
         ? {
             "access-control-allow-headers":
               options.cors.allowedHeaders.join(",")
+          }
+        : {}),
+      ...(options.cors?.allowedMethods
+        ? {
+            "access-control-allow-methods":
+              options.cors.allowedMethods.join(",")
           }
         : {})
     });

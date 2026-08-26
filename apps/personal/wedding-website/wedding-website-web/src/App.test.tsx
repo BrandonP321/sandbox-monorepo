@@ -118,6 +118,24 @@ describe("App", () => {
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
   });
 
+  it("renders the unlinked admin access form when /admin is visited directly", () => {
+    window.history.replaceState(null, "", "/admin");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "RSVP Admin" })
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Admin access key")).toHaveAttribute(
+      "type",
+      "password"
+    );
+    expect(
+      screen.queryByRole("link", { name: "RSVP" })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+  });
+
   it("returns home from attendance without clearing the draft", async () => {
     render(<App />);
     fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
