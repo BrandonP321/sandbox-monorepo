@@ -10,6 +10,9 @@ importers:
       concurrently:
         specifier: ^9.2.1
         version: 9.2.1
+      esbuild:
+        specifier: ^0.25.10
+        version: 0.25.12
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)
@@ -398,9 +401,6 @@ importers:
       aws-cdk:
         specifier: ^2.212.0
         version: 2.1104.0
-      esbuild:
-        specifier: ^0.25.10
-        version: 0.25.12
       eslint:
         specifier: ^9.39.2
         version: 9.39.2(jiti@2.6.1)

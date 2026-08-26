@@ -28,7 +28,6 @@
     "@repo/config-ts": "workspace:*",
     "@types/node": "^24.1.0",
     "aws-cdk": "^2.212.0",
-    "esbuild": "^0.25.10",
     "eslint": "^9.39.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",

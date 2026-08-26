@@ -281,6 +281,10 @@ describe("WeddingWebsiteStack", () => {
       "utf8"
     );
     const packageJson = readFileSync(resolve("package.json"), "utf8");
+    const workspacePackageJson = readFileSync(
+      resolve("../../../../package.json"),
+      "utf8"
+    );
 
     expect(prodBuildspec).toContain("deploy:ci:no-build");
     expect(prodBuildspec).toContain("@repo/wedding-website-shared");
@@ -300,6 +304,7 @@ describe("WeddingWebsiteStack", () => {
     }
     expect(packageJson).not.toContain("--skip-api-base-url");
     expect(packageJson).toContain('"diff": "cdk diff --no-change-set"');
+    expect(workspacePackageJson).toContain('"esbuild": "^0.25.10"');
     expect(prodBuildspec).not.toContain("secrets-manager");
     expect(prodBuildspec).not.toContain("WEDDING_PREVIEW_PASSWORD");
     expect(prodBuildspec).not.toContain("preview-password");
