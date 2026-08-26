@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App";
@@ -111,7 +111,9 @@ describe("production RSVP submission behavior", () => {
       "aria-disabled",
       "true"
     );
-    expect(fetcher).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1), {
+      timeout: 5_000
+    });
     expect(JSON.parse(snapshotAtFetch ?? "{}").unresolvedAttempt).toMatchObject(
       {
         version: 1,
@@ -142,6 +144,9 @@ describe("production RSVP submission behavior", () => {
     const firstView = renderReview();
 
     fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1), {
+      timeout: 5_000
+    });
     expect(
       await screen.findByText("Your RSVP is not confirmed yet.", {
         exact: false
