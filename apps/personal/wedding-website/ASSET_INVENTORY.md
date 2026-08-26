@@ -1,15 +1,17 @@
 # Wedding Website Asset Inventory
 
-The 39 final Photoshop exports in the runtime asset tree are the authority for
-the asset set. They include the user's post-organization corrections to the
-sprigs, sparkles, paw prints, and disco-ball selection. Earlier Google Drive
-names and variant counts are historical where they differ from this inventory.
+The 39 full-resolution Photoshop exports in the runtime asset tree are the
+authority for the asset set. They include the user's post-organization
+corrections to the sprigs, sparkles, paw prints, and disco-ball selection.
+Earlier Google Drive names and variant counts are historical where they differ
+from this inventory.
 
-All runtime images are transparent PNGs under
-`wedding-website-web/src/assets/`. The audit found no exact duplicates or
-obvious accidental copies. Image dimensions and sizes below describe the
-approved source pixels; no artwork was resized, recompressed, cropped, or
-otherwise modified during organization.
+All runtime images are PNGs under `wedding-website-web/src/assets/`. The
+full-resolution dimensions reflect the current browser-sized exports. Thirty
+larger images also have a smaller initial-render companion whose filename adds
+`-preview` immediately before `.png`; the progressive-image component swaps
+from that companion only after the full image has loaded and decoded. Images
+without a preview companion render directly through the same component.
 
 ## Design references
 
@@ -36,52 +38,52 @@ production bundle:
 
 ### Images
 
-| Final path under `src/assets/`          | Intended use                                           |    Pixels |      Size | Photoshop optimization                                                                  |
-| --------------------------------------- | ------------------------------------------------------ | --------: | --------: | --------------------------------------------------------------------------------------- |
-| `photos/landing-photo-framed.png`       | Finished landing photo and illustrated frame composite |   600×750 |   844 KiB | Compression only; keep 600×750 and target about 700 KiB or less if quality is unchanged |
-| `textures/cardboard-texture.png`        | Repeating cardboard-texture overlay                    |   600×600 |   199 KiB | No                                                                                      |
-| `cats/cat-sitting-facing-away.png`      | Sitting-cat decorative variant                         |   268×434 |   206 KiB | No                                                                                      |
-| `cats/cat-sitting-facing-forward.png`   | Sitting-cat decorative variant                         |   288×449 |   223 KiB | No                                                                                      |
-| `cats/cat-sitting-head-tilted.png`      | Sitting-cat decorative variant                         |   278×447 |   217 KiB | No                                                                                      |
-| `cats/cat-sitting-looking-right.png`    | Sitting-cat decorative variant                         |   277×433 |   214 KiB | No                                                                                      |
-| `cats/cat-sitting-looking-left.png`     | Sitting-cat decorative variant                         |   284×450 |   220 KiB | No                                                                                      |
-| `cats/cat-sitting-looking-up-right.png` | Sitting-cat decorative variant                         |   278×430 |   204 KiB | No                                                                                      |
-| `cats/cat-sitting-paw-raised.png`       | Sitting-cat decorative variant                         |   269×456 |   219 KiB | No                                                                                      |
-| `cats/cat-sitting-smiling.png`          | Sitting-cat decorative variant                         |   297×407 |   209 KiB | No                                                                                      |
-| `cats/cat-sleeping-01.png`              | Sleeping-cat decorative variant                        | 1254×1254 | 1,239 KiB | Yes; target an 800 px long edge and roughly 250–450 KiB                                 |
-| `cats/cat-sleeping-02.png`              | Sleeping-cat decorative variant                        | 1254×1254 |   730 KiB | Yes; target an 800 px long edge and roughly 250–450 KiB                                 |
-| `cats/cat-sleeping-03.png`              | Sleeping-cat decorative variant                        | 1254×1254 | 1,272 KiB | Yes; target an 800 px long edge and roughly 250–450 KiB                                 |
-| `cats/cat-sleeping-04.png`              | Sleeping-cat decorative variant                        | 1254×1254 | 1,183 KiB | Yes; target an 800 px long edge and roughly 250–450 KiB                                 |
-| `florals/floral-cluster-01.png`         | Large floral decorative cluster                        | 1536×1024 | 1,659 KiB | Yes; target a 1000–1200 px long edge and about 600 KiB or less                          |
-| `florals/floral-cluster-02.png`         | Large floral decorative cluster                        | 1536×1024 | 1,899 KiB | Yes; target a 1000–1200 px long edge and about 600 KiB or less                          |
-| `florals/floral-sprig-01.png`           | Single floral sprig                                    |   283×901 |   179 KiB | No                                                                                      |
-| `florals/floral-sprig-02.png`           | Single floral sprig                                    |  571×1043 |   523 KiB | Compression only; target about 350 KiB or less if line quality is unchanged             |
-| `florals/floral-sprig-03.png`           | Single floral sprig                                    |   464×806 |   346 KiB | Compression only; target about 300 KiB or less if line quality is unchanged             |
-| `florals/floral-sprig-04.png`           | Single floral sprig                                    |   649×864 |   310 KiB | Compression only; target about 250 KiB or less if line quality is unchanged             |
-| `florals/floral-vine-divider.png`       | Horizontal floral divider                              |    594×69 |    59 KiB | No                                                                                      |
-| `bows/bow-large-01.png`                 | Large ribbon/bow decorative variant                    |   541×459 |   305 KiB | No                                                                                      |
-| `bows/bow-large-02.png`                 | Large ribbon/bow decorative variant                    |   465×403 |   292 KiB | No                                                                                      |
-| `bows/bow-large-03.png`                 | Large ribbon/bow decorative variant                    |   408×450 |   258 KiB | No                                                                                      |
-| `bows/bow-small-01.png`                 | Small bow decorative variant                           |   223×209 |    66 KiB | No                                                                                      |
-| `bows/bow-small-02.png`                 | Small bow decorative variant                           |   201×257 |    64 KiB | No                                                                                      |
-| `bows/bow-small-03.png`                 | Small bow decorative variant                           |   271×155 |    51 KiB | No                                                                                      |
-| `celebration/champagne-glasses-01.png`  | Champagne-glass decorative variant                     |  734×1084 |   434 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-02.png`  | Champagne-glass decorative variant                     |  731×1055 |   538 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-03.png`  | Champagne-glass decorative variant                     |   903×921 |   628 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/champagne-glasses-04.png`  | Champagne-glass decorative variant                     |  725×1173 |   554 KiB | Yes; target a 600–800 px long edge and roughly 150–300 KiB                              |
-| `celebration/disco-ball-01.png`         | Disco-ball decorative variant                          |   670×982 |   443 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
-| `celebration/disco-ball-02.png`         | Disco-ball decorative variant                          | 1037×1159 | 1,358 KiB | Yes; target a 600–800 px long edge and roughly 150–350 KiB                              |
-| `accents/paw-print-single.png`          | Single paw-print accent                                |   141×137 |    26 KiB | No                                                                                      |
-| `accents/paw-print-double.png`          | Two-paw accent group                                   |   235×212 |    41 KiB | No                                                                                      |
-| `accents/paw-print-four.png`            | Four-paw accent group                                  |   395×522 |    83 KiB | No                                                                                      |
-| `accents/sparkles-01.png`               | Single sparkle accent                                  |   177×234 |    32 KiB | No                                                                                      |
-| `accents/sparkles-02.png`               | Sparkle/star accent group                              |   298×351 |    84 KiB | No                                                                                      |
-| `accents/sparkles-03.png`               | Sparkle/star accent group                              |   236×369 |    56 KiB | No                                                                                      |
+| Full-resolution path under `src/assets/` | Intended use                                           | Full pixels | Full size | Preview companion pixels and size |
+| ---------------------------------------- | ------------------------------------------------------ | ----------: | --------: | --------------------------------: |
+| `photos/landing-photo-framed.png`        | Finished landing photo and illustrated frame composite |     600×750 |   844 KiB |                   100×125, 35 KiB |
+| `textures/cardboard-texture.png`         | Repeating cardboard-texture overlay                    |     600×600 |   199 KiB |                                 — |
+| `cats/cat-sitting-facing-away.png`       | Sitting-cat decorative variant                         |     268×434 |   206 KiB |                   100×162, 32 KiB |
+| `cats/cat-sitting-facing-forward.png`    | Sitting-cat decorative variant                         |     288×449 |   223 KiB |                   100×156, 32 KiB |
+| `cats/cat-sitting-head-tilted.png`       | Sitting-cat decorative variant                         |     278×447 |   217 KiB |                   100×161, 33 KiB |
+| `cats/cat-sitting-looking-right.png`     | Sitting-cat decorative variant                         |     277×433 |   214 KiB |                   100×156, 33 KiB |
+| `cats/cat-sitting-looking-left.png`      | Sitting-cat decorative variant                         |     284×450 |   220 KiB |                   100×158, 31 KiB |
+| `cats/cat-sitting-looking-up-right.png`  | Sitting-cat decorative variant                         |     278×430 |   204 KiB |                   100×155, 32 KiB |
+| `cats/cat-sitting-paw-raised.png`        | Sitting-cat decorative variant                         |     269×456 |   219 KiB |                   100×169, 35 KiB |
+| `cats/cat-sitting-smiling.png`           | Sitting-cat decorative variant                         |     297×407 |   209 KiB |                   100×137, 31 KiB |
+| `cats/cat-sleeping-01.png`               | Sleeping-cat decorative variant                        |     500×500 |   263 KiB |                      50×50, 7 KiB |
+| `cats/cat-sleeping-02.png`               | Sleeping-cat decorative variant                        |     500×500 |   160 KiB |                   100×100, 12 KiB |
+| `cats/cat-sleeping-03.png`               | Sleeping-cat decorative variant                        |     500×500 |   273 KiB |                   100×100, 18 KiB |
+| `cats/cat-sleeping-04.png`               | Sleeping-cat decorative variant                        |     500×500 |   246 KiB |                   100×100, 16 KiB |
+| `florals/floral-cluster-01.png`          | Large floral decorative cluster                        |     800×533 |   368 KiB |                    100×67, 16 KiB |
+| `florals/floral-cluster-02.png`          | Large floral decorative cluster                        |     800×533 |   438 KiB |                    100×67, 18 KiB |
+| `florals/floral-sprig-01.png`            | Single floral sprig                                    |     300×955 |   230 KiB |                   100×318, 38 KiB |
+| `florals/floral-sprig-02.png`            | Single floral sprig                                    |     300×548 |   156 KiB |                   100×183, 26 KiB |
+| `florals/floral-sprig-03.png`            | Single floral sprig                                    |     300×521 |   172 KiB |                   100×174, 28 KiB |
+| `florals/floral-sprig-04.png`            | Single floral sprig                                    |     300×399 |    98 KiB |                   100×133, 18 KiB |
+| `florals/floral-vine-divider.png`        | Horizontal floral divider                              |      594×69 |    59 KiB |                                 — |
+| `bows/bow-large-01.png`                  | Large ribbon/bow decorative variant                    |     500×424 |   161 KiB |                      50×42, 8 KiB |
+| `bows/bow-large-02.png`                  | Large ribbon/bow decorative variant                    |     465×403 |   292 KiB |                      50×43, 8 KiB |
+| `bows/bow-large-03.png`                  | Large ribbon/bow decorative variant                    |     408×450 |   258 KiB |                      50×55, 9 KiB |
+| `bows/bow-small-01.png`                  | Small bow decorative variant                           |     223×209 |    66 KiB |                      50×47, 7 KiB |
+| `bows/bow-small-02.png`                  | Small bow decorative variant                           |     201×257 |    64 KiB |                      50×64, 8 KiB |
+| `bows/bow-small-03.png`                  | Small bow decorative variant                           |     271×155 |    51 KiB |                      50×29, 5 KiB |
+| `celebration/champagne-glasses-01.png`   | Champagne-glass decorative variant                     |     300×443 |   109 KiB |                                 — |
+| `celebration/champagne-glasses-02.png`   | Champagne-glass decorative variant                     |     300×433 |   132 KiB |                                 — |
+| `celebration/champagne-glasses-03.png`   | Champagne-glass decorative variant                     |     300×306 |   110 KiB |                                 — |
+| `celebration/champagne-glasses-04.png`   | Champagne-glass decorative variant                     |     200×324 |    73 KiB |                                 — |
+| `celebration/disco-ball-01.png`          | Disco-ball decorative variant                          |     500×733 |   288 KiB |                   100×147, 21 KiB |
+| `celebration/disco-ball-02.png`          | Disco-ball decorative variant                          |     500×559 |   375 KiB |                   100×112, 25 KiB |
+| `accents/paw-print-single.png`           | Single paw-print accent                                |     141×137 |    26 KiB |                                 — |
+| `accents/paw-print-double.png`           | Two-paw accent group                                   |     235×212 |    41 KiB |                                 — |
+| `accents/paw-print-four.png`             | Four-paw accent group                                  |     395×522 |    83 KiB |                      50×66, 7 KiB |
+| `accents/sparkles-01.png`                | Single sparkle accent                                  |     177×234 |    32 KiB |                                 — |
+| `accents/sparkles-02.png`                | Sparkle/star accent group                              |     298×351 |    84 KiB |                      50×59, 9 KiB |
+| `accents/sparkles-03.png`                | Sparkle/star accent group                              |     236×369 |    56 KiB |                      50×78, 9 KiB |
 
-Photoshop optimization should preserve each listed path and transparent PNG
-canvas so an optimized export can replace the current file in place. The
-suggested pixel and file-size targets are practical browser-use ranges, not
-requirements to sacrifice visible line quality.
+Future optimized exports should preserve each listed full-resolution path and
+transparent canvas. Add or replace a preview using the same path with
+`-preview` before `.png`; then add that companion to `weddingImageAssets.ts` for
+any asset currently rendered by the app.
 
 ## Original-to-final move map
 

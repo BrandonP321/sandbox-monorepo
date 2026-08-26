@@ -6,6 +6,7 @@ import {
   PROTOTYPE_STORAGE_KEY,
   PROTOTYPE_STORAGE_KEY_V1
 } from "./rsvp/prototypeStorage";
+import { weddingImageAssets } from "./weddingImageAssets";
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -32,6 +33,16 @@ describe("App", () => {
     });
     expect(photo).toHaveAttribute("width", "600");
     expect(photo).toHaveAttribute("height", "750");
+    expect(photo).toHaveAttribute(
+      "src",
+      weddingImageAssets.landingPhoto.previewSrc
+    );
+    expect(photo).toHaveAttribute("data-image-resolution", "low-res");
+    expect(
+      document.querySelectorAll(
+        ".landing-page img:not([data-image-resolution])"
+      )
+    ).toHaveLength(0);
   });
 
   it("exposes the RSVP integration callback and opens a clean self-entry form", () => {

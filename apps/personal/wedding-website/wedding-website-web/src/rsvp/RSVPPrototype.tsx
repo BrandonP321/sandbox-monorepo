@@ -5,15 +5,12 @@ import {
   type ReactNode
 } from "react";
 
-import bowSmall from "../assets/bows/bow-small-01.png";
-import sparklesPrimary from "../assets/accents/sparkles-01.png";
-import sparklesSecondary from "../assets/accents/sparkles-03.png";
-import catSitting from "../assets/cats/cat-sitting-facing-forward.png";
-import champagneGlasses from "../assets/celebration/champagne-glasses-01.png";
-import discoBall from "../assets/celebration/disco-ball-01.png";
-import floralSprig from "../assets/florals/floral-sprig-01.png";
-import floralVine from "../assets/florals/floral-vine-divider.png";
-import { ContentFrame, DecorativeLayer } from "../components/ui";
+import {
+  ContentFrame,
+  DecorativeLayer,
+  ProgressiveImage
+} from "../components/ui";
+import { weddingImageAssets } from "../weddingImageAssets";
 import { AdditionalDetailsStep } from "./AdditionalDetailsStep";
 import { AttendanceStep } from "./AttendanceStep";
 import { RSVPConfirmation } from "./RSVPConfirmation";
@@ -69,80 +66,80 @@ function RSVPPrototype({
   if (state.currentStage === "attendance") {
     decorations = (
       <DecorativeLayer className="prototype-decorations prototype-decorations--attendance">
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.catSitting}
           alt=""
           className="prototype-decoration prototype-decoration--cat"
           draggable={false}
-          src={catSitting}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.floralSprig}
           alt=""
           className="prototype-decoration prototype-decoration--sprig"
           draggable={false}
-          src={floralSprig}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.bowSmall}
           alt=""
           className="prototype-decoration prototype-decoration--bow"
           draggable={false}
-          src={bowSmall}
         />
       </DecorativeLayer>
     );
   } else if (state.currentStage === "details") {
     decorations = (
       <DecorativeLayer className="prototype-decorations prototype-decorations--details">
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.floralVine}
           alt=""
           className="prototype-decoration prototype-decoration--vine"
           draggable={false}
-          src={floralVine}
         />
       </DecorativeLayer>
     );
   } else if (state.currentStage === "review") {
     decorations = (
       <DecorativeLayer className="prototype-decorations prototype-decorations--review">
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.floralVine}
           alt=""
           className="prototype-decoration prototype-decoration--review-vine"
           draggable={false}
-          src={floralVine}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.sparklesPrimary}
           alt=""
           className="prototype-decoration prototype-decoration--review-sparkles"
           draggable={false}
-          src={sparklesPrimary}
         />
       </DecorativeLayer>
     );
   } else {
     decorations = (
       <DecorativeLayer className="prototype-decorations prototype-decorations--confirmation">
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.catSitting}
           alt=""
           className="prototype-decoration prototype-decoration--confirmation-cat"
           draggable={false}
-          src={catSitting}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.champagneGlasses}
           alt=""
           className="prototype-decoration prototype-decoration--confirmation-champagne"
           draggable={false}
-          src={champagneGlasses}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.discoBall}
           alt=""
           className="prototype-decoration prototype-decoration--confirmation-disco"
           draggable={false}
-          src={discoBall}
         />
-        <img
+        <ProgressiveImage
+          {...weddingImageAssets.sparklesSecondary}
           alt=""
           className="prototype-decoration prototype-decoration--confirmation-sparkles"
           draggable={false}
-          src={sparklesSecondary}
         />
       </DecorativeLayer>
     );

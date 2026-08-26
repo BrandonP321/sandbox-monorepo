@@ -34,3 +34,7 @@ export {
   type DecorativeLayerProps,
   type FormSectionProps
 } from "./Layout";
+export {
+  ProgressiveImage,
+  type ProgressiveImageProps
+} from "./ProgressiveImage";

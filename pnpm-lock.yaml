@@ -456,6 +456,9 @@ importers:
       "@repo/frontend-config":
         specifier: workspace:*
         version: link:../../../../packages/frontend-config
+      "@repo/ui-base":
+        specifier: workspace:*
+        version: link:../../../../packages/ui-base
       "@repo/wedding-website-shared":
         specifier: workspace:*
         version: link:../wedding-website-shared

@@ -19,6 +19,7 @@ The package starts with form infrastructure and RHF-backed form controls:
 - `useDebouncedValue`
 - `useMediaQuery`
 - `useMinBreakpoint`
+- `ProgressiveResponsiveImage`
 
 It also exposes shared notification behavior from `@repo/ui-base/notifications`:
 
@@ -54,6 +55,12 @@ visual treatment. The current control contracts are intentionally small and
 functional-only. Each control uses a `children` render function to hand resolved
 field props into the designed component rather than exposing a large native prop
 surface.
+
+`ProgressiveResponsiveImage` renders an optional low-resolution source while it
+loads and decodes the selected full-resolution source. Consumers own the blur,
+transition, and other visual treatment through `className` and the component's
+`data-image-resolution` attribute. A source without `lowResSrc` renders directly
+without a duplicate preload.
 
 Shared type helpers for these render contracts live in
 [`src/components/FormControl.types.ts`](./src/components/FormControl.types.ts).

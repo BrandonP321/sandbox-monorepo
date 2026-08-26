@@ -1,39 +1,38 @@
 import type { MouseEventHandler } from "react";
 
-import sparklesPrimary from "./assets/accents/sparkles-01.png";
-import sparklesSecondary from "./assets/accents/sparkles-03.png";
-import catSitting from "./assets/cats/cat-sitting-facing-forward.png";
-import champagneGlasses from "./assets/celebration/champagne-glasses-01.png";
-import discoBall from "./assets/celebration/disco-ball-01.png";
-import floralCluster from "./assets/florals/floral-cluster-01.png";
-import landingPhoto from "./assets/photos/landing-photo-framed.png";
-import { ContentFrame, DecorativeLayer, PrimaryLink } from "./components/ui";
+import {
+  ContentFrame,
+  DecorativeLayer,
+  PrimaryLink,
+  ProgressiveImage
+} from "./components/ui";
+import { weddingImageAssets } from "./weddingImageAssets";
 
 const landingAssets = {
-  cat: catSitting,
-  champagne: champagneGlasses,
-  discoBall,
-  floral: floralCluster,
-  photo: landingPhoto,
-  sparklesPrimary,
-  sparklesSecondary
+  cat: weddingImageAssets.catSitting,
+  champagne: weddingImageAssets.champagneGlasses,
+  discoBall: weddingImageAssets.discoBall,
+  floral: weddingImageAssets.floralCluster,
+  photo: weddingImageAssets.landingPhoto,
+  sparklesPrimary: weddingImageAssets.sparklesPrimary,
+  sparklesSecondary: weddingImageAssets.sparklesSecondary
 } as const;
 
 const landingDecorations = [
-  { className: "landing-decoration--floral", src: landingAssets.floral },
-  { className: "landing-decoration--disco", src: landingAssets.discoBall },
-  { className: "landing-decoration--cat", src: landingAssets.cat },
+  { asset: landingAssets.floral, className: "landing-decoration--floral" },
+  { asset: landingAssets.discoBall, className: "landing-decoration--disco" },
+  { asset: landingAssets.cat, className: "landing-decoration--cat" },
   {
-    className: "landing-decoration--champagne",
-    src: landingAssets.champagne
+    asset: landingAssets.champagne,
+    className: "landing-decoration--champagne"
   },
   {
-    className: "landing-decoration--sparkles-primary",
-    src: landingAssets.sparklesPrimary
+    asset: landingAssets.sparklesPrimary,
+    className: "landing-decoration--sparkles-primary"
   },
   {
-    className: "landing-decoration--sparkles-secondary",
-    src: landingAssets.sparklesSecondary
+    asset: landingAssets.sparklesSecondary,
+    className: "landing-decoration--sparkles-secondary"
   }
 ] as const;
 
@@ -45,13 +44,13 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
   return (
     <main className="landing-page">
       <DecorativeLayer className="landing-page__decorations">
-        {landingDecorations.map(({ className, src }) => (
-          <img
+        {landingDecorations.map(({ asset, className }) => (
+          <ProgressiveImage
+            {...asset}
             alt=""
             className={`landing-decoration ${className}`}
             draggable={false}
-            key={src}
-            src={src}
+            key={asset.src}
           />
         ))}
       </DecorativeLayer>
@@ -72,11 +71,11 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
           </p>
 
           <div className="landing-page__photo-frame">
-            <img
+            <ProgressiveImage
+              {...landingAssets.photo}
               alt="Niamh and Brandon smiling together outdoors inside a hand-drawn floral frame"
               className="landing-page__photo"
               height={750}
-              src={landingAssets.photo}
               width={600}
             />
           </div>

@@ -100,6 +100,15 @@ a {
   font-family: var(--font-script);
 }
 
+.wedding-progressive-image {
+  filter: blur(0);
+  transition: filter var(--motion-duration-slow) var(--motion-easing-standard);
+}
+
+.wedding-progressive-image[data-image-resolution="low-res"] {
+  filter: blur(0.25rem);
+}
+
 @media (prefers-reduced-motion: reduce) {
   html:focus-within {
     scroll-behavior: auto;
