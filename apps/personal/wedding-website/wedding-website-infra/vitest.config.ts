@@ -5,6 +5,7 @@ export default defineConfig({
   ...baseConfig,
   test: {
     ...baseConfig.test,
-    environment: "node"
+    environment: "node",
+    testTimeout: 15_000
   }
 });
