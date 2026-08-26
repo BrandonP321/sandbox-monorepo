@@ -117,13 +117,23 @@ describe("WeddingWebsiteStack", () => {
     );
     template.hasResourceProperties("AWS::IAM::Policy", {
       PolicyDocument: {
-        Statement: [
+        Statement: Match.arrayWith([
           {
-            Action: ["dynamodb:GetItem", "dynamodb:TransactWriteItems"],
+            Action: "dynamodb:GetItem",
+            Effect: "Allow",
+            Resource: Match.anyValue()
+          },
+          {
+            Action: "dynamodb:PutItem",
+            Condition: {
+              "ForAnyValue:StringEquals": {
+                "dynamodb:EnclosingOperation": "TransactWriteItems"
+              }
+            },
             Effect: "Allow",
             Resource: Match.anyValue()
           }
-        ],
+        ]),
         Version: "2012-10-17"
       }
     });

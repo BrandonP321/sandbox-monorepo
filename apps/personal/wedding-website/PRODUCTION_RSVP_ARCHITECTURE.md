@@ -457,9 +457,12 @@ normal unit/integration tests never write to production.
   durable unresolved attempt when the normalized payload fingerprint matches.
 - Rely on strict schema validation, the 32 KiB body limit, field/array bounds,
   conditional writes, and least-privilege IAM.
-- Grant the guest Lambda only `dynamodb:TransactWriteItems` and
-  `dynamodb:GetItem` against this table. It receives no `Scan`, `Query`,
-  `UpdateItem`, `DeleteItem`, or cross-table access.
+- Grant the guest Lambda standalone `dynamodb:GetItem` for consistent replay
+  reads and `dynamodb:PutItem` only when `dynamodb:EnclosingOperation` is
+  `TransactWriteItems`. DynamoDB authorizes nested transaction puts through the
+  underlying action; the condition prevents direct non-transactional writes.
+  The Lambda receives no `Scan`, `Query`, `UpdateItem`, `DeleteItem`, or
+  cross-table access.
 
 Temporary launch deviation (2026-08-25): the initial production stack omits
 Lambda reserved concurrency while the account's regional concurrency quota is 10. AWS requires all 10 executions to remain unreserved, so the intended

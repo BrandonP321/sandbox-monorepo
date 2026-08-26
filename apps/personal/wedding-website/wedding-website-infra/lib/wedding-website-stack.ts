@@ -6,6 +6,7 @@ import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
+import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
@@ -93,7 +94,18 @@ export class WeddingWebsiteStack extends cdk.Stack {
       reservedConcurrentExecutions: props?.rsvpReservedConcurrency,
       timeout: cdk.Duration.seconds(5)
     });
-    rsvpTable.grant(handler, "dynamodb:GetItem", "dynamodb:TransactWriteItems");
+    rsvpTable.grant(handler, "dynamodb:GetItem");
+    handler.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["dynamodb:PutItem"],
+        conditions: {
+          "ForAnyValue:StringEquals": {
+            "dynamodb:EnclosingOperation": "TransactWriteItems"
+          }
+        },
+        resources: [rsvpTable.tableArn]
+      })
+    );
 
     const apiLogGroup = new logs.LogGroup(this, "RsvpApiAccessLogs", {
       retention: logs.RetentionDays.ONE_MONTH
