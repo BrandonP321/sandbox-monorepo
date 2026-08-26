@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import mainSource from "../main.tsx?raw";
+import fontsCss from "./fonts.css?raw";
 import tokensCss from "./tokens.css?inline";
 
 const normalizedTokensCss = tokensCss.replaceAll(/\s+/g, " ");
@@ -41,17 +43,30 @@ describe("wedding design tokens", () => {
     }
   });
 
-  it("keeps width and provisional font roles replaceable", () => {
+  it("keeps width and finalized font roles centralized", () => {
     expect(tokensCss).toContain("--content-width-form: 46rem;");
     expect(tokensCss).toContain("--content-width-hero: 70rem;");
     expect(normalizedTokensCss).toContain(
-      '--font-display: Georgia, "Times New Roman", serif;'
+      '--font-display: "Lora", Georgia, "Times New Roman", serif;'
     );
     expect(normalizedTokensCss).toContain(
-      '--font-script: "Snell Roundhand", "Brush Script MT", cursive;'
+      '--font-script: "Lovers in New York", "Snell Roundhand", "Brush Script MT", cursive;'
     );
     expect(normalizedTokensCss).toContain(
-      '--font-ui: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;'
+      '--font-ui: "Lora", Georgia, "Times New Roman", serif;'
     );
+  });
+
+  it("loads the production font assets for every used weight", () => {
+    expect(mainSource).toContain('import "@fontsource/lora/latin-400.css";');
+    expect(mainSource).toContain('import "@fontsource/lora/latin-700.css";');
+    expect(fontsCss).toContain('font-family: "Lovers in New York";');
+    expect(fontsCss).toContain(
+      'url("../assets/fonts/lovers-in-new-york-regular.woff2")'
+    );
+    expect(fontsCss).toContain(
+      'url("../assets/fonts/lovers-in-new-york-bold.woff2")'
+    );
+    expect(fontsCss.match(/font-display: swap;/g)).toHaveLength(2);
   });
 });

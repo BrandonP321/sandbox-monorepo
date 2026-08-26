@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fontsource/lora": "^5.3.0",
     "@repo/frontend-config": "workspace:*",
     "@repo/wedding-website-shared": "workspace:*",
     "libphonenumber-js": "^1.13.11",

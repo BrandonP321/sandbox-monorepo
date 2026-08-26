@@ -40,4 +40,10 @@ describe("RSVP prototype layout", () => {
       ".confirmation-step .confirmation-step__home { width: min(100%, 14rem); }"
     );
   });
+
+  it("keeps the decorative Review date compact", () => {
+    expect(normalizedPrototypeCss).toMatch(
+      /\.rsvp-step__date \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(0\.95rem, 3vw, 1\.1rem\);[^}]*letter-spacing: 0\.01em;[^}]*line-height: 1;[^}]*word-spacing: 0\.12em;[^}]*white-space: nowrap;/
+    );
+  });
 });

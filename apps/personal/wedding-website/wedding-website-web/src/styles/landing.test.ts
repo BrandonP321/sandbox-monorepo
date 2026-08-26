@@ -82,4 +82,31 @@ describe("landing page surface", () => {
     );
     expect(landingCss).not.toContain("display: none;");
   });
+
+  it("reserves the script font for the couple names and wedding date", () => {
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__names \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(2\.75rem, 8vw, 4rem\);[^}]*letter-spacing: 0\.02em;[^}]*line-height: 0\.9;/
+    );
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__date \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(1\.1rem, 3vw, 1\.5rem\);[^}]*letter-spacing: 0\.01em;[^}]*line-height: 1;[^}]*word-spacing: 0\.12em;[^}]*white-space: nowrap;/
+    );
+    expect(normalizedLandingCss).not.toMatch(
+      /\.landing-page__names \{[^}]*text-transform: uppercase;/
+    );
+    expect(normalizedLandingCss).not.toMatch(
+      /\.landing-page__welcome \{[^}]*font-family: var\(--font-script\);/
+    );
+  });
+
+  it("reserves visual space around the script font's oversized swashes", () => {
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__names \{[^}]*margin-block-start: clamp\( calc\(var\(--space-48\) \+ var\(--space-8\)\), 10vw, calc\(var\(--space-64\) \+ var\(--space-32\)\) \);/
+    );
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__date \{[^}]*margin-block-start: clamp\( calc\(var\(--space-48\) \+ var\(--space-8\)\), 9vw, calc\(var\(--space-64\) \+ var\(--space-16\)\) \);/
+    );
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__welcome \{[^}]*margin-block-start: calc\(var\(--space-32\) \+ var\(--space-8\)\);/
+    );
+  });
 });

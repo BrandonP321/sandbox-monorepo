@@ -25,6 +25,17 @@ production bundle:
 
 ## Runtime inventory
 
+### Fonts
+
+- `fonts/lovers-in-new-york-regular.woff2` and
+  `fonts/lovers-in-new-york-bold.woff2` are the production web formats extracted
+  from the supplied `LoversinNewYork.zip`; the duplicate WOFF, TTF, and OTF
+  formats are not shipped.
+- Lora's 400 and 700 Latin web fonts are bundled from the pinned
+  `@fontsource/lora` dependency.
+
+### Images
+
 | Final path under `src/assets/`          | Intended use                                           |    Pixels |      Size | Photoshop optimization                                                                  |
 | --------------------------------------- | ------------------------------------------------------ | --------: | --------: | --------------------------------------------------------------------------------------- |
 | `photos/landing-photo-framed.png`       | Finished landing photo and illustrated frame composite |   600×750 |   844 KiB | Compression only; keep 600×750 and target about 700 KiB or less if quality is unchanged |

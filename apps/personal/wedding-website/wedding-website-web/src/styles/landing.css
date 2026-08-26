@@ -41,13 +41,17 @@
 }
 
 .landing-page__names {
-  margin-block-start: var(--space-12);
+  margin-block-start: clamp(
+    calc(var(--space-48) + var(--space-8)),
+    10vw,
+    calc(var(--space-64) + var(--space-32))
+  );
   color: var(--color-olive);
-  font-size: clamp(2.6rem, 11vw, 4.75rem);
+  font-family: var(--font-script);
+  font-size: clamp(2.75rem, 8vw, 4rem);
   font-weight: 400;
-  letter-spacing: 0.06em;
-  line-height: 0.92;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
 }
 
 .landing-page__names > span {
@@ -58,23 +62,29 @@
   margin-block: var(--space-4);
   color: var(--color-coral-action);
   font-family: var(--font-script);
-  font-size: 0.62em;
+  font-size: 0.5em;
   letter-spacing: 0;
-  line-height: 0.75;
-  text-transform: none;
+  line-height: 0.7;
 }
 
 .landing-page__date {
-  margin-block-start: var(--space-16);
+  margin-block-start: clamp(
+    calc(var(--space-48) + var(--space-8)),
+    9vw,
+    calc(var(--space-64) + var(--space-16))
+  );
   color: var(--color-coral-action);
   font-family: var(--font-script);
-  font-size: clamp(1.75rem, 7vw, 2.7rem);
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  letter-spacing: 0.01em;
   line-height: 1;
+  word-spacing: 0.12em;
+  white-space: nowrap;
 }
 
 .landing-page__welcome {
   max-width: 23rem;
-  margin-block-start: var(--space-16);
+  margin-block-start: calc(var(--space-32) + var(--space-8));
   color: var(--color-ink);
   font-size: clamp(0.8rem, 2.5vw, 0.95rem);
   font-weight: 700;

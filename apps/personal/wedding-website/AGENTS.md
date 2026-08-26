@@ -67,8 +67,10 @@
 - RSVP Front and RSVP back control illustration and artistic style.
 - The refined RSVP-flow image controls page layout and composition only.
 - Generated website mockups must not redefine the RSVP doodle style.
-- Exact font-family names are intentionally deferred. Use semantic font tokens
-  so temporary families remain replaceable.
+- Final typography uses exactly two families through the semantic font tokens:
+  Lovers in New York is limited to the couple-name treatment, wedding date, and
+  very short decorative phrases; Lora is used for all other guest and admin
+  text. Do not introduce a third font family.
 - Runtime asset paths, dimensions, and optimization status live in
   `ASSET_INVENTORY.md`. Keep Drive-based design references outside the runtime
   asset tree, and preserve inventory paths when optimized PNGs replace source
