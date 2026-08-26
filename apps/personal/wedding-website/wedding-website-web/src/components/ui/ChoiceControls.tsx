@@ -51,7 +51,6 @@ function ChoiceGroup({
       <div className="ui-choice-group__options">{children}</div>
       {error ? (
         <p className="ui-choice-group__error" id={errorId}>
-          <span>Error: </span>
           {error}
         </p>
       ) : null}

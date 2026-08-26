@@ -148,9 +148,9 @@ describe("production RSVP submission behavior", () => {
       timeout: 5_000
     });
     expect(
-      await screen.findByText("Your RSVP is not confirmed yet.", {
-        exact: false
-      })
+      await screen.findByText(
+        "Your RSVP is not confirmed yet. Please try submitting again. If you continue to have trouble, please reach out to us directly and we’ll make sure your RSVP gets recorded."
+      )
     ).toBeVisible();
     const firstAttemptKey = getAttemptKeyFromFetchCall(fetcher, 0);
     expect(readStoredAttempt()?.idempotencyKey).toBe(firstAttemptKey);
@@ -167,28 +167,31 @@ describe("production RSVP submission behavior", () => {
     expect(getAttemptKeyFromFetchCall(fetcher, 1)).toBe(firstAttemptKey);
   });
 
-  it.each([
-    [429, "Responses are busy right now"],
-    [500, "We couldn't confirm your RSVP"],
-    [503, "We couldn't confirm your RSVP"]
-  ])("retains the unresolved attempt after HTTP %s", async (status, title) => {
-    const fetcher = vi.fn(async () => new Response("{}", { status }));
-    vi.stubGlobal("fetch", fetcher);
-    storeReview();
-    renderReview();
+  it.each([429, 500, 503])(
+    "retains the unresolved attempt and shows the save failure copy after HTTP %s",
+    async (status) => {
+      const fetcher = vi.fn(async () => new Response("{}", { status }));
+      vi.stubGlobal("fetch", fetcher);
+      storeReview();
+      renderReview();
 
-    fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
+      fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
 
-    expect(await screen.findByText(title)).toBeVisible();
-    expect(readStoredAttempt()?.idempotencyKey).toBe(
-      getAttemptKeyFromFetchCall(fetcher, 0)
-    );
-    expect(
-      screen.queryByRole("heading", {
-        name: "Thank you—your RSVP is complete."
-      })
-    ).toBeNull();
-  });
+      const alert = await screen.findByRole("alert");
+      expect(alert).toHaveTextContent("We couldn't confirm your RSVP");
+      expect(alert).toHaveTextContent(
+        "Your RSVP is not confirmed yet. Please try submitting again. If you continue to have trouble, please reach out to us directly and we’ll make sure your RSVP gets recorded."
+      );
+      expect(readStoredAttempt()?.idempotencyKey).toBe(
+        getAttemptKeyFromFetchCall(fetcher, 0)
+      );
+      expect(
+        screen.queryByRole("heading", {
+          name: "Thank you—your RSVP is complete."
+        })
+      ).toBeNull();
+    }
+  );
 
   it("retains the attempt when a 201 response is malformed", async () => {
     const fetcher = vi.fn(async () => new Response("{}", { status: 201 }));
@@ -199,9 +202,9 @@ describe("production RSVP submission behavior", () => {
     fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
 
     expect(
-      await screen.findByText("Your RSVP is not confirmed yet.", {
-        exact: false
-      })
+      await screen.findByText(
+        "Your RSVP is not confirmed yet. Please try submitting again. If you continue to have trouble, please reach out to us directly and we’ll make sure your RSVP gets recorded."
+      )
     ).toBeVisible();
     expect(readStoredAttempt()?.idempotencyKey).toBe(
       getAttemptKeyFromFetchCall(fetcher, 0)

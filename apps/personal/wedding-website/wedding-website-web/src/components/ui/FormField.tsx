@@ -57,7 +57,6 @@ function FormField({
       ) : null}
       {error ? (
         <p className="ui-form-field__error" id={errorId}>
-          <span>Error: </span>
           {error}
         </p>
       ) : null}

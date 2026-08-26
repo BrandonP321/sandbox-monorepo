@@ -36,6 +36,10 @@ const guestSideLabels = {
   niamh: "Niamh's side"
 } as const;
 
+const submissionFailureTitle = "We couldn't confirm your RSVP";
+const submissionFailureMessage =
+  "Your RSVP is not confirmed yet. Please try submitting again. If you continue to have trouble, please reach out to us directly and we’ll make sure your RSVP gets recorded.";
+
 function RSVPReview({
   draft,
   onBack,
@@ -78,19 +82,8 @@ function RSVPReview({
   let submissionAlert = null;
   if (submissionStatus.state === "retryable") {
     submissionAlert = (
-      <Alert
-        className="review-submission-alert"
-        title={
-          submissionStatus.reason === "busy"
-            ? "Responses are busy right now"
-            : "We couldn't confirm your RSVP"
-        }
-      >
-        <p>
-          {submissionStatus.reason === "busy"
-            ? "Please wait a moment, then try submitting again."
-            : "Your RSVP is not confirmed yet. Please try submitting again."}
-        </p>
+      <Alert className="review-submission-alert" title={submissionFailureTitle}>
+        <p>{submissionFailureMessage}</p>
       </Alert>
     );
   } else if (submissionStatus.state === "conflict") {

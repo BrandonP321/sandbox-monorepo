@@ -21,7 +21,7 @@ describe("FormField", () => {
     expect(input).toBeRequired();
     expect(input).toBeInvalid();
     expect(input).toHaveAccessibleDescription(
-      "Use an address you check regularly. Error: Enter a valid email address."
+      "Use an address you check regularly. Enter a valid email address."
     );
     expect(screen.getByText("Required")).toBeInTheDocument();
   });
@@ -65,7 +65,7 @@ describe("choice controls", () => {
 
     expect(group).toBeInvalid();
     expect(group).toHaveAccessibleDescription(
-      "Choose one response. Error: Select an attendance response."
+      "Choose one response. Select an attendance response."
     );
     expect(attending).not.toBeChecked();
 

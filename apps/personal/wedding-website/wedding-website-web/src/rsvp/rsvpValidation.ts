@@ -1,7 +1,7 @@
 import type { ContactDetails, RsvpDraft } from "./rsvpTypes";
 
 const CONTACT_REQUIRED_MESSAGE =
-  "Enter at least an email address or phone number.";
+  "Enter at least one email address or phone number for any attendee.";
 const CONTACT_REQUIRED_TITLE = "Contact details required";
 
 type ContactFieldErrors = {

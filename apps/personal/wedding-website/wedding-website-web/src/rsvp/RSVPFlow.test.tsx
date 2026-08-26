@@ -73,7 +73,9 @@ function expectContactAlertBefore(buttonName: string) {
 
   expect(within(alert).getByText("Contact details required")).toBeVisible();
   expect(
-    within(alert).getByText("Enter at least an email address or phone number.")
+    within(alert).getByText(
+      "Enter at least one email address or phone number for any attendee."
+    )
   ).toBeVisible();
   expect(
     alert.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING
@@ -96,7 +98,7 @@ describe("RSVP party and attendance", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     expect(sideGroup).toHaveAccessibleDescription(
-      /Error: Choose Niamh's side or Brandon's side\./
+      /Choose Niamh's side or Brandon's side\./
     );
     expect(
       within(sideGroup).getByRole("radio", { name: "Niamh's side" })
@@ -176,7 +178,7 @@ describe("RSVP party and attendance", () => {
     expectContactAlertBefore("Continue");
     expect(continueButton).toHaveFocus();
     expect(getAdultEmailInputs()[0]).toHaveAccessibleDescription(
-      "Contact details required Enter at least an email address or phone number."
+      "Contact details required Enter at least one email address or phone number for any attendee."
     );
     expect(
       screen.getByRole("heading", { name: "Your party & attendance" })
@@ -211,7 +213,7 @@ describe("RSVP party and attendance", () => {
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
     expect(childCount).toHaveFocus();
     expect(childCount).toHaveAccessibleDescription(
-      /Error: Enter a whole number of zero or greater\./
+      /Enter a whole number of zero or greater\./
     );
 
     fireEvent.change(childCount, { target: { value: "3" } });
@@ -315,10 +317,10 @@ describe("RSVP additional details", () => {
     ).not.toBe(0);
     expect(email).toHaveFocus();
     expect(email).toHaveAccessibleDescription(
-      "Contact details required Enter at least an email address or phone number."
+      "Contact details required Enter at least one email address or phone number for any attendee."
     );
     expect(phone).toHaveAccessibleDescription(
-      "Contact details required Enter at least an email address or phone number."
+      "Contact details required Enter at least one email address or phone number for any attendee."
     );
   });
 
