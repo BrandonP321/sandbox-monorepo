@@ -2,7 +2,7 @@ import type {
   GetCommandInput,
   TransactWriteCommandInput
 } from "@aws-sdk/lib-dynamodb";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { rsvpSchemaVersion } from "@repo/wedding-website-shared";
 
@@ -253,6 +253,111 @@ describe("DynamoDbRsvpSubmissionRepository", () => {
     await expect(
       repository(readFailure).createOrReplay(storeInput())
     ).rejects.toBeInstanceOf(RsvpPersistenceUnavailableError);
+  });
+
+  it("logs only approved metadata for a DynamoDB transaction failure", async () => {
+    const client = new FakeRsvpDynamoDbClient();
+    const logger = vi.fn();
+    client.transactionError = Object.assign(
+      new Error("RSVP_PRIVATE_MARKER_82 private-82@example.test"),
+      {
+        name: "ValidationException",
+        $fault: "client",
+        $metadata: {
+          httpStatusCode: 400,
+          requestId: "aws-request-82",
+          extendedRequestId: "aws-extended-request-82",
+          attempts: 3,
+          totalRetryDelay: 250
+        },
+        stack: "RSVP_PRIVATE_MARKER_82 stack"
+      }
+    );
+
+    await expect(
+      new DynamoDbRsvpSubmissionRepository({
+        client,
+        logger,
+        tableName: "rsvp-table"
+      }).createOrReplay(
+        storeInput({
+          submission: {
+            ...submission(),
+            adults: [
+              {
+                name: "RSVP_PRIVATE_MARKER_82",
+                attendance: "attending",
+                contact: { email: "private-82@example.test" }
+              }
+            ],
+            generalNote: "PRIVATE_NOTE_MARKER_82"
+          }
+        })
+      )
+    ).rejects.toBeInstanceOf(RsvpPersistenceUnavailableError);
+
+    expect(logger).toHaveBeenCalledOnce();
+    expect(logger).toHaveBeenCalledWith({
+      level: "error",
+      event: "rsvp_persistence_error",
+      operation: "transact_write",
+      errorName: "ValidationException",
+      errorClass: "Error",
+      fault: "client",
+      httpStatusCode: 400,
+      requestId: "aws-request-82",
+      extendedRequestId: "aws-extended-request-82",
+      attempts: 3,
+      totalRetryDelay: 250
+    });
+    const diagnosticLog = JSON.stringify(logger.mock.calls);
+    expect(diagnosticLog).not.toContain("RSVP_PRIVATE_MARKER_82");
+    expect(diagnosticLog).not.toContain("private-82@example.test");
+    expect(diagnosticLog).not.toContain("PRIVATE_NOTE_MARKER_82");
+    expect(diagnosticLog).not.toContain(idempotencyKeyHash);
+    expect(diagnosticLog).not.toContain(requestHash);
+  });
+
+  it("logs transaction cancellation codes and positions without messages or items", async () => {
+    const client = new FakeRsvpDynamoDbClient();
+    const logger = vi.fn();
+    client.transactionError = Object.assign(
+      new Error("PRIVATE_CANCELLATION_MESSAGE_82"),
+      {
+        name: "TransactionCanceledException",
+        CancellationReasons: [
+          {
+            Code: "ConditionalCheckFailed",
+            Message: "PRIVATE_REASON_MESSAGE_82",
+            Item: { guest: "PRIVATE_REASON_ITEM_82" }
+          },
+          { Code: "None" }
+        ]
+      }
+    );
+
+    await expect(
+      new DynamoDbRsvpSubmissionRepository({
+        client,
+        logger,
+        tableName: "rsvp-table"
+      }).createOrReplay(storeInput())
+    ).rejects.toBeInstanceOf(RsvpPersistenceUnavailableError);
+
+    expect(logger).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event: "rsvp_persistence_error",
+        errorName: "TransactionCanceledException",
+        cancellationReasons: [
+          { position: 0, code: "ConditionalCheckFailed" },
+          { position: 1, code: "None" }
+        ]
+      })
+    );
+    const diagnosticLog = JSON.stringify(logger.mock.calls);
+    expect(diagnosticLog).not.toContain("PRIVATE_CANCELLATION_MESSAGE_82");
+    expect(diagnosticLog).not.toContain("PRIVATE_REASON_MESSAGE_82");
+    expect(diagnosticLog).not.toContain("PRIVATE_REASON_ITEM_82");
   });
 
   it("fails closed before calling AWS when the table name is missing", async () => {

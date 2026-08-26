@@ -10,6 +10,7 @@ import {
   type CreateRsvpSubmissionRequest,
   type CreateRsvpSubmissionResponse
 } from "@repo/wedding-website-shared";
+import type { Logger } from "@repo/api-core";
 
 import {
   RsvpPersistenceUnavailableError,
@@ -54,15 +55,18 @@ export class AwsRsvpDynamoDbClient implements RsvpDynamoDbClient {
 
 export type DynamoDbRsvpSubmissionRepositoryOptions = {
   client: RsvpDynamoDbClient;
+  logger?: Logger;
   tableName: string;
 };
 
 export class DynamoDbRsvpSubmissionRepository implements RsvpSubmissionRepository {
   readonly #client: RsvpDynamoDbClient;
+  readonly #logger: Logger;
   readonly #tableName: string;
 
   constructor(options: DynamoDbRsvpSubmissionRepositoryOptions) {
     this.#client = options.client;
+    this.#logger = options.logger ?? (() => undefined);
     this.#tableName = options.tableName.trim();
   }
 
@@ -97,10 +101,16 @@ export class DynamoDbRsvpSubmissionRepository implements RsvpSubmissionRepositor
       });
     } catch (error) {
       if (!isTransactionCanceledError(error)) {
+        logPersistenceError(this.#logger, "transact_write", error);
         throw new RsvpPersistenceUnavailableError();
       }
 
-      return this.reconcileCanceledTransaction(input);
+      try {
+        return await this.reconcileCanceledTransaction(input);
+      } catch (reconcileError) {
+        logPersistenceError(this.#logger, "transact_write", error);
+        throw reconcileError;
+      }
     }
 
     return {
@@ -121,7 +131,8 @@ export class DynamoDbRsvpSubmissionRepository implements RsvpSubmissionRepositor
         Key: { pk },
         ConsistentRead: true
       });
-    } catch {
+    } catch (error) {
+      logPersistenceError(this.#logger, "replay_get", error);
       throw new RsvpPersistenceUnavailableError();
     }
 
@@ -216,4 +227,72 @@ function isTransactionCanceledError(error: unknown): boolean {
     "name" in error &&
     error.name === "TransactionCanceledException"
   );
+}
+
+type PersistenceOperation = "replay_get" | "transact_write";
+
+function logPersistenceError(
+  logger: Logger,
+  operation: PersistenceOperation,
+  error: unknown
+): void {
+  const errorRecord = asRecord(error);
+  const metadata = asRecord(errorRecord?.$metadata);
+  const errorName = stringValue(errorRecord?.name) ?? "UnknownError";
+  const cancellationReasons =
+    errorName === "TransactionCanceledException"
+      ? safeCancellationReasons(errorRecord?.CancellationReasons)
+      : undefined;
+
+  logger({
+    level: "error",
+    event: "rsvp_persistence_error",
+    operation,
+    errorName,
+    errorClass: safeErrorClass(error),
+    fault: stringValue(errorRecord?.$fault),
+    httpStatusCode: numberValue(metadata?.httpStatusCode),
+    requestId: stringValue(metadata?.requestId),
+    extendedRequestId: stringValue(metadata?.extendedRequestId),
+    attempts: numberValue(metadata?.attempts),
+    totalRetryDelay: numberValue(metadata?.totalRetryDelay),
+    ...(cancellationReasons === undefined ? {} : { cancellationReasons })
+  });
+}
+
+function safeCancellationReasons(
+  value: unknown
+): { position: number; code: string }[] | undefined {
+  if (!Array.isArray(value)) {
+    return undefined;
+  }
+
+  return value.flatMap((reason, position) => {
+    const code = stringValue(asRecord(reason)?.Code);
+    return code === undefined ? [] : [{ position, code }];
+  });
+}
+
+function safeErrorClass(error: unknown): string | undefined {
+  if (!(error instanceof Error)) {
+    return undefined;
+  }
+
+  return error.constructor.name || undefined;
+}
+
+function asRecord(value: unknown): Record<string, unknown> | undefined {
+  return typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : undefined;
+}
+
+function stringValue(value: unknown): string | undefined {
+  return typeof value === "string" ? value : undefined;
+}
+
+function numberValue(value: unknown): number | undefined {
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
 }

@@ -1,6 +1,8 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
+import { createLogger, type Logger } from "@repo/api-core";
+
 import {
   AwsRsvpDynamoDbClient,
   DynamoDbRsvpSubmissionRepository,
@@ -14,6 +16,7 @@ import {
 export type ProductionWeddingWebsiteApiDependencyOptions = {
   client?: RsvpDynamoDbClient;
   env?: NodeJS.ProcessEnv;
+  logger?: Logger;
 };
 
 export function createProductionWeddingWebsiteApiDependencies(
@@ -21,12 +24,15 @@ export function createProductionWeddingWebsiteApiDependencies(
 ): WeddingWebsiteApiDependencies {
   const env = options.env ?? process.env;
   const client = options.client ?? createRsvpDynamoDbClient();
+  const logger = options.logger ?? createLogger();
 
   return createWeddingWebsiteApiDependencies({
     repository: new DynamoDbRsvpSubmissionRepository({
       client,
+      logger,
       tableName: env.RSVP_TABLE_NAME ?? ""
-    })
+    }),
+    logger
   });
 }
 
