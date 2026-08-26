@@ -1,3 +1,6 @@
 {
-  "app": "tsx bin/wedding-website-infra.ts"
+  "app": "tsx bin/wedding-website-infra.ts",
+  "context": {
+    "adminAccessKeySha256": "f7fba545377dacf6c4f61c05f79dc3387392a3a00bb419e73afb22e23eaa0f2a"
+  }
 }
