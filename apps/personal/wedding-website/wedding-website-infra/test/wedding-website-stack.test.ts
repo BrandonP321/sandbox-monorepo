@@ -39,18 +39,103 @@ describe("WeddingWebsiteStack", () => {
     template.resourceCountIs("AWS::CloudFront::Distribution", 1);
     template.hasResourceProperties("AWS::CloudFront::Distribution", {
       DistributionConfig: Match.objectLike({
-        Aliases: ["wedding.bphillips.dev"],
+        Aliases: [
+          "niamhandbrandon.com",
+          "www.niamhandbrandon.com",
+          "wedding.bphillips.dev"
+        ],
         DefaultCacheBehavior: Match.objectLike({
+          FunctionAssociations: [
+            Match.objectLike({ EventType: "viewer-request" })
+          ],
           ViewerProtocolPolicy: "redirect-to-https"
         }),
         ViewerCertificate: Match.objectLike({
-          AcmCertificateArn: {
-            "Fn::ImportValue": "sandbox-domain-certificate-arn"
-          }
+          AcmCertificateArn: Match.anyValue()
         })
       })
     });
-    template.resourceCountIs("AWS::CloudFront::Function", 0);
+    template.resourceCountIs("AWS::CloudFront::Function", 1);
+    template.hasResourceProperties("AWS::CloudFront::Function", {
+      AutoPublish: true,
+      FunctionConfig: Match.objectLike({ Runtime: "cloudfront-js-2.0" }),
+      FunctionCode: Match.anyValue()
+    });
+    const redirectFunctions = Object.values(
+      template.findResources("AWS::CloudFront::Function")
+    ) as { Properties: { FunctionCode: string } }[];
+    expect(redirectFunctions).toHaveLength(1);
+    const redirectCode = redirectFunctions[0]!.Properties.FunctionCode;
+    expect(redirectCode).toContain(
+      'hostHeader.value !== "www.niamhandbrandon.com"'
+    );
+    expect(redirectCode).toContain("request.rawQueryString()");
+    expect(redirectCode).toContain("statusCode: 301");
+    expect(redirectCode).toContain(
+      'value: "https://niamhandbrandon.com" + request.uri + querySuffix'
+    );
+
+    template.resourceCountIs("AWS::CertificateManager::Certificate", 1);
+    template.hasResourceProperties("AWS::CertificateManager::Certificate", {
+      DomainName: "niamhandbrandon.com",
+      DomainValidationOptions: Match.arrayWith([
+        {
+          DomainName: "niamhandbrandon.com",
+          HostedZoneId: "Z02261718UO8QG9WU8KP"
+        },
+        {
+          DomainName: "www.niamhandbrandon.com",
+          HostedZoneId: "Z02261718UO8QG9WU8KP"
+        },
+        {
+          DomainName: "wedding.bphillips.dev",
+          HostedZoneId: {
+            "Fn::ImportValue": "sandbox-domain-hosted-zone-id"
+          }
+        }
+      ]),
+      SubjectAlternativeNames: [
+        "www.niamhandbrandon.com",
+        "wedding.bphillips.dev"
+      ],
+      ValidationMethod: "DNS"
+    });
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      {
+        HostedZoneId: "Z02261718UO8QG9WU8KP",
+        Name: "niamhandbrandon.com.",
+        Type: "A"
+      },
+      1
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      {
+        HostedZoneId: "Z02261718UO8QG9WU8KP",
+        Name: "niamhandbrandon.com.",
+        Type: "AAAA"
+      },
+      1
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      {
+        HostedZoneId: "Z02261718UO8QG9WU8KP",
+        Name: "www.niamhandbrandon.com.",
+        Type: "A"
+      },
+      1
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      {
+        HostedZoneId: "Z02261718UO8QG9WU8KP",
+        Name: "www.niamhandbrandon.com.",
+        Type: "AAAA"
+      },
+      1
+    );
     template.resourcePropertiesCountIs(
       "AWS::Route53::RecordSet",
       { Name: "wedding.bphillips.dev.", Type: "A" },
@@ -232,7 +317,10 @@ describe("WeddingWebsiteStack", () => {
         AllowCredentials: false,
         AllowHeaders: ["content-type", "idempotency-key", "authorization"],
         AllowMethods: ["POST", "GET"],
-        AllowOrigins: ["https://wedding.bphillips.dev"]
+        AllowOrigins: [
+          "https://niamhandbrandon.com",
+          "https://wedding.bphillips.dev"
+        ]
       },
       DisableExecuteApiEndpoint: true,
       ProtocolType: "HTTP"
@@ -355,10 +443,8 @@ describe("WeddingWebsiteStack", () => {
 
     const synthesizedTemplate = JSON.stringify(template.toJSON());
     expect(synthesizedTemplate).not.toContain("PreviewPassword");
-    expect(synthesizedTemplate).not.toContain("FunctionAssociations");
     expect(synthesizedTemplate).not.toContain("statusCode: 401");
     expect(synthesizedTemplate).not.toContain("www-authenticate");
-    expect(synthesizedTemplate).not.toContain("niamhandbrandon.com");
     expect(synthesizedTemplate).not.toContain("dynamodb:Query");
     expect(synthesizedTemplate).not.toContain("dynamodb:UpdateItem");
     expect(synthesizedTemplate).not.toContain("dynamodb:DeleteItem");
@@ -379,8 +465,10 @@ describe("WeddingWebsiteStack", () => {
     expect(outputs).toHaveProperty("ApiBaseUrl", {
       Value: "https://wedding-api.bphillips.dev"
     });
+    expect(outputs).toHaveProperty("WebUrl", {
+      Value: "https://niamhandbrandon.com"
+    });
     expect(outputs).toHaveProperty("RsvpTableName");
-    expect(outputs).toHaveProperty("WebUrl");
     expect(outputs).toHaveProperty("WebBucketName");
     expect(outputs).toHaveProperty("WebDistributionId");
   });

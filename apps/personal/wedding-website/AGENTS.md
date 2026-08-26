@@ -140,12 +140,16 @@
 - Do not add guest phone lookup, OTP, household access links, passwords, guest
   accounts, or hidden contact-based record retrieval unless a later approved
   decision explicitly changes the open self-entry model.
-- Static hosting and the single Prod pipeline exist under Issue #78 at
-  `wedding.bphillips.dev`. The temporary preview gate has been removed; do not
-  reintroduce Basic Auth, a CloudFront access function, Cognito, or another
-  site-wide preview gate.
-- **Do not deploy or configure `niamhandbrandon.com`** until a later explicit
-  launch decision.
+- Static hosting and the single Prod pipeline exist under Issue #78. The
+  canonical public site is `https://niamhandbrandon.com`, `www` permanently
+  redirects to the apex, and `wedding.bphillips.dev` remains a temporary
+  fallback. The temporary preview gate has been removed; do not reintroduce
+  Basic Auth, a CloudFront access function, Cognito, or another site-wide
+  preview gate.
+- Keep `wedding-api.bphillips.dev` as the API hostname and retain exact CORS for
+  the canonical and fallback frontend origins during the transition. Do not
+  remove the fallback hostname or its CORS origin without a later explicit
+  cleanup decision.
 - Do not extend the existing backend/API/database into admin, email, SMS, or
   additional public capabilities unless a later issue explicitly scopes them.
 - Follow `PRODUCTION_RSVP_ARCHITECTURE.md` for the create-only `POST /rsvp` API.

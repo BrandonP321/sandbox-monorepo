@@ -12,7 +12,7 @@ The production service uses this fixed shape:
 
 ```mermaid
 flowchart LR
-  Web["wedding.bphillips.dev\nReact/Vite frontend"] -->|"POST /rsvp"| Api["wedding-api.bphillips.dev\nAPI Gateway HTTP API"]
+  Web["niamhandbrandon.com\nReact/Vite frontend"] -->|"POST /rsvp"| Api["wedding-api.bphillips.dev\nAPI Gateway HTTP API"]
   Api --> Lambda["Node.js Lambda\nwedding-website-api"]
   Lambda --> Table["DynamoDB\non-demand RSVP table"]
 ```
@@ -35,9 +35,10 @@ The decisions are:
   authentication.
 - The existing single Prod `WeddingWebsiteStack` and deployment pipeline own the
   backend as well as the frontend.
-- The production frontend is `https://wedding.bphillips.dev`, and the API is
-  `https://wedding-api.bphillips.dev`. `niamhandbrandon.com` is outside this
-  architecture and must remain untouched.
+- The canonical production frontend is `https://niamhandbrandon.com`, `www`
+  permanently redirects to the apex, and `https://wedding.bphillips.dev`
+  remains a temporary fallback. The API remains
+  `https://wedding-api.bphillips.dev`.
 - There is no site-wide preview gate. Do not add Basic Auth, a CloudFront auth
   function, Cognito, or another preview mechanism.
 
@@ -434,9 +435,10 @@ browser origins but is neither authentication nor abuse prevention.
 
 The production CORS allowlist is exactly:
 
-- origin: `https://wedding.bphillips.dev`;
-- method: `POST` (plus managed preflight);
-- headers: `content-type` and `idempotency-key`; and
+- origins: `https://niamhandbrandon.com` and the temporary fallback
+  `https://wedding.bphillips.dev`;
+- methods: `POST` and protected admin `GET` (plus managed preflight);
+- headers: `content-type`, `idempotency-key`, and `authorization`; and
 - credentials: disabled.
 
 Local web development calls a local Node API at `http://localhost:3001`.

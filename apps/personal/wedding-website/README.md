@@ -8,8 +8,9 @@ in-memory storage when production configuration is missing.
 
 The frontend maps its locally validated draft through the shared production
 contract and submits to the create-only API. Confirmation appears only after a
-schema-valid `200` or `201` response. The project has no guest authentication,
-admin tooling, or messaging services.
+schema-valid `200` or `201` response. The project has no guest authentication or
+messaging services; its unlinked `/admin` route provides protected, read-only
+submission access.
 
 The production design and implemented contract are documented in
 [PRODUCTION_RSVP_ARCHITECTURE.md](./PRODUCTION_RSVP_ARCHITECTURE.md). That
@@ -115,12 +116,15 @@ project build is `pnpm build:project wedding-website`.
 
 ## Production hosting
 
-The production-only environment uses `wedding.bphillips.dev`, private S3, and
-CloudFront for the web application. The same `WeddingWebsiteStack` defines the
-create-only production service at `https://wedding-api.bphillips.dev` using an
-API Gateway HTTP API, a Node.js Lambda, and an on-demand DynamoDB table. CORS
-allows only the production web origin and the `POST /rsvp` headers; it is not
-authentication or abuse prevention.
+The canonical production website is `https://niamhandbrandon.com`, hosted by
+CloudFront with a private S3 origin. `https://www.niamhandbrandon.com`
+permanently redirects to the apex while preserving the request path and query,
+and `https://wedding.bphillips.dev` remains available as a temporary fallback.
+The same `WeddingWebsiteStack` defines the production service at
+`https://wedding-api.bphillips.dev` using an API Gateway HTTP API, Node.js
+Lambdas, and an on-demand DynamoDB table. CORS allows exactly the canonical and
+fallback frontend origins with the current public/admin methods and headers; it
+is not authentication or abuse prevention.
 
 There are no Dev, Beta, Staging, or Preview deployment stages. The frontend
 build receives `VITE_API_BASE_URL` during publishing and uses it as the sole
@@ -130,8 +134,12 @@ validation, deployment safety, operational verification, and the temporary
 quota-blocked omission of RSVP Lambda reserved concurrency. The intended
 post-quota reservation remains five.
 
-Do not deploy or configure `niamhandbrandon.com` as part of this stack.
-That domain is reserved for a later launch step.
+The purchased domain is registered through Amazon Registrar and delegated to
+its existing Route 53 hosted zone. A dedicated DNS-validated ACM certificate in
+`us-east-1` covers the apex, `www`, and the fallback hostname so the existing
+CloudFront distribution can serve all three aliases. External QR codes,
+printed artwork, bookmarks, and wedding communications are not repository-owned
+and must be updated manually when appropriate.
 
 ## Frontend foundation
 

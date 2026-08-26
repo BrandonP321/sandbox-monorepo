@@ -1,6 +1,7 @@
 import * as path from "node:path";
 
 import * as cdk from "aws-cdk-lib";
+import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as integrations from "aws-cdk-lib/aws-apigatewayv2-integrations";
@@ -11,6 +12,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as lambdaNodejs from "aws-cdk-lib/aws-lambda-nodejs";
 import * as logs from "aws-cdk-lib/aws-logs";
+import * as route53 from "aws-cdk-lib/aws-route53";
 import { Construct } from "constructs";
 
 import {
@@ -24,7 +26,10 @@ import {
 } from "@repo/infra-patterns";
 import { weddingWebsiteRoutes } from "@repo/wedding-website-shared";
 
-const WEDDING_WEBSITE_DOMAIN_NAME = "wedding.bphillips.dev";
+const WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME = "niamhandbrandon.com";
+const WEDDING_WEBSITE_WWW_DOMAIN_NAME = "www.niamhandbrandon.com";
+const WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME = "wedding.bphillips.dev";
+const WEDDING_WEBSITE_HOSTED_ZONE_ID = "Z02261718UO8QG9WU8KP";
 const WEDDING_WEBSITE_API_DOMAIN_NAME = "wedding-api.bphillips.dev";
 const UNCONFIGURED_ADMIN_ACCESS_KEY_SHA256 = "0".repeat(64);
 const alarmPeriod = cdk.Duration.minutes(5);
@@ -153,7 +158,10 @@ export class WeddingWebsiteStack extends cdk.Stack {
         allowCredentials: false,
         allowHeaders: ["content-type", "idempotency-key", "authorization"],
         allowMethods: [apigwv2.CorsHttpMethod.POST, apigwv2.CorsHttpMethod.GET],
-        allowOrigins: [`https://${WEDDING_WEBSITE_DOMAIN_NAME}`]
+        allowOrigins: [
+          `https://${WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME}`,
+          `https://${WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME}`
+        ]
       },
       customDomain: apiCustomDomain,
       defaultStageOptions: {
@@ -211,13 +219,25 @@ export class WeddingWebsiteStack extends cdk.Stack {
       value: rsvpTable.tableName
     });
 
+    const siteCustomDomain =
+      props?.customDomain ??
+      (props?.useSharedDomain
+        ? createWeddingWebsiteCustomDomain(this)
+        : undefined);
+    const canonicalRedirectFunction = siteCustomDomain
+      ? createCanonicalRedirectFunction(this)
+      : undefined;
     const site = new SpaSite(this, "WeddingWebsiteSite", {
-      customDomain:
-        props?.customDomain ??
-        (props?.useSharedDomain
-          ? createWeddingWebsiteCustomDomain(this)
-          : undefined),
+      customDomain: siteCustomDomain,
       defaultBehavior: {
+        functionAssociations: canonicalRedirectFunction
+          ? [
+              {
+                eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
+                function: canonicalRedirectFunction
+              }
+            ]
+          : undefined,
         viewerProtocolPolicy: cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS
       }
     });
@@ -259,15 +279,83 @@ export class WeddingWebsiteStack extends cdk.Stack {
 function createWeddingWebsiteCustomDomain(
   scope: cdk.Stack
 ): SpaSiteCustomDomainProps {
-  const foundation = importDomainFoundation(scope, "WeddingWebsiteDomain", {
-    domainName: "bphillips.dev"
+  const fallbackFoundation = importDomainFoundation(
+    scope,
+    "WeddingWebsiteDomain",
+    { domainName: "bphillips.dev" }
+  );
+  const canonicalHostedZone = route53.HostedZone.fromHostedZoneAttributes(
+    scope,
+    "WeddingWebsiteCanonicalHostedZone",
+    {
+      hostedZoneId: WEDDING_WEBSITE_HOSTED_ZONE_ID,
+      zoneName: WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME
+    }
+  );
+  const certificate = new acm.Certificate(scope, "WeddingWebsiteCertificate", {
+    domainName: WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME,
+    subjectAlternativeNames: [
+      WEDDING_WEBSITE_WWW_DOMAIN_NAME,
+      WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME
+    ],
+    validation: acm.CertificateValidation.fromDnsMultiZone({
+      [WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME]: canonicalHostedZone,
+      [WEDDING_WEBSITE_WWW_DOMAIN_NAME]: canonicalHostedZone,
+      [WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME]: fallbackFoundation.hostedZone
+    })
   });
 
   return {
-    certificate: foundation.certificate,
-    dns: { hostedZone: foundation.hostedZone },
-    domainNames: [WEDDING_WEBSITE_DOMAIN_NAME]
+    certificate,
+    dnsAliases: [
+      {
+        domainName: WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME,
+        hostedZone: canonicalHostedZone
+      },
+      {
+        domainName: WEDDING_WEBSITE_WWW_DOMAIN_NAME,
+        hostedZone: canonicalHostedZone
+      },
+      {
+        domainName: WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME,
+        hostedZone: fallbackFoundation.hostedZone
+      }
+    ],
+    domainNames: [
+      WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME,
+      WEDDING_WEBSITE_WWW_DOMAIN_NAME,
+      WEDDING_WEBSITE_FALLBACK_DOMAIN_NAME
+    ]
   };
+}
+
+function createCanonicalRedirectFunction(
+  scope: cdk.Stack
+): cloudfront.Function {
+  return new cloudfront.Function(scope, "WeddingWebsiteCanonicalRedirect", {
+    code: cloudfront.FunctionCode.fromInline(`function handler(event) {
+  var request = event.request;
+  var hostHeader = request.headers.host;
+
+  if (!hostHeader || hostHeader.value !== "${WEDDING_WEBSITE_WWW_DOMAIN_NAME}") {
+    return request;
+  }
+
+  var queryString = request.rawQueryString();
+  var querySuffix = queryString === undefined ? "" : "?" + queryString;
+
+  return {
+    statusCode: 301,
+    statusDescription: "Moved Permanently",
+    headers: {
+      location: {
+        value: "https://${WEDDING_WEBSITE_CANONICAL_DOMAIN_NAME}" + request.uri + querySuffix
+      }
+    }
+  };
+}`),
+    runtime: cloudfront.FunctionRuntime.JS_2_0
+  });
 }
 
 function createWeddingWebsiteApiCustomDomain(

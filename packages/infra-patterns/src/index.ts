@@ -168,7 +168,13 @@ export class HttpLambdaApi extends Construct {
 export interface SpaSiteCustomDomainProps {
   readonly certificate: acm.ICertificate;
   readonly dns?: DnsAliasRecordProps;
+  readonly dnsAliases?: readonly SpaSiteDnsAliasProps[];
   readonly domainNames: readonly string[];
+}
+
+export interface SpaSiteDnsAliasProps {
+  readonly domainName: string;
+  readonly hostedZone: route53.IHostedZone;
 }
 
 export interface SpaSiteDefaultBehaviorProps {
@@ -229,31 +235,72 @@ export class SpaSite extends Construct {
         : `https://${this.distribution.domainName}`;
 
     const dns = props.customDomain?.dns;
+    const dnsAliases = props.customDomain?.dnsAliases;
 
-    if (props.customDomain && dns && dns.createRecords !== false) {
+    if (dns && dnsAliases) {
+      throw new Error(
+        "SpaSite customDomain cannot configure both dns and dnsAliases."
+      );
+    }
+
+    if (props.customDomain && dnsAliases) {
+      const configuredDomains = new Set(props.customDomain.domainNames);
+      const aliasedDomains = new Set<string>();
+
+      for (const alias of dnsAliases) {
+        if (!configuredDomains.has(alias.domainName)) {
+          throw new Error(
+            `SpaSite DNS alias ${alias.domainName} is not a configured custom domain.`
+          );
+        }
+        if (aliasedDomains.has(alias.domainName)) {
+          throw new Error(
+            `SpaSite DNS alias ${alias.domainName} is configured more than once.`
+          );
+        }
+        aliasedDomains.add(alias.domainName);
+        createSpaSiteAliasRecords(
+          this,
+          this.distribution,
+          alias.domainName,
+          alias.hostedZone
+        );
+      }
+    } else if (props.customDomain && dns && dns.createRecords !== false) {
       for (const domainName of props.customDomain.domainNames) {
-        const recordName = resolveRecordName(
+        createSpaSiteAliasRecords(
+          this,
+          this.distribution,
           domainName,
-          dns.hostedZone.zoneName
+          dns.hostedZone
         );
-        const recordId = toConstructIdPart(domainName);
-        const target = route53.RecordTarget.fromAlias(
-          new targets.CloudFrontTarget(this.distribution)
-        );
-
-        new route53.ARecord(this, `AliasRecord${recordId}`, {
-          recordName,
-          target,
-          zone: dns.hostedZone
-        });
-        new route53.AaaaRecord(this, `Ipv6AliasRecord${recordId}`, {
-          recordName,
-          target,
-          zone: dns.hostedZone
-        });
       }
     }
   }
+}
+
+function createSpaSiteAliasRecords(
+  scope: Construct,
+  distribution: cloudfront.IDistribution,
+  domainName: string,
+  hostedZone: route53.IHostedZone
+): void {
+  const recordName = resolveRecordName(domainName, hostedZone.zoneName);
+  const recordId = toConstructIdPart(domainName);
+  const target = route53.RecordTarget.fromAlias(
+    new targets.CloudFrontTarget(distribution)
+  );
+
+  new route53.ARecord(scope, `AliasRecord${recordId}`, {
+    recordName,
+    target,
+    zone: hostedZone
+  });
+  new route53.AaaaRecord(scope, `Ipv6AliasRecord${recordId}`, {
+    recordName,
+    target,
+    zone: hostedZone
+  });
 }
 
 function resolveRecordName(

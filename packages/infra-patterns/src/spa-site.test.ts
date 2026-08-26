@@ -3,7 +3,7 @@ import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Match, Template } from "aws-cdk-lib/assertions";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import { SpaSite } from "./index.js";
 
@@ -119,5 +119,120 @@ describe("SpaSite", () => {
       Name: "www.example.com.",
       Type: "A"
     });
+  });
+
+  it("can create aliases for one distribution across hosted zones", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+    const legacyHostedZone = route53.HostedZone.fromHostedZoneAttributes(
+      stack,
+      "LegacyHostedZone",
+      {
+        hostedZoneId: "ZLEGACYEXAMPLE",
+        zoneName: "example.com"
+      }
+    );
+    const canonicalHostedZone = route53.HostedZone.fromHostedZoneAttributes(
+      stack,
+      "CanonicalHostedZone",
+      {
+        hostedZoneId: "ZCANONICALEXAMPLE",
+        zoneName: "new-example.com"
+      }
+    );
+    const certificate = acm.Certificate.fromCertificateArn(
+      stack,
+      "Certificate",
+      "arn:aws:acm:us-east-1:123456789012:certificate/example"
+    );
+
+    new SpaSite(stack, "Site", {
+      customDomain: {
+        certificate,
+        dnsAliases: [
+          {
+            domainName: "new-example.com",
+            hostedZone: canonicalHostedZone
+          },
+          {
+            domainName: "www.new-example.com",
+            hostedZone: canonicalHostedZone
+          },
+          {
+            domainName: "legacy.example.com",
+            hostedZone: legacyHostedZone
+          }
+        ],
+        domainNames: [
+          "new-example.com",
+          "www.new-example.com",
+          "legacy.example.com"
+        ]
+      }
+    });
+
+    const template = Template.fromStack(stack);
+
+    template.resourceCountIs("AWS::CloudFront::Distribution", 1);
+    template.hasResourceProperties("AWS::CloudFront::Distribution", {
+      DistributionConfig: Match.objectLike({
+        Aliases: [
+          "new-example.com",
+          "www.new-example.com",
+          "legacy.example.com"
+        ]
+      })
+    });
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      { HostedZoneId: "ZCANONICALEXAMPLE", Type: "A" },
+      2
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      { HostedZoneId: "ZCANONICALEXAMPLE", Type: "AAAA" },
+      2
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      { HostedZoneId: "ZLEGACYEXAMPLE", Type: "A" },
+      1
+    );
+    template.resourcePropertiesCountIs(
+      "AWS::Route53::RecordSet",
+      { HostedZoneId: "ZLEGACYEXAMPLE", Type: "AAAA" },
+      1
+    );
+  });
+
+  it("rejects DNS aliases that do not belong to the distribution", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+    const hostedZone = route53.HostedZone.fromHostedZoneAttributes(
+      stack,
+      "HostedZone",
+      {
+        hostedZoneId: "ZEXAMPLE",
+        zoneName: "example.com"
+      }
+    );
+    const certificate = acm.Certificate.fromCertificateArn(
+      stack,
+      "Certificate",
+      "arn:aws:acm:us-east-1:123456789012:certificate/example"
+    );
+
+    expect(
+      () =>
+        new SpaSite(stack, "Site", {
+          customDomain: {
+            certificate,
+            dnsAliases: [{ domainName: "other.example.com", hostedZone }],
+            domainNames: ["example.com"]
+          }
+        })
+    ).toThrow(
+      "SpaSite DNS alias other.example.com is not a configured custom domain."
+    );
   });
 });

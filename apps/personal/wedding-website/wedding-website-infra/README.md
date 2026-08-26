@@ -20,10 +20,17 @@ GitHub main push
             -> publish dist to private S3
             -> invalidate CloudFront
 
-wedding.bphillips.dev
+niamhandbrandon.com
   -> Route 53 A/AAAA aliases
   -> CloudFront with HTTPS redirects
   -> private S3 origin
+
+www.niamhandbrandon.com
+  -> same CloudFront distribution
+  -> permanent apex redirect preserving path/query
+
+wedding.bphillips.dev
+  -> same CloudFront distribution as a temporary fallback
 
 wedding-api.bphillips.dev
   -> Route 53 A alias
@@ -33,8 +40,10 @@ wedding-api.bphillips.dev
   -> DynamoDB PAY_PER_REQUEST
 ```
 
-The stack reuses the shared `bphillips.dev` hosted zone, wildcard certificate,
-and GitHub Actions OIDC provider. The API uses exact production CORS for
+The stack reuses the shared `bphillips.dev` hosted zone/certificate for the API,
+imports the existing `niamhandbrandon.com` Route 53 zone, and creates a
+DNS-validated site certificate covering the apex, `www`, and fallback frontend
+host. The API uses exact production CORS for `https://niamhandbrandon.com` and
 `https://wedding.bphillips.dev`, `POST`/`GET`, and the `content-type`,
 `idempotency-key`, and `authorization` headers; CORS is not authentication. The
 admin Lambda hashes its bearer token and compares it in constant time to the
@@ -70,13 +79,27 @@ errors, so no material competing traffic was present. Once the applied account
 quota reaches at least 15, set `rsvpReservedConcurrency: 5` in the CDK
 entrypoint, deploy, and verify the Lambda setting.
 
-The production hostname is configured only when the app is intended to receive
-traffic. Do not add a separate preview password or site-wide authentication
-gate unless it is explicitly requested.
+The canonical `WebUrl` output is `https://niamhandbrandon.com`. A CloudFront
+viewer-request function permanently redirects only the exact `www` host to the
+apex and leaves the canonical and fallback hosts unchanged. Do not remove the
+fallback alias/CORS origin until a separate cleanup is approved, and do not add
+a preview password or site-wide authentication gate unless explicitly
+requested.
 
-`niamhandbrandon.com` is intentionally not part of this stack. Do not add DNS
-records, certificates, aliases, redirects, parameters, outputs, or workflows
-for that domain.
+### Domain operations
+
+- `niamhandbrandon.com` is registered through Amazon Registrar with auto-renew
+  enabled and is delegated to Route 53 hosted zone `Z02261718UO8QG9WU8KP`.
+  Delegation predates the cutover, so no manual nameserver change is required.
+- DNSSEC is not currently enabled. Treat any future DNSSEC or registrar change
+  as a separate reviewed operation.
+- The site certificate is owned by `WeddingWebsiteStack` in `us-east-1`. CDK
+  creates ACM DNS validation records in the purchased-domain and `bphillips.dev`
+  zones, allowing ACM to renew the certificate automatically while those
+  records remain present.
+- Verify ownership and serving state with `dig NS niamhandbrandon.com`, ACM
+  certificate status/SAN inspection, the `WebDistributionId` CloudFormation
+  output, and HTTPS requests to the apex, `www`, and fallback hosts.
 
 ## Local validation
 
