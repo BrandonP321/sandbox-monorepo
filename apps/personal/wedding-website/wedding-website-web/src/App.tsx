@@ -1,4 +1,5 @@
 import { LandingPage } from "./LandingPage";
+import { loadRuntimeConfig } from "./config";
 import {
   LANDING_PATH,
   RSVP_PATH,
@@ -15,7 +16,8 @@ type AppProps = {
 const ignoreStartRsvp = () => undefined;
 
 export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
-  const rsvp = useRsvpPrototype();
+  const { apiBaseUrl } = loadRuntimeConfig();
+  const rsvp = useRsvpPrototype({ apiBaseUrl });
   const { navigate, route } = useAppRoute();
 
   if (route === "landing") {
@@ -48,6 +50,7 @@ export default function App({ onStartRsvp = ignoreStartRsvp }: AppProps) {
       }}
       onSubmit={rsvp.submit}
       state={rsvp.state}
+      submissionStatus={rsvp.submissionStatus}
     />
   );
 }

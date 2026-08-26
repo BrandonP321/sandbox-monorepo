@@ -35,6 +35,12 @@
   color: var(--color-on-action);
 }
 
+.ui-button:disabled,
+.ui-quiet-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .ui-button[data-variant="primary"]::before,
 .ui-button[data-variant="primary"]::after {
   position: absolute;

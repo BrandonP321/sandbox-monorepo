@@ -17,6 +17,10 @@ import {
 beforeEach(() => {
   window.localStorage.clear();
   window.history.replaceState(null, "", "/");
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => createSuccessResponse())
+  );
 });
 
 afterEach(() => {
@@ -27,6 +31,17 @@ function startRsvp() {
   const view = render(<App />);
   fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
   return view;
+}
+
+function createSuccessResponse(): Response {
+  return new Response(
+    JSON.stringify({
+      submissionId: "4c338adc-ff18-4d44-8062-d425903472fb",
+      submittedAt: "2026-08-26T01:35:31.468Z",
+      schemaVersion: 1
+    }),
+    { status: 201 }
+  );
 }
 
 function getAdultEmailInputs() {
@@ -228,7 +243,8 @@ describe("RSVP review", () => {
       PROTOTYPE_STORAGE_KEY,
       JSON.stringify({
         version: PROTOTYPE_STORAGE_VERSION,
-        state: { currentStage: "review", draft: createInitialDraft() }
+        state: { currentStage: "review", draft: createInitialDraft() },
+        unresolvedAttempt: null
       })
     );
     window.history.replaceState(null, "", "/RSVP");
@@ -260,7 +276,8 @@ describe("RSVP review", () => {
       PROTOTYPE_STORAGE_KEY,
       JSON.stringify({
         version: PROTOTYPE_STORAGE_VERSION,
-        state: { currentStage: "review", draft }
+        state: { currentStage: "review", draft },
+        unresolvedAttempt: null
       })
     );
     window.history.replaceState(null, "", "/RSVP");
@@ -289,7 +306,8 @@ describe("RSVP review", () => {
       PROTOTYPE_STORAGE_KEY,
       JSON.stringify({
         version: PROTOTYPE_STORAGE_VERSION,
-        state: { currentStage: "review", draft }
+        state: { currentStage: "review", draft },
+        unresolvedAttempt: null
       })
     );
     window.history.replaceState(null, "", "/RSVP");
@@ -312,7 +330,7 @@ describe("RSVP review", () => {
 
 describe("RSVP confirmation", () => {
   it("shows a simple completion message and returns home to a clean future RSVP", async () => {
-    const fetchSpy = vi.fn();
+    const fetchSpy = vi.fn(async () => createSuccessResponse());
     vi.stubGlobal("fetch", fetchSpy);
     startRsvp();
     completeRespondent({ side: "Brandon's side" });
@@ -324,7 +342,7 @@ describe("RSVP confirmation", () => {
     );
     fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
 
-    const confirmationHeading = screen.getByRole("heading", {
+    const confirmationHeading = await screen.findByRole("heading", {
       name: "Thank you—your RSVP is complete."
     });
     expect(confirmationHeading).toBeVisible();
@@ -335,7 +353,7 @@ describe("RSVP confirmation", () => {
     expect(screen.queryByText(/guests? marked attending/i)).toBeNull();
     expect(screen.queryByText(/Plans changed later/i)).toBeNull();
     expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).toBeNull();
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
     expect(screen.queryByText(/confirmation (email|sms)/i)).toBeNull();
     expect(screen.queryByRole("button", { name: /view|edit/i })).toBeNull();
     expect(
@@ -373,14 +391,14 @@ describe("RSVP confirmation", () => {
     expect(window.location.pathname).toBe("/RSVP");
   });
 
-  it("does not recreate a completed response after refresh", () => {
+  it("does not recreate a completed response after refresh", async () => {
     const view = startRsvp();
     completeRespondent();
     continueToDetails();
     continueToReview();
     fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
     expect(
-      screen.getByRole("heading", {
+      await screen.findByRole("heading", {
         name: "Thank you—your RSVP is complete."
       })
     ).toBeVisible();

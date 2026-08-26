@@ -11,6 +11,8 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@repo/frontend-config": "workspace:*",
+    "@repo/wedding-website-shared": "workspace:*",
     "libphonenumber-js": "^1.13.11",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"

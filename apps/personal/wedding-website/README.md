@@ -6,18 +6,15 @@ Local API development uses in-memory persistence. The production Lambda uses a
 DynamoDB repository configured by `RSVP_TABLE_NAME`; it never falls back to
 in-memory storage when production configuration is missing.
 
-The August 26, 2026 target is for a usable prototype, not production readiness.
-The current frontend milestone still uses fictional, local-only submission
-behavior and does not call the API. Production infrastructure changes require
-an explicitly approved deployment before the table or API resources exist in
-AWS. The project has no guest authentication, admin tooling, or messaging
-services.
+The frontend maps its locally validated draft through the shared production
+contract and submits to the create-only API. Confirmation appears only after a
+schema-valid `200` or `201` response. The project has no guest authentication,
+admin tooling, or messaging services.
 
-The implementation-ready design for the later create-only production backend
-is documented in
+The production design and implemented contract are documented in
 [PRODUCTION_RSVP_ARCHITECTURE.md](./PRODUCTION_RSVP_ARCHITECTURE.md). That
-document defines the future shared/API/infra package boundaries and production
-data contract; it does not mean those resources exist yet.
+document remains the source of truth for the shared/API/infra package boundaries
+and production data contract.
 
 ## Packages
 
@@ -48,12 +45,13 @@ pnpm --filter wedding-website-api dev
 ```
 
 It exposes only `POST /rsvp`. Restarting the process clears all submissions,
-and the frontend does not call this endpoint until the later integration issue.
+and the frontend uses this local endpoint whenever `VITE_API_BASE_URL` is not
+set. Local development does not write to production DynamoDB.
 
 The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
 the current form stage and locally saved draft are restored after reload.
 
-## RSVP prototype behavior
+## RSVP behavior
 
 The frontend implements a five-stage guest journey: landing, party and
 attendance, additional details, review, and confirmation.
@@ -63,15 +61,24 @@ attendance, additional details, review, and confirmation.
   adults before continuing. Additional Details repeats party-level contact,
   independently prefilling email and phone from the first matching adult while
   preserving any party-level edits; at least one party-level method is required.
-- Version 4 localStorage persists only active pre-submit drafts through Review.
-  Submitting creates an in-memory confirmation snapshot and clears draft
-  persistence; refreshing after Confirmation starts a clean `/RSVP` flow.
+- Version 5 localStorage persists active pre-submit drafts through Review and,
+  while a submit remains unresolved, the attempt's UUID v4 key and canonical
+  SHA-256 request fingerprint. The request body is not duplicated in a separate
+  attempt record.
+- The unresolved attempt is stored before `POST /rsvp` begins. An unchanged
+  retry after a network failure, timeout, throttle, retryable server error, or
+  refresh reuses the same key. A conflicting or meaningfully changed request
+  receives a new key.
+- A validated `200` or `201` creates the in-memory Confirmation snapshot and
+  clears all pre-submit persistence. Refreshing after Confirmation starts a
+  clean `/RSVP` flow.
 - Confirmation shows a simple completion message and a Home link. Returning
   home clears the transient submitted snapshot; starting RSVP again opens a
   blank party rather than prepopulating the previous response.
-- Submission is a local-only prototype transition. It makes no network request,
-  sends no email or SMS, and provides no guest lookup, authentication,
-  deduplication, or public View/Edit RSVP path.
+- Submission sends the normalized shared request to the configured create-only
+  API with a 10-second client timeout. It sends no email or SMS and provides no
+  guest lookup, authentication, contact-based deduplication, or public View/Edit
+  RSVP path.
 
 For phone or tablet testing on the same Wi-Fi network, start the LAN server:
 
@@ -123,8 +130,8 @@ allows only the production web origin and the `POST /rsvp` headers; it is not
 authentication or abuse prevention.
 
 There are no Dev, Beta, Staging, or Preview deployment stages. The frontend
-build receives `VITE_API_BASE_URL` during publishing, but frontend submission
-remains disconnected until the next issue. Read the
+build receives `VITE_API_BASE_URL` during publishing and uses it as the sole
+production API base URL. Read the
 [infrastructure README](./wedding-website-infra/README.md) for outputs,
 validation, deployment safety, operational verification, and the temporary
 quota-blocked omission of RSVP Lambda reserved concurrency. The intended
@@ -148,8 +155,8 @@ framework:
   provisional Georgia, Snell Roundhand/Brush Script, and system-UI fallback
   stacks so each role can be replaced centrally.
 
-No runtime dependencies were added for this foundation. The app continues to
-reuse the repository's TypeScript, ESLint, Vitest, and test-setup packages.
+The app reuses the wedding shared contract and frontend configuration packages
+alongside the repository's TypeScript, ESLint, Vitest, and test setup.
 `@repo/dashboard-ui` is intentionally excluded because it owns a dashboard and
 Tailwind visual language. `@repo/ui-base` is also deferred: its current form
 surface depends on React Hook Form, Redux Toolkit, Zod, and related behavior

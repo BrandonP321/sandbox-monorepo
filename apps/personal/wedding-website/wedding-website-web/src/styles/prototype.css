@@ -388,6 +388,29 @@
   padding-inline: 0;
 }
 
+.review-submission-status {
+  margin: 0;
+  color: var(--color-olive);
+  font-weight: 700;
+  text-align: center;
+}
+
+.review-submission-alert p {
+  margin: 0;
+}
+
+.review-submission-alert__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin-top: var(--space-12);
+}
+
+.review-submission-alert__actions .ui-button {
+  min-height: 2.5rem;
+  padding-inline: 0;
+}
+
 .confirmation-step {
   justify-items: center;
   text-align: center;

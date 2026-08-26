@@ -107,12 +107,20 @@
   prebuilt invitees, and plus-one eligibility in the guest flow.
 - Local/client IDs for dynamic adult rows are UI-state identifiers only; they
   are not production guest/person IDs or credentials.
-- localStorage may be used for versioned draft/session convenience in the
-  frontend prototype. It must not be used as authentication or as a model for
-  production RSVP lookup/editing.
+- Versioned localStorage owns both pre-submit draft/session convenience and the
+  minimal unresolved-attempt metadata required for refresh-safe technical
+  retries. It must not be used as authentication or as a model for production
+  RSVP lookup/editing.
 - Persist only pre-submit Attendance, Additional Details, and Review drafts.
-  Confirmation uses a transient submitted snapshot that does not survive a
-  refresh. Starting another RSVP must create a completely clean draft.
+  Persist only the unresolved attempt's version metadata, contract version,
+  idempotency key, and normalized request hash alongside that existing draft;
+  do not duplicate the RSVP body. Confirmation uses a transient submitted
+  snapshot that does not survive a refresh. Starting another RSVP must create a
+  completely clean draft and later attempt key.
+- Persist an unresolved attempt before beginning `POST /rsvp`. Reuse its key
+  only when the shared normalized request fingerprint still matches. Retain it
+  after ambiguous/retryable outcomes, and show Confirmation only after a
+  schema-valid `200` or `201` response.
 - Schema-incompatible fixture-era localStorage should fail safely to a clean
   self-entry draft rather than being migrated into fake household identity.
 
@@ -133,9 +141,9 @@
   site-wide preview gate.
 - **Do not deploy or configure `niamhandbrandon.com`** until a later explicit
   launch decision.
-- Do not add backend/API/database/admin/email/SMS capabilities unless a later
-  issue explicitly scopes them.
-- Follow `PRODUCTION_RSVP_ARCHITECTURE.md` for the future create-only
-  `POST /rsvp` API. Do not add public household lookup/update/delete behavior.
+- Do not extend the existing backend/API/database into admin, email, SMS, or
+  additional public capabilities unless a later issue explicitly scopes them.
+- Follow `PRODUCTION_RSVP_ARCHITECTURE.md` for the create-only `POST /rsvp` API.
+  Do not add public household lookup/update/delete behavior.
 - Do not import dashboard-oriented UI packages for convenience when their
   visual language conflicts with the wedding direction.

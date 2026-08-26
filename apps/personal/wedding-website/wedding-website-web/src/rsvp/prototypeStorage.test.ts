@@ -7,6 +7,7 @@ import {
   PROTOTYPE_STORAGE_KEY_V1,
   PROTOTYPE_STORAGE_KEY_V2,
   PROTOTYPE_STORAGE_KEY_V3,
+  PROTOTYPE_STORAGE_KEY_V4,
   PROTOTYPE_STORAGE_VERSION,
   STALE_PROTOTYPE_STORAGE_KEYS,
   createPrototypeStorage,
@@ -29,7 +30,7 @@ function createMemoryStorage() {
 }
 
 describe("prototypeStorage", () => {
-  it("round-trips a valid version 4 pre-submit draft without transient state", () => {
+  it("round-trips a valid version 5 draft and unresolved attempt", () => {
     const { storage, values } = createMemoryStorage();
     const adapter = createPrototypeStorage(() => storage);
     let draft = addAdult(createInitialDraft());
@@ -57,19 +58,28 @@ describe("prototypeStorage", () => {
       submittedDraft: null
     } as const;
 
-    adapter.write(state);
+    const unresolvedAttempt = {
+      version: 1,
+      contractVersion: 1,
+      idempotencyKey: "7ad1a5a8-8e35-4d9d-99b0-21181700cb95",
+      requestHash: "a".repeat(64)
+    } as const;
 
-    expect(adapter.read()).toEqual(state);
+    expect(adapter.write({ state, unresolvedAttempt })).toBe(true);
+
+    expect(adapter.read()).toEqual({ state, unresolvedAttempt });
     const stored = JSON.parse(values.get(PROTOTYPE_STORAGE_KEY) ?? "{}");
     expect(stored).toMatchObject({ version: PROTOTYPE_STORAGE_VERSION });
     expect(stored.state).not.toHaveProperty("submittedDraft");
-    expect(PROTOTYPE_STORAGE_KEY).toContain(":v4");
+    expect(stored).toMatchObject({ unresolvedAttempt });
+    expect(PROTOTYPE_STORAGE_KEY).toContain(":v5");
   });
 
   it.each([
     ["version 1", PROTOTYPE_STORAGE_KEY_V1],
     ["version 2", PROTOTYPE_STORAGE_KEY_V2],
-    ["version 3", PROTOTYPE_STORAGE_KEY_V3]
+    ["version 3", PROTOTYPE_STORAGE_KEY_V3],
+    ["version 4", PROTOTYPE_STORAGE_KEY_V4]
   ])("discards stale %s storage without migration", (_label, key) => {
     const { storage, values } = createMemoryStorage();
     values.set(key, JSON.stringify({ version: 3, state: {} }));
@@ -85,6 +95,22 @@ describe("prototypeStorage", () => {
     [
       "an invalid state",
       JSON.stringify({ version: PROTOTYPE_STORAGE_VERSION, state: {} })
+    ],
+    [
+      "invalid unresolved-attempt metadata",
+      JSON.stringify({
+        version: PROTOTYPE_STORAGE_VERSION,
+        state: {
+          currentStage: "review",
+          draft: createInitialDraft()
+        },
+        unresolvedAttempt: {
+          version: 1,
+          contractVersion: 1,
+          idempotencyKey: "not-a-uuid",
+          requestHash: "not-a-sha256"
+        }
+      })
     ],
     [
       "a confirmation stage",
@@ -165,10 +191,13 @@ describe("prototypeStorage", () => {
     });
 
     expect(unavailableStorage.read()).toBeNull();
-    expect(() =>
-      unavailableStorage.write(createInitialRsvpState())
-    ).not.toThrow();
-    expect(() => unavailableStorage.reset()).not.toThrow();
+    expect(
+      unavailableStorage.write({
+        state: createInitialRsvpState(),
+        unresolvedAttempt: null
+      })
+    ).toBe(false);
+    expect(unavailableStorage.reset()).toBe(false);
   });
 
   it("resets every RSVP schema key and leaves unrelated storage alone", () => {
@@ -189,7 +218,7 @@ describe("prototypeStorage", () => {
     expect(values.get("unrelated")).toBe("keep me");
   });
 
-  it("swallows write and reset failures after storage is resolved", () => {
+  it("reports write and reset failures after storage is resolved", () => {
     const failingStorage: StorageLike = {
       getItem: vi.fn(() => null),
       setItem: vi.fn(() => {
@@ -201,7 +230,12 @@ describe("prototypeStorage", () => {
     };
     const adapter = createPrototypeStorage(() => failingStorage);
 
-    expect(() => adapter.write(createInitialRsvpState())).not.toThrow();
-    expect(() => adapter.reset()).not.toThrow();
+    expect(
+      adapter.write({
+        state: createInitialRsvpState(),
+        unresolvedAttempt: null
+      })
+    ).toBe(false);
+    expect(adapter.reset()).toBe(false);
   });
 });

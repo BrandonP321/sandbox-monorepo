@@ -1,20 +1,23 @@
 import type {
   AttendanceStatus,
   GuestSide,
-  RsvpDraft,
   RsvpActiveState,
-  RsvpFormStage
+  RsvpDraft,
+  RsvpFormStage,
+  UnresolvedRsvpAttemptV1
 } from "./rsvpTypes";
 
 const PROTOTYPE_STORAGE_KEY_V1 = "wedding-rsvp-prototype:v1";
 const PROTOTYPE_STORAGE_KEY_V2 = "wedding-rsvp-prototype:v2";
 const PROTOTYPE_STORAGE_KEY_V3 = "wedding-rsvp-prototype:v3";
-const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v4";
-const PROTOTYPE_STORAGE_VERSION = 4;
+const PROTOTYPE_STORAGE_KEY_V4 = "wedding-rsvp-prototype:v4";
+const PROTOTYPE_STORAGE_KEY = "wedding-rsvp-prototype:v5";
+const PROTOTYPE_STORAGE_VERSION = 5;
 const STALE_PROTOTYPE_STORAGE_KEYS = [
   PROTOTYPE_STORAGE_KEY_V1,
   PROTOTYPE_STORAGE_KEY_V2,
-  PROTOTYPE_STORAGE_KEY_V3
+  PROTOTYPE_STORAGE_KEY_V3,
+  PROTOTYPE_STORAGE_KEY_V4
 ] as const;
 
 type PersistedRsvpState = {
@@ -25,14 +28,20 @@ type PersistedRsvpState = {
 type PrototypeStorageSnapshot = {
   version: typeof PROTOTYPE_STORAGE_VERSION;
   state: PersistedRsvpState;
+  unresolvedAttempt: UnresolvedRsvpAttemptV1 | null;
+};
+
+type RestoredRsvpSession = {
+  state: RsvpActiveState;
+  unresolvedAttempt: UnresolvedRsvpAttemptV1 | null;
 };
 
 type StorageLike = Pick<Storage, "getItem" | "removeItem" | "setItem">;
 
 type PrototypeStorage = {
-  read: () => RsvpActiveState | null;
-  reset: () => void;
-  write: (state: RsvpActiveState) => void;
+  read: () => RestoredRsvpSession | null;
+  reset: () => boolean;
+  write: (session: RestoredRsvpSession) => boolean;
 };
 
 type StorageProvider = () => StorageLike | null | undefined;
@@ -131,12 +140,47 @@ function parsePrototypeState(value: unknown): RsvpActiveState | null {
   };
 }
 
-function parseSnapshot(value: unknown): RsvpActiveState | null {
+const uuidV4Pattern =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const sha256Pattern = /^[0-9a-f]{64}$/;
+
+function parseUnresolvedAttempt(
+  value: unknown
+): UnresolvedRsvpAttemptV1 | null | undefined {
+  if (value === null) {
+    return null;
+  }
+  if (
+    !isRecord(value) ||
+    value.version !== 1 ||
+    value.contractVersion !== 1 ||
+    typeof value.idempotencyKey !== "string" ||
+    !uuidV4Pattern.test(value.idempotencyKey) ||
+    typeof value.requestHash !== "string" ||
+    !sha256Pattern.test(value.requestHash)
+  ) {
+    return undefined;
+  }
+
+  return {
+    version: 1,
+    contractVersion: 1,
+    idempotencyKey: value.idempotencyKey,
+    requestHash: value.requestHash
+  };
+}
+
+function parseSnapshot(value: unknown): RestoredRsvpSession | null {
   if (!isRecord(value) || value.version !== PROTOTYPE_STORAGE_VERSION) {
     return null;
   }
 
-  return parsePrototypeState(value.state);
+  const state = parsePrototypeState(value.state);
+  const unresolvedAttempt = parseUnresolvedAttempt(value.unresolvedAttempt);
+
+  return state && unresolvedAttempt !== undefined
+    ? { state, unresolvedAttempt }
+    : null;
 }
 
 const browserStorageProvider: StorageProvider = () =>
@@ -178,26 +222,36 @@ function createPrototypeStorage(
         return null;
       }
     },
-    write(state) {
+    write({ state, unresolvedAttempt }) {
       try {
+        const storage = getStorage();
+        if (!storage) {
+          return false;
+        }
         const snapshot: PrototypeStorageSnapshot = {
           version: PROTOTYPE_STORAGE_VERSION,
-          state: { currentStage: state.currentStage, draft: state.draft }
+          state: { currentStage: state.currentStage, draft: state.draft },
+          unresolvedAttempt
         };
-        getStorage()?.setItem(PROTOTYPE_STORAGE_KEY, JSON.stringify(snapshot));
+        storage.setItem(PROTOTYPE_STORAGE_KEY, JSON.stringify(snapshot));
+        return true;
       } catch {
-        // The in-memory prototype remains usable when browser storage is blocked.
+        return false;
       }
     },
     reset() {
       try {
         const storage = getStorage();
+        if (!storage) {
+          return false;
+        }
         storage?.removeItem(PROTOTYPE_STORAGE_KEY);
         for (const staleKey of STALE_PROTOTYPE_STORAGE_KEYS) {
           storage?.removeItem(staleKey);
         }
+        return true;
       } catch {
-        // Reset the React state even when browser storage is unavailable.
+        return false;
       }
     }
   };
@@ -210,10 +264,12 @@ export {
   PROTOTYPE_STORAGE_KEY_V1,
   PROTOTYPE_STORAGE_KEY_V2,
   PROTOTYPE_STORAGE_KEY_V3,
+  PROTOTYPE_STORAGE_KEY_V4,
   PROTOTYPE_STORAGE_VERSION,
   STALE_PROTOTYPE_STORAGE_KEYS,
   createPrototypeStorage,
   prototypeStorage,
   type PrototypeStorage,
+  type RestoredRsvpSession,
   type StorageLike
 };

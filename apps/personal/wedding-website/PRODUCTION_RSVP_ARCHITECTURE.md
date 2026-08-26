@@ -2,12 +2,13 @@
 
 ## Status and decision summary
 
-This document defines the production RSVP backend and data contract that later
-implementation issues will build. It is an architecture specification, not an
-implementation record. The current repository does not yet contain the API,
-shared-contract package, DynamoDB table, Lambda, or API Gateway resources.
+This document defines the implemented production RSVP architecture and remains
+the normative data-contract specification. The shared contract, API,
+DynamoDB/Lambda/API Gateway infrastructure, and browser submission integration
+now live in this repository; operational completion evidence remains in their
+bounded GitHub issues and deployment records.
 
-The production service will use this fixed shape:
+The production service uses this fixed shape:
 
 ```mermaid
 flowchart LR
@@ -32,8 +33,8 @@ The decisions are:
   on each adult and separate party-level contact details. The service sends no
   confirmation email or SMS, and neither contact layer is verified or used as
   authentication.
-- The existing single Prod `WeddingWebsiteStack` and deployment pipeline will
-  eventually own the backend as well as the frontend.
+- The existing single Prod `WeddingWebsiteStack` and deployment pipeline own the
+  backend as well as the frontend.
 - The production frontend is `https://wedding.bphillips.dev`, and the API is
   `https://wedding-api.bphillips.dev`. `niamhandbrandon.com` is outside this
   architecture and must remain untouched.
@@ -72,7 +73,7 @@ The design reuses these repository conventions:
 - `scripts/publish-spa-assets.mjs` already reads an `ApiBaseUrl` CloudFormation
   output and passes it to Vite as `VITE_API_BASE_URL`.
 
-Later implementation creates these package responsibilities:
+The implemented packages retain these responsibilities:
 
 ### `wedding-website-shared`
 
@@ -98,9 +99,9 @@ Later implementation creates these package responsibilities:
 
 ### `wedding-website-web`
 
-- Later map both adult contact and party-level contact from its validated draft
-  to the shared request type. The local adult `id` remains UI state and must not
-  be sent or included in the production payload fingerprint.
+- Map both adult contact and party-level contact from its validated draft to the
+  shared request type. The local adult `id` remains UI state and is not sent or
+  included in the production payload fingerprint.
 - Generate and persist one idempotency key and normalized-payload fingerprint
   for an unresolved intentional submit attempt. Reuse the key across retryable
   failures and page refresh while the current normalized draft still has the
@@ -597,21 +598,21 @@ guest-list data.
 
 ## Follow-on implementation sequence
 
-Do not create these GitHub issues automatically. Create and execute them later
-as bounded issues in this order:
+The first three bounded implementation milestones are complete; later work
+remains separate:
 
-1. **Create shared contracts and the API foundation.** Add
+1. **Complete — create shared contracts and the API foundation.** Add
    `wedding-website-shared` with schemas/routes/tests and
    `wedding-website-api` with the Lambda/router, dependency seams, in-memory
    repository, idempotency service, deterministic normalization/fingerprinting,
    and behavior tests. Preserve both adult contact and party-level contact. No
    AWS persistence in this issue.
-2. **Add production persistence and infrastructure.** Implement the DynamoDB
+2. **Complete — add production persistence and infrastructure.** Implement the DynamoDB
    repository and transaction behavior; extend shared primitives; add the
    table, Lambda, HTTP API, custom domain, CORS, IAM, logs, throttling, alarms,
    outputs, and single-pipeline changes. Verify with unit, repository-contract,
    CDK assertion, synth, and deliberately invoked synthetic smoke tests.
-3. **Connect frontend submission.** Map both contact layers to the shared
+3. **Complete — connect frontend submission.** Map both contact layers to the shared
    contract without adult IDs, add central API configuration, and add the
    versioned durable unresolved-attempt state. Cover response loss plus refresh,
    key reuse for exact retryable requests, invalidation after meaningful edits,

@@ -28,6 +28,26 @@ type RsvpDraft = {
   generalNote: string;
 };
 
+type UnresolvedRsvpAttemptV1 = {
+  version: 1;
+  contractVersion: 1;
+  idempotencyKey: string;
+  requestHash: string;
+};
+
+type RsvpSubmissionStatus =
+  | { state: "idle" }
+  | { state: "submitting" }
+  | {
+      reason: "busy" | "response-unconfirmed";
+      state: "retryable";
+    }
+  | {
+      reason: "answers" | "preparation";
+      state: "request-error";
+    }
+  | { state: "conflict" };
+
 type RsvpActiveState = {
   currentStage: RsvpFormStage;
   draft: RsvpDraft;
@@ -52,5 +72,7 @@ export type {
   RsvpDraft,
   RsvpFormStage,
   RsvpPrototypeState,
-  RsvpStage
+  RsvpStage,
+  RsvpSubmissionStatus,
+  UnresolvedRsvpAttemptV1
 };

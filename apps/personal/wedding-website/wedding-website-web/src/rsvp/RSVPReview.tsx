@@ -3,7 +3,12 @@ import { useState, type FormEvent, type MouseEventHandler } from "react";
 import { Alert, Button, FormSection } from "../components/ui";
 import { getAttendingCount } from "./rsvpDraft";
 import { RsvpStepFooter } from "./RsvpStepFooter";
-import type { AttendanceStatus, RsvpDraft, RsvpFormStage } from "./rsvpTypes";
+import type {
+  AttendanceStatus,
+  RsvpDraft,
+  RsvpFormStage,
+  RsvpSubmissionStatus
+} from "./rsvpTypes";
 import {
   hasDetailsErrors,
   hasPartyErrors,
@@ -16,7 +21,8 @@ type RSVPReviewProps = {
   onBack: () => void;
   onEdit: (stage: RsvpFormStage) => void;
   onHome: MouseEventHandler<HTMLAnchorElement>;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
+  submissionStatus: RsvpSubmissionStatus;
 };
 
 const attendanceLabels: Record<AttendanceStatus, string> = {
@@ -35,7 +41,8 @@ function RSVPReview({
   onBack,
   onEdit,
   onHome,
-  onSubmit
+  onSubmit,
+  submissionStatus
 }: RSVPReviewProps) {
   const [invalidStage, setInvalidStage] = useState<RsvpFormStage | null>(null);
   const attendingCount = getAttendingCount(draft);
@@ -59,14 +66,76 @@ function RSVPReview({
     }
 
     setInvalidStage(null);
-    onSubmit();
+    void onSubmit();
   }
 
   const invalidStageLabel =
     invalidStage === "attendance" ? "party & attendance" : "additional details";
+  const isSubmitting = submissionStatus.state === "submitting";
+  const hasSubmissionFailure =
+    submissionStatus.state !== "idle" && !isSubmitting;
+
+  let submissionAlert = null;
+  if (submissionStatus.state === "retryable") {
+    submissionAlert = (
+      <Alert
+        className="review-submission-alert"
+        title={
+          submissionStatus.reason === "busy"
+            ? "Responses are busy right now"
+            : "We couldn't confirm your RSVP"
+        }
+      >
+        <p>
+          {submissionStatus.reason === "busy"
+            ? "Please wait a moment, then try submitting again."
+            : "Your RSVP is not confirmed yet. Please try submitting again."}
+        </p>
+      </Alert>
+    );
+  } else if (submissionStatus.state === "conflict") {
+    submissionAlert = (
+      <Alert
+        className="review-submission-alert"
+        title="We couldn't safely retry this RSVP"
+      >
+        <p>
+          Your answers are still here. Please try submitting again with a fresh
+          attempt.
+        </p>
+      </Alert>
+    );
+  } else if (submissionStatus.state === "request-error") {
+    submissionAlert = (
+      <Alert
+        className="review-submission-alert"
+        title={
+          submissionStatus.reason === "preparation"
+            ? "We couldn't prepare your RSVP"
+            : "Please review your RSVP"
+        }
+      >
+        <p>
+          {submissionStatus.reason === "preparation"
+            ? "Nothing was submitted. Refresh this page and try again."
+            : "We couldn't save this response. Check your answers and try again."}
+        </p>
+        {submissionStatus.reason === "answers" ? (
+          <div className="review-submission-alert__actions">
+            <Button onClick={() => onEdit("attendance")} variant="quiet">
+              Edit party &amp; attendance
+            </Button>
+            <Button onClick={() => onEdit("details")} variant="quiet">
+              Edit additional details
+            </Button>
+          </div>
+        ) : null}
+      </Alert>
+    );
+  }
 
   return (
-    <form noValidate onSubmit={handleSubmit}>
+    <form aria-busy={isSubmitting} noValidate onSubmit={handleSubmit}>
       <FormSection
         aria-labelledby="review-heading"
         className="rsvp-step review-step"
@@ -223,6 +292,7 @@ function RSVPReview({
             </p>
             <Button
               className="review-validation__action"
+              disabled={isSubmitting}
               onClick={() => onEdit(invalidStage)}
               variant="quiet"
             >
@@ -231,14 +301,35 @@ function RSVPReview({
           </Alert>
         ) : null}
 
+        {isSubmitting ? (
+          <p
+            aria-live="polite"
+            className="review-submission-status"
+            role="status"
+          >
+            Submitting your RSVP…
+          </p>
+        ) : null}
+
+        {submissionAlert}
+
         <RsvpStepFooter
           backAction={
-            <Button onClick={onBack} variant="quiet">
+            <Button disabled={isSubmitting} onClick={onBack} variant="quiet">
               Back to details
             </Button>
           }
+          homeDisabled={isSubmitting}
           onHome={onHome}
-          primaryAction={<Button type="submit">Submit RSVP</Button>}
+          primaryAction={
+            <Button disabled={isSubmitting} type="submit">
+              {isSubmitting
+                ? "Submitting…"
+                : hasSubmissionFailure
+                  ? "Try again"
+                  : "Submit RSVP"}
+            </Button>
+          }
         />
       </FormSection>
     </form>

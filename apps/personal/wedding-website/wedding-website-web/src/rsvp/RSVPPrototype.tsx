@@ -23,6 +23,7 @@ import type {
   RsvpDraft,
   RsvpFormStage,
   RsvpPrototypeState,
+  RsvpSubmissionStatus,
   RsvpStage
 } from "./rsvpTypes";
 
@@ -31,8 +32,9 @@ type RSVPPrototypeProps = {
   onDraftChange: (draft: RsvpDraft) => void;
   onGoTo: (stage: RsvpFormStage) => void;
   onHome: MouseEventHandler<HTMLAnchorElement>;
-  onSubmit: () => void;
+  onSubmit: () => Promise<void>;
   state: RsvpPrototypeState;
+  submissionStatus: RsvpSubmissionStatus;
 };
 
 const stageHeadingIds: Record<RsvpStage, string> = {
@@ -48,7 +50,8 @@ function RSVPPrototype({
   onGoTo,
   onHome,
   onSubmit,
-  state
+  state,
+  submissionStatus
 }: RSVPPrototypeProps) {
   const previousStage = useRef(state.currentStage);
 
@@ -177,6 +180,7 @@ function RSVPPrototype({
         onEdit={onGoTo}
         onHome={onHome}
         onSubmit={onSubmit}
+        submissionStatus={submissionStatus}
       />
     );
   } else {

@@ -163,7 +163,10 @@ describe("rsvpPrototypeReducer", () => {
       type: "replace-draft",
       draft
     });
-    const submitted = rsvpPrototypeReducer(activeState, { type: "submit" });
+    const submitted = rsvpPrototypeReducer(activeState, {
+      type: "submission-accepted",
+      submittedDraft: draft
+    });
 
     expect(submitted.currentStage).toBe("confirmation");
     expect(submitted.draft).toEqual(createInitialDraft());
@@ -178,7 +181,8 @@ describe("rsvpPrototypeReducer", () => {
 
   it("does not expose edit transitions from confirmation and resets cleanly", () => {
     const confirmation = rsvpPrototypeReducer(createInitialRsvpState(), {
-      type: "submit"
+      type: "submission-accepted",
+      submittedDraft: createInitialDraft()
     });
 
     expect(
@@ -187,9 +191,12 @@ describe("rsvpPrototypeReducer", () => {
     expect(rsvpPrototypeReducer(confirmation, { type: "back" })).toBe(
       confirmation
     );
-    expect(rsvpPrototypeReducer(confirmation, { type: "submit" })).toBe(
-      confirmation
-    );
+    expect(
+      rsvpPrototypeReducer(confirmation, {
+        type: "submission-accepted",
+        submittedDraft: createInitialDraft()
+      })
+    ).toBe(confirmation);
     expect(rsvpPrototypeReducer(confirmation, { type: "reset" })).toEqual(
       createInitialRsvpState()
     );

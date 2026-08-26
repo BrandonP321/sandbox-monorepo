@@ -450,6 +450,12 @@ importers:
 
   apps/personal/wedding-website/wedding-website-web:
     dependencies:
+      "@repo/frontend-config":
+        specifier: workspace:*
+        version: link:../../../../packages/frontend-config
+      "@repo/wedding-website-shared":
+        specifier: workspace:*
+        version: link:../wedding-website-shared
       libphonenumber-js:
         specifier: ^1.13.11
         version: 1.13.11
