@@ -39,6 +39,16 @@ describe("landing page surface", () => {
     expect(landingCss).toContain("env(safe-area-inset-bottom)");
   });
 
+  it("removes the preview blur immediately when the full image is ready", () => {
+    expect(normalizedGlobalCss).toContain(
+      ".wedding-progressive-image { filter: blur(0); }"
+    );
+    expect(normalizedGlobalCss).toContain(
+      '.wedding-progressive-image[data-image-resolution="low-res"] { filter: blur(0.25rem); }'
+    );
+    expect(globalCss).not.toContain("transition: filter");
+  });
+
   it("keeps the mobile decorations around the RSVP action", () => {
     expect(normalizedLandingCss).toContain(
       ".landing-decoration--disco { top: -1.5rem; right: 0; width: 6rem; }"

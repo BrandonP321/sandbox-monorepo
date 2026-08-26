@@ -145,7 +145,6 @@ a {
 
 .portfolio-progressive-responsive-image {
   filter: blur(0);
-  transition: filter 250ms ease;
 }
 
 .portfolio-progressive-responsive-image[data-image-resolution="low-res"] {

@@ -102,7 +102,6 @@ a {
 
 .wedding-progressive-image {
   filter: blur(0);
-  transition: filter var(--motion-duration-slow) var(--motion-easing-standard);
 }
 
 .wedding-progressive-image[data-image-resolution="low-res"] {

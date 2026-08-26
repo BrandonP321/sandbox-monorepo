@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -58,6 +60,18 @@ afterEach(() => {
 });
 
 describe("ProgressiveResponsiveImage", () => {
+  it("removes the preview blur without a transition", () => {
+    const css = readFileSync("src/index.css", "utf8").replaceAll(/\s+/g, " ");
+
+    expect(css).toContain(
+      ".portfolio-progressive-responsive-image { filter: blur(0); }"
+    );
+    expect(css).toContain(
+      '.portfolio-progressive-responsive-image[data-image-resolution="low-res"] { filter: blur(0.25rem); }'
+    );
+    expect(css).not.toContain("transition: filter");
+  });
+
   it("renders the selected low-res image before the full-res image is loaded", () => {
     const { loadImage } = createDeferredImageLoad();
 
