@@ -5,12 +5,17 @@ import type {
 
 import type { ApiRequest } from "@repo/api-core";
 
-import { appRouter } from "./app/router.js";
+import { createProductionWeddingWebsiteApiDependencies } from "./app/production-dependencies.js";
+import { createWeddingWebsiteAppRouter } from "./app/router.js";
+
+const productionAppRouter = createWeddingWebsiteAppRouter(
+  createProductionWeddingWebsiteApiDependencies()
+);
 
 export async function handler(
   event: APIGatewayProxyEventV2
 ): Promise<APIGatewayProxyStructuredResultV2> {
-  return appRouter(toApiRequest(event));
+  return productionAppRouter(toApiRequest(event));
 }
 
 export function toApiRequest(event: APIGatewayProxyEventV2): ApiRequest {

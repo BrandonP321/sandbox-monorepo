@@ -1,14 +1,17 @@
 # Wedding Website
 
-This project hosts the wedding RSVP frontend, its static production
-infrastructure, portable production RSVP contracts, and the first local API
-application foundation. The API currently uses in-memory persistence for local
-development only; DynamoDB and production API infrastructure remain deferred.
+This project hosts the wedding RSVP frontend, portable RSVP contracts, the
+create-only API application, and the single-stack production infrastructure.
+Local API development uses in-memory persistence. The production Lambda uses a
+DynamoDB repository configured by `RSVP_TABLE_NAME`; it never falls back to
+in-memory storage when production configuration is missing.
 
 The August 26, 2026 target is for a usable prototype, not production readiness.
-The current frontend milestone uses fictional, local-only data and does not yet
-call the API. The project has no production database, guest authentication,
-admin tooling, or messaging services.
+The current frontend milestone still uses fictional, local-only submission
+behavior and does not call the API. Production infrastructure changes require
+an explicitly approved deployment before the table or API resources exist in
+AWS. The project has no guest authentication, admin tooling, or messaging
+services.
 
 The implementation-ready design for the later create-only production backend
 is documented in
@@ -21,10 +24,10 @@ data contract; it does not mean those resources exist yet.
 - `wedding-website-web`: React/Vite frontend.
 - `wedding-website-shared`: portable RSVP schemas, route contracts,
   normalization, and canonical serialization.
-- `wedding-website-api`: create-only RSVP API application with local in-memory
-  persistence.
-- `wedding-website-infra`: private S3/CloudFront hosting and the single Prod
-  deployment pipeline.
+- `wedding-website-api`: create-only RSVP API with local in-memory and production
+  DynamoDB repository implementations.
+- `wedding-website-infra`: web hosting plus the DynamoDB/Lambda/HTTP API
+  resources and single Prod deployment pipeline.
 
 ## Run locally
 
@@ -113,11 +116,17 @@ project build is `pnpm build:project wedding-website`.
 ## Production hosting
 
 The production-only environment uses `wedding.bphillips.dev`, private S3, and
-CloudFront. It intentionally has no Dev, Beta, Staging, or Preview deployment
-stages. The production hostname is configured only when the app is intended to
-receive traffic, so it does not have a separate HTTP authentication gate. Read
-the [infrastructure README](./wedding-website-infra/README.md) for architecture,
-deployment bootstrap, and validation procedures.
+CloudFront for the web application. The same `WeddingWebsiteStack` defines the
+create-only production service at `https://wedding-api.bphillips.dev` using an
+API Gateway HTTP API, a Node.js Lambda, and an on-demand DynamoDB table. CORS
+allows only the production web origin and the `POST /rsvp` headers; it is not
+authentication or abuse prevention.
+
+There are no Dev, Beta, Staging, or Preview deployment stages. The frontend
+build receives `VITE_API_BASE_URL` during publishing, but frontend submission
+remains disconnected until the next issue. Read the
+[infrastructure README](./wedding-website-infra/README.md) for outputs,
+validation, deployment safety, and operational verification.
 
 Do not deploy or configure `niamhandbrandon.com` as part of this stack.
 That domain is reserved for a later launch step.

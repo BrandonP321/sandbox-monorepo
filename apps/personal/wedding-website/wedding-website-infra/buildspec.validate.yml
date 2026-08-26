@@ -16,7 +16,7 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run lint
-      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run typecheck
-      - pnpm -r --filter wedding-website-web... --filter wedding-website-infra... run test
-      - pnpm -r --workspace-concurrency=1 --filter wedding-website-web... --filter wedding-website-infra... run build
+      - pnpm -r --filter @repo/wedding-website-shared... --filter wedding-website-api... --filter wedding-website-web... --filter wedding-website-infra... run lint
+      - pnpm -r --filter @repo/wedding-website-shared... --filter wedding-website-api... --filter wedding-website-web... --filter wedding-website-infra... run typecheck
+      - pnpm -r --filter @repo/wedding-website-shared... --filter wedding-website-api... --filter wedding-website-web... --filter wedding-website-infra... run test
+      - pnpm -r --workspace-concurrency=1 --filter @repo/wedding-website-shared... --filter wedding-website-api... --filter wedding-website-web... --filter wedding-website-infra... run build

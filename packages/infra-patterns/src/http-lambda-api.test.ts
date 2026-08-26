@@ -1,7 +1,9 @@
 import * as cdk from "aws-cdk-lib";
+import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import * as apigwv2 from "aws-cdk-lib/aws-apigatewayv2";
 import * as acm from "aws-cdk-lib/aws-certificatemanager";
 import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as logs from "aws-cdk-lib/aws-logs";
 import * as route53 from "aws-cdk-lib/aws-route53";
 import { Match, Template } from "aws-cdk-lib/assertions";
 import { describe, expect, it } from "vitest";
@@ -26,7 +28,83 @@ describe("HttpLambdaApi", () => {
     const template = Template.fromStack(stack);
 
     template.resourceCountIs("AWS::ApiGatewayV2::DomainName", 0);
+    template.hasResourceProperties("AWS::ApiGatewayV2::Api", {
+      CorsConfiguration: {
+        AllowHeaders: ["content-type", "authorization"],
+        AllowMethods: ["*"],
+        AllowOrigins: ["*"]
+      },
+      DisableExecuteApiEndpoint: Match.absent()
+    });
     expect(api.apiBaseUrl).toBe(api.httpApi.apiEndpoint);
+  });
+
+  it("can configure CORS, an explicit default stage, and endpoint access", () => {
+    const app = new cdk.App();
+    const stack = new cdk.Stack(app, "TestStack");
+    const handler = lambda.Function.fromFunctionArn(
+      stack,
+      "Handler",
+      "arn:aws:lambda:us-east-1:123456789012:function:test"
+    );
+    const accessLogGroup = new logs.LogGroup(stack, "AccessLogs");
+    const hostedZone = new route53.PublicHostedZone(stack, "HostedZone", {
+      zoneName: "example.com"
+    });
+    const certificate = acm.Certificate.fromCertificateArn(
+      stack,
+      "Certificate",
+      "arn:aws:acm:us-east-1:123456789012:certificate/example"
+    );
+
+    const api = new HttpLambdaApi(stack, "Api", {
+      corsPreflight: {
+        allowHeaders: ["content-type", "idempotency-key"],
+        allowMethods: [apigwv2.CorsHttpMethod.POST],
+        allowOrigins: ["https://example.com"]
+      },
+      customDomain: {
+        certificate,
+        dns: { hostedZone },
+        domainName: "api.example.com"
+      },
+      defaultStageOptions: {
+        accessLogSettings: {
+          destination: new apigwv2.LogGroupLogDestination(accessLogGroup),
+          format: apigateway.AccessLogFormat.custom(
+            JSON.stringify({ requestId: "$context.requestId" })
+          )
+        },
+        throttle: { burstLimit: 10, rateLimit: 5 }
+      },
+      disableExecuteApiEndpoint: true,
+      handler,
+      routes: [{ method: apigwv2.HttpMethod.POST, path: "/rsvp" }]
+    });
+
+    const template = Template.fromStack(stack);
+
+    expect(api.defaultStage.stageName).toBe("$default");
+    template.hasResourceProperties("AWS::ApiGatewayV2::Api", {
+      CorsConfiguration: {
+        AllowHeaders: ["content-type", "idempotency-key"],
+        AllowMethods: ["POST"],
+        AllowOrigins: ["https://example.com"]
+      },
+      DisableExecuteApiEndpoint: true
+    });
+    template.hasResourceProperties("AWS::ApiGatewayV2::Stage", {
+      AccessLogSettings: {
+        DestinationArn: Match.anyValue(),
+        Format: '{"requestId":"$context.requestId"}'
+      },
+      AutoDeploy: true,
+      DefaultRouteSettings: {
+        ThrottlingBurstLimit: 10,
+        ThrottlingRateLimit: 5
+      },
+      StageName: "$default"
+    });
   });
 
   it("can attach a custom API domain and Route 53 alias", () => {

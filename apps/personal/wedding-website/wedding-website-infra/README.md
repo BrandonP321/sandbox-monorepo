@@ -1,8 +1,9 @@
 # Wedding Website Infrastructure
 
-This package provides static production hosting and a single deployment
-pipeline for the wedding website. It does not include an API, database, guest
-data, authentication, or additional deployment environments.
+This package defines the wedding website's single production stack and
+pipeline. It contains static web hosting plus the create-only RSVP DynamoDB,
+Lambda, and HTTP API infrastructure. It does not contain guest authentication,
+admin tooling, messaging, or additional deployment environments.
 
 ## Architecture
 
@@ -22,12 +23,29 @@ wedding.bphillips.dev
   -> Route 53 A/AAAA aliases
   -> CloudFront with HTTPS redirects
   -> private S3 origin
+
+wedding-api.bphillips.dev
+  -> Route 53 A alias
+  -> API Gateway HTTP API (POST /rsvp only)
+  -> Node.js Lambda
+  -> DynamoDB PAY_PER_REQUEST
 ```
 
 The stack reuses the shared `bphillips.dev` hosted zone, wildcard certificate,
-and GitHub Actions OIDC provider. The custom hostname and direct CloudFront
-hostname are publicly readable; the S3 bucket remains private and is accessible
-only through CloudFront.
+and GitHub Actions OIDC provider. The API uses exact production CORS for
+`https://wedding.bphillips.dev`, `POST`, `content-type`, and `idempotency-key`;
+CORS is not authentication. The API's default stage is throttled to 5 requests
+per second with a burst of 10, and its generated `execute-api` endpoint is
+disabled in steady state.
+
+`ApiBaseUrl` and `RsvpTableName` join the existing web outputs. Publishing reads
+`ApiBaseUrl` and passes it to Vite as `VITE_API_BASE_URL`, but the frontend does
+not submit to the API until the follow-on integration issue.
+
+The DynamoDB table has point-in-time recovery, deletion protection, retained
+stack-removal behavior, and no TTL or secondary indexes. Lambda and API access
+logs retain operational fields for 30 days. Two alarms require errors in two
+consecutive five-minute periods; they currently have no notification action.
 
 The production hostname is configured only when the app is intended to receive
 traffic. Do not add a separate preview password or site-wide authentication
@@ -47,6 +65,8 @@ pnpm --filter wedding-website-infra typecheck
 pnpm --filter wedding-website-infra test
 pnpm --filter wedding-website-infra build
 pnpm --filter wedding-website-infra synth
+pnpm --filter wedding-website-api test
+pnpm --filter @repo/infra-patterns test
 ```
 
 `cdk diff` contacts AWS but does not apply the stack:
@@ -56,10 +76,30 @@ pnpm aws:login:sandbox
 AWS_PROFILE=sandbox-admin pnpm --filter wedding-website-infra diff
 ```
 
-## Deployment bootstrap
+Review the diff for the table, Lambda, least-privilege DynamoDB policy, API
+route/domain/stage, log groups, alarms, DNS alias, outputs, and pipeline changes.
+These checks do not create guest data or apply the stack.
 
-The following steps create or change AWS/GitHub resources. Run them only after
-deployment is explicitly approved.
+## Deployment safety
+
+Pushing this infrastructure to `main`, manually starting
+`wedding-website-prod`, or running `cdk deploy` is a production apply action.
+Do none of those without explicit approval in the executing session. A local
+implementation, synth, and authenticated `cdk diff` are not apply actions.
+
+The first approved API rollout uses two stages:
+
+1. Deploy the reviewed stack with the generated endpoint temporarily enabled:
+
+   ```sh
+   AWS_PROFILE=sandbox-admin pnpm --filter wedding-website-infra exec cdk deploy -c disableExecuteApiEndpoint=false --require-approval never
+   ```
+
+2. Prove `https://wedding-api.bphillips.dev` with synthetic data only, then
+   deploy the steady-state source without that override and verify the custom
+   domain still works while the generated endpoint is disabled.
+
+Normal deployment verification is:
 
 1. Verify the sandbox identity:
 
@@ -68,26 +108,31 @@ deployment is explicitly approved.
    aws sts get-caller-identity --profile sandbox-admin
    ```
 
-2. Review the diff, then perform the first deployment:
+2. Review the diff and monitor the existing pipeline after the approved push:
 
    ```sh
    AWS_PROFILE=sandbox-admin pnpm --filter wedding-website-infra diff
-   AWS_PROFILE=sandbox-admin pnpm --filter wedding-website-infra deploy
+   aws codepipeline get-pipeline-state --name wedding-website-prod --profile sandbox-admin --region us-east-1
    ```
 
-   The deploy script publishes the current web build only after the
-   infrastructure deployment succeeds.
+   The Prod build compiles shared/API/infra, deploys the same stack, validates
+   its outputs, builds the web app with `VITE_API_BASE_URL`, publishes to S3,
+   and invalidates CloudFront.
 
-3. In the AWS CodeConnections console, complete the GitHub handshake for
-   `wedding-website-prod-source` if its status is `PENDING`.
+3. Verify the deployed outputs and table posture:
 
-4. Ensure the GitHub repository variable `AWS_ACCOUNT_ID` is set to
-   `498283327683`. The wedding workflow assumes the
-   `wedding-website-prod-starter` role through the shared OIDC provider; do not
-   create long-lived AWS keys.
+   ```sh
+   aws cloudformation describe-stacks --stack-name WeddingWebsiteStack --profile sandbox-admin --region us-east-1
+   aws dynamodb describe-table --table-name <RsvpTableName> --profile sandbox-admin --region us-east-1
+   ```
 
-5. Confirm unauthenticated requests to both `wedding.bphillips.dev` and the
-   CloudFront distribution hostname return the published HTML and assets.
+4. Use a new UUID idempotency key and clearly synthetic `.test` contact data for
+   the manually approved smoke check. Verify `201`, exact replay `200`, changed
+   payload `409`, exactly one submission plus one idempotency item, and absence
+   of submitted values in Lambda/API logs. Report whether the synthetic records
+   were retained; never silently delete production records.
+
+No normal automated test writes to the production table.
 
 ## Destroy
 

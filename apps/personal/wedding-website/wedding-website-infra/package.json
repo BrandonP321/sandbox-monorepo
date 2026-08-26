@@ -5,11 +5,11 @@
   "scripts": {
     "dev": "node -e \"console.log('No dev server for infra.')\"",
     "synth": "cdk synth",
-    "diff": "cdk diff",
+    "diff": "cdk diff --no-change-set",
     "deploy": "cdk deploy && pnpm --filter wedding-website-infra run publish:web",
     "deploy:ci": "cdk deploy --require-approval never && pnpm --filter wedding-website-infra run publish:web",
     "deploy:ci:no-build": "cdk deploy --require-approval never",
-    "publish:web": "node ../../../../scripts/publish-spa-assets.mjs --stack-name WeddingWebsiteStack --web-filter wedding-website-web --dist-path ../../../../apps/personal/wedding-website/wedding-website-web/dist --skip-api-base-url",
+    "publish:web": "node ../../../../scripts/publish-spa-assets.mjs --stack-name WeddingWebsiteStack --web-filter wedding-website-web --dist-path ../../../../apps/personal/wedding-website/wedding-website-web/dist",
     "destroy": "cdk destroy",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",
@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@repo/infra-patterns": "workspace:*",
+    "@repo/wedding-website-shared": "workspace:*",
     "aws-cdk-lib": "^2.212.0",
     "constructs": "^10.4.2"
   },
@@ -27,6 +28,7 @@
     "@repo/config-ts": "workspace:*",
     "@types/node": "^24.1.0",
     "aws-cdk": "^2.212.0",
+    "esbuild": "^0.25.10",
     "eslint": "^9.39.2",
     "tsx": "^4.20.5",
     "typescript": "^5.9.3",

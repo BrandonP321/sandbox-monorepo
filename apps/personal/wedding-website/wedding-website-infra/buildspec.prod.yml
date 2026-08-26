@@ -6,6 +6,8 @@ env:
     AWS_REGION: us-east-1
   exported-variables:
     - WEB_URL
+    - API_BASE_URL
+    - RSVP_TABLE_NAME
     - WEB_BUCKET_NAME
     - WEB_DISTRIBUTION_ID
 
@@ -20,13 +22,19 @@ phases:
       - pnpm install --frozen-lockfile
   build:
     commands:
-      - pnpm --filter wedding-website-infra run build
+      - pnpm -r --workspace-concurrency=1 --filter @repo/wedding-website-shared... --filter wedding-website-api... --filter wedding-website-infra... run build
       - pnpm --filter wedding-website-infra run deploy:ci:no-build
       - 'export WEB_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebUrl''].OutputValue | [0]" --output text)'
+      - 'export API_BASE_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''ApiBaseUrl''].OutputValue | [0]" --output text)'
+      - 'export RSVP_TABLE_NAME=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''RsvpTableName''].OutputValue | [0]" --output text)'
       - 'export WEB_BUCKET_NAME=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebBucketName''].OutputValue | [0]" --output text)'
       - 'export WEB_DISTRIBUTION_ID=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --query "Stacks[0].Outputs[?OutputKey==''WebDistributionId''].OutputValue | [0]" --output text)'
       - test "$WEB_URL" != "None"
+      - test "$API_BASE_URL" != "None"
+      - test "$RSVP_TABLE_NAME" != "None"
       - test "$WEB_BUCKET_NAME" != "None"
       - test "$WEB_DISTRIBUTION_ID" != "None"
       - pnpm --filter wedding-website-infra run publish:web
       - 'echo "Web URL: $WEB_URL"'
+      - 'echo "API URL: $API_BASE_URL"'
+      - 'echo "RSVP table: $RSVP_TABLE_NAME"'

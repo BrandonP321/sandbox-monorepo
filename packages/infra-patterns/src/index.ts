@@ -78,28 +78,45 @@ export interface HttpLambdaApiCustomDomainProps {
   readonly domainName: string;
 }
 
+export interface HttpLambdaApiProps {
+  readonly corsPreflight?: apigwv2.CorsPreflightOptions;
+  readonly customDomain?: HttpLambdaApiCustomDomainProps;
+  readonly defaultStageOptions?: apigwv2.HttpStageOptions;
+  readonly disableExecuteApiEndpoint?: boolean;
+  readonly handler: lambda.IFunction;
+  readonly routes: readonly {
+    readonly path: string;
+    readonly method: apigwv2.HttpMethod;
+  }[];
+}
+
 export class HttpLambdaApi extends Construct {
   public readonly apiBaseUrl: string;
+  public readonly defaultStage: apigwv2.IHttpStage;
   public readonly httpApi: apigwv2.HttpApi;
 
-  constructor(
-    scope: Construct,
-    id: string,
-    props: {
-      customDomain?: HttpLambdaApiCustomDomainProps;
-      handler: lambda.IFunction;
-      routes: { path: string; method: apigwv2.HttpMethod }[];
-    }
-  ) {
+  constructor(scope: Construct, id: string, props: HttpLambdaApiProps) {
     super(scope, id);
 
+    const createsExplicitDefaultStage = props.defaultStageOptions !== undefined;
     this.httpApi = new apigwv2.HttpApi(this, "HttpApi", {
-      corsPreflight: {
+      corsPreflight: props.corsPreflight ?? {
         allowHeaders: ["content-type", "authorization"],
         allowMethods: [apigwv2.CorsHttpMethod.ANY],
         allowOrigins: ["*"]
-      }
+      },
+      createDefaultStage: !createsExplicitDefaultStage,
+      disableExecuteApiEndpoint: props.disableExecuteApiEndpoint
     });
+    const explicitDefaultStage = createsExplicitDefaultStage
+      ? new apigwv2.HttpStage(this, "DefaultStage", {
+          ...props.defaultStageOptions,
+          httpApi: this.httpApi,
+          stageName: "$default",
+          autoDeploy: props.defaultStageOptions?.autoDeploy ?? true
+        })
+      : undefined;
+    this.defaultStage = explicitDefaultStage ?? this.httpApi.defaultStage!;
 
     const integration = new integrations.HttpLambdaIntegration(
       "LambdaIntegration",
@@ -121,7 +138,8 @@ export class HttpLambdaApi extends Construct {
       });
       new apigwv2.ApiMapping(this, "ApiMapping", {
         api: this.httpApi,
-        domainName
+        domainName,
+        stage: explicitDefaultStage
       });
 
       this.apiBaseUrl = `https://${props.customDomain.domainName}`;
