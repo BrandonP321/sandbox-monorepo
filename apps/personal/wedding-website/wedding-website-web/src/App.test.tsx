@@ -152,6 +152,52 @@ describe("App", () => {
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
   });
 
+  it("loads /registry directly and through browser history with its trailing slash", async () => {
+    window.history.replaceState(null, "", "/registry/");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "View our Amazon registry" })
+    ).toBeInTheDocument();
+
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
+    await screen.findByRole("heading", { level: 1, name: "Niamh & Brandon" });
+
+    window.history.replaceState(null, "", "/registry");
+    fireEvent.popState(window);
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+  });
+
+  it("preserves an unfinished RSVP draft across Registry navigation", () => {
+    render(<App />);
+    fireEvent.click(getLandingRsvpLink());
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Alex Example" }
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open navigation menu" })
+    );
+    fireEvent.click(screen.getByRole("link", { name: "Registry & Gifts" }));
+    expect(window.location.pathname).toBe("/registry");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    expect(window.location.pathname).toBe("/RSVP");
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
+      "Alex Example"
+    );
+  });
+
   it("renders the unlinked admin access form when /admin is visited directly", () => {
     window.history.replaceState(null, "", "/admin");
 

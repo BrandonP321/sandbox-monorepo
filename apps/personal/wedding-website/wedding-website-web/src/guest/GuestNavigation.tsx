@@ -10,7 +10,7 @@ import { useNavigationDisclosure } from "./useNavigationDisclosure";
 const navigationPanelId = "guest-navigation-panel";
 
 type GuestNavigationProps = {
-  homeDisabled: boolean;
+  guestPageNavigationDisabled: boolean;
   navigationRevision: number;
   onNavigate: (
     event: MouseEvent<HTMLAnchorElement>,
@@ -46,16 +46,17 @@ function CloseIcon() {
 }
 
 function GuestNavigation({
-  homeDisabled,
+  guestPageNavigationDisabled,
   navigationRevision,
   onNavigate,
   route
 }: GuestNavigationProps) {
-  const [home, rsvp] = guestDestinations;
+  const [home, registry, rsvp] = guestDestinations;
   const {
     brandRef,
     closeMenu,
     desktopHomeRef,
+    desktopRegistryRef,
     handleHeaderKeyDown,
     headerRef,
     isDesktop,
@@ -69,7 +70,7 @@ function GuestNavigation({
     event: MouseEvent<HTMLAnchorElement>,
     destination: GuestDestination
   ) {
-    if (destination.route === "landing" && homeDisabled) {
+    if (destination.route !== "rsvp" && guestPageNavigationDisabled) {
       event.preventDefault();
       return;
     }
@@ -78,7 +79,7 @@ function GuestNavigation({
     onNavigate(event, destination);
   }
 
-  const homeDisabledProps = homeDisabled
+  const guestPageDisabledProps = guestPageNavigationDisabled
     ? ({ "aria-disabled": true, tabIndex: -1 } as const)
     : {};
 
@@ -92,7 +93,7 @@ function GuestNavigation({
         <div className="site-header__bar">
           <div className="site-header__inner">
             <a
-              {...homeDisabledProps}
+              {...guestPageDisabledProps}
               aria-label={isDesktop ? "Niamh & Brandon" : "N&B"}
               className="site-header__brand"
               data-destination="landing"
@@ -116,7 +117,7 @@ function GuestNavigation({
               <ul className="site-header__desktop-links">
                 <li>
                   <a
-                    {...homeDisabledProps}
+                    {...guestPageDisabledProps}
                     aria-current={route === home.route ? "page" : undefined}
                     className="site-header__link"
                     data-destination="landing"
@@ -127,6 +128,21 @@ function GuestNavigation({
                     ref={desktopHomeRef}
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={route === registry.route ? "page" : undefined}
+                    className="site-header__link"
+                    data-destination="registry"
+                    href={registry.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, registry)
+                    }
+                    ref={desktopRegistryRef}
+                  >
+                    {registry.label}
                   </a>
                 </li>
                 <li>
@@ -190,7 +206,7 @@ function GuestNavigation({
               <ul className="site-header__panel-links">
                 <li>
                   <a
-                    {...homeDisabledProps}
+                    {...guestPageDisabledProps}
                     aria-current={route === home.route ? "page" : undefined}
                     className="site-header__panel-link"
                     data-destination="landing"
@@ -200,6 +216,20 @@ function GuestNavigation({
                     }
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={route === registry.route ? "page" : undefined}
+                    className="site-header__panel-link"
+                    data-destination="registry"
+                    href={registry.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, registry)
+                    }
+                  >
+                    {registry.label}
                   </a>
                 </li>
               </ul>

@@ -9,6 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App";
+import { GuestNavigation } from "./GuestNavigation";
 
 const desktopNavigationQuery = "(min-width: 64rem)";
 const navigationPanelId = "guest-navigation-panel";
@@ -79,6 +80,36 @@ afterEach(() => {
 });
 
 describe("guest navigation", () => {
+  it("locks every non-RSVP destination while an RSVP submission is pending", () => {
+    installMatchMedia(true);
+    const onNavigate = vi.fn();
+
+    render(
+      <GuestNavigation
+        guestPageNavigationDisabled
+        navigationRevision={0}
+        onNavigate={onNavigate}
+        route="rsvp"
+      />
+    );
+
+    const navigation = screen.getByRole("navigation", {
+      name: "Main navigation"
+    });
+    const homeLink = within(navigation).getByRole("link", { name: "Home" });
+    const registryLink = within(navigation).getByRole("link", {
+      name: "Registry & Gifts"
+    });
+
+    expect(homeLink).toHaveAttribute("aria-disabled", "true");
+    expect(registryLink).toHaveAttribute("aria-disabled", "true");
+    expect(homeLink).toHaveAttribute("tabindex", "-1");
+    expect(registryLink).toHaveAttribute("tabindex", "-1");
+
+    fireEvent.click(registryLink);
+    expect(onNavigate).not.toHaveBeenCalled();
+  });
+
   it("renders the desktop Home and RSVP information architecture with current-page state", async () => {
     installMatchMedia(true);
     const scrollTo = vi.spyOn(window, "scrollTo");
@@ -98,6 +129,7 @@ describe("guest navigation", () => {
     expect(navigationLinks.map((link) => link.textContent)).toEqual([
       "Niamh & Brandon",
       "Home",
+      "Registry & Gifts",
       "RSVP"
     ]);
     expect(
@@ -108,9 +140,25 @@ describe("guest navigation", () => {
     ).toHaveAttribute("data-appearance", "action");
     expect(within(navigation).queryByText("Wedding Day")).toBeNull();
     expect(within(navigation).queryByText("FAQ")).toBeNull();
-    expect(within(navigation).queryByText("Registry & Gifts")).toBeNull();
+    const registryLink = within(navigation).getByRole("link", {
+      name: "Registry & Gifts"
+    });
+    expect(registryLink).toHaveAttribute("href", "/registry");
+    fireEvent.click(registryLink);
 
-    fireEvent.click(within(navigation).getByRole("link", { name: "RSVP" }));
+    expect(window.location.pathname).toBe("/registry");
+    await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" })
+      ).getByRole("link", { name: "Registry & Gifts" })
+    ).toHaveAttribute("aria-current", "page");
+
+    fireEvent.click(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" })
+      ).getByRole("link", { name: "RSVP" })
+    );
 
     expect(window.location.pathname).toBe("/RSVP");
     await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
@@ -196,7 +244,7 @@ describe("guest navigation", () => {
     expect(closeToggle).toHaveAttribute("aria-expanded", "true");
     expect(closeToggle).toHaveTextContent("");
     expect(panel).toBeVisible();
-    expect(within(panel).getAllByRole("link")).toHaveLength(1);
+    expect(within(panel).getAllByRole("link")).toHaveLength(2);
 
     panelHome.focus();
     fireEvent.keyDown(panelHome, { key: "Escape" });
@@ -228,6 +276,20 @@ describe("guest navigation", () => {
         name: /navigation menu/i
       })
     ).toBeNull();
+
+    matchMedia.setMatches(false);
+    fireEvent.click(
+      within(navigation).getByRole("button", {
+        name: "Open navigation menu"
+      })
+    );
+    within(document.getElementById(navigationPanelId)!)
+      .getByRole("link", { name: "Registry & Gifts" })
+      .focus();
+    matchMedia.setMatches(true);
+    expect(
+      within(navigation).getByRole("link", { name: "Registry & Gifts" })
+    ).toHaveFocus();
   });
 
   it("closes the mobile disclosure on outside pointer and browser history navigation", async () => {
