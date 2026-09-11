@@ -161,10 +161,3 @@
     width: min(6rem, 24vw);
   }
 }
-
-@media (max-width: 29.99rem) {
-  .faq-page__peripheral-art .wedding-corner-floral,
-  .faq-page__disco-ball {
-    display: none;
-  }
-}
