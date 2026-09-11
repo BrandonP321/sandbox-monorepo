@@ -5,7 +5,7 @@ import { GuestNavigation } from "./GuestNavigation";
 
 type GuestShellProps = {
   children: ReactNode;
-  homeDisabled: boolean;
+  guestPageNavigationDisabled: boolean;
   location: ReturnType<typeof useAppRoute>["location"];
   onNavigate: (
     event: MouseEvent<HTMLAnchorElement>,
@@ -16,7 +16,7 @@ type GuestShellProps = {
 
 function GuestShell({
   children,
-  homeDisabled,
+  guestPageNavigationDisabled,
   location,
   onNavigate,
   route
@@ -44,7 +44,7 @@ function GuestShell({
         Skip to content
       </a>
       <GuestNavigation
-        homeDisabled={homeDisabled}
+        guestPageNavigationDisabled={guestPageNavigationDisabled}
         navigationRevision={location.revision}
         onNavigate={onNavigate}
         route={route}

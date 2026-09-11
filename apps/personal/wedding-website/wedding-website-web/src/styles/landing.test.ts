@@ -3,10 +3,12 @@ import { describe, expect, it } from "vitest";
 import indexHtml from "../../index.html?raw";
 import globalCss from "./global.css?raw";
 import landingCss from "./landing.css?raw";
+import layoutCss from "./layout.css?raw";
 import tokensCss from "./tokens.css?raw";
 
 const normalizedLandingCss = landingCss.replaceAll(/\s+/g, " ");
 const normalizedGlobalCss = globalCss.replaceAll(/\s+/g, " ");
+const normalizedLayoutCss = layoutCss.replaceAll(/\s+/g, " ");
 
 describe("landing page surface", () => {
   it("inherits the application-wide cardboard overlay", () => {
@@ -60,15 +62,25 @@ describe("landing page surface", () => {
     expect(globalCss).not.toContain("transition: filter");
   });
 
+  it("keeps the shared corner floral aligned consistently across pages", () => {
+    expect(normalizedLayoutCss).toContain(
+      ".wedding-corner-floral { position: absolute; top: -0.125rem; left: -2rem; display: block; width: 10rem; height: auto; object-fit: contain; transform: rotate(115deg); }"
+    );
+    expect(normalizedLayoutCss).toContain(
+      "@media (min-width: 30rem) { .wedding-corner-floral { top: -0.125rem; left: -2rem; width: 14rem; } }"
+    );
+    expect(normalizedLayoutCss).toContain(
+      "@media (min-width: 47.5rem) { .wedding-corner-floral { top: -0.25rem; left: -4rem; width: 21rem; } }"
+    );
+    expect(normalizedLayoutCss).toContain(
+      "@media (min-width: 70rem) { .wedding-corner-floral { top: -0.25rem; left: -4rem; width: 25rem; } }"
+    );
+    expect(landingCss).not.toContain("landing-decoration--floral");
+  });
+
   it("keeps the mobile decorations around the RSVP action", () => {
     expect(normalizedLandingCss).toContain(
       ".landing-decoration--disco { top: -1.5rem; right: 0; width: 6rem; }"
-    );
-    expect(normalizedLandingCss).toMatch(
-      /@media \(max-width: 30rem\) \{.*\.landing-decoration--floral \{ top: -0\.125rem; left: -2rem; width: 10rem; \}/
-    );
-    expect(normalizedLandingCss).toMatch(
-      /@media \(min-width: 30rem\) \{.*\.landing-decoration--floral \{ top: -0\.125rem; left: -2rem; width: 14rem; \}/
     );
     expect(normalizedLandingCss).toContain(
       ".landing-decoration--cat { right: 0.25rem; bottom: 1rem; width: 5rem; }"
@@ -80,7 +92,7 @@ describe("landing page surface", () => {
       "@media (max-width: 47.5rem) { .landing-decoration--champagne { left: 1rem; } .landing-decoration--cat { right: 1rem; bottom: 0.5rem; } }"
     );
     expect(normalizedLandingCss).toContain(
-      "@media (max-width: 30rem) { .landing-decoration--floral { top: -0.125rem; left: -2rem; width: 10rem; } .landing-decoration--champagne { bottom: 1rem; left: 0.5rem; } .landing-decoration--cat { right: 0.25rem; bottom: 1rem; } }"
+      "@media (max-width: 30rem) { .landing-decoration--champagne { bottom: 1rem; left: 0.5rem; } .landing-decoration--cat { right: 0.25rem; bottom: 1rem; } }"
     );
     expect(landingCss).not.toContain("margin-block-start: auto;");
   });
@@ -104,7 +116,7 @@ describe("landing page surface", () => {
     expect(landingCss).not.toContain("display: none;");
   });
 
-  it("reserves the script font for the couple names and wedding date", () => {
+  it("uses the script font for the display copy", () => {
     expect(normalizedLandingCss).toMatch(
       /\.landing-page__names \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(2\.75rem, 8vw, 4rem\);[^}]*letter-spacing: 0\.02em;[^}]*line-height: 0\.9;/
     );
@@ -114,8 +126,11 @@ describe("landing page surface", () => {
     expect(normalizedLandingCss).not.toMatch(
       /\.landing-page__names \{[^}]*text-transform: uppercase;/
     );
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__welcome \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(1rem, 2\.5vw, 1\.2rem\);[^}]*font-weight: 400;[^}]*letter-spacing: 0\.01em;[^}]*line-height: 2rem;/
+    );
     expect(normalizedLandingCss).not.toMatch(
-      /\.landing-page__welcome \{[^}]*font-family: var\(--font-script\);/
+      /\.landing-page__welcome \{[^}]*text-transform: uppercase;/
     );
   });
 

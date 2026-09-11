@@ -33,6 +33,41 @@
   user-select: none;
 }
 
+.wedding-corner-floral {
+  position: absolute;
+  top: -0.125rem;
+  left: -2rem;
+  display: block;
+  width: 10rem;
+  height: auto;
+  object-fit: contain;
+  transform: rotate(115deg);
+}
+
+@media (min-width: 30rem) {
+  .wedding-corner-floral {
+    top: -0.125rem;
+    left: -2rem;
+    width: 14rem;
+  }
+}
+
+@media (min-width: 47.5rem) {
+  .wedding-corner-floral {
+    top: -0.25rem;
+    left: -4rem;
+    width: 21rem;
+  }
+}
+
+@media (min-width: 70rem) {
+  .wedding-corner-floral {
+    top: -0.25rem;
+    left: -4rem;
+    width: 25rem;
+  }
+}
+
 @media (max-width: 29.99rem) {
   .ui-form-section {
     padding: var(--space-16);

@@ -8,7 +8,7 @@ import {
 
 const desktopNavigationQuery = "(min-width: 64rem)";
 
-type BreakpointFocusTarget = "brand" | "home" | "rsvp";
+type BreakpointFocusTarget = "brand" | "home" | "registry" | "rsvp";
 
 function getInitialDesktopState(): boolean {
   if (typeof window.matchMedia === "function") {
@@ -24,6 +24,7 @@ function useNavigationDisclosure(navigationRevision: number) {
   const headerRef = useRef<HTMLElement>(null);
   const brandRef = useRef<HTMLAnchorElement>(null);
   const desktopHomeRef = useRef<HTMLAnchorElement>(null);
+  const desktopRegistryRef = useRef<HTMLAnchorElement>(null);
   const rsvpRef = useRef<HTMLAnchorElement>(null);
   const toggleRef = useRef<HTMLButtonElement>(null);
   const breakpointFocusTarget = useRef<BreakpointFocusTarget | null>(null);
@@ -48,7 +49,11 @@ function useNavigationDisclosure(navigationRevision: number) {
       ) {
         if (event.matches) {
           breakpointFocusTarget.current =
-            activeDestination === "rsvp" ? "rsvp" : "home";
+            activeDestination === "rsvp"
+              ? "rsvp"
+              : activeDestination === "registry"
+                ? "registry"
+                : "home";
         } else if (activeDestination === "rsvp") {
           breakpointFocusTarget.current = "rsvp";
         } else {
@@ -73,6 +78,8 @@ function useNavigationDisclosure(navigationRevision: number) {
 
     if (target === "home") {
       desktopHomeRef.current?.focus();
+    } else if (target === "registry") {
+      desktopRegistryRef.current?.focus();
     } else if (target === "rsvp") {
       rsvpRef.current?.focus();
     } else if (target === "brand") {
@@ -123,6 +130,7 @@ function useNavigationDisclosure(navigationRevision: number) {
     brandRef,
     closeMenu: () => setIsMenuOpen(false),
     desktopHomeRef,
+    desktopRegistryRef,
     handleHeaderKeyDown,
     headerRef,
     isDesktop,

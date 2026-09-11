@@ -2,15 +2,16 @@ import { useCallback, useEffect, useState, type MouseEvent } from "react";
 
 const LANDING_PATH = "/";
 const RSVP_PATH = "/RSVP";
+const REGISTRY_PATH = "/registry";
 const ADMIN_PATH = "/admin";
 
-type GuestRoute = "landing" | "rsvp";
+type GuestRoute = "landing" | "registry" | "rsvp";
 type AppRoute = "admin" | GuestRoute;
-type GuestPath = typeof LANDING_PATH | typeof RSVP_PATH;
+type GuestPath = typeof LANDING_PATH | typeof REGISTRY_PATH | typeof RSVP_PATH;
 type RouteNavigationSource = "explicit" | "history" | "initial";
 
 type GuestDestination = {
-  label: "Home" | "RSVP";
+  label: "Home" | "Registry & Gifts" | "RSVP";
   path: GuestPath;
   route: GuestRoute;
 };
@@ -23,14 +24,23 @@ type AppLocation = {
 
 const guestDestinations = [
   { label: "Home", path: LANDING_PATH, route: "landing" },
+  {
+    label: "Registry & Gifts",
+    path: REGISTRY_PATH,
+    route: "registry"
+  },
   { label: "RSVP", path: RSVP_PATH, route: "rsvp" }
 ] as const satisfies readonly GuestDestination[];
 
-const [homeDestination, rsvpDestination] = guestDestinations;
+const [homeDestination, registryDestination, rsvpDestination] =
+  guestDestinations;
 
 function routeFromPathname(pathname: string): AppRoute {
   if (pathname === ADMIN_PATH || pathname === `${ADMIN_PATH}/`) {
     return "admin";
+  }
+  if (pathname === REGISTRY_PATH || pathname === `${REGISTRY_PATH}/`) {
+    return "registry";
   }
   return pathname === RSVP_PATH || pathname === `${RSVP_PATH}/`
     ? "rsvp"
@@ -98,9 +108,11 @@ export {
   type GuestPath,
   type GuestRoute,
   LANDING_PATH,
+  REGISTRY_PATH,
   RSVP_PATH,
   guestDestinations,
   homeDestination,
+  registryDestination,
   rsvpDestination,
   shouldUseClientNavigation,
   useAppRoute

@@ -43,7 +43,20 @@ submissions, and the frontend uses this local endpoint whenever
 DynamoDB.
 
 The landing page is served at `/`. The RSVP flow is served at `/RSVP`, where
-the current form stage and locally saved draft are restored after reload.
+the current form stage and locally saved draft are restored after reload. The
+optional gift page is served at `/registry` and links to approved external gift
+providers without processing payments in the wedding site.
+
+## Registry & Gifts configuration
+
+Public provider details live together in
+`wedding-website-web/src/registry/registryGiftConfig.ts`. The page links to the
+approved Amazon wedding registry and Honeyfund honeymoon fund without processing
+payments in the wedding site. Recheck both public HTTPS URLs before launch,
+after account changes, and before invitations.
+
+Registry-specific versioned illustrations are inventoried in
+`ASSET_INVENTORY.md`.
 
 ## RSVP behavior
 

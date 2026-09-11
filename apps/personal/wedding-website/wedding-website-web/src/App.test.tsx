@@ -30,10 +30,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Niamh & Brandon" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Welcome to our wedding")).toBeInTheDocument();
-    expect(
-      screen.getByText("We can't wait to celebrate with you!")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Welcome to the wedding of")).toBeInTheDocument();
 
     const date = screen.getByText("August 21, 2027", { selector: "time" });
     expect(date).toHaveAttribute("datetime", "2027-08-21");
@@ -41,6 +38,10 @@ describe("App", () => {
     const photo = screen.getByRole("img", {
       name: /Niamh and Brandon smiling together outdoors/i
     });
+    const welcome = screen.getByText("We can't wait to celebrate with you!");
+    expect(
+      photo.compareDocumentPosition(welcome) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
     expect(photo).toHaveAttribute("width", "600");
     expect(photo).toHaveAttribute("height", "750");
     expect(photo).toHaveAttribute(
@@ -98,9 +99,11 @@ describe("App", () => {
     expect(decorations).not.toBeNull();
 
     const decorativeImages = decorations.querySelectorAll("img");
+    const cornerFloral = decorations.querySelector(".wedding-corner-floral");
 
     expect(decorations).toHaveAttribute("aria-hidden", "true");
     expect(decorativeImages).toHaveLength(6);
+    expect(cornerFloral).not.toBeNull();
 
     for (const image of decorativeImages) {
       expect(image).toHaveAttribute("alt", "");
@@ -150,6 +153,52 @@ describe("App", () => {
       screen.getByRole("heading", { name: "Your party & attendance" })
     ).toBeInTheDocument();
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
+  });
+
+  it("loads /registry directly and through browser history with its trailing slash", async () => {
+    window.history.replaceState(null, "", "/registry/");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "View our Amazon registry" })
+    ).toBeInTheDocument();
+
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
+    await screen.findByRole("heading", { level: 1, name: "Niamh & Brandon" });
+
+    window.history.replaceState(null, "", "/registry");
+    fireEvent.popState(window);
+    expect(
+      await screen.findByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+  });
+
+  it("preserves an unfinished RSVP draft across Registry navigation", () => {
+    render(<App />);
+    fireEvent.click(getLandingRsvpLink());
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Alex Example" }
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open navigation menu" })
+    );
+    fireEvent.click(screen.getByRole("link", { name: "Registry & Gifts" }));
+    expect(window.location.pathname).toBe("/registry");
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    expect(window.location.pathname).toBe("/RSVP");
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
+      "Alex Example"
+    );
   });
 
   it("renders the unlinked admin access form when /admin is visited directly", () => {

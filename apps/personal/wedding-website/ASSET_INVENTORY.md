@@ -1,17 +1,18 @@
 # Wedding Website Asset Inventory
 
-The 39 full-resolution Photoshop exports in the runtime asset tree are the
+The 42 full-resolution Photoshop exports in the runtime asset tree are the
 authority for the asset set. They include the user's post-organization
 corrections to the sprigs, sparkles, paw prints, and disco-ball selection.
 Earlier Google Drive names and variant counts are historical where they differ
 from this inventory.
 
 All runtime images are PNGs under `wedding-website-web/src/assets/`. The
-full-resolution dimensions reflect the current browser-sized exports. Thirty
-larger images also have a smaller initial-render companion whose filename adds
-`-preview` immediately before `.png`; the progressive-image component swaps
-from that companion only after the full image has loaded and decoded. Images
-without a preview companion render directly through the same component.
+full-resolution dimensions reflect the current browser-sized exports.
+Thirty-three larger images also have a smaller initial-render companion whose
+filename adds `-preview` immediately before `.png`; the progressive-image
+component swaps from that companion only after the full image has loaded and
+decoded. Images without a preview companion render directly through the same
+component.
 
 ## Design references
 
@@ -61,12 +62,14 @@ production bundle:
 | `florals/floral-sprig-03.png`            | Single floral sprig                                    |     300×521 |   172 KiB |                   100×174, 28 KiB |
 | `florals/floral-sprig-04.png`            | Single floral sprig                                    |     300×399 |    98 KiB |                   100×133, 18 KiB |
 | `florals/floral-vine-divider.png`        | Horizontal floral divider                              |      594×69 |    59 KiB |                                 — |
+| `florals/registry-floral-divider-v1.png` | Registry page floral divider                           |    2071×277 |   402 KiB |                     100×13, 6 KiB |
 | `bows/bow-large-01.png`                  | Large ribbon/bow decorative variant                    |     500×424 |   161 KiB |                      50×42, 8 KiB |
 | `bows/bow-large-02.png`                  | Large ribbon/bow decorative variant                    |     465×403 |   292 KiB |                      50×43, 8 KiB |
 | `bows/bow-large-03.png`                  | Large ribbon/bow decorative variant                    |     408×450 |   258 KiB |                      50×55, 9 KiB |
 | `bows/bow-small-01.png`                  | Small bow decorative variant                           |     223×209 |    66 KiB |                      50×47, 7 KiB |
 | `bows/bow-small-02.png`                  | Small bow decorative variant                           |     201×257 |    64 KiB |                      50×64, 8 KiB |
 | `bows/bow-small-03.png`                  | Small bow decorative variant                           |     271×155 |    51 KiB |                      50×29, 5 KiB |
+| `bows/registry-bow-sparkles-v1.png`      | Registry page bow and sparkle corner artwork           |     500×655 |   199 KiB |                   100×131, 18 KiB |
 | `celebration/champagne-glasses-01.png`   | Champagne-glass decorative variant                     |     300×443 |   109 KiB |                                 — |
 | `celebration/champagne-glasses-02.png`   | Champagne-glass decorative variant                     |     300×433 |   132 KiB |                                 — |
 | `celebration/champagne-glasses-03.png`   | Champagne-glass decorative variant                     |     300×306 |   110 KiB |                                 — |
@@ -79,6 +82,7 @@ production bundle:
 | `accents/sparkles-01.png`                | Single sparkle accent                                  |     177×234 |    32 KiB |                                 — |
 | `accents/sparkles-02.png`                | Sparkle/star accent group                              |     298×351 |    84 KiB |                      50×59, 9 KiB |
 | `accents/sparkles-03.png`                | Sparkle/star accent group                              |     236×369 |    56 KiB |                      50×78, 9 KiB |
+| `accents/registry-heart-v1.png`          | Registry page closing heart accent                     |     500×337 |    96 KiB |                    100×67, 12 KiB |
 
 Future optimized exports should preserve each listed full-resolution path and
 transparent canvas. Add or replace a preview using the same path with
@@ -129,3 +133,9 @@ any asset currently rendered by the app.
 | `website_asset_sparkles_1.png`                   | `accents/sparkles-01.png`               |
 | `website_asset_sparkles_2.png`                   | `accents/sparkles-02.png`               |
 | `website_asset_sparkles_3.png`                   | `accents/sparkles-03.png`               |
+
+### Registry page supplied assets
+
+- `divider.png` → `florals/registry-floral-divider-v1.png`
+- `heart.png` → `accents/registry-heart-v1.png`
+- `new-ribbon.png` → `bows/registry-bow-sparkles-v1.png`

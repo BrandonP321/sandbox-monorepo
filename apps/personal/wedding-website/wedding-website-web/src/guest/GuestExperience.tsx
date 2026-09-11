@@ -11,6 +11,7 @@ import {
 } from "../appRoutes";
 import { RSVPPrototype } from "../rsvp/RSVPPrototype";
 import { useRsvpPrototype } from "../rsvp/rsvpState";
+import { RegistryPage } from "../registry/RegistryPage";
 import { GuestShell } from "./GuestShell";
 
 type GuestExperienceProps = {
@@ -31,7 +32,7 @@ function GuestExperience({
   const rsvp = useRsvpPrototype({ apiBaseUrl });
   const resetRsvpRef = useRef(rsvp.reset);
   const confirmationWasDisplayed = useRef(false);
-  const homeDisabled =
+  const guestPageNavigationDisabled =
     route === "rsvp" && rsvp.submissionStatus.state === "submitting";
 
   resetRsvpRef.current = rsvp.reset;
@@ -43,7 +44,7 @@ function GuestExperience({
     }
 
     if (
-      route === "landing" &&
+      route !== "rsvp" &&
       rsvp.state.currentStage === "confirmation" &&
       confirmationWasDisplayed.current
     ) {
@@ -61,7 +62,7 @@ function GuestExperience({
     event: MouseEvent<HTMLAnchorElement>,
     destination: GuestDestination
   ) {
-    if (homeDisabled && destination.route === "landing") {
+    if (guestPageNavigationDisabled && destination.route !== "rsvp") {
       event.preventDefault();
       return;
     }
@@ -80,7 +81,7 @@ function GuestExperience({
     }
 
     if (
-      destination.route === "landing" &&
+      destination.route !== "rsvp" &&
       rsvp.state.currentStage === "confirmation"
     ) {
       rsvp.reset();
@@ -90,7 +91,7 @@ function GuestExperience({
 
   return (
     <GuestShell
-      homeDisabled={homeDisabled}
+      guestPageNavigationDisabled={guestPageNavigationDisabled}
       location={location}
       onNavigate={handleGuestNavigation}
       route={route}
@@ -99,6 +100,8 @@ function GuestExperience({
         <LandingPage
           onStartRsvp={(event) => handleGuestNavigation(event, rsvpDestination)}
         />
+      ) : route === "registry" ? (
+        <RegistryPage />
       ) : (
         <RSVPPrototype
           onBack={rsvp.back}

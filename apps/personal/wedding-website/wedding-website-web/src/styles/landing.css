@@ -90,11 +90,11 @@
   max-width: 23rem;
   margin-block-start: calc(var(--space-32) + var(--space-8));
   color: var(--color-ink);
-  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  line-height: 1.55;
-  text-transform: uppercase;
+  font-family: var(--font-script);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 2rem;
 }
 
 .landing-page__photo-frame {
@@ -120,13 +120,6 @@
   display: block;
   height: auto;
   object-fit: contain;
-}
-
-.landing-decoration--floral {
-  top: -0.125rem;
-  left: -2rem;
-  width: 10rem;
-  transform: rotate(115deg);
 }
 
 .landing-decoration--disco {
@@ -168,12 +161,6 @@
 @media (min-width: 30rem) {
   .landing-page {
     padding-block-start: var(--space-48);
-  }
-
-  .landing-decoration--floral {
-    top: -0.125rem;
-    left: -2rem;
-    width: 14rem;
   }
 
   .landing-decoration--disco {
@@ -220,12 +207,6 @@
     margin-block-start: var(--space-32);
   }
 
-  .landing-decoration--floral {
-    top: -0.25rem;
-    left: -4rem;
-    width: 21rem;
-  }
-
   .landing-decoration--disco {
     top: -2.25rem;
     width: 11rem;
@@ -257,12 +238,6 @@
 }
 
 @media (min-width: 70rem) {
-  .landing-decoration--floral {
-    top: -0.25rem;
-    left: -4rem;
-    width: 25rem;
-  }
-
   .landing-decoration--disco {
     top: -2.5rem;
     width: 12rem;
@@ -305,12 +280,6 @@
 }
 
 @media (max-width: 30rem) {
-  .landing-decoration--floral {
-    top: -0.125rem;
-    left: -2rem;
-    width: 10rem;
-  }
-
   .landing-decoration--champagne {
     bottom: 1rem;
     left: 0.5rem;
