@@ -38,6 +38,9 @@
   color: var(--color-olive);
   font-size: clamp(2rem, 7vw, 3rem);
   line-height: 1.05;
+  scroll-margin-top: calc(
+    var(--guest-header-height) + env(safe-area-inset-top) + var(--space-16)
+  );
 }
 
 .rsvp-step__intro {

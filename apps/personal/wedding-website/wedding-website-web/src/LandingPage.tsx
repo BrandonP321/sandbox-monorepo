@@ -42,7 +42,7 @@ type LandingPageProps = {
 
 function LandingPage({ onStartRsvp }: LandingPageProps) {
   return (
-    <main className="landing-page">
+    <main className="landing-page" id="main-content" tabIndex={-1}>
       <DecorativeLayer className="landing-page__decorations">
         {landingDecorations.map(({ asset, className }) => (
           <ProgressiveImage

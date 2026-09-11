@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "../App";
@@ -107,10 +113,9 @@ describe("production RSVP submission behavior", () => {
     expect(
       screen.getByRole("button", { name: "Back to details" })
     ).toBeDisabled();
-    expect(screen.getByRole("link", { name: "Home" })).toHaveAttribute(
-      "aria-disabled",
-      "true"
-    );
+    expect(
+      within(screen.getByRole("main")).getByRole("link", { name: "Home" })
+    ).toHaveAttribute("aria-disabled", "true");
     await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(1), {
       timeout: 5_000
     });
@@ -132,6 +137,105 @@ describe("production RSVP submission behavior", () => {
       })
     ).toBeVisible();
     expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).toBeNull();
+  });
+
+  it("guards header exits in flight and preserves completion across browser navigation", async () => {
+    let finishRequest: ((response: Response) => void) | undefined;
+    const fetcher = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          finishRequest = resolve;
+        })
+    );
+    vi.stubGlobal("fetch", fetcher);
+    storeReview();
+    renderReview();
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
+    await waitFor(() => expect(fetcher).toHaveBeenCalledOnce(), {
+      timeout: 5_000
+    });
+
+    let navigation = screen.getByRole("navigation", {
+      name: "Main navigation"
+    });
+    const brand = within(navigation).getByRole("link", { name: "N&B" });
+    expect(brand).toHaveAttribute("aria-disabled", "true");
+    expect(brand).toHaveAttribute("tabindex", "-1");
+    fireEvent.click(brand);
+    expect(window.location.pathname).toBe("/RSVP");
+
+    fireEvent.click(
+      within(navigation).getByRole("button", {
+        name: "Open navigation menu"
+      })
+    );
+    const panelHome = within(navigation).getByRole("link", { name: "Home" });
+    expect(panelHome).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(panelHome);
+    expect(window.location.pathname).toBe("/RSVP");
+
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
+    await screen.findByRole("heading", { name: "Niamh & Brandon" });
+
+    finishRequest?.(createSuccessResponse());
+    await waitFor(() => {
+      navigation = screen.getByRole("navigation", {
+        name: "Main navigation"
+      });
+      expect(
+        within(navigation).getByRole("link", { name: "N&B" })
+      ).not.toHaveAttribute("aria-disabled");
+    });
+
+    fireEvent.click(within(navigation).getByRole("link", { name: "RSVP" }));
+    expect(
+      await screen.findByRole("heading", {
+        name: "Thank you—your RSVP is complete."
+      })
+    ).toBeVisible();
+    expect(fetcher).toHaveBeenCalledOnce();
+
+    navigation = screen.getByRole("navigation", { name: "Main navigation" });
+    fireEvent.click(within(navigation).getByRole("link", { name: "N&B" }));
+    navigation = screen.getByRole("navigation", { name: "Main navigation" });
+    fireEvent.click(within(navigation).getByRole("link", { name: "RSVP" }));
+
+    expect(
+      screen.getByRole("heading", { name: "Your party & attendance" })
+    ).toBeVisible();
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
+  });
+
+  it("resets a displayed confirmation after leaving through browser history", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => createSuccessResponse())
+    );
+    storeReview();
+    renderReview();
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit RSVP" }));
+    expect(
+      await screen.findByRole("heading", {
+        name: "Thank you—your RSVP is complete."
+      })
+    ).toBeVisible();
+
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
+    await screen.findByRole("heading", { name: "Niamh & Brandon" });
+
+    const navigation = screen.getByRole("navigation", {
+      name: "Main navigation"
+    });
+    fireEvent.click(within(navigation).getByRole("link", { name: "RSVP" }));
+
+    expect(
+      screen.getByRole("heading", { name: "Your party & attendance" })
+    ).toBeVisible();
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
   });
 
   it("reuses the unresolved key after a network failure and page refresh", async () => {

@@ -9,7 +9,9 @@ const normalizedGlobalCss = globalCss.replaceAll(/\s+/g, " ");
 
 describe("landing page surface", () => {
   it("inherits the application-wide cardboard overlay without duplicating it", () => {
-    expect(landingCss).toContain("min-height: 100dvh;");
+    expect(landingCss).toContain(
+      "100dvh - var(--guest-header-height) - env(safe-area-inset-top)"
+    );
     expect(landingCss).toContain("background-color: var(--color-paper);");
     expect(landingCss).not.toContain(".landing-page::after");
     expect(normalizedGlobalCss).toContain("body::after { position: absolute;");

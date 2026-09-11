@@ -96,7 +96,7 @@ function RSVPPrototype({
   }
 
   return (
-    <main className="prototype-page">
+    <main className="prototype-page" id="main-content" tabIndex={-1}>
       <ContentFrame className="prototype-page__frame">
         {stageContent}
       </ContentFrame>

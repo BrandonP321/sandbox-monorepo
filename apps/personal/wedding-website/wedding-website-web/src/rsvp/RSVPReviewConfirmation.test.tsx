@@ -29,7 +29,9 @@ afterEach(() => {
 
 function startRsvp() {
   const view = render(<App />);
-  fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+  fireEvent.click(
+    within(screen.getByRole("main")).getByRole("link", { name: "RSVP" })
+  );
   return view;
 }
 
@@ -189,7 +191,9 @@ describe("RSVP review", () => {
       screen.getByText("August 21, 2027", { selector: "time" })
     ).toHaveAttribute("datetime", "2027-08-21");
 
-    const home = screen.getByRole("link", { name: "Home" });
+    const home = within(screen.getByRole("main")).getByRole("link", {
+      name: "Home"
+    });
     const back = screen.getByRole("button", { name: "Back to details" });
     const submit = screen.getByRole("button", { name: "Submit RSVP" });
     const secondaryActions = home.parentElement;
@@ -365,7 +369,9 @@ describe("RSVP confirmation", () => {
     ).toBeNull();
     expect(screen.queryByText(/verified|securely retrievable/i)).toBeNull();
 
-    const home = screen.getByRole("link", { name: "Home" });
+    const home = within(screen.getByRole("main")).getByRole("link", {
+      name: "Home"
+    });
     expect(home).toHaveAttribute("href", "/");
     expect(home).toHaveAttribute("data-variant", "primary");
     fireEvent.click(home);
@@ -375,7 +381,9 @@ describe("RSVP confirmation", () => {
       screen.getByRole("heading", { name: "Niamh & Brandon" })
     ).toBeVisible();
 
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(
+      within(screen.getByRole("main")).getByRole("link", { name: "RSVP" })
+    );
 
     const attendanceHeading = screen.getByRole("heading", {
       name: "Your party & attendance"

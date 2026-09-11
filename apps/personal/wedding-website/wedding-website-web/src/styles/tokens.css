@@ -36,6 +36,7 @@
 
   --content-width-form: 46rem;
   --content-width-hero: 70rem;
+  --guest-header-height: 4rem;
   --page-gutter: 1.25rem;
 
   --motion-duration-fast: 160ms;
@@ -52,6 +53,12 @@
 @media (min-width: 70rem) {
   :root {
     --page-gutter: 4rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --guest-header-height: 5rem;
   }
 }
 

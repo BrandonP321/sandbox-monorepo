@@ -1,4 +1,10 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within
+} from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import App from "./App";
@@ -7,6 +13,10 @@ import {
   PROTOTYPE_STORAGE_KEY_V1
 } from "./rsvp/prototypeStorage";
 import { weddingImageAssets } from "./weddingImageAssets";
+
+function getLandingRsvpLink() {
+  return within(screen.getByRole("main")).getByRole("link", { name: "RSVP" });
+}
 
 beforeEach(() => {
   window.localStorage.clear();
@@ -49,7 +59,7 @@ describe("App", () => {
     const handleStartRsvp = vi.fn();
 
     render(<App onStartRsvp={handleStartRsvp} />);
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
 
     expect(handleStartRsvp).toHaveBeenCalledOnce();
     expect(window.location.pathname).toBe("/RSVP");
@@ -98,12 +108,14 @@ describe("App", () => {
     }
 
     expect(decorations.querySelector("button, a, input")).toBeNull();
-    expect(screen.queryByRole("navigation")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("navigation", { name: "Main navigation" })
+    ).toBeInTheDocument();
   });
 
   it("always loads the landing page at root and restores the draft at /RSVP", async () => {
     const firstRender = render(<App />);
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
     fireEvent.click(screen.getByRole("radio", { name: "Brandon's side" }));
     fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
       target: { value: "Alex Example" }
@@ -117,10 +129,10 @@ describe("App", () => {
     window.history.replaceState(null, "", "/");
     render(<App />);
 
-    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
+    expect(getLandingRsvpLink()).toBeInTheDocument();
     expect(screen.queryByRole("textbox", { name: "Your name" })).toBeNull();
 
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
 
     expect(screen.getByRole("radio", { name: "Brandon's side" })).toBeChecked();
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
@@ -160,23 +172,25 @@ describe("App", () => {
 
   it("returns home from attendance without clearing the draft", async () => {
     render(<App />);
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
     fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
       target: { value: "Alex Example" }
     });
 
-    const homeLink = screen.getByRole("link", { name: "Home" });
+    const homeLink = within(screen.getByRole("main")).getByRole("link", {
+      name: "Home"
+    });
     expect(homeLink).toHaveAttribute("href", "/");
     expect(screen.queryByRole("button", { name: "Back" })).toBeNull();
     fireEvent.click(homeLink);
 
     expect(window.location.pathname).toBe("/");
-    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
+    expect(getLandingRsvpLink()).toBeInTheDocument();
     await waitFor(() =>
       expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY)).not.toBeNull()
     );
 
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
       "Alex Example"
     );
@@ -197,9 +211,9 @@ describe("App", () => {
 
     render(<App />);
 
-    expect(screen.getByRole("link", { name: "RSVP" })).toBeInTheDocument();
+    expect(getLandingRsvpLink()).toBeInTheDocument();
     expect(window.localStorage.getItem(PROTOTYPE_STORAGE_KEY_V1)).toBeNull();
-    fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+    fireEvent.click(getLandingRsvpLink());
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue("");
     expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
   });

@@ -4,7 +4,29 @@ const LANDING_PATH = "/";
 const RSVP_PATH = "/RSVP";
 const ADMIN_PATH = "/admin";
 
-type AppRoute = "admin" | "landing" | "rsvp";
+type GuestRoute = "landing" | "rsvp";
+type AppRoute = "admin" | GuestRoute;
+type GuestPath = typeof LANDING_PATH | typeof RSVP_PATH;
+type RouteNavigationSource = "explicit" | "history" | "initial";
+
+type GuestDestination = {
+  label: "Home" | "RSVP";
+  path: GuestPath;
+  route: GuestRoute;
+};
+
+type AppLocation = {
+  revision: number;
+  route: AppRoute;
+  source: RouteNavigationSource;
+};
+
+const guestDestinations = [
+  { label: "Home", path: LANDING_PATH, route: "landing" },
+  { label: "RSVP", path: RSVP_PATH, route: "rsvp" }
+] as const satisfies readonly GuestDestination[];
+
+const [homeDestination, rsvpDestination] = guestDestinations;
 
 function routeFromPathname(pathname: string): AppRoute {
   if (pathname === ADMIN_PATH || pathname === `${ADMIN_PATH}/`) {
@@ -16,30 +38,46 @@ function routeFromPathname(pathname: string): AppRoute {
 }
 
 function useAppRoute() {
-  const [route, setRoute] = useState<AppRoute>(() =>
-    routeFromPathname(window.location.pathname)
-  );
+  const [location, setLocation] = useState<AppLocation>(() => ({
+    revision: 0,
+    route: routeFromPathname(window.location.pathname),
+    source: "initial"
+  }));
 
   useEffect(() => {
     function handlePopState() {
-      setRoute(routeFromPathname(window.location.pathname));
+      setLocation((currentLocation) => ({
+        revision: currentLocation.revision + 1,
+        route: routeFromPathname(window.location.pathname),
+        source: "history"
+      }));
     }
 
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
   }, []);
 
-  const navigate = useCallback(
-    (path: typeof LANDING_PATH | typeof RSVP_PATH) => {
-      if (window.location.pathname !== path) {
-        window.history.pushState(null, "", path);
-      }
-      setRoute(routeFromPathname(path));
-    },
-    []
-  );
+  const navigate = useCallback((path: GuestPath) => {
+    const nextRoute = routeFromPathname(path);
 
-  return { navigate, route };
+    if (window.location.pathname !== path) {
+      window.history.pushState(null, "", path);
+    }
+
+    setLocation((currentLocation) => {
+      if (currentLocation.route === nextRoute) {
+        return currentLocation;
+      }
+
+      return {
+        revision: currentLocation.revision + 1,
+        route: nextRoute,
+        source: "explicit"
+      };
+    });
+  }, []);
+
+  return { location, navigate, route: location.route };
 }
 
 function shouldUseClientNavigation(event: MouseEvent<HTMLAnchorElement>) {
@@ -55,8 +93,15 @@ function shouldUseClientNavigation(event: MouseEvent<HTMLAnchorElement>) {
 
 export {
   ADMIN_PATH,
+  type AppRoute,
+  type GuestDestination,
+  type GuestPath,
+  type GuestRoute,
   LANDING_PATH,
   RSVP_PATH,
+  guestDestinations,
+  homeDestination,
+  rsvpDestination,
   shouldUseClientNavigation,
   useAppRoute
 };

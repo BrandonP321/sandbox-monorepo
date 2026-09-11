@@ -22,6 +22,9 @@ html {
   font-family: var(--font-ui);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  scroll-padding-top: calc(
+    var(--guest-header-height) + env(safe-area-inset-top) + var(--space-16)
+  );
 }
 
 body {

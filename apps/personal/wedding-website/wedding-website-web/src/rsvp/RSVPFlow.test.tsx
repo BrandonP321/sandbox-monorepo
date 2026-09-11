@@ -16,7 +16,9 @@ beforeEach(() => {
 
 function startRsvp() {
   const view = render(<App />);
-  fireEvent.click(screen.getByRole("link", { name: "RSVP" }));
+  fireEvent.click(
+    within(screen.getByRole("main")).getByRole("link", { name: "RSVP" })
+  );
   return view;
 }
 

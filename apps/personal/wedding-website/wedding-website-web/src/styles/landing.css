@@ -1,11 +1,15 @@
 .landing-page {
   position: relative;
   isolation: isolate;
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
+  min-height: calc(100vh - var(--guest-header-height));
+  min-height: calc(
+    100svh - var(--guest-header-height) - env(safe-area-inset-top)
+  );
+  min-height: calc(
+    100dvh - var(--guest-header-height) - env(safe-area-inset-top)
+  );
   overflow: hidden;
-  padding-block: max(var(--space-32), env(safe-area-inset-top))
+  padding-block: var(--space-32)
     max(var(--space-64), env(safe-area-inset-bottom));
   background-color: var(--color-paper);
 }
@@ -163,7 +167,7 @@
 
 @media (min-width: 30rem) {
   .landing-page {
-    padding-block-start: max(var(--space-48), env(safe-area-inset-top));
+    padding-block-start: var(--space-48);
   }
 
   .landing-decoration--floral {
@@ -204,7 +208,7 @@
 
 @media (min-width: 47.5rem) {
   .landing-page {
-    padding-block: max(var(--space-64), env(safe-area-inset-top))
+    padding-block: var(--space-64)
       max(var(--space-64), env(safe-area-inset-bottom));
   }
 
