@@ -122,13 +122,6 @@
   object-fit: contain;
 }
 
-.landing-decoration--floral {
-  top: -0.125rem;
-  left: -2rem;
-  width: 10rem;
-  transform: rotate(115deg);
-}
-
 .landing-decoration--disco {
   top: -1.5rem;
   right: 0;
@@ -168,12 +161,6 @@
 @media (min-width: 30rem) {
   .landing-page {
     padding-block-start: var(--space-48);
-  }
-
-  .landing-decoration--floral {
-    top: -0.125rem;
-    left: -2rem;
-    width: 14rem;
   }
 
   .landing-decoration--disco {
@@ -220,12 +207,6 @@
     margin-block-start: var(--space-32);
   }
 
-  .landing-decoration--floral {
-    top: -0.25rem;
-    left: -4rem;
-    width: 21rem;
-  }
-
   .landing-decoration--disco {
     top: -2.25rem;
     width: 11rem;
@@ -257,12 +238,6 @@
 }
 
 @media (min-width: 70rem) {
-  .landing-decoration--floral {
-    top: -0.25rem;
-    left: -4rem;
-    width: 25rem;
-  }
-
   .landing-decoration--disco {
     top: -2.5rem;
     width: 12rem;
@@ -305,12 +280,6 @@
 }
 
 @media (max-width: 30rem) {
-  .landing-decoration--floral {
-    top: -0.125rem;
-    left: -2rem;
-    width: 10rem;
-  }
-
   .landing-decoration--champagne {
     bottom: 1rem;
     left: 0.5rem;

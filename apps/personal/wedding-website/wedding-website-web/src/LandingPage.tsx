@@ -3,6 +3,7 @@ import type { MouseEventHandler } from "react";
 import {
   ContentFrame,
   DecorativeLayer,
+  FloralCornerDecoration,
   PrimaryLink,
   ProgressiveImage
 } from "./components/ui";
@@ -12,14 +13,12 @@ const landingAssets = {
   cat: weddingImageAssets.catSitting,
   champagne: weddingImageAssets.champagneGlasses,
   discoBall: weddingImageAssets.discoBall,
-  floral: weddingImageAssets.floralCluster,
   photo: weddingImageAssets.landingPhoto,
   sparklesPrimary: weddingImageAssets.sparklesPrimary,
   sparklesSecondary: weddingImageAssets.sparklesSecondary
 } as const;
 
 const landingDecorations = [
-  { asset: landingAssets.floral, className: "landing-decoration--floral" },
   { asset: landingAssets.discoBall, className: "landing-decoration--disco" },
   { asset: landingAssets.cat, className: "landing-decoration--cat" },
   {
@@ -44,6 +43,7 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
   return (
     <main className="landing-page" id="main-content" tabIndex={-1}>
       <DecorativeLayer className="landing-page__decorations">
+        <FloralCornerDecoration />
         {landingDecorations.map(({ asset, className }) => (
           <ProgressiveImage
             {...asset}

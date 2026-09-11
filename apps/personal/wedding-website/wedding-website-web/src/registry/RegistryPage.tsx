@@ -1,6 +1,7 @@
 import {
   ContentFrame,
   DecorativeLayer,
+  FloralCornerDecoration,
   PrimaryLink,
   ProgressiveImage
 } from "../components/ui";
@@ -25,12 +26,7 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
   return (
     <main className="registry-page" id="main-content" tabIndex={-1}>
       <DecorativeLayer className="registry-page__peripheral-art">
-        <ProgressiveImage
-          {...weddingImageAssets.floralCluster}
-          alt=""
-          className="registry-page__floral"
-          draggable={false}
-        />
+        <FloralCornerDecoration />
         <ProgressiveImage
           {...weddingImageAssets.registryBow}
           alt=""
@@ -62,11 +58,11 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
             className="registry-page__provider-link"
             href={config.amazon.registryUrl}
             referrerPolicy="no-referrer"
-            rel="noreferrer"
+            rel="noopener noreferrer"
+            target="_blank"
           >
             View our Amazon registry <ExternalLinkIcon />
           </PrimaryLink>
-          <p className="registry-page__destination-hint">Opens Amazon.</p>
         </section>
 
         {honeymoonFundEnabled ? (

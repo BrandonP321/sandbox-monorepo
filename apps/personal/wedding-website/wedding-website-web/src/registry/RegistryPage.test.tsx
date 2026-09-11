@@ -37,9 +37,9 @@ describe("RegistryPage", () => {
     });
     expect(amazonLink).toHaveAttribute("href", amazonRegistryUrl);
     expect(amazonLink).toHaveAttribute("referrerpolicy", "no-referrer");
-    expect(amazonLink).toHaveAttribute("rel", "noreferrer");
-    expect(amazonLink).not.toHaveAttribute("target");
-    expect(screen.getByText("Opens Amazon.")).toBeInTheDocument();
+    expect(amazonLink).toHaveAttribute("rel", "noopener noreferrer");
+    expect(amazonLink).toHaveAttribute("target", "_blank");
+    expect(screen.queryByText("Opens Amazon.")).toBeNull();
 
     expect(
       screen.queryByRole("heading", { name: "Honeymoon Fund" })
@@ -51,6 +51,9 @@ describe("RegistryPage", () => {
     const decorativeLayers = document.querySelectorAll(
       ".registry-page .ui-decorative-layer"
     );
+    expect(
+      document.querySelector(".registry-page .wedding-corner-floral")
+    ).not.toBeNull();
     expect(decorativeLayers.length).toBeGreaterThan(0);
     for (const layer of decorativeLayers) {
       expect(layer).toHaveAttribute("aria-hidden", "true");

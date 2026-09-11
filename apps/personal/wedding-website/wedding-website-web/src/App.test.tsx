@@ -98,9 +98,11 @@ describe("App", () => {
     expect(decorations).not.toBeNull();
 
     const decorativeImages = decorations.querySelectorAll("img");
+    const cornerFloral = decorations.querySelector(".wedding-corner-floral");
 
     expect(decorations).toHaveAttribute("aria-hidden", "true");
     expect(decorativeImages).toHaveLength(6);
+    expect(cornerFloral).not.toBeNull();
 
     for (const image of decorativeImages) {
       expect(image).toHaveAttribute("alt", "");

@@ -34,6 +34,7 @@ export {
   type DecorativeLayerProps,
   type FormSectionProps
 } from "./Layout";
+export { FloralCornerDecoration } from "./FloralCornerDecoration";
 export {
   ProgressiveImage,
   type ProgressiveImageProps

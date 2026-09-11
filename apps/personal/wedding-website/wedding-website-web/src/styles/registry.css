@@ -307,7 +307,6 @@
   margin: var(--space-12) auto 0;
 }
 
-.registry-page__floral,
 .registry-page__bow {
   position: absolute;
   display: block;
@@ -315,15 +314,9 @@
   object-fit: contain;
 }
 
-.registry-page__floral {
-  top: -2rem;
-  left: -6rem;
-  width: 22rem;
-}
-
 .registry-page__bow {
-  top: -1.5rem;
-  right: -1rem;
+  top: 1rem;
+  right: 2rem;
   width: 10rem;
 }
 
@@ -336,26 +329,24 @@
     padding-block-start: var(--space-32);
   }
 
-  .registry-page__floral {
-    top: -1.5rem;
-    left: -3.5rem;
-    width: 12rem;
-  }
-
   .registry-page__bow {
-    top: -0.75rem;
-    right: -1.5rem;
-    width: 6rem;
+    top: 1.5rem;
+    right: 0.75rem;
+    width: min(6rem, 24vw);
   }
 }
 
 @media (max-width: 29.99rem) {
-  .registry-page__floral {
-    display: none;
+  .registry-page__intro h1 {
+    font-size: clamp(2.1rem, 17vw, 2.25rem);
   }
 
-  .registry-page__intro h1 {
-    font-size: clamp(2.1rem, 17vw, 4.25rem);
+  .registry-page__section h2 {
+    font-size: clamp(1.75rem, 8vw, 2rem);
+  }
+
+  .registry-page__method h3 {
+    font-size: clamp(1.25rem, 6.5vw, 1.5rem);
   }
 
   .registry-page__section {
