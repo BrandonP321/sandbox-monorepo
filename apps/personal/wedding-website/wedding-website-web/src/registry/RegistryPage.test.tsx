@@ -16,8 +16,16 @@ describe("RegistryPage", () => {
       screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Gifts are completely optional/i)
+      screen.getByText(
+        "Celebrating with you is what matters most to us. Gifts are completely optional. If you’d like to give something, we’ve shared a few ideas below."
+      )
     ).toBeInTheDocument();
+    expect(screen.queryByText("Niamh & Brandon")).toBeNull();
+    expect(
+      screen.queryByText(
+        "Thank you for helping us celebrate this next chapter together."
+      )
+    ).toBeNull();
 
     const amazonLink = screen.getByRole("link", {
       name: "View our Amazon registry"

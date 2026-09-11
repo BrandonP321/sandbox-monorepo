@@ -116,7 +116,7 @@ describe("landing page surface", () => {
     expect(landingCss).not.toContain("display: none;");
   });
 
-  it("reserves the script font for the couple names and wedding date", () => {
+  it("uses the script font for the display copy", () => {
     expect(normalizedLandingCss).toMatch(
       /\.landing-page__names \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(2\.75rem, 8vw, 4rem\);[^}]*letter-spacing: 0\.02em;[^}]*line-height: 0\.9;/
     );
@@ -126,8 +126,11 @@ describe("landing page surface", () => {
     expect(normalizedLandingCss).not.toMatch(
       /\.landing-page__names \{[^}]*text-transform: uppercase;/
     );
+    expect(normalizedLandingCss).toMatch(
+      /\.landing-page__welcome \{[^}]*font-family: var\(--font-script\);[^}]*font-size: clamp\(1rem, 2\.5vw, 1\.2rem\);[^}]*font-weight: 400;[^}]*letter-spacing: 0\.01em;[^}]*line-height: 2rem;/
+    );
     expect(normalizedLandingCss).not.toMatch(
-      /\.landing-page__welcome \{[^}]*font-family: var\(--font-script\);/
+      /\.landing-page__welcome \{[^}]*text-transform: uppercase;/
     );
   });
 

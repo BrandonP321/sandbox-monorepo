@@ -30,10 +30,7 @@ describe("App", () => {
     expect(
       screen.getByRole("heading", { level: 1, name: "Niamh & Brandon" })
     ).toBeInTheDocument();
-    expect(screen.getByText("Welcome to our wedding")).toBeInTheDocument();
-    expect(
-      screen.getByText("We can't wait to celebrate with you!")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Welcome to the wedding of")).toBeInTheDocument();
 
     const date = screen.getByText("August 21, 2027", { selector: "time" });
     expect(date).toHaveAttribute("datetime", "2027-08-21");
@@ -41,6 +38,10 @@ describe("App", () => {
     const photo = screen.getByRole("img", {
       name: /Niamh and Brandon smiling together outdoors/i
     });
+    const welcome = screen.getByText("We can't wait to celebrate with you!");
+    expect(
+      photo.compareDocumentPosition(welcome) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
     expect(photo).toHaveAttribute("width", "600");
     expect(photo).toHaveAttribute("height", "750");
     expect(photo).toHaveAttribute(

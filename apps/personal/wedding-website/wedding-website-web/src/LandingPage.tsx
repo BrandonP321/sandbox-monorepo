@@ -57,7 +57,7 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
 
       <ContentFrame className="landing-page__frame" width="hero">
         <div className="landing-page__content">
-          <p className="landing-page__eyebrow">Welcome to our wedding</p>
+          <p className="landing-page__eyebrow">Welcome to the wedding of</p>
           <h1 className="landing-page__names">
             <span>Niamh</span>
             <span className="landing-page__ampersand">&amp;</span>
@@ -66,10 +66,6 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
           <time className="landing-page__date" dateTime="2027-08-21">
             August 21, 2027
           </time>
-          <p className="landing-page__welcome">
-            We can&apos;t wait to celebrate with you!
-          </p>
-
           <div className="landing-page__photo-frame">
             <ProgressiveImage
               {...landingAssets.photo}
@@ -79,6 +75,10 @@ function LandingPage({ onStartRsvp }: LandingPageProps) {
               width={600}
             />
           </div>
+
+          <p className="landing-page__welcome">
+            We can&apos;t wait to celebrate with you!
+          </p>
 
           <PrimaryLink
             className="landing-page__action"

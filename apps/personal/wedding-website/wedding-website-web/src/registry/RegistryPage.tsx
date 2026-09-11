@@ -44,14 +44,13 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
 
       <ContentFrame className="registry-page__frame">
         <header className="registry-page__intro">
-          <p className="registry-page__overline">Niamh &amp; Brandon</p>
           <h1>
             Registry <span>&amp;</span> Gifts
           </h1>
           <p>
             Celebrating with you is what matters most to us. Gifts are
-            completely optional, but if you’d like to give something, we’ve
-            shared a few ideas below.
+            completely optional. If you’d like to give something, we’ve shared a
+            few ideas below.
           </p>
         </header>
 
@@ -91,7 +90,6 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
             If you’d prefer to give toward an experience, we’ve created a
             Honeyfund for our honeymoon.
           </p>
-          <p>Thank you for helping us celebrate this next chapter together.</p>
           <PrimaryLink
             className="registry-page__provider-link"
             href={config.honeyfund.fundUrl}

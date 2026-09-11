@@ -14,12 +14,15 @@ describe("registry page styles", () => {
     );
   });
 
-  it("keeps mobile section headings subordinate to the page heading", () => {
-    expect(normalizedRegistryCss).toContain(
-      ".registry-page__intro h1 { font-size: clamp(2.1rem, 17vw, 2.25rem); }"
+  it("uses the requested script typography for display copy", () => {
+    expect(normalizedRegistryCss).toMatch(
+      /\.registry-page__intro h1 \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 3rem;[^}]*line-height: 5rem;/
     );
-    expect(normalizedRegistryCss).toContain(
-      ".registry-page__section h2 { font-size: clamp(1.75rem, 8vw, 2rem); }"
+    expect(normalizedRegistryCss).toMatch(
+      /\.registry-page__section h2 \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 2rem;[^}]*line-height: 4\.5rem;/
+    );
+    expect(normalizedRegistryCss).toMatch(
+      /\.registry-page__closing p \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 1\.25rem;[^}]*line-height: 3rem;/
     );
   });
 });

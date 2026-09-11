@@ -90,11 +90,11 @@
   max-width: 23rem;
   margin-block-start: calc(var(--space-32) + var(--space-8));
   color: var(--color-ink);
-  font-size: clamp(0.8rem, 2.5vw, 0.95rem);
-  font-weight: 700;
-  letter-spacing: 0.09em;
-  line-height: 1.55;
-  text-transform: uppercase;
+  font-family: var(--font-script);
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 2rem;
 }
 
 .landing-page__photo-frame {
