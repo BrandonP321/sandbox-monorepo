@@ -12,6 +12,7 @@ import discoBallPreview from "./assets/celebration/disco-ball-01-preview.png";
 import discoBall from "./assets/celebration/disco-ball-01.png";
 import floralClusterPreview from "./assets/florals/floral-cluster-01-preview.png";
 import floralCluster from "./assets/florals/floral-cluster-01.png";
+import floralVineDivider from "./assets/florals/floral-vine-divider.png";
 import registryDividerPreview from "./assets/florals/registry-floral-divider-v1-preview.png";
 import registryDivider from "./assets/florals/registry-floral-divider-v1.png";
 import landingPhotoPreview from "./assets/photos/landing-photo-framed-preview.png";
@@ -27,6 +28,7 @@ const weddingImageAssets = {
   champagneGlasses: { src: champagneGlasses },
   discoBall: { previewSrc: discoBallPreview, src: discoBall },
   floralCluster: { previewSrc: floralClusterPreview, src: floralCluster },
+  floralVineDivider: { src: floralVineDivider },
   landingPhoto: { previewSrc: landingPhotoPreview, src: landingPhoto },
   registryBow: { previewSrc: registryBowPreview, src: registryBow },
   registryDivider: {

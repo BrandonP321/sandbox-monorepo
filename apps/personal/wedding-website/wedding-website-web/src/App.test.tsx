@@ -178,6 +178,80 @@ describe("App", () => {
     ).toBeInTheDocument();
   });
 
+  it("loads /faq directly and through browser history with its trailing slash", async () => {
+    window.history.replaceState(null, "", "/faq/");
+
+    render(<App />);
+
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Frequently asked questions"
+      })
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open navigation menu" })
+    );
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" })
+      ).getByRole("link", { name: "FAQ" })
+    ).toHaveAttribute("aria-current", "page");
+
+    window.history.replaceState(null, "", "/");
+    fireEvent.popState(window);
+    await screen.findByRole("heading", { level: 1, name: "Niamh & Brandon" });
+
+    window.history.replaceState(null, "", "/faq");
+    fireEvent.popState(window);
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Frequently asked questions"
+      })
+    ).toBeInTheDocument();
+  });
+
+  it("preserves an unfinished RSVP draft across FAQ navigation", () => {
+    render(<App />);
+    fireEvent.click(getLandingRsvpLink());
+    fireEvent.change(screen.getByRole("textbox", { name: "Your name" }), {
+      target: { value: "Alex Example" }
+    });
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Open navigation menu" })
+    );
+    fireEvent.click(screen.getByRole("link", { name: "FAQ" }));
+    expect(window.location.pathname).toBe("/faq");
+    expect(
+      screen.getByRole("heading", {
+        level: 1,
+        name: "Frequently asked questions"
+      })
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("link", { name: "RSVP form" }));
+    expect(window.location.pathname).toBe("/RSVP");
+    expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
+      "Alex Example"
+    );
+  });
+
+  it("does not submit an RSVP while rendering or navigating from FAQ", () => {
+    const fetcher = vi.fn();
+    vi.stubGlobal("fetch", fetcher);
+    window.history.replaceState(null, "", "/faq");
+
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("link", { name: "Registry & Gifts page" })
+    );
+
+    expect(window.location.pathname).toBe("/registry");
+    expect(fetcher).not.toHaveBeenCalled();
+  });
+
   it("preserves an unfinished RSVP draft across Registry navigation", () => {
     render(<App />);
     fireEvent.click(getLandingRsvpLink());

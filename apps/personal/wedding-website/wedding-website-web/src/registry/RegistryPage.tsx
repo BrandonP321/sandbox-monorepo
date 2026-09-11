@@ -44,7 +44,7 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
 
       <ContentFrame className="registry-page__frame">
         <header className="registry-page__intro">
-          <h1>
+          <h1 className="guest-page-heading">
             Registry <span>&amp;</span> Gifts
           </h1>
           <p>
@@ -58,7 +58,9 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
           aria-labelledby="amazon-registry-heading"
           className="registry-page__section"
         >
-          <h2 id="amazon-registry-heading">Amazon Wedding Registry</h2>
+          <h2 className="guest-section-heading" id="amazon-registry-heading">
+            Amazon Wedding Registry
+          </h2>
           <p>We’ve put together a few things we’d love for our home.</p>
           <PrimaryLink
             className="registry-page__provider-link"
@@ -85,7 +87,9 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
           aria-labelledby="honeymoon-fund-heading"
           className="registry-page__section registry-page__honeymoon"
         >
-          <h2 id="honeymoon-fund-heading">Honeymoon Fund</h2>
+          <h2 className="guest-section-heading" id="honeymoon-fund-heading">
+            Honeymoon Fund
+          </h2>
           <p>
             If you’d prefer to give toward an experience, we’ve created a
             Honeyfund for our honeymoon.

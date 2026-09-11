@@ -1,0 +1,30 @@
+.guest-page-heading,
+.guest-section-heading {
+  color: var(--color-olive);
+  font-family: var(--font-script);
+  font-weight: 400;
+  text-wrap: balance;
+}
+
+.guest-page-heading {
+  font-size: 3rem;
+  letter-spacing: -0.04em;
+  line-height: 5rem;
+}
+
+.guest-section-heading {
+  font-size: 2rem;
+  line-height: 4.5rem;
+}
+
+@media (max-width: 47.49rem) {
+  .guest-page-heading {
+    font-size: 2rem;
+    line-height: 3rem;
+  }
+
+  .guest-section-heading {
+    font-size: 1.25rem;
+    line-height: 2.5rem;
+  }
+}

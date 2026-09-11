@@ -1,6 +1,7 @@
 import { useEffect, useRef, type MouseEvent } from "react";
 
 import { LandingPage } from "../LandingPage";
+import { FaqPage } from "../faq/FaqPage";
 import {
   type GuestDestination,
   type GuestRoute,
@@ -100,6 +101,8 @@ function GuestExperience({
         <LandingPage
           onStartRsvp={(event) => handleGuestNavigation(event, rsvpDestination)}
         />
+      ) : route === "faq" ? (
+        <FaqPage onNavigate={handleGuestNavigation} />
       ) : route === "registry" ? (
         <RegistryPage />
       ) : (

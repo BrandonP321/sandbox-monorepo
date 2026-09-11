@@ -1,6 +1,7 @@
 @import "./styles/fonts.css";
 @import "./styles/tokens.css";
 @import "./styles/global.css";
+@import "./styles/pageHeadings.css";
 @import "./styles/alerts.css";
 @import "./styles/actions.css";
 @import "./styles/navigation.css";
@@ -8,5 +9,6 @@
 @import "./styles/layout.css";
 @import "./styles/landing.css";
 @import "./styles/registry.css";
+@import "./styles/faq.css";
 @import "./styles/prototype.css";
 @import "./styles/admin.css";

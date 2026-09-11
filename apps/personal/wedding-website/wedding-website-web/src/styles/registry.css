@@ -24,13 +24,6 @@
 .registry-page__intro h1 {
   max-width: 44rem;
   margin: var(--space-24) auto 0;
-  color: var(--color-olive);
-  font-family: var(--font-script);
-  font-size: 3rem;
-  font-weight: 400;
-  letter-spacing: -0.04em;
-  line-height: 5rem;
-  text-wrap: balance;
 }
 
 .registry-page__intro h1 span {
@@ -51,12 +44,6 @@
 
 .registry-page__section h2 {
   margin-block-end: var(--space-12);
-  color: var(--color-olive);
-  font-family: var(--font-script);
-  font-size: 2rem;
-  font-weight: 400;
-  line-height: 4.5rem;
-  text-wrap: balance;
 }
 
 .registry-page__section > p {
@@ -138,16 +125,6 @@
 
   .registry-page__intro {
     padding-block-start: var(--space-32);
-  }
-
-  .registry-page__intro h1 {
-    font-size: 2rem;
-    line-height: 3rem;
-  }
-
-  .registry-page__section h2 {
-    font-size: 1.25rem;
-    line-height: 2.5rem;
   }
 
   .registry-page__bow {

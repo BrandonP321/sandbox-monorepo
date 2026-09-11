@@ -1,0 +1,166 @@
+.faq-page {
+  --faq-link-color: color-mix(in srgb, var(--color-coral-action) 92%, black);
+
+  position: relative;
+  isolation: isolate;
+  min-height: calc(100dvh - var(--guest-header-height));
+  overflow: hidden;
+  padding-block: var(--space-48)
+    max(var(--space-64), env(safe-area-inset-bottom));
+  background-color: var(--color-paper);
+}
+
+.faq-page__frame {
+  position: relative;
+  z-index: 1;
+}
+
+.faq-page__intro {
+  max-width: 44rem;
+  padding-block-start: var(--space-24);
+  margin-inline: auto;
+  text-align: center;
+}
+
+.faq-page__intro h1 {
+  margin-block-end: 0;
+}
+
+.faq-page__intro p {
+  max-width: 39rem;
+  margin: var(--space-24) auto 0;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.65;
+  text-wrap: pretty;
+}
+
+.faq-page__section {
+  margin-block-start: var(--space-64);
+}
+
+.faq-page__section h2 {
+  padding-block-end: var(--space-4);
+  margin-block-end: var(--space-16);
+  border-bottom: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 62%, var(--color-paper));
+}
+
+.faq-page__question {
+  padding-block: var(--space-8) var(--space-24);
+}
+
+.faq-page__question:not(:last-child) {
+  border-bottom: var(--border-width-thin) solid
+    color-mix(in srgb, var(--color-olive) 38%, var(--color-paper));
+}
+
+.faq-page__question + .faq-page__question {
+  padding-block-start: var(--space-16);
+}
+
+.faq-page__question h3 {
+  margin-block-end: var(--space-8);
+  color: var(--color-ink);
+  font-family: var(--font-ui);
+  font-size: clamp(1.0625rem, 2vw, 1.2rem);
+  font-weight: 700;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.faq-page__question p,
+.faq-page__help p {
+  margin-block-end: 0;
+  font-size: clamp(1rem, 1.8vw, 1.075rem);
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+
+.faq-page__question a {
+  color: var(--faq-link-color);
+  font-weight: 700;
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.08em;
+  text-underline-offset: 0.17em;
+}
+
+.faq-page__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-block-start: var(--space-48);
+}
+
+.faq-page__floral-divider {
+  position: relative;
+  width: min(100%, 13rem);
+  aspect-ratio: 594 / 69;
+}
+
+.faq-page__floral-divider img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.faq-page__home-link {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--space-8);
+  margin-block-start: var(--space-8);
+  color: var(--faq-link-color);
+  font-weight: 700;
+  text-underline-offset: 0.2em;
+}
+
+.faq-page__disco-ball {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  display: block;
+  width: 10rem;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 47.49rem) {
+  .faq-page {
+    padding-block-start: var(--space-32);
+  }
+
+  .faq-page__intro {
+    max-width: 28rem;
+    padding-block-start: var(--space-32);
+  }
+
+  .faq-page__intro p {
+    margin-block-start: var(--space-16);
+  }
+
+  .faq-page__section {
+    margin-block-start: var(--space-48);
+  }
+
+  .faq-page__question:not(:last-child) {
+    border-bottom: 0;
+  }
+
+  .faq-page__question + .faq-page__question {
+    padding-block-start: var(--space-8);
+  }
+
+  .faq-page__disco-ball {
+    top: -1rem;
+    width: min(6rem, 24vw);
+  }
+}
+
+@media (max-width: 29.99rem) {
+  .faq-page__peripheral-art .wedding-corner-floral,
+  .faq-page__disco-ball {
+    display: none;
+  }
+}

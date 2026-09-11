@@ -14,7 +14,10 @@ describe("RegistryPage", () => {
 
     expect(
       screen.getByRole("heading", { level: 1, name: "Registry & Gifts" })
-    ).toBeInTheDocument();
+    ).toHaveClass("guest-page-heading");
+    for (const sectionHeading of screen.getAllByRole("heading", { level: 2 })) {
+      expect(sectionHeading).toHaveClass("guest-section-heading");
+    }
     expect(
       screen.getByText(
         "Celebrating with you is what matters most to us. Gifts are completely optional. If you’d like to give something, we’ve shared a few ideas below."

@@ -51,11 +51,12 @@ function GuestNavigation({
   onNavigate,
   route
 }: GuestNavigationProps) {
-  const [home, registry, rsvp] = guestDestinations;
+  const [home, faq, registry, rsvp] = guestDestinations;
   const {
     brandRef,
     closeMenu,
     desktopHomeRef,
+    desktopFaqRef,
     desktopRegistryRef,
     handleHeaderKeyDown,
     headerRef,
@@ -128,6 +129,19 @@ function GuestNavigation({
                     ref={desktopHomeRef}
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={route === faq.route ? "page" : undefined}
+                    className="site-header__link"
+                    data-destination="faq"
+                    href={faq.path}
+                    onClick={(event) => handleDestinationActivation(event, faq)}
+                    ref={desktopFaqRef}
+                  >
+                    {faq.label}
                   </a>
                 </li>
                 <li>
@@ -216,6 +230,18 @@ function GuestNavigation({
                     }
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={route === faq.route ? "page" : undefined}
+                    className="site-header__panel-link"
+                    data-destination="faq"
+                    href={faq.path}
+                    onClick={(event) => handleDestinationActivation(event, faq)}
+                  >
+                    {faq.label}
                   </a>
                 </li>
                 <li>

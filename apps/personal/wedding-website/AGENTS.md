@@ -68,9 +68,12 @@
 - The refined RSVP-flow image controls page layout and composition only.
 - Generated website mockups must not redefine the RSVP doodle style.
 - Final typography uses exactly two families through the semantic font tokens:
-  Lovers in New York is limited to the couple-name treatment, wedding date, and
-  very short decorative phrases; Lora is used for all other guest and admin
-  text. Do not introduce a third font family.
+  Lovers in New York is used for the couple-name treatment, wedding date,
+  very short decorative phrases, and the approved Registry/FAQ informational
+  page H1/H2 treatment; Lora is used for all other guest and admin text. Keep
+  the shared informational-page heading rules in
+  `wedding-website-web/src/styles/pageHeadings.css` so Registry and FAQ remain
+  visually aligned. Do not introduce a third font family.
 - Runtime asset paths, dimensions, and optimization status live in
   `ASSET_INVENTORY.md`. Keep Drive-based design references outside the runtime
   asset tree, and preserve inventory paths when optimized PNGs replace source
@@ -87,6 +90,10 @@
 - Keep decorative content inside the `DecorativeLayer` convention so it stays
   hidden from assistive technology, ignores pointer input, and can reflow or
   disappear independently of functional content.
+- Approved FAQ copy, grouping, stable IDs, and internal destination references
+  live in `wedding-website-web/src/faq/faqContent.ts`. Add or revise questions
+  there rather than in layout markup; represent cross-page links with the
+  typed `link` answer part so they keep shared guest-navigation behavior.
 - Keep the RSVP flow free of decorative illustrations until a later explicit
   visual plan approves their return. The landing page may retain its existing
   decorative artwork.

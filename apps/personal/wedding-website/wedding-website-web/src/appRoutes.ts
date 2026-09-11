@@ -2,16 +2,21 @@ import { useCallback, useEffect, useState, type MouseEvent } from "react";
 
 const LANDING_PATH = "/";
 const RSVP_PATH = "/RSVP";
+const FAQ_PATH = "/faq";
 const REGISTRY_PATH = "/registry";
 const ADMIN_PATH = "/admin";
 
-type GuestRoute = "landing" | "registry" | "rsvp";
+type GuestRoute = "faq" | "landing" | "registry" | "rsvp";
 type AppRoute = "admin" | GuestRoute;
-type GuestPath = typeof LANDING_PATH | typeof REGISTRY_PATH | typeof RSVP_PATH;
+type GuestPath =
+  | typeof FAQ_PATH
+  | typeof LANDING_PATH
+  | typeof REGISTRY_PATH
+  | typeof RSVP_PATH;
 type RouteNavigationSource = "explicit" | "history" | "initial";
 
 type GuestDestination = {
-  label: "Home" | "Registry & Gifts" | "RSVP";
+  label: "FAQ" | "Home" | "Registry & Gifts" | "RSVP";
   path: GuestPath;
   route: GuestRoute;
 };
@@ -24,6 +29,7 @@ type AppLocation = {
 
 const guestDestinations = [
   { label: "Home", path: LANDING_PATH, route: "landing" },
+  { label: "FAQ", path: FAQ_PATH, route: "faq" },
   {
     label: "Registry & Gifts",
     path: REGISTRY_PATH,
@@ -32,12 +38,15 @@ const guestDestinations = [
   { label: "RSVP", path: RSVP_PATH, route: "rsvp" }
 ] as const satisfies readonly GuestDestination[];
 
-const [homeDestination, registryDestination, rsvpDestination] =
+const [homeDestination, faqDestination, registryDestination, rsvpDestination] =
   guestDestinations;
 
 function routeFromPathname(pathname: string): AppRoute {
   if (pathname === ADMIN_PATH || pathname === `${ADMIN_PATH}/`) {
     return "admin";
+  }
+  if (pathname === FAQ_PATH || pathname === `${FAQ_PATH}/`) {
+    return "faq";
   }
   if (pathname === REGISTRY_PATH || pathname === `${REGISTRY_PATH}/`) {
     return "registry";
@@ -103,6 +112,7 @@ function shouldUseClientNavigation(event: MouseEvent<HTMLAnchorElement>) {
 
 export {
   ADMIN_PATH,
+  FAQ_PATH,
   type AppRoute,
   type GuestDestination,
   type GuestPath,
@@ -110,6 +120,7 @@ export {
   LANDING_PATH,
   REGISTRY_PATH,
   RSVP_PATH,
+  faqDestination,
   guestDestinations,
   homeDestination,
   registryDestination,

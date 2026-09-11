@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import pageHeadingsCss from "./pageHeadings.css?raw";
 import registryCss from "./registry.css?raw";
 
+const normalizedPageHeadingsCss = pageHeadingsCss.replaceAll(/\s+/g, " ");
 const normalizedRegistryCss = registryCss.replaceAll(/\s+/g, " ");
 
 describe("registry page styles", () => {
@@ -14,12 +16,15 @@ describe("registry page styles", () => {
     );
   });
 
-  it("uses the requested script typography for display copy", () => {
-    expect(normalizedRegistryCss).toMatch(
-      /\.registry-page__intro h1 \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 3rem;[^}]*line-height: 5rem;/
+  it("shares the approved informational-page display typography", () => {
+    expect(normalizedPageHeadingsCss).toMatch(
+      /\.guest-page-heading, \.guest-section-heading \{[^}]*font-family: var\(--font-script\);[^}]*font-weight: 400;/
     );
-    expect(normalizedRegistryCss).toMatch(
-      /\.registry-page__section h2 \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 2rem;[^}]*line-height: 4\.5rem;/
+    expect(normalizedPageHeadingsCss).toMatch(
+      /\.guest-page-heading \{[^}]*font-size: 3rem;[^}]*letter-spacing: -0\.04em;[^}]*line-height: 5rem;/
+    );
+    expect(normalizedPageHeadingsCss).toMatch(
+      /\.guest-section-heading \{[^}]*font-size: 2rem;[^}]*line-height: 4\.5rem;/
     );
     expect(normalizedRegistryCss).toMatch(
       /\.registry-page__closing p \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 1\.25rem;[^}]*line-height: 3rem;/
@@ -27,8 +32,8 @@ describe("registry page styles", () => {
   });
 
   it("uses the requested compact script typography on mobile", () => {
-    expect(normalizedRegistryCss).toMatch(
-      /@media \(max-width: 47\.49rem\) \{.*\.registry-page__intro h1 \{ font-size: 2rem; line-height: 3rem; \}.*\.registry-page__section h2 \{ font-size: 1\.25rem; line-height: 2\.5rem; \}/
+    expect(normalizedPageHeadingsCss).toMatch(
+      /@media \(max-width: 47\.49rem\) \{.*\.guest-page-heading \{ font-size: 2rem; line-height: 3rem; \}.*\.guest-section-heading \{ font-size: 1\.25rem; line-height: 2\.5rem; \}/
     );
   });
 });
