@@ -25,4 +25,10 @@ describe("registry page styles", () => {
       /\.registry-page__closing p \{[^}]*font-family: var\(--font-script\);[^}]*font-size: 1\.25rem;[^}]*line-height: 3rem;/
     );
   });
+
+  it("uses the requested compact script typography on mobile", () => {
+    expect(normalizedRegistryCss).toMatch(
+      /@media \(max-width: 47\.49rem\) \{.*\.registry-page__intro h1 \{ font-size: 2rem; line-height: 3rem; \}.*\.registry-page__section h2 \{ font-size: 1\.25rem; line-height: 2\.5rem; \}/
+    );
+  });
 });

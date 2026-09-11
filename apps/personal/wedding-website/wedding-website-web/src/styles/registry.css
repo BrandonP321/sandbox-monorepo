@@ -140,6 +140,16 @@
     padding-block-start: var(--space-32);
   }
 
+  .registry-page__intro h1 {
+    font-size: 2rem;
+    line-height: 3rem;
+  }
+
+  .registry-page__section h2 {
+    font-size: 1.25rem;
+    line-height: 2.5rem;
+  }
+
   .registry-page__bow {
     top: 0.5rem;
     right: 0.75rem;
