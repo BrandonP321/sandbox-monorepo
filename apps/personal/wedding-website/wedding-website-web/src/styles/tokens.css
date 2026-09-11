@@ -34,6 +34,9 @@
   --radius-surface: 0.75rem;
   --radius-round: 999px;
 
+  --texture-cardboard-image: url("../assets/textures/cardboard-texture.png");
+  --texture-cardboard-tile-size: 600px 600px;
+
   --content-width-form: 46rem;
   --content-width-hero: 70rem;
   --guest-header-height: 4rem;

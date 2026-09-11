@@ -93,13 +93,23 @@ function GuestNavigation({
           <div className="site-header__inner">
             <a
               {...homeDisabledProps}
+              aria-label={isDesktop ? "Niamh & Brandon" : "N&B"}
               className="site-header__brand"
               data-destination="landing"
               href={home.path}
               onClick={(event) => handleDestinationActivation(event, home)}
               ref={brandRef}
             >
-              {isDesktop ? "Niamh & Brandon" : "N&B"}
+              {isDesktop ? (
+                <>
+                  Niamh <span className="site-header__ampersand">&amp;</span>{" "}
+                  Brandon
+                </>
+              ) : (
+                <>
+                  N<span className="site-header__ampersand">&amp;</span>B
+                </>
+              )}
             </a>
 
             {isDesktop ? (
@@ -163,14 +173,7 @@ function GuestNavigation({
                   ref={toggleRef}
                   type="button"
                 >
-                  {isMenuOpen ? (
-                    <>
-                      <span aria-hidden="true">Close</span>
-                      <CloseIcon />
-                    </>
-                  ) : (
-                    <MenuIcon />
-                  )}
+                  {isMenuOpen ? <CloseIcon /> : <MenuIcon />}
                 </button>
               </div>
             )}

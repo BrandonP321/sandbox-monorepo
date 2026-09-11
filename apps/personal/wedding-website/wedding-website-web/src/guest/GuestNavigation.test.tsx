@@ -194,6 +194,7 @@ describe("guest navigation", () => {
     const panelHome = within(panel).getByRole("link", { name: "Home" });
     expect(closeToggle).toHaveFocus();
     expect(closeToggle).toHaveAttribute("aria-expanded", "true");
+    expect(closeToggle).toHaveTextContent("");
     expect(panel).toBeVisible();
     expect(within(panel).getAllByRole("link")).toHaveLength(1);
 

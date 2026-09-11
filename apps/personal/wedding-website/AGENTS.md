@@ -92,8 +92,11 @@
   decorative artwork.
 - Apply the repeating cardboard texture as one document-sized, non-interactive
   overlay in `wedding-website-web/src/styles/global.css` so it scrolls with
-  every current and future route. Do not recreate or viewport-fix the overlay
-  in page-level styles.
+  every current and future route. Keep that overlay below the sticky guest
+  header, and give the header bar and disclosure panel their own matching,
+  non-interactive overlays so the texture stays anchored to the sticky chrome.
+  All texture layers must share the same tile-scale token. Do not recreate or
+  viewport-fix the overlay in page-level styles.
 - On wider layouts, RSVP form-step footers place Home at the left and Back
   immediately before Continue/Submit on the right. On narrow mobile layouts,
   make the primary ribbon action full width and place the Home/Back secondary

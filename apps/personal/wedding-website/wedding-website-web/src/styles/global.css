@@ -10,8 +10,9 @@ body {
       color-mix(in srgb, var(--color-paper) 50%, transparent),
       color-mix(in srgb, var(--color-paper) 50%, transparent)
     ),
-    url("../assets/textures/cardboard-texture.png");
+    var(--texture-cardboard-image);
   background-repeat: no-repeat, repeat;
+  background-size: auto, var(--texture-cardboard-tile-size);
 }
 
 html {
@@ -37,10 +38,11 @@ body {
 
 body::after {
   position: absolute;
-  z-index: 2147483647;
+  z-index: 10;
   inset: 0;
-  background-image: url("../assets/textures/cardboard-texture.png");
+  background-image: var(--texture-cardboard-image);
   background-repeat: repeat;
+  background-size: var(--texture-cardboard-tile-size);
   content: "";
   opacity: 0.5;
   pointer-events: none;

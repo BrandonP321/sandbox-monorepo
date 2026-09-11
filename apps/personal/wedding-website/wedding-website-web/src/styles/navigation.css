@@ -44,6 +44,19 @@
   background: var(--color-paper);
 }
 
+.site-header__bar::after,
+.site-header__panel::after {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  background-image: var(--texture-cardboard-image);
+  background-repeat: repeat;
+  background-size: var(--texture-cardboard-tile-size);
+  content: "";
+  opacity: 0.5;
+  pointer-events: none;
+}
+
 .site-header__inner,
 .site-header__panel-inner {
   width: min(100%, calc(var(--content-width-hero) + (2 * var(--page-gutter))));
@@ -79,17 +92,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  text-decoration-color: transparent;
-  text-decoration-thickness: 1px;
-  text-underline-offset: var(--space-4);
+  text-decoration: none;
 }
 
 .site-header__brand {
   min-width: 3rem;
   flex: 0 0 auto;
-  font-size: 1.25rem;
-  letter-spacing: 0.04em;
-  text-decoration: none;
+  font-family: var(--font-script);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.site-header__ampersand {
+  margin-inline: 0.3125em -0.1875em;
+  color: var(--color-coral-action);
 }
 
 .site-header__link,
@@ -98,18 +115,10 @@
   font-size: 1rem;
 }
 
-.site-header__link[aria-current="page"],
-.site-header__panel-link[aria-current="page"] {
-  text-decoration-color: currentColor;
-  text-decoration-line: underline;
-}
-
 .site-header__link:not([aria-disabled="true"]):hover,
 .site-header__panel-link:not([aria-disabled="true"]):hover,
 .site-header__rsvp[data-appearance="current"]:hover {
   color: var(--color-ink);
-  text-decoration-color: currentColor;
-  text-decoration-line: underline;
 }
 
 .site-header__brand:not([aria-disabled="true"]):hover {
@@ -127,8 +136,10 @@
   position: relative;
   isolation: isolate;
   min-width: 5.25rem;
-  padding: var(--space-8) var(--space-16);
+  padding: var(--space-8) var(--space-32);
+  border-radius: var(--radius-control);
   font-size: 1rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
@@ -173,8 +184,7 @@
 }
 
 .site-header__rsvp[data-appearance="current"] {
-  text-decoration-color: currentColor;
-  text-decoration-line: underline;
+  text-decoration: none;
 }
 
 .site-header__mobile-controls {
@@ -269,10 +279,11 @@
 
 @media (min-width: 64rem) {
   .site-header__brand {
-    font-family: var(--font-script);
-    font-size: 1.875rem;
-    font-weight: 400;
-    letter-spacing: 0.02em;
+    font-size: 1.25rem;
+  }
+
+  .site-header__ampersand {
+    margin-inline: 0.35em -0.15em;
   }
 }
 
@@ -287,6 +298,5 @@
 
   .site-header__rsvp {
     min-width: 4.75rem;
-    padding-inline: var(--space-12);
   }
 }

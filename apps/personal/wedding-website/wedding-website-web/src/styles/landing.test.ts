@@ -3,12 +3,13 @@ import { describe, expect, it } from "vitest";
 import indexHtml from "../../index.html?raw";
 import globalCss from "./global.css?raw";
 import landingCss from "./landing.css?raw";
+import tokensCss from "./tokens.css?raw";
 
 const normalizedLandingCss = landingCss.replaceAll(/\s+/g, " ");
 const normalizedGlobalCss = globalCss.replaceAll(/\s+/g, " ");
 
 describe("landing page surface", () => {
-  it("inherits the application-wide cardboard overlay without duplicating it", () => {
+  it("inherits the application-wide cardboard overlay", () => {
     expect(landingCss).toContain(
       "100dvh - var(--guest-header-height) - env(safe-area-inset-top)"
     );
@@ -16,10 +17,13 @@ describe("landing page surface", () => {
     expect(landingCss).not.toContain(".landing-page::after");
     expect(normalizedGlobalCss).toContain("body::after { position: absolute;");
     expect(globalCss).toContain(
-      'background-image: url("../assets/textures/cardboard-texture.png");'
+      "background-image: var(--texture-cardboard-image);"
     );
-    expect(globalCss).toContain("z-index: 2147483647;");
+    expect(globalCss).toContain("z-index: 10;");
     expect(globalCss).toContain("background-repeat: repeat;");
+    expect(globalCss).toContain(
+      "background-size: var(--texture-cardboard-tile-size);"
+    );
     expect(globalCss).toContain("opacity: 0.5;");
     expect(globalCss).toContain("pointer-events: none;");
   });
@@ -29,8 +33,13 @@ describe("landing page surface", () => {
     expect(normalizedGlobalCss).toContain(
       "html, body { background-color: var(--color-paper);"
     );
+    expect(tokensCss).toContain(
+      '--texture-cardboard-image: url("../assets/textures/cardboard-texture.png");'
+    );
+    expect(tokensCss).toContain("--texture-cardboard-tile-size: 600px 600px;");
+    expect(globalCss).toContain("var(--texture-cardboard-image)");
     expect(globalCss).toContain(
-      'url("../assets/textures/cardboard-texture.png");'
+      "background-size: auto, var(--texture-cardboard-tile-size);"
     );
     expect(globalCss).toContain(
       "color-mix(in srgb, var(--color-paper) 50%, transparent)"
