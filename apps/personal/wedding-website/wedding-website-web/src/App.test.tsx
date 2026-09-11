@@ -231,7 +231,7 @@ describe("App", () => {
       })
     ).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("link", { name: "RSVP form" }));
+    fireEvent.click(screen.getByRole("link", { name: "RSVP page" }));
     expect(window.location.pathname).toBe("/RSVP");
     expect(screen.getByRole("textbox", { name: "Your name" })).toHaveValue(
       "Alex Example"

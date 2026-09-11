@@ -45,6 +45,11 @@
     color-mix(in srgb, var(--color-olive) 62%, var(--color-paper));
 }
 
+.faq-page__rsvp-letterfix {
+  margin-inline-end: -0.25em;
+  letter-spacing: 0.25em;
+}
+
 .faq-page__question {
   padding-block: var(--space-8) var(--space-24);
 }
@@ -68,8 +73,7 @@
   text-wrap: pretty;
 }
 
-.faq-page__question p,
-.faq-page__help p {
+.faq-page__question p {
   margin-block-end: 0;
   font-size: clamp(1rem, 1.8vw, 1.075rem);
   line-height: 1.75;

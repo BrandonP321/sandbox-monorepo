@@ -16,7 +16,6 @@ import { weddingImageAssets } from "../weddingImageAssets";
 import {
   type FaqAnswerPart,
   type FaqLinkDestination,
-  faqHelp,
   faqSections
 } from "./faqContent";
 
@@ -87,8 +86,21 @@ function FaqPage({ onNavigate }: FaqPageProps) {
               className="faq-page__section"
               key={section.id}
             >
-              <h2 className="guest-section-heading" id={headingId}>
-                {section.title}
+              <h2
+                aria-label={
+                  section.id === "rsvp-invitations" ? section.title : undefined
+                }
+                className="guest-section-heading"
+                id={headingId}
+              >
+                {section.id === "rsvp-invitations" ? (
+                  <>
+                    RS<span className="faq-page__rsvp-letterfix">VP</span>
+                    {" & invitations"}
+                  </>
+                ) : (
+                  section.title
+                )}
               </h2>
               <div className="faq-page__questions">
                 {section.questions.map((question) => (
@@ -104,16 +116,6 @@ function FaqPage({ onNavigate }: FaqPageProps) {
             </section>
           );
         })}
-
-        <section
-          aria-labelledby={`${faqHelp.id}-heading`}
-          className="faq-page__section faq-page__help"
-        >
-          <h2 className="guest-section-heading" id={`${faqHelp.id}-heading`}>
-            {faqHelp.title}
-          </h2>
-          <p>{faqHelp.answer}</p>
-        </section>
 
         <footer className="faq-page__footer">
           <div className="faq-page__floral-divider">
