@@ -50,21 +50,13 @@ providers without processing payments in the wedding site.
 ## Registry & Gifts configuration
 
 Public provider details live together in
-`wedding-website-web/src/registry/registryGiftConfig.ts`. Update a provider's
-enabled state, HTTPS URL where applicable, recipient display name, identifier,
-and optional official receive QR reference as one verified unit. A disabled
-method is omitted rather than rendered as a broken or inactive payment action.
-
-The Amazon guest-view URL is enabled. Venmo is intentionally disabled until its
-profile/share URL, exact username, displayed recipient, and publication approval
-are verified together. Zelle remains disabled until a dedicated enrolled email,
-recipient, and publication approval are verified. Recheck these public values
-before launch, after account changes, and before invitations; disable a method
-again if its recipient details no longer match.
+`wedding-website-web/src/registry/registryGiftConfig.ts`. The page links to the
+approved Amazon wedding registry and Honeyfund honeymoon fund without processing
+payments in the wedding site. Recheck both public HTTPS URLs before launch,
+after account changes, and before invitations.
 
 Registry-specific versioned illustrations are inventoried in
-`ASSET_INVENTORY.md`. Only official account-owner receive QR images may be
-added; do not generate payment QR codes or use third-party QR services.
+`ASSET_INVENTORY.md`.
 
 ## RSVP behavior
 

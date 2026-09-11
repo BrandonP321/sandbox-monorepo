@@ -7,11 +7,6 @@ import {
 } from "../components/ui";
 import { weddingImageAssets } from "../weddingImageAssets";
 import {
-  ExternalLinkIcon,
-  VenmoDetails,
-  ZelleDisclosure
-} from "./GiftMethodDetails";
-import {
   registryGiftConfig,
   type RegistryGiftConfig
 } from "./registryGiftConfig";
@@ -20,9 +15,21 @@ type RegistryPageProps = {
   config?: RegistryGiftConfig;
 };
 
-function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
-  const honeymoonFundEnabled = config.venmo.enabled || config.zelle.enabled;
+function ExternalLinkIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="registry-page__external-icon"
+      focusable="false"
+      viewBox="0 0 24 24"
+    >
+      <path d="M14 4h6v6M20 4l-9 9" />
+      <path d="M18 13v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h6" />
+    </svg>
+  );
+}
 
+function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
   return (
     <main className="registry-page" id="main-content" tabIndex={-1}>
       <DecorativeLayer className="registry-page__peripheral-art">
@@ -65,36 +72,36 @@ function RegistryPage({ config = registryGiftConfig }: RegistryPageProps) {
           </PrimaryLink>
         </section>
 
-        {honeymoonFundEnabled ? (
-          <>
-            <div className="registry-page__divider">
-              <DecorativeLayer>
-                <ProgressiveImage
-                  {...weddingImageAssets.registryDivider}
-                  alt=""
-                  draggable={false}
-                />
-              </DecorativeLayer>
-            </div>
-            <section
-              aria-labelledby="honeymoon-fund-heading"
-              className="registry-page__section registry-page__honeymoon"
-            >
-              <h2 id="honeymoon-fund-heading">Honeymoon Fund</h2>
-              <p>
-                If you’d prefer to give toward an experience, a contribution to
-                our honeymoon would mean a lot to us.
-              </p>
-              <p>Thank you for helping us make more memories together.</p>
-              {config.venmo.enabled ? (
-                <VenmoDetails method={config.venmo} />
-              ) : null}
-              {config.zelle.enabled ? (
-                <ZelleDisclosure method={config.zelle} />
-              ) : null}
-            </section>
-          </>
-        ) : null}
+        <div className="registry-page__divider">
+          <DecorativeLayer>
+            <ProgressiveImage
+              {...weddingImageAssets.registryDivider}
+              alt=""
+              draggable={false}
+            />
+          </DecorativeLayer>
+        </div>
+
+        <section
+          aria-labelledby="honeymoon-fund-heading"
+          className="registry-page__section registry-page__honeymoon"
+        >
+          <h2 id="honeymoon-fund-heading">Honeymoon Fund</h2>
+          <p>
+            If you’d prefer to give toward an experience, we’ve created a
+            Honeyfund for our honeymoon.
+          </p>
+          <p>Thank you for helping us celebrate this next chapter together.</p>
+          <PrimaryLink
+            className="registry-page__provider-link"
+            href={config.honeyfund.fundUrl}
+            referrerPolicy="no-referrer"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            View our Honeyfund <ExternalLinkIcon />
+          </PrimaryLink>
+        </section>
 
         <footer className="registry-page__closing">
           <p>Thank you for being part of our celebration.</p>
