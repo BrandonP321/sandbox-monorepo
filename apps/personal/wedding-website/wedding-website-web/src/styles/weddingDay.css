@@ -1,16 +1,18 @@
 .wedding-day-page {
   position: relative;
   isolation: isolate;
+  display: flex;
   min-height: calc(100dvh - var(--guest-header-height));
+  flex-direction: column;
   overflow: hidden;
-  padding-block: var(--space-32)
-    max(var(--space-64), env(safe-area-inset-bottom));
+  padding-block-start: var(--space-32);
   background-color: var(--color-paper);
 }
 
 .wedding-day-page__frame {
   position: relative;
   z-index: 1;
+  flex: 1 0 auto;
 }
 
 .wedding-day-page__content {
@@ -18,7 +20,7 @@
   max-width: 42rem;
   flex-direction: column;
   align-items: center;
-  padding-block-start: clamp(var(--space-64), 8vw, 6rem);
+  padding-block: clamp(var(--space-64), 8vw, 6rem) var(--space-48);
   margin-inline: auto;
   text-align: center;
 }
@@ -80,9 +82,10 @@
 
 .wedding-day-page__closing-accent {
   position: relative;
-  width: min(100%, 24rem);
-  aspect-ratio: 3 / 2;
-  margin-block-start: var(--space-24);
+  z-index: 1;
+  width: 100%;
+  aspect-ratio: 800 / 469;
+  margin-block-start: auto;
 }
 
 .wedding-day-page__closing-illustration {
@@ -104,7 +107,7 @@
 
 @media (max-width: 47.49rem) {
   .wedding-day-page__content {
-    padding-block-start: var(--space-32);
+    padding-block: var(--space-32) var(--space-24);
   }
 
   .wedding-day-page__peripheral-art .wedding-corner-floral {

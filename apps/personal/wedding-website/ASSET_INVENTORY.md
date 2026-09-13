@@ -55,7 +55,7 @@ production bundle:
 | `cats/cat-sleeping-02.png`               | Sleeping-cat decorative variant                        |     500×500 |   160 KiB |                   100×100, 12 KiB |
 | `cats/cat-sleeping-03.png`               | Sleeping-cat decorative variant                        |     500×500 |   273 KiB |                   100×100, 18 KiB |
 | `cats/cat-sleeping-04.png`               | Sleeping-cat decorative variant                        |     500×500 |   246 KiB |                   100×100, 16 KiB |
-| `cats/wedding-day-cat-garden.png`        | Wedding Day closing cat-and-flower illustration        |     900×600 |   804 KiB |                   150×100, 28 KiB |
+| `cats/wedding-day-cat-garden.png`        | Wedding Day closing cat-and-flower illustration        |     800×469 |   703 KiB |                    100×59, 20 KiB |
 | `florals/floral-cluster-01.png`          | Large floral decorative cluster                        |     800×533 |   368 KiB |                    100×67, 16 KiB |
 | `florals/floral-cluster-02.png`          | Large floral decorative cluster                        |     800×533 |   438 KiB |                    100×67, 18 KiB |
 | `florals/floral-sprig-01.png`            | Single floral sprig                                    |     300×955 |   230 KiB |                   100×318, 38 KiB |

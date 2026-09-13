@@ -51,19 +51,19 @@ function WeddingDayPage() {
               together.
             </p>
           </section>
-
-          <div className="wedding-day-page__closing-accent">
-            <DecorativeLayer>
-              <ProgressiveImage
-                {...weddingImageAssets.weddingDayCatGarden}
-                alt=""
-                className="wedding-day-page__closing-illustration"
-                draggable={false}
-              />
-            </DecorativeLayer>
-          </div>
         </div>
       </ContentFrame>
+
+      <div className="wedding-day-page__closing-accent">
+        <DecorativeLayer>
+          <ProgressiveImage
+            {...weddingImageAssets.weddingDayCatGarden}
+            alt=""
+            className="wedding-day-page__closing-illustration"
+            draggable={false}
+          />
+        </DecorativeLayer>
+      </div>
     </main>
   );
 }

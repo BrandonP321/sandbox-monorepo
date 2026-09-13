@@ -10,7 +10,7 @@ describe("Wedding Day page styles", () => {
       /\.wedding-day-page__intro time \{[^}]*margin-block-start: var\(--space-32\);/
     );
     expect(normalizedWeddingDayCss).toMatch(
-      /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__content \{ padding-block-start: var\(--space-32\); \}/
+      /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__content \{ padding-block: var\(--space-32\) var\(--space-24\); \}/
     );
     expect(normalizedWeddingDayCss).toMatch(
       /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__peripheral-art \.wedding-corner-floral \{ top: -1rem; left: -2\.5rem; width: 9rem; \}/
@@ -23,9 +23,15 @@ describe("Wedding Day page styles", () => {
     );
   });
 
-  it("gives the closing illustration a prominent responsive size", () => {
+  it("pins the closing illustration to the full-width page bottom", () => {
     expect(normalizedWeddingDayCss).toMatch(
-      /\.wedding-day-page__closing-accent \{[^}]*width: min\(100%, 24rem\);[^}]*aspect-ratio: 3 \/ 2;/
+      /\.wedding-day-page \{[^}]*display: flex;[^}]*flex-direction: column;[^}]*padding-block-start: var\(--space-32\);/
+    );
+    expect(normalizedWeddingDayCss).toMatch(
+      /\.wedding-day-page__frame \{[^}]*flex: 1 0 auto;/
+    );
+    expect(normalizedWeddingDayCss).toMatch(
+      /\.wedding-day-page__closing-accent \{[^}]*width: 100%;[^}]*aspect-ratio: 800 \/ 469;[^}]*margin-block-start: auto;/
     );
   });
 });
