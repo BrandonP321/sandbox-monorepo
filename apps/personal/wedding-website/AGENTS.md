@@ -100,6 +100,9 @@
 - Keep the RSVP flow free of decorative illustrations until a later explicit
   visual plan approves their return. The landing page may retain its existing
   decorative artwork.
+- Keep approved informational-page corner florals and disco-ball artwork
+  visible on narrow screens. Scale and reposition peripheral artwork when
+  needed instead of hiding it at a mobile breakpoint.
 - Apply the repeating cardboard texture as one document-sized, non-interactive
   overlay in `wedding-website-web/src/styles/global.css` so it scrolls with
   every current and future route. Keep that overlay below the sticky guest

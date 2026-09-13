@@ -128,9 +128,3 @@
     margin-block-start: var(--space-24);
   }
 }
-
-@media (max-width: 29.99rem) {
-  .wedding-day-page__peripheral-art .wedding-corner-floral {
-    display: none;
-  }
-}

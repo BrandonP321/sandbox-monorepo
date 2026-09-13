@@ -13,7 +13,13 @@ describe("Wedding Day page styles", () => {
       /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__content \{ padding-block-start: var\(--space-32\); \}/
     );
     expect(normalizedWeddingDayCss).toMatch(
+      /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__peripheral-art \.wedding-corner-floral \{ top: -1rem; left: -2\.5rem; width: 9rem; \}/
+    );
+    expect(normalizedWeddingDayCss).toMatch(
       /@media \(max-width: 47\.49rem\) \{.*\.wedding-day-page__disco-ball \{ top: -1\.5rem; right: 0; width: min\(4rem, 18vw\); \}/
+    );
+    expect(normalizedWeddingDayCss).not.toMatch(
+      /\.wedding-day-page__peripheral-art \.wedding-corner-floral \{[^}]*display: none;/
     );
   });
 
