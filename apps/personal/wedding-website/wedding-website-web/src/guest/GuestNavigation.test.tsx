@@ -137,9 +137,9 @@ describe("guest navigation", () => {
     expect(navigationLinks.map((link) => link.textContent)).toEqual([
       "Niamh & Brandon",
       "Home",
-      "Wedding Day",
       "FAQ",
       "Registry & Gifts",
+      "Wedding Day",
       "RSVP"
     ]);
     expect(
@@ -286,7 +286,11 @@ describe("guest navigation", () => {
     expect(closeToggle).toHaveAttribute("aria-expanded", "true");
     expect(closeToggle).toHaveTextContent("");
     expect(panel).toBeVisible();
-    expect(within(panel).getAllByRole("link")).toHaveLength(4);
+    expect(
+      within(panel)
+        .getAllByRole("link")
+        .map((link) => link.textContent)
+    ).toEqual(["Home", "FAQ", "Registry & Gifts", "Wedding Day"]);
 
     panelHome.focus();
     fireEvent.keyDown(panelHome, { key: "Escape" });

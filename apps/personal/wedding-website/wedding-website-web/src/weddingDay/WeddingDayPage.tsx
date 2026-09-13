@@ -55,15 +55,9 @@ function WeddingDayPage() {
           <div className="wedding-day-page__closing-accent">
             <DecorativeLayer>
               <ProgressiveImage
-                {...weddingImageAssets.floralSprig}
+                {...weddingImageAssets.registryHeart}
                 alt=""
-                className="wedding-day-page__closing-floral"
-                draggable={false}
-              />
-              <ProgressiveImage
-                {...weddingImageAssets.smallBow}
-                alt=""
-                className="wedding-day-page__closing-bow"
+                className="wedding-day-page__closing-heart"
                 draggable={false}
               />
             </DecorativeLayer>

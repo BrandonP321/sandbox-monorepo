@@ -51,7 +51,7 @@ function GuestNavigation({
   onNavigate,
   route
 }: GuestNavigationProps) {
-  const [home, weddingDay, faq, registry, rsvp] = guestDestinations;
+  const [home, faq, registry, weddingDay, rsvp] = guestDestinations;
   const {
     brandRef,
     closeMenu,
@@ -135,23 +135,6 @@ function GuestNavigation({
                 <li>
                   <a
                     {...guestPageDisabledProps}
-                    aria-current={
-                      route === weddingDay.route ? "page" : undefined
-                    }
-                    className="site-header__link"
-                    data-destination="weddingDay"
-                    href={weddingDay.path}
-                    onClick={(event) =>
-                      handleDestinationActivation(event, weddingDay)
-                    }
-                    ref={desktopWeddingDayRef}
-                  >
-                    {weddingDay.label}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    {...guestPageDisabledProps}
                     aria-current={route === faq.route ? "page" : undefined}
                     className="site-header__link"
                     data-destination="faq"
@@ -175,6 +158,23 @@ function GuestNavigation({
                     ref={desktopRegistryRef}
                   >
                     {registry.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                    ref={desktopWeddingDayRef}
+                  >
+                    {weddingDay.label}
                   </a>
                 </li>
                 <li>
@@ -253,22 +253,6 @@ function GuestNavigation({
                 <li>
                   <a
                     {...guestPageDisabledProps}
-                    aria-current={
-                      route === weddingDay.route ? "page" : undefined
-                    }
-                    className="site-header__panel-link"
-                    data-destination="weddingDay"
-                    href={weddingDay.path}
-                    onClick={(event) =>
-                      handleDestinationActivation(event, weddingDay)
-                    }
-                  >
-                    {weddingDay.label}
-                  </a>
-                </li>
-                <li>
-                  <a
-                    {...guestPageDisabledProps}
                     aria-current={route === faq.route ? "page" : undefined}
                     className="site-header__panel-link"
                     data-destination="faq"
@@ -290,6 +274,22 @@ function GuestNavigation({
                     }
                   >
                     {registry.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__panel-link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                  >
+                    {weddingDay.label}
                   </a>
                 </li>
               </ul>

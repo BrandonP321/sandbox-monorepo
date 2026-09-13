@@ -31,25 +31,25 @@ type AppLocation = {
 
 const guestDestinations = [
   { label: "Home", path: LANDING_PATH, route: "landing" },
-  {
-    label: "Wedding Day",
-    path: WEDDING_DAY_PATH,
-    route: "weddingDay"
-  },
   { label: "FAQ", path: FAQ_PATH, route: "faq" },
   {
     label: "Registry & Gifts",
     path: REGISTRY_PATH,
     route: "registry"
   },
+  {
+    label: "Wedding Day",
+    path: WEDDING_DAY_PATH,
+    route: "weddingDay"
+  },
   { label: "RSVP", path: RSVP_PATH, route: "rsvp" }
 ] as const satisfies readonly GuestDestination[];
 
 const [
   homeDestination,
-  weddingDayDestination,
   faqDestination,
   registryDestination,
+  weddingDayDestination,
   rsvpDestination
 ] = guestDestinations;
 

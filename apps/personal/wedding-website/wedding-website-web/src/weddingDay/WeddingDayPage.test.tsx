@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
+import { weddingImageAssets } from "../weddingImageAssets";
 import { WeddingDayPage } from "./WeddingDayPage";
 
 describe("WeddingDayPage", () => {
@@ -40,7 +41,12 @@ describe("WeddingDayPage", () => {
     expect(
       document.querySelector(".wedding-day-page .wedding-corner-floral")
     ).not.toBeNull();
-    expect(document.querySelectorAll(".wedding-day-page img")).toHaveLength(5);
+    expect(document.querySelectorAll(".wedding-day-page img")).toHaveLength(4);
+    expect(
+      document.querySelector<HTMLImageElement>(
+        ".wedding-day-page__closing-heart"
+      )
+    ).toHaveAttribute("src", weddingImageAssets.registryHeart.previewSrc);
 
     for (const layer of decorativeLayers) {
       expect(layer).toHaveAttribute("aria-hidden", "true");
