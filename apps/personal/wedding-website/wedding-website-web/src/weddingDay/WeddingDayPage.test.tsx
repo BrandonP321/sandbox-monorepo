@@ -44,9 +44,9 @@ describe("WeddingDayPage", () => {
     expect(document.querySelectorAll(".wedding-day-page img")).toHaveLength(4);
     expect(
       document.querySelector<HTMLImageElement>(
-        ".wedding-day-page__closing-heart"
+        ".wedding-day-page__closing-illustration"
       )
-    ).toHaveAttribute("src", weddingImageAssets.registryHeart.previewSrc);
+    ).toHaveAttribute("src", weddingImageAssets.weddingDayCatGarden.previewSrc);
 
     for (const layer of decorativeLayers) {
       expect(layer).toHaveAttribute("aria-hidden", "true");

@@ -7,6 +7,8 @@ import registryBowPreview from "./assets/bows/registry-bow-sparkles-v1-preview.p
 import registryBow from "./assets/bows/registry-bow-sparkles-v1.png";
 import catSittingPreview from "./assets/cats/cat-sitting-facing-forward-preview.png";
 import catSitting from "./assets/cats/cat-sitting-facing-forward.png";
+import weddingDayCatGardenPreview from "./assets/cats/wedding-day-cat-garden-preview.png";
+import weddingDayCatGarden from "./assets/cats/wedding-day-cat-garden.png";
 import champagneGlasses from "./assets/celebration/champagne-glasses-01.png";
 import discoBallPreview from "./assets/celebration/disco-ball-01-preview.png";
 import discoBall from "./assets/celebration/disco-ball-01.png";
@@ -40,6 +42,10 @@ const weddingImageAssets = {
   sparklesSecondary: {
     previewSrc: sparklesSecondaryPreview,
     src: sparklesSecondary
+  },
+  weddingDayCatGarden: {
+    previewSrc: weddingDayCatGardenPreview,
+    src: weddingDayCatGarden
   }
 } as const satisfies Record<string, WeddingImageAsset>;
 

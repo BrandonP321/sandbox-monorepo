@@ -23,9 +23,9 @@ describe("Wedding Day page styles", () => {
     );
   });
 
-  it("reserves the Registry heart aspect ratio for the closing accent", () => {
+  it("gives the closing illustration a prominent responsive size", () => {
     expect(normalizedWeddingDayCss).toMatch(
-      /\.wedding-day-page__closing-accent \{[^}]*width: 3\.25rem;[^}]*aspect-ratio: 500 \/ 337;/
+      /\.wedding-day-page__closing-accent \{[^}]*width: min\(100%, 24rem\);[^}]*aspect-ratio: 3 \/ 2;/
     );
   });
 });
