@@ -1,14 +1,14 @@
 # Wedding Website Asset Inventory
 
-The 42 full-resolution Photoshop exports in the runtime asset tree are the
-authority for the asset set. They include the user's post-organization
-corrections to the sprigs, sparkles, paw prints, and disco-ball selection.
-Earlier Google Drive names and variant counts are historical where they differ
-from this inventory.
+The 42 full-resolution Photoshop exports plus the supplied Wedding Day closing
+illustration in the runtime asset tree are the authority for the asset set.
+They include the user's post-organization corrections to the sprigs, sparkles,
+paw prints, and disco-ball selection. Earlier Google Drive names and variant
+counts are historical where they differ from this inventory.
 
 All runtime images are PNGs under `wedding-website-web/src/assets/`. The
 full-resolution dimensions reflect the current browser-sized exports.
-Thirty-three larger images also have a smaller initial-render companion whose
+Thirty-four larger images also have a smaller initial-render companion whose
 filename adds `-preview` immediately before `.png`; the progressive-image
 component swaps from that companion only after the full image has loaded and
 decoded. Images without a preview companion render directly through the same
@@ -55,6 +55,7 @@ production bundle:
 | `cats/cat-sleeping-02.png`               | Sleeping-cat decorative variant                        |     500×500 |   160 KiB |                   100×100, 12 KiB |
 | `cats/cat-sleeping-03.png`               | Sleeping-cat decorative variant                        |     500×500 |   273 KiB |                   100×100, 18 KiB |
 | `cats/cat-sleeping-04.png`               | Sleeping-cat decorative variant                        |     500×500 |   246 KiB |                   100×100, 16 KiB |
+| `cats/wedding-day-cat-garden.png`        | Wedding Day closing cat-and-flower illustration        |     800×469 |   703 KiB |                    100×59, 20 KiB |
 | `florals/floral-cluster-01.png`          | Large floral decorative cluster                        |     800×533 |   368 KiB |                    100×67, 16 KiB |
 | `florals/floral-cluster-02.png`          | Large floral decorative cluster                        |     800×533 |   438 KiB |                    100×67, 18 KiB |
 | `florals/floral-sprig-01.png`            | Single floral sprig                                    |     300×955 |   230 KiB |                   100×318, 38 KiB |
@@ -139,3 +140,8 @@ any asset currently rendered by the app.
 - `divider.png` → `florals/registry-floral-divider-v1.png`
 - `heart.png` → `accents/registry-heart-v1.png`
 - `new-ribbon.png` → `bows/registry-bow-sparkles-v1.png`
+
+### Wedding Day page supplied assets
+
+- `ChatGPT Image Sep 11, 2026, 12_20_50 AM.png` →
+  `cats/wedding-day-cat-garden.png`

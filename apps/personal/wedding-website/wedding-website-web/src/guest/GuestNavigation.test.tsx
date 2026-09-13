@@ -97,15 +97,20 @@ describe("guest navigation", () => {
       name: "Main navigation"
     });
     const homeLink = within(navigation).getByRole("link", { name: "Home" });
+    const weddingDayLink = within(navigation).getByRole("link", {
+      name: "Wedding Day"
+    });
     const registryLink = within(navigation).getByRole("link", {
       name: "Registry & Gifts"
     });
     const faqLink = within(navigation).getByRole("link", { name: "FAQ" });
 
     expect(homeLink).toHaveAttribute("aria-disabled", "true");
+    expect(weddingDayLink).toHaveAttribute("aria-disabled", "true");
     expect(faqLink).toHaveAttribute("aria-disabled", "true");
     expect(registryLink).toHaveAttribute("aria-disabled", "true");
     expect(homeLink).toHaveAttribute("tabindex", "-1");
+    expect(weddingDayLink).toHaveAttribute("tabindex", "-1");
     expect(faqLink).toHaveAttribute("tabindex", "-1");
     expect(registryLink).toHaveAttribute("tabindex", "-1");
 
@@ -134,6 +139,7 @@ describe("guest navigation", () => {
       "Home",
       "FAQ",
       "Registry & Gifts",
+      "Wedding Day",
       "RSVP"
     ]);
     expect(
@@ -142,8 +148,26 @@ describe("guest navigation", () => {
     expect(
       within(navigation).getByRole("link", { name: "RSVP" })
     ).toHaveAttribute("data-appearance", "action");
-    expect(within(navigation).queryByText("Wedding Day")).toBeNull();
-    const faqLink = within(navigation).getByRole("link", { name: "FAQ" });
+    const weddingDayLink = within(navigation).getByRole("link", {
+      name: "Wedding Day"
+    });
+    expect(weddingDayLink).toHaveAttribute("href", "/wedding-day");
+    fireEvent.click(weddingDayLink);
+
+    expect(window.location.pathname).toBe("/wedding-day");
+    await waitFor(() => expect(screen.getByRole("main")).toHaveFocus());
+    expect(
+      within(
+        screen.getByRole("navigation", { name: "Main navigation" })
+      ).getByRole("link", { name: "Wedding Day" })
+    ).toHaveAttribute("aria-current", "page");
+
+    const navigationAfterWeddingDay = screen.getByRole("navigation", {
+      name: "Main navigation"
+    });
+    const faqLink = within(navigationAfterWeddingDay).getByRole("link", {
+      name: "FAQ"
+    });
     expect(faqLink).toHaveAttribute("href", "/faq");
     fireEvent.click(faqLink);
 
@@ -262,7 +286,11 @@ describe("guest navigation", () => {
     expect(closeToggle).toHaveAttribute("aria-expanded", "true");
     expect(closeToggle).toHaveTextContent("");
     expect(panel).toBeVisible();
-    expect(within(panel).getAllByRole("link")).toHaveLength(3);
+    expect(
+      within(panel)
+        .getAllByRole("link")
+        .map((link) => link.textContent)
+    ).toEqual(["Home", "FAQ", "Registry & Gifts", "Wedding Day"]);
 
     panelHome.focus();
     fireEvent.keyDown(panelHome, { key: "Escape" });
@@ -302,10 +330,12 @@ describe("guest navigation", () => {
       })
     );
     within(document.getElementById(navigationPanelId)!)
-      .getByRole("link", { name: "FAQ" })
+      .getByRole("link", { name: "Wedding Day" })
       .focus();
     matchMedia.setMatches(true);
-    expect(within(navigation).getByRole("link", { name: "FAQ" })).toHaveFocus();
+    expect(
+      within(navigation).getByRole("link", { name: "Wedding Day" })
+    ).toHaveFocus();
   });
 
   it("closes the mobile disclosure on outside pointer and browser history navigation", async () => {

@@ -13,6 +13,7 @@ import {
 import { RSVPPrototype } from "../rsvp/RSVPPrototype";
 import { useRsvpPrototype } from "../rsvp/rsvpState";
 import { RegistryPage } from "../registry/RegistryPage";
+import { WeddingDayPage } from "../weddingDay/WeddingDayPage";
 import { GuestShell } from "./GuestShell";
 
 type GuestExperienceProps = {
@@ -101,6 +102,8 @@ function GuestExperience({
         <LandingPage
           onStartRsvp={(event) => handleGuestNavigation(event, rsvpDestination)}
         />
+      ) : route === "weddingDay" ? (
+        <WeddingDayPage />
       ) : route === "faq" ? (
         <FaqPage onNavigate={handleGuestNavigation} />
       ) : route === "registry" ? (

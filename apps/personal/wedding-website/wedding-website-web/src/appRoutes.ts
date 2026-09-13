@@ -2,21 +2,23 @@ import { useCallback, useEffect, useState, type MouseEvent } from "react";
 
 const LANDING_PATH = "/";
 const RSVP_PATH = "/RSVP";
+const WEDDING_DAY_PATH = "/wedding-day";
 const FAQ_PATH = "/faq";
 const REGISTRY_PATH = "/registry";
 const ADMIN_PATH = "/admin";
 
-type GuestRoute = "faq" | "landing" | "registry" | "rsvp";
+type GuestRoute = "faq" | "landing" | "registry" | "rsvp" | "weddingDay";
 type AppRoute = "admin" | GuestRoute;
 type GuestPath =
   | typeof FAQ_PATH
   | typeof LANDING_PATH
   | typeof REGISTRY_PATH
-  | typeof RSVP_PATH;
+  | typeof RSVP_PATH
+  | typeof WEDDING_DAY_PATH;
 type RouteNavigationSource = "explicit" | "history" | "initial";
 
 type GuestDestination = {
-  label: "FAQ" | "Home" | "Registry & Gifts" | "RSVP";
+  label: "FAQ" | "Home" | "Registry & Gifts" | "RSVP" | "Wedding Day";
   path: GuestPath;
   route: GuestRoute;
 };
@@ -35,15 +37,28 @@ const guestDestinations = [
     path: REGISTRY_PATH,
     route: "registry"
   },
+  {
+    label: "Wedding Day",
+    path: WEDDING_DAY_PATH,
+    route: "weddingDay"
+  },
   { label: "RSVP", path: RSVP_PATH, route: "rsvp" }
 ] as const satisfies readonly GuestDestination[];
 
-const [homeDestination, faqDestination, registryDestination, rsvpDestination] =
-  guestDestinations;
+const [
+  homeDestination,
+  faqDestination,
+  registryDestination,
+  weddingDayDestination,
+  rsvpDestination
+] = guestDestinations;
 
 function routeFromPathname(pathname: string): AppRoute {
   if (pathname === ADMIN_PATH || pathname === `${ADMIN_PATH}/`) {
     return "admin";
+  }
+  if (pathname === WEDDING_DAY_PATH || pathname === `${WEDDING_DAY_PATH}/`) {
+    return "weddingDay";
   }
   if (pathname === FAQ_PATH || pathname === `${FAQ_PATH}/`) {
     return "faq";
@@ -120,11 +135,13 @@ export {
   LANDING_PATH,
   REGISTRY_PATH,
   RSVP_PATH,
+  WEDDING_DAY_PATH,
   faqDestination,
   guestDestinations,
   homeDestination,
   registryDestination,
   rsvpDestination,
   shouldUseClientNavigation,
-  useAppRoute
+  useAppRoute,
+  weddingDayDestination
 };

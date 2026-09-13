@@ -8,7 +8,13 @@ import {
 
 const desktopNavigationQuery = "(min-width: 64rem)";
 
-type BreakpointFocusTarget = "brand" | "faq" | "home" | "registry" | "rsvp";
+type BreakpointFocusTarget =
+  | "brand"
+  | "faq"
+  | "home"
+  | "registry"
+  | "rsvp"
+  | "weddingDay";
 
 function getInitialDesktopState(): boolean {
   if (typeof window.matchMedia === "function") {
@@ -24,6 +30,7 @@ function useNavigationDisclosure(navigationRevision: number) {
   const headerRef = useRef<HTMLElement>(null);
   const brandRef = useRef<HTMLAnchorElement>(null);
   const desktopHomeRef = useRef<HTMLAnchorElement>(null);
+  const desktopWeddingDayRef = useRef<HTMLAnchorElement>(null);
   const desktopFaqRef = useRef<HTMLAnchorElement>(null);
   const desktopRegistryRef = useRef<HTMLAnchorElement>(null);
   const rsvpRef = useRef<HTMLAnchorElement>(null);
@@ -52,11 +59,13 @@ function useNavigationDisclosure(navigationRevision: number) {
           breakpointFocusTarget.current =
             activeDestination === "rsvp"
               ? "rsvp"
-              : activeDestination === "faq"
-                ? "faq"
-                : activeDestination === "registry"
-                  ? "registry"
-                  : "home";
+              : activeDestination === "weddingDay"
+                ? "weddingDay"
+                : activeDestination === "faq"
+                  ? "faq"
+                  : activeDestination === "registry"
+                    ? "registry"
+                    : "home";
         } else if (activeDestination === "rsvp") {
           breakpointFocusTarget.current = "rsvp";
         } else {
@@ -81,6 +90,8 @@ function useNavigationDisclosure(navigationRevision: number) {
 
     if (target === "home") {
       desktopHomeRef.current?.focus();
+    } else if (target === "weddingDay") {
+      desktopWeddingDayRef.current?.focus();
     } else if (target === "faq") {
       desktopFaqRef.current?.focus();
     } else if (target === "registry") {
@@ -137,6 +148,7 @@ function useNavigationDisclosure(navigationRevision: number) {
     desktopHomeRef,
     desktopFaqRef,
     desktopRegistryRef,
+    desktopWeddingDayRef,
     handleHeaderKeyDown,
     headerRef,
     isDesktop,
