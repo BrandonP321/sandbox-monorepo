@@ -6,13 +6,14 @@ They include the user's post-organization corrections to the sprigs, sparkles,
 paw prints, and disco-ball selection. Earlier Google Drive names and variant
 counts are historical where they differ from this inventory.
 
-All runtime images are PNGs under `wedding-website-web/src/assets/`. The
+Bundled runtime images are PNGs under `wedding-website-web/src/assets/`. The
 full-resolution dimensions reflect the current browser-sized exports.
 Thirty-four larger images also have a smaller initial-render companion whose
 filename adds `-preview` immediately before `.png`; the progressive-image
 component swaps from that companion only after the full image has loaded and
 decoded. Images without a preview companion render directly through the same
-component.
+component. The crawler-facing social card is a static JPEG under `public/` so
+metadata can reference a stable, non-hashed URL.
 
 ## Design references
 
@@ -27,6 +28,12 @@ production bundle:
   controls layout and composition only.
 
 ## Runtime inventory
+
+### Public metadata assets
+
+- `public/social/wedding-social-preview.jpg` is the approved 1200×630 sRGB JPEG
+  used by Open Graph and Twitter/X large-image cards. Its optimized size is
+  118 KiB, and it is published at `/social/wedding-social-preview.jpg`.
 
 ### Fonts
 
