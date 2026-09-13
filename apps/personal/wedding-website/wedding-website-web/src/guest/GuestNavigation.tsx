@@ -51,13 +51,14 @@ function GuestNavigation({
   onNavigate,
   route
 }: GuestNavigationProps) {
-  const [home, faq, registry, rsvp] = guestDestinations;
+  const [home, faq, registry, weddingDay, rsvp] = guestDestinations;
   const {
     brandRef,
     closeMenu,
     desktopHomeRef,
     desktopFaqRef,
     desktopRegistryRef,
+    desktopWeddingDayRef,
     handleHeaderKeyDown,
     headerRef,
     isDesktop,
@@ -161,6 +162,23 @@ function GuestNavigation({
                 </li>
                 <li>
                   <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                    ref={desktopWeddingDayRef}
+                  >
+                    {weddingDay.label}
+                  </a>
+                </li>
+                <li>
+                  <a
                     aria-current={route === rsvp.route ? "page" : undefined}
                     className="site-header__rsvp"
                     data-appearance={
@@ -256,6 +274,22 @@ function GuestNavigation({
                     }
                   >
                     {registry.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__panel-link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                  >
+                    {weddingDay.label}
                   </a>
                 </li>
               </ul>
