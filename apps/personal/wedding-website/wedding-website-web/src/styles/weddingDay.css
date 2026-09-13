@@ -86,6 +86,7 @@
   width: 100%;
   aspect-ratio: 800 / 469;
   margin-block-start: auto;
+  margin-inline: auto;
 }
 
 .wedding-day-page__closing-illustration {
@@ -103,6 +104,12 @@
   width: 10rem;
   height: auto;
   object-fit: contain;
+}
+
+@media (min-width: 47.5rem) {
+  .wedding-day-page__closing-accent {
+    max-width: 50rem;
+  }
 }
 
 @media (max-width: 47.49rem) {

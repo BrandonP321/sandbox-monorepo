@@ -23,7 +23,7 @@ describe("Wedding Day page styles", () => {
     );
   });
 
-  it("pins the closing illustration to the full-width page bottom", () => {
+  it("pins the closing illustration full-width on mobile and caps desktop", () => {
     expect(normalizedWeddingDayCss).toMatch(
       /\.wedding-day-page \{[^}]*display: flex;[^}]*flex-direction: column;[^}]*padding-block-start: var\(--space-32\);/
     );
@@ -31,7 +31,10 @@ describe("Wedding Day page styles", () => {
       /\.wedding-day-page__frame \{[^}]*flex: 1 0 auto;/
     );
     expect(normalizedWeddingDayCss).toMatch(
-      /\.wedding-day-page__closing-accent \{[^}]*width: 100%;[^}]*aspect-ratio: 800 \/ 469;[^}]*margin-block-start: auto;/
+      /\.wedding-day-page__closing-accent \{[^}]*width: 100%;[^}]*aspect-ratio: 800 \/ 469;[^}]*margin-block-start: auto;[^}]*margin-inline: auto;/
+    );
+    expect(normalizedWeddingDayCss).toMatch(
+      /@media \(min-width: 47\.5rem\) \{ \.wedding-day-page__closing-accent \{ max-width: 50rem; \} \}/
     );
   });
 });
