@@ -51,13 +51,14 @@ function GuestNavigation({
   onNavigate,
   route
 }: GuestNavigationProps) {
-  const [home, faq, registry, rsvp] = guestDestinations;
+  const [home, weddingDay, faq, registry, rsvp] = guestDestinations;
   const {
     brandRef,
     closeMenu,
     desktopHomeRef,
     desktopFaqRef,
     desktopRegistryRef,
+    desktopWeddingDayRef,
     handleHeaderKeyDown,
     headerRef,
     isDesktop,
@@ -129,6 +130,23 @@ function GuestNavigation({
                     ref={desktopHomeRef}
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                    ref={desktopWeddingDayRef}
+                  >
+                    {weddingDay.label}
                   </a>
                 </li>
                 <li>
@@ -230,6 +248,22 @@ function GuestNavigation({
                     }
                   >
                     {home.label}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    {...guestPageDisabledProps}
+                    aria-current={
+                      route === weddingDay.route ? "page" : undefined
+                    }
+                    className="site-header__panel-link"
+                    data-destination="weddingDay"
+                    href={weddingDay.path}
+                    onClick={(event) =>
+                      handleDestinationActivation(event, weddingDay)
+                    }
+                  >
+                    {weddingDay.label}
                   </a>
                 </li>
                 <li>
