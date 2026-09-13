@@ -8,19 +8,38 @@ import indexHtml from "../index.html?raw";
 const SOCIAL_IMAGE_URL =
   "https://niamhandbrandon.com/social/wedding-social-preview.jpg";
 const SOCIAL_IMAGE_ALT = "Niamh and Brandon’s wedding — August 21, 2027";
+const PAGE_TITLE = "Niamh & Brandon’s Wedding";
+const PAGE_DESCRIPTION =
+  "Join us as we celebrate the wedding of Niamh and Brandon. Find wedding details, RSVP information, our registry, and everything you’ll need for the day.";
+
+function parseIndexHtml() {
+  return new DOMParser().parseFromString(indexHtml, "text/html");
+}
 
 function readMetaContent(attribute: "name" | "property", value: string) {
-  const parsedDocument = new DOMParser().parseFromString(
-    indexHtml,
-    "text/html"
-  );
-
-  return parsedDocument
+  return parseIndexHtml()
     .querySelector(`meta[${attribute}="${value}"]`)
     ?.getAttribute("content");
 }
 
 describe("static social metadata", () => {
+  it("uses the approved title and description for browsers and social cards", () => {
+    expect(parseIndexHtml().title).toBe(PAGE_TITLE);
+    expect(readMetaContent("name", "description")).toBe(PAGE_DESCRIPTION);
+    expect(readMetaContent("property", "og:title")).toBe(PAGE_TITLE);
+    expect(readMetaContent("property", "og:description")).toBe(
+      PAGE_DESCRIPTION
+    );
+    expect(readMetaContent("name", "twitter:title")).toBe(PAGE_TITLE);
+    expect(readMetaContent("name", "twitter:description")).toBe(
+      PAGE_DESCRIPTION
+    );
+    expect(indexHtml).not.toContain("Wedding Website Prototype");
+    expect(indexHtml).not.toContain(
+      "Wedding website frontend prototype scaffold."
+    );
+  });
+
   it("references the approved social card with complete image metadata", () => {
     expect(readMetaContent("property", "og:image")).toBe(SOCIAL_IMAGE_URL);
     expect(readMetaContent("property", "og:image:type")).toBe("image/jpeg");
