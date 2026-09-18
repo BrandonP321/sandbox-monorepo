@@ -183,7 +183,7 @@ const faqSections = [
         question: "What should I wear?",
         answer: [
           {
-            text: "To celebrate the beginning of our marriage, we’d love to see lots of bright and colorful outfits! We kindly ask that blue be the one color you leave at home, as it’s reserved for our honored guests. We’ll also include any helpful footwear or weather guidance on the Wedding Day page as we get closer to the big day.",
+            text: "To celebrate the beginning of our marriage, we’d love to see lots of bright and colorful outfits! We kindly ask that blue be the one color you leave at home, as it’s reserved for the wedding party. We’ll also include any helpful footwear or weather guidance on the Wedding Day page as we get closer to the big day.",
             type: "text"
           }
         ]
