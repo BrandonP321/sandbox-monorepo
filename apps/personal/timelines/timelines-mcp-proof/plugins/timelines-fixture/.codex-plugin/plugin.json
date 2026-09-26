@@ -1,0 +1,19 @@
+{
+  "name": "timelines-fixture",
+  "version": "0.1.0",
+  "description": "Authenticated local MCP proof with disposable timeline data, exact previews and recoverable edits.",
+  "author": {
+    "name": "Local developer"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Timelines Fixture",
+    "shortDescription": "Test disposable timelines through authenticated MCP.",
+    "longDescription": "Private local proof for list, read, search, explicit edits, review, approved batches and undo. No production data or sharing actions.",
+    "developerName": "Local developer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": "List and read the disposable fixture timeline. Do not change it."
+  },
+  "mcpServers": "./.mcp.json"
+}

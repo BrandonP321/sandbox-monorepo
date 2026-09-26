@@ -64,6 +64,10 @@ Dashboard UI Storybook deployment guidance lives in
 
 Platform domain deployment guidance lives in `apps/platform/domain/AGENTS.md`.
 
+Timelines planning and integration proofs live in `apps/personal/timelines/docs/`.
+`apps/personal/timelines/timelines-mcp-proof/` is an isolated, local-only MCP
+fixture and private plugin package; it is not the production API or persistence layer.
+
 ## Shared Frontend Surfaces
 
 - `@repo/dashboard-ui`: route-agnostic styled dashboard primitives, dashboard
