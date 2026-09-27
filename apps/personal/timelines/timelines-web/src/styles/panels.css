@@ -1,0 +1,365 @@
+.sheet {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0;
+  width: min(540px, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid #ccd4c0;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: -8px 0 50px #1d302b15;
+}
+.sheet::backdrop {
+  background: #152b2448;
+  backdrop-filter: blur(2px);
+}
+.sheet-wide {
+  width: min(720px, 100vw);
+}
+.sheet-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  justify-content: space-between;
+  padding: 28px 28px 22px;
+  border-bottom: 1px solid var(--line);
+}
+.sheet-heading h2 {
+  font-size: 30px;
+  margin: 12px 0 0;
+  line-height: 1.2;
+}
+.icon-button {
+  border: 0;
+  background: #eef1e6;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  font-size: 27px;
+  flex: 0 0 auto;
+}
+.sheet-content {
+  padding: 25px 28px 36px;
+}
+.sheet-content h3 {
+  font-family: Georgia, serif;
+  font-weight: 500;
+  font-size: 22px;
+  margin-top: 28px;
+}
+.prose {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #52604e;
+}
+.notice {
+  border: 1px solid #d6dfc7;
+  background: #edf2e1;
+  padding: 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.7;
+  margin: 20px 0;
+}
+.notice p {
+  margin: 6px 0 0;
+}
+.field-hint {
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+.editor-form {
+  display: grid;
+  gap: 18px;
+}
+.editor-form > label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.editor-form > label input,
+.editor-form > label select,
+.editor-form textarea {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 400;
+}
+.editor-form .notice {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+.date-fields {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 9px;
+  border: 1px solid var(--line);
+  padding: 15px 12px;
+  border-radius: 6px;
+  margin: 0;
+  min-width: 0;
+}
+.date-fields legend {
+  font-size: 12px;
+  padding: 0 5px;
+  font-weight: 600;
+}
+.date-fields label {
+  display: grid;
+  gap: 8px;
+  font-size: 10px;
+}
+.date-fields input,
+.date-fields select {
+  width: 100%;
+  padding-inline: 7px;
+  font-size: 14px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.detail-badges {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+}
+.detail-date {
+  font:
+    24px/1.5 Georgia,
+    serif;
+  margin: 25px 0 20px;
+  color: #526b45;
+}
+.reference-text {
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.archive-image {
+  margin: 24px 0;
+}
+.archive-image img {
+  display: block;
+  width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+.archive-image > div {
+  border: 1px dashed #b8c6a7;
+  background: #eff1e7;
+  text-align: center;
+  padding: 35px 20px;
+  color: #5d6b53;
+  border-radius: 6px;
+}
+.archive-image > div > span {
+  display: block;
+  font-size: 35px;
+  margin-bottom: 13px;
+}
+.archive-image strong {
+  font-size: 14px;
+}
+.archive-image p {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+.archive-image figcaption {
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 9px;
+}
+.choice-list {
+  display: grid;
+}
+.source-choice {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.source-choice input {
+  accent-color: #476344;
+  min-height: 24px;
+  width: 20px;
+  flex: 0 0 20px;
+  margin-top: 0;
+}
+.source-choice strong {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.source-choice strong i {
+  margin-right: 9px;
+}
+.source-choice small {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  margin-top: 7px;
+  line-height: 1.6;
+}
+.type-library {
+  margin: 24px 0 30px;
+}
+.type-library > div {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--line);
+}
+.type-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.type-library strong {
+  display: block;
+  font-size: 13px;
+}
+.type-library small {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.type-library button {
+  margin-left: auto;
+  font-size: 11px;
+}
+.change-preview {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 18px;
+  margin: 18px 0;
+}
+.change-preview h4 {
+  font-size: 15px;
+  margin-bottom: 7px;
+}
+.change-preview > small {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+.diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 18px;
+}
+.diff-grid > div {
+  background: #f3f2ec;
+  padding: 12px;
+  border-radius: 4px;
+}
+.diff-grid > div:last-child {
+  background: #e9f0df;
+}
+.diff-grid span {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+.diff-grid p {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+.revision-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  margin-top: 30px;
+}
+.revision-heading span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.revision-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.revision-row strong {
+  font-size: 13px;
+}
+.revision-row small {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.revision-row button {
+  margin-left: auto;
+  font-size: 11px;
+  flex: 0 0 auto;
+}
+.lab-options {
+  display: grid;
+  gap: 12px;
+}
+.compact .entry-row {
+  padding-inline: 0;
+  grid-template-columns: 145px minmax(0, 1fr) 16px;
+}
+@media (max-width: 760px) {
+  .sheet-heading {
+    padding: 23px 20px 20px;
+  }
+  .sheet-heading h2 {
+    font-size: 29px;
+  }
+  .sheet-content {
+    padding: 22px 20px 30px;
+  }
+  .sheet input,
+  .sheet select,
+  .sheet textarea,
+  .editor-form > label input,
+  .editor-form > label select,
+  .editor-form textarea {
+    font-size: 16px;
+  }
+  .date-fields {
+    gap: 6px;
+    padding: 12px 8px;
+  }
+  .date-fields input,
+  .date-fields select {
+    padding-inline: 4px;
+  }
+  .diff-grid {
+    grid-template-columns: 1fr;
+  }
+  .revision-row {
+    gap: 8px;
+  }
+  .revision-row button {
+    padding-inline: 9px;
+  }
+  .compact .entry-row {
+    grid-template-columns: minmax(0, 1fr) 16px;
+  }
+}
