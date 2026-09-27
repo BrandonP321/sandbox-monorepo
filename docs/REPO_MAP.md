@@ -44,6 +44,10 @@
   wedding-website-shared  # portable wedding RSVP contracts and normalization
   wedding-website-infra   # AWS CDK static hosting and Prod pipeline
 
+/apps/personal/timelines
+  timelines-web         # local React/Vite interface prototype; session-only fixtures
+  docs                  # architecture proof and proposed interface direction
+
 /apps/platform/dashboard-ui-storybook
   dashboard-ui-storybook-infra # AWS CDK static Storybook hosting and deploy pipeline for @repo/dashboard-ui
 
