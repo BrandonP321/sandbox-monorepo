@@ -1,0 +1,16 @@
+{
+  "id": "example-preview",
+  "account": "000000000000",
+  "region": "us-east-1",
+  "tableArn": "arn:aws:dynamodb:us-east-1:000000000000:table/REQUIRED_EXISTING_TABLE",
+  "deploymentRoleArn": "arn:aws:iam::000000000000:role/WeddingPreviewExecution-example-preview",
+  "adminAccessKeySha256": null,
+  "createdAt": "REQUIRED-UTC-timestamp",
+  "expiresAt": "REQUIRED-UTC-within-24-hours",
+  "sourceRevision": "REQUIRED-40-character-source-commit",
+  "boundaryArns": {
+    "Backend": "arn:aws:iam::000000000000:policy/WeddingPreview-example-preview-BackendBoundary",
+    "Frontend": "arn:aws:iam::000000000000:policy/WeddingPreview-example-preview-FrontendBoundary",
+    "Cleanup": "arn:aws:iam::000000000000:policy/WeddingPreview-example-preview-CleanupBoundary"
+  }
+}

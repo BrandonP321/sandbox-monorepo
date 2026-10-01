@@ -1,0 +1,14 @@
+{
+  "id": "example-preview",
+  "account": "000000000000",
+  "region": "us-east-1",
+  "apiId": "REQUIRED-bootstrap-generated-api-id",
+  "stackArn": "REQUIRED-exact-bootstrap-stack-ARN",
+  "tableArn": "arn:aws:dynamodb:us-east-1:000000000000:table/REQUIRED_EXISTING_TABLE",
+  "assetKeys": {
+    "Backend": "REQUIRED-reviewed-64hex.zip",
+    "Frontend": "REQUIRED-reviewed-64hex.zip"
+  },
+  "assetKmsKeyArn": "REQUIRED-bootstrap-bucket-AWS-managed-key-ARN",
+  "assetBucketKeyEnabled": "REQUIRED-verified-boolean"
+}
