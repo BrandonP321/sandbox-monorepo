@@ -80,7 +80,8 @@ export function hasUsableSandboxSsoToken(
 }
 
 function getSandboxSsoStartUrl(awsDirectory) {
-  const configPath = join(awsDirectory, "config");
+  const configPath =
+    process.env.AWS_CONFIG_FILE || join(awsDirectory, "config");
 
   if (!existsSync(configPath)) {
     return undefined;
