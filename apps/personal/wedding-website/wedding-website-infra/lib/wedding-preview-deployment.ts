@@ -69,6 +69,21 @@ export function previewNames(input: PreviewIdentity) {
   };
 }
 
+// Tagging authorization nests a URL-encoded ARN. IAM management paths themselves
+// remain /apis/... . Support the documented canonical ARN and observed /v2 ARN.
+function tagRootPrefixes(region: string): string[] {
+  const base = `arn:aws:apigateway:${region}::`;
+  return ["/apis/", "/v2/apis/"].map(
+    (path) => `${base}/tags/${encodeURIComponent(base + path)}`
+  );
+}
+function concreteTagResources(region: string, apiId: string): string[] {
+  return tagRootPrefixes(region).flatMap((prefix) => [
+    `${prefix}${apiId}`,
+    `${prefix}${apiId}${encodeURIComponent("/stages/$default")}`
+  ]);
+}
+
 export function bootstrapPolicy(input: PreviewIdentity) {
   const names = previewNames(input);
   const base = `arn:aws:apigateway:${input.region}::`;
@@ -87,15 +102,14 @@ export function bootstrapPolicy(input: PreviewIdentity) {
       `${base}/apis/??????????`,
       tagged
     ),
+    // This is the literal '*' creation placeholder in the observed nested check,
+    // NOT a wildcard. It cannot authorize tagging any concrete API or stage.
+    // Do not add ApiName/RequestTag conditions: their presence in this separate
+    // check is unproven; they remain mandatory on POST /apis above.
+    allow("apigateway:POST", tagRootPrefixes(input.region)[1] + "${*}"),
     allow(
-      [
-        "apigateway:GET",
-        "apigateway:PUT",
-        "apigateway:POST",
-        "apigateway:PATCH",
-        "apigateway:DELETE"
-      ],
-      `${base}/tags/${base}/apis/??????????`,
+      "apigateway:GET",
+      tagRootPrefixes(input.region).map((prefix) => prefix + "??????????"),
       tagged
     )
   );
@@ -196,14 +210,8 @@ export function deploymentPolicies(input: ResolvedDeployment) {
       [`${api}/integrations/*`, `${api}/routes/*`, `${api}/stages/$default`]
     ),
     allow(
-      [
-        "apigateway:GET",
-        "apigateway:PUT",
-        "apigateway:POST",
-        "apigateway:PATCH",
-        "apigateway:DELETE"
-      ],
-      [`${apiBase}/tags/${api}`, `${apiBase}/tags/${api}/stages/$default`]
+      ["apigateway:GET", "apigateway:POST", "apigateway:DELETE"],
+      concreteTagResources(input.region, input.apiId)
     ),
     allow(
       [

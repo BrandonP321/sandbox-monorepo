@@ -117,7 +117,10 @@ describe("preview deployment authority", () => {
       JSON.stringify(s.Action).includes("apigateway:")
     ))
       for (const resource of [s.Resource].flat())
-        expect(resource).toContain(`/apis/${input.apiId}`);
+        expect(
+          resource.includes(`/apis/${input.apiId}`) ||
+            resource.includes(`%2Fapis%2F${input.apiId}`)
+        ).toBe(true);
     expect(resourcesFor(execution, "scheduler:DeleteSchedule")).toEqual([
       "arn:aws:scheduler:us-east-1:000000000000:schedule/default/WeddingPreview-synthetic-task-Expiry"
     ]);
@@ -173,7 +176,9 @@ describe("preview deployment authority", () => {
   it("bootstrap API root patterns cannot match tagged child stages", () => {
     const p = bootstrapPolicy(input);
     for (const statement of allows(p).filter(
-      (s) => s.Resource !== "arn:aws:apigateway:us-east-1::/apis"
+      (s) =>
+        s.Action === "apigateway:GET" ||
+        (Array.isArray(s.Action) && s.Action.includes("apigateway:GET"))
     )) {
       for (const pattern of [statement.Resource].flat()) {
         const expression = new RegExp(
@@ -213,7 +218,9 @@ describe("preview deployment authority", () => {
     });
     expect(JSON.stringify(p)).not.toMatch(/integrations|routes|stages/);
     for (const s of allows(p).filter(
-      (s) => s.Resource !== "arn:aws:apigateway:us-east-1::/apis"
+      (s) =>
+        s.Action === "apigateway:GET" ||
+        (Array.isArray(s.Action) && s.Action.includes("apigateway:GET"))
     ))
       expect(s.Condition?.StringEquals["aws:ResourceTag/preview-id"]).toBe(
         input.id
@@ -314,5 +321,158 @@ describe("offline change-set review", () => {
         "api-only"
       )
     ).toThrow();
+  });
+});
+
+// Local matcher for this policy's API Allow/Resource/StringEquals subset only.
+// This is not AWS IAM simulation or evidence about service-side nested checks.
+function matchesResource(pattern: string, resource: string) {
+  let expression = "";
+  for (let i = 0; i < pattern.length; ) {
+    const literal = ["*", "?", "$"].find((char) =>
+      pattern.startsWith("${" + char + "}", i)
+    );
+    if (literal) {
+      expression += "\\" + literal;
+      i += 4;
+      continue;
+    }
+    const char = pattern[i++];
+    expression +=
+      char === "*"
+        ? ".*"
+        : char === "?"
+          ? "."
+          : char.replace(/[.*+^${}()|[\]\\]/g, "\\$&");
+  }
+  return new RegExp("^" + expression + "$").test(resource);
+}
+function apiAllowed(
+  p: Policy,
+  action: string,
+  resource: string,
+  context: Record<string, string | undefined> = {}
+) {
+  return allows(p).some((statement) => {
+    const actionList = [statement.Action ?? []].flat();
+    if (
+      !actionList.includes(action) ||
+      ![statement.Resource]
+        .flat()
+        .some((pattern) => matchesResource(pattern, resource))
+    )
+      return false;
+    if (
+      statement.Condition &&
+      Object.keys(statement.Condition).some((key) => key !== "StringEquals")
+    )
+      throw new Error("Unsupported test matcher condition");
+    return Object.entries(statement.Condition?.StringEquals ?? {}).every(
+      ([key, value]) => context[key] === value
+    );
+  });
+}
+const managementBase = "arn:aws:apigateway:us-east-1::";
+const encodedTagPrefix = `${managementBase}/tags/arn%3Aaws%3Aapigateway%3Aus-east-1%3A%3A%2Fv2%2Fapis%2F`;
+describe("encoded API tag authorization", () => {
+  it("renders the literal-star creation placeholder intact without conditions", () => {
+    const p = bootstrapPolicy(input);
+    const statement = p.Statement.find(
+      (s) => s.Resource === encodedTagPrefix + "${*}"
+    );
+    expect(statement).toEqual({
+      Effect: "Allow",
+      Action: "apigateway:POST",
+      Resource: encodedTagPrefix + "${*}"
+    });
+    expect(p.Version).toBe("2012-10-17");
+    expect(JSON.parse(JSON.stringify(p)).Statement).toContainEqual(statement);
+    expect(apiAllowed(p, "apigateway:POST", encodedTagPrefix + "*")).toBe(true);
+    for (const action of [
+      "apigateway:GET",
+      "apigateway:DELETE",
+      "apigateway:PUT",
+      "apigateway:PATCH"
+    ])
+      expect(apiAllowed(p, action, encodedTagPrefix + "*")).toBe(false);
+  });
+  it.each([
+    "abc123def4",
+    "otherapi12",
+    "abc123def4%2Fstages%2F%24default",
+    "abc123def4/stages/prod",
+    "*%2Fstages%2F*",
+    "%2A",
+    ""
+  ])(
+    "placeholder does not authorize concrete/descendant tag mutation %s",
+    (suffix) => {
+      const p = bootstrapPolicy(input);
+      expect(apiAllowed(p, "apigateway:POST", encodedTagPrefix + suffix)).toBe(
+        false
+      );
+    }
+  );
+  it("still requires BOTH exact name and requested preview tag for actual API creation", () => {
+    const p = bootstrapPolicy(input),
+      resource = managementBase + "/apis";
+    const valid = {
+      "apigateway:Request/ApiName": previewNames(input).stackName,
+      "aws:RequestTag/preview-id": input.id
+    };
+    expect(apiAllowed(p, "apigateway:POST", resource, valid)).toBe(true);
+    for (const context of [
+      {},
+      { "apigateway:Request/ApiName": valid["apigateway:Request/ApiName"] },
+      { "aws:RequestTag/preview-id": input.id },
+      { ...valid, "apigateway:Request/ApiName": "production" },
+      { ...valid, "aws:RequestTag/preview-id": "other" }
+    ])
+      expect(apiAllowed(p, "apigateway:POST", resource, context)).toBe(false);
+    expect(
+      apiAllowed(p, "apigateway:POST", resource + "/" + input.apiId, valid)
+    ).toBe(false);
+  });
+  it("final tagging permits only known API/default stage in encoded canonical/v2 forms", () => {
+    const p = deploymentPolicies(input).execution;
+    for (const prefix of ["/apis/", "/v2/apis/"]) {
+      const root =
+        managementBase +
+        "/tags/" +
+        encodeURIComponent(managementBase + prefix + input.apiId);
+      for (const action of [
+        "apigateway:GET",
+        "apigateway:POST",
+        "apigateway:DELETE"
+      ]) {
+        expect(apiAllowed(p, action, root)).toBe(true);
+        expect(apiAllowed(p, action, root + "%2Fstages%2F%24default")).toBe(
+          true
+        );
+        expect(apiAllowed(p, action, root + "%2Fstages%2Fprod")).toBe(false);
+        expect(
+          apiAllowed(p, action, root.replace(input.apiId, "otherapi12"))
+        ).toBe(false);
+        expect(
+          apiAllowed(p, action, root + "%2Fstages%2F%24default%2Fextra")
+        ).toBe(false);
+      }
+      expect(apiAllowed(p, "apigateway:PUT", root)).toBe(false);
+      expect(apiAllowed(p, "apigateway:PATCH", root)).toBe(false);
+    }
+    expect(JSON.stringify(p)).not.toContain("${*}");
+    expect(apiAllowed(p, "apigateway:POST", managementBase + "/apis")).toBe(
+      false
+    );
+    expect(apiAllowed(p, "apigateway:POST", encodedTagPrefix + "*")).toBe(
+      false
+    );
+    expect(
+      apiAllowed(
+        p,
+        "apigateway:POST",
+        encodedTagPrefix + input.apiId + "%2Fstages%2F*"
+      )
+    ).toBe(false);
   });
 });
