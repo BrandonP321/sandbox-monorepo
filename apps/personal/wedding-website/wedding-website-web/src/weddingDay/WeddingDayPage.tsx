@@ -5,6 +5,7 @@ import {
   ProgressiveImage
 } from "../components/ui";
 import { weddingImageAssets } from "../weddingImageAssets";
+import { WeddingDayCountdown } from "./WeddingDayCountdown";
 
 function WeddingDayPage() {
   return (
@@ -24,6 +25,16 @@ function WeddingDayPage() {
           <header className="wedding-day-page__intro">
             <h1 className="guest-page-heading">Wedding Day</h1>
             <time dateTime="2027-08-21">August 21, 2027</time>
+            <div className="wedding-day-page__divider">
+              <DecorativeLayer>
+                <ProgressiveImage
+                  {...weddingImageAssets.floralVineDivider}
+                  alt=""
+                  draggable={false}
+                />
+              </DecorativeLayer>
+            </div>
+            <WeddingDayCountdown />
             <div className="wedding-day-page__divider">
               <DecorativeLayer>
                 <ProgressiveImage

@@ -32,6 +32,7 @@
 
 .wedding-day-page__intro h1 {
   margin-block-end: 0;
+  overflow-wrap: anywhere;
 }
 
 .wedding-day-page__intro time {
@@ -41,8 +42,8 @@
   font-family: var(--font-script);
   font-size: clamp(1.1rem, 3vw, 1.5rem);
   letter-spacing: 0.01em;
-  line-height: 1;
-  white-space: nowrap;
+  line-height: 1.8;
+  text-wrap: balance;
   word-spacing: 0.12em;
 }
 
@@ -62,6 +63,34 @@
 
 .wedding-day-page__message {
   margin-block-start: var(--space-32);
+}
+
+.wedding-day-page__countdown {
+  margin: var(--space-24) 0 0;
+  font-family: var(--font-ui);
+}
+
+.wedding-day-page__days {
+  display: block;
+  color: var(--color-coral-action);
+  font-size: clamp(3.5rem, 8vw, 5rem);
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.1;
+}
+
+.wedding-day-page__days-label {
+  display: block;
+  margin-block-start: var(--space-8);
+  color: var(--color-olive);
+  font-size: 0.875rem;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+}
+
+.wedding-day-page__countdown-message {
+  color: var(--color-coral-action);
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.5;
 }
 
 .wedding-day-page__message h2 {

@@ -1,10 +1,32 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { weddingImageAssets } from "../weddingImageAssets";
 import { WeddingDayPage } from "./WeddingDayPage";
 
 describe("WeddingDayPage", () => {
+  it("places readable countdown text between matching floral dividers", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2027-08-20T12:00:00Z"));
+    try {
+      const { unmount } = render(<WeddingDayPage />);
+      const countdown = screen.getByText("DAY TO GO").closest("p");
+      expect(countdown).toHaveTextContent("1 DAY TO GO");
+      for (const divider of [
+        countdown?.previousElementSibling,
+        countdown?.nextElementSibling
+      ]) {
+        expect(divider?.querySelector("img")).toHaveAttribute(
+          "src",
+          weddingImageAssets.floralVineDivider.src
+        );
+      }
+      unmount();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("renders the approved coming-soon message with shared heading styles", () => {
     render(<WeddingDayPage />);
 
@@ -37,11 +59,11 @@ describe("WeddingDayPage", () => {
     const decorativeLayers = document.querySelectorAll(
       ".wedding-day-page .ui-decorative-layer"
     );
-    expect(decorativeLayers).toHaveLength(3);
+    expect(decorativeLayers).toHaveLength(4);
     expect(
       document.querySelector(".wedding-day-page .wedding-corner-floral")
     ).not.toBeNull();
-    expect(document.querySelectorAll(".wedding-day-page img")).toHaveLength(4);
+    expect(document.querySelectorAll(".wedding-day-page img")).toHaveLength(5);
     expect(
       document.querySelector<HTMLImageElement>(
         ".wedding-day-page__closing-illustration"
